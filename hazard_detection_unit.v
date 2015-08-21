@@ -19,7 +19,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module hazard_detection_unit(
-		mem_op,
+		id_ex_mem_op,
 		id_ex_rt, // the place we are loading to.
 		if_id_rs,
 		if_id_rt,
@@ -27,7 +27,7 @@ module hazard_detection_unit(
 		stall
     );
 	 
-	 input wire [1:0] mem_op;
+	 input wire [1:0] id_ex_mem_op;
 	 input wire [2:0] if_id_rs;
 	 input wire [2:0] if_id_rt;
 	 input wire [2:0] id_ex_rt;
@@ -38,7 +38,7 @@ module hazard_detection_unit(
 	 // and only want to load changes if there is a difference.
 	 // cud probably run it on negedge ... but difference is fine.
 	 always@(*) begin
-		 if((if_id_rs == id_ex_rt || if_id_rt == id_ex_rt) && (mem_op == 2'b01)) begin
+		 if((if_id_rs == id_ex_rt || if_id_rt == id_ex_rt) && (id_ex_mem_op == 2'b01)) begin
 				stall <= 1'b1;
 		 end
 		 else begin

@@ -5,8 +5,8 @@ module ex_mem_register(
 		flush,
 		
 		alu_result_in,
-		reg_read_data_1_in,
-		reg_read_data_2_in,
+		data_1_in,
+		data_2_in,
 		reg_dst_result_in,
 		beq_in,
 		bne_in,
@@ -17,8 +17,8 @@ module ex_mem_register(
 		address_in,
 		
 		alu_result_out,
-		reg_read_data_1_out,
-		reg_read_data_2_out,
+		data_1_out,
+		data_2_out,
 		reg_dst_result_out,
 		beq_out,
 		bne_out,
@@ -33,8 +33,8 @@ module ex_mem_register(
 		input wire flush;
 		
 	 	input wire [15:0] alu_result_in;
-		input wire [15:0] reg_read_data_1_in;
-		input wire [15:0] reg_read_data_2_in;
+		input wire [15:0] data_1_in;
+		input wire [15:0] data_2_in;
 		input wire [2:0] reg_dst_result_in;
 		input wire beq_in;
 		input wire bne_in;
@@ -45,8 +45,8 @@ module ex_mem_register(
 		input wire [15:0] address_in;
 		
 		output reg [15:0] alu_result_out;
-		output reg [15:0] reg_read_data_1_out;
-		output reg [15:0] reg_read_data_2_out;
+		output reg [15:0] data_1_out;
+		output reg [15:0] data_2_out;
 		output reg [2:0] reg_dst_result_out;
 		output reg beq_out;
 		output reg bne_out;
@@ -58,8 +58,8 @@ module ex_mem_register(
 		
 		initial begin
 				alu_result_out <= 0;
-				reg_read_data_1_out <= 0;
-				reg_read_data_2_out <= 0;
+				data_1_out <= 0;
+				data_2_out <= 0;
 				reg_dst_result_out <= 0;
 				beq_out <= 0;
 				bne_out <= 0;
@@ -73,8 +73,8 @@ module ex_mem_register(
 		always @(negedge clk) begin
 			if(flush) begin
 				alu_result_out <= 0;
-				reg_read_data_1_out <= 0;
-				reg_read_data_2_out <= 0;
+				data_1_out <= 0;
+				data_2_out <= 0;
 				reg_dst_result_out <= 0;
 				beq_out <= 0;
 				bne_out <= 0;
@@ -86,8 +86,8 @@ module ex_mem_register(
 			end
 			else begin
 				alu_result_out <= alu_result_in;
-				reg_read_data_1_out <= reg_read_data_1_in;
-				reg_read_data_2_out <= reg_read_data_2_in;
+				data_1_out <= data_1_in;
+				data_2_out <= data_2_in;
 				reg_dst_result_out <= reg_dst_result_in;
 				beq_out <= beq_in;
 				bne_out <= bne_in;

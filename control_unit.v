@@ -2,7 +2,6 @@
 
 module control_unit(
 	 clk,
-	 stall,
     opcode,
 	 reg_dst,
 	 jump,
@@ -16,7 +15,6 @@ module control_unit(
     );
 	 
 	 input wire clk;
-	 input wire stall;
 	 input wire [3:0] opcode;
 	 output reg reg_dst;
 	 output reg jump;

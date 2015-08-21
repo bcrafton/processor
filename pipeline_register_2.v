@@ -2,6 +2,7 @@
 
 module id_ex_register(
 	  	clk,
+		stall,
 		flush,
 		
 		rs_in,
@@ -39,7 +40,7 @@ module id_ex_register(
 	 
 		input wire clk;
 		input wire flush;
-		
+		input wire stall;
 		
 		input wire [2:0] rs_in;
 		input wire [2:0] rt_in;
@@ -89,7 +90,7 @@ module id_ex_register(
 		end
 
 		always @(negedge clk) begin
-			if(flush) begin
+			if(flush || stall) begin
 				rs_out <= 0;
 				rt_out <= 0;
 				rd_out <= 0;
