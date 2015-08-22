@@ -2,17 +2,21 @@
 
 module program_counter(
 		clk,
-		address,
+		branch_address,
+		jump_address,
 		pc,
 		stall,
-		flush
+		flush,
+		jump
     );
 	 
 	 input wire clk;
-	 input wire [15:0] address;
+	 input wire [15:0] branch_address;
+	 input wire [15:0] jump_address;
 	 output reg [15:0] pc;
 	 input wire flush;
 	 input wire stall;
+	 input wire jump;
 
 	 initial begin
 		pc = 0;
@@ -21,7 +25,10 @@ module program_counter(
 	 always @(posedge clk) begin
 		if(!stall) begin
 			if(flush) begin
-				pc <= address;
+				pc <= branch_address;
+			end
+			else if(jump) begin
+				pc <= jump_address;
 			end
 			else begin
 				pc <= pc + 1'b1;

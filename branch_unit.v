@@ -34,6 +34,9 @@ module branch_unit(
 		 if((beq && compare) || (bne && !compare)) begin
 			flush <= 1;
 		 end
+		 else begin
+			flush <= 0;
+		 end
 	 end
 
 endmodule

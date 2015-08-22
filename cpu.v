@@ -32,11 +32,13 @@ module cpu(
 	 ex_mem_data_2,
 	 ex_mem_alu_result,
 	 mem_to_reg_result,
-	 stall,
-	 ex_mem_mem_op,
-	 ram_read_data,
 	 forward_a,
-	 forward_b
+	 forward_b,
+	 flush,
+	 ex_mem_beq,
+	 ex_mem_bne,
+	 ex_mem_compare,
+	 jump
     );
 	 
 	 input clk;
@@ -50,7 +52,7 @@ module cpu(
 	 wire [15:0] address;
 	 
 	 wire  reg_dst;
-	 wire  jump;
+	 output wire  jump;
 	 wire  mem_to_reg;
 	 wire  [3:0] alu_op;
 	 wire  [1:0] mem_op;
@@ -60,7 +62,7 @@ module cpu(
 	 wire  bne;
 	 
 	 output wire [15:0] instruction;
-	 output wire [15:0] ram_read_data;
+	 wire [15:0] ram_read_data;
 	 
 	 wire [15:0] reg_read_data_1;
 	 wire [15:0] reg_read_data_2;
@@ -79,15 +81,16 @@ module cpu(
 	 output wire [15:0] id_ex_reg_read_data_1, id_ex_reg_read_data_2;
 	 wire [15:0] id_ex_immediate;
 	 wire [15:0] id_ex_address;
-	 wire id_ex_reg_dst, id_ex_jump, id_ex_mem_to_reg, id_ex_beq, id_ex_bne, id_ex_alu_src, id_ex_reg_write;
-	 wire [3:0] id_ex_alu_op; 
+	 wire id_ex_reg_dst, id_ex_mem_to_reg, id_ex_beq, id_ex_bne, id_ex_alu_src, id_ex_reg_write;
+	 wire [3:0] id_ex_alu_op;
 	 wire [1:0] id_ex_mem_op;
 	 // ex/mem
 	 output wire [15:0] ex_mem_alu_result;
 	 output wire [15:0] ex_mem_data_1, ex_mem_data_2;
 	 wire [15:0] ex_mem_address;
-	 wire ex_mem_beq, ex_mem_bne, ex_mem_mem_to_reg;
-	 output wire [1:0] ex_mem_mem_op;
+	 wire ex_mem_mem_to_reg;
+	 output wire ex_mem_beq, ex_mem_bne, ex_mem_compare;
+	 wire [1:0] ex_mem_mem_op;
 	 wire [2:0] ex_mem_reg_dst_result;
 	 // mem/wb
 	 wire [15:0] mem_wb_ram_read_data, mem_wb_alu_result;
@@ -95,8 +98,8 @@ module cpu(
 	 wire mem_wb_mem_to_reg, mem_wb_reg_write;
 		
 	 output wire [1:0] forward_a, forward_b;
-	 output wire stall;
-	 wire	flush;
+	 wire stall;
+	 output wire flush;
 	 wire [15:0] alu_input_mux_1_result, alu_input_mux_2_result;
 
 	 assign opcode = if_id_instruction[15:12];
@@ -109,7 +112,7 @@ module cpu(
 	 assign address[15:6] = 9'b000000000;
 	 ///////////////////////////////////////////////////////////////////////////////////////////
 	 // address shud be getting passed through ex_mem.
-	 program_counter pc_unit(.clk(clk), .address(ex_mem_address), .pc(pc), .flush(flush), .stall(stall));
+	 program_counter pc_unit(.clk(clk), .branch_address(ex_mem_address), .jump_address(address), .pc(pc), .flush(flush), .stall(stall), .jump(jump));
 	 instruction_memory im(.clk(clk), .pc(pc), .instruction(instruction));
 	 if_id_register if_id_reg(.clk(clk), .stall(stall), .instruction_in(instruction), .instruction_out(if_id_instruction));
 	 ///////////////////////////////////////////////////////////////////////////////////////////
