@@ -37,7 +37,7 @@ module register_file
 	
 	// cud this be the issue?
 	// if mem_to_reg_result 
-	always @(posedge clk) begin // or can read and write at the same time?
+	always @(*) begin // or can read and write at the same time?
 		if (write) begin
 			regfile[write_address] <= write_data;
 		end

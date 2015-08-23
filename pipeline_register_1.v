@@ -18,7 +18,7 @@ module if_id_register(
 		instruction_out <= 0;
 	 end
 	 
-	 always @(negedge clk) begin
+	 always @(*) begin
 		if(!stall) begin
 			instruction_out <= instruction_in;
 		end

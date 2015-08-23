@@ -70,7 +70,7 @@ module ex_mem_register(
 				address_out <= 0;
 		end
 		
-		always @(negedge clk) begin
+		always @(posedge clk) begin
 			if(flush) begin
 				alu_result_out <= 0;
 				data_1_out <= 0;

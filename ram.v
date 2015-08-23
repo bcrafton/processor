@@ -15,7 +15,7 @@ output reg [15:0] read_data;
 
 reg [15:0] mem [0:1023];
  
-always @ (posedge clk) begin
+always @ (*) begin
 	if (mem_op == 2'b10) begin
 		 mem[address] = write_data;
 	end

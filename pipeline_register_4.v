@@ -38,7 +38,7 @@ module mem_wb_register(
 		reg_write_out <= 0;
 	end
 	
-	always @(negedge clk) begin
+	always @(posedge clk) begin
 		mem_to_reg_out <= mem_to_reg_in;
 		ram_read_data_out <= ram_read_data_in;
 		alu_result_out <= alu_result_in;

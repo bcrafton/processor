@@ -89,7 +89,7 @@ module id_ex_register(
 			bne_out <= 0;
 		end
 
-		always @(negedge clk) begin
+		always @(posedge clk) begin
 			if(flush || stall) begin
 				rs_out <= 0;
 				rt_out <= 0;

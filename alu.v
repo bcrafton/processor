@@ -16,7 +16,7 @@ module alu(
 	 output reg compare;
 	 output reg [15:0] alu_result;
 	 
-	 always @(posedge clk) begin
+	 always @(*) begin
 		 case(alu_op)
 			0: alu_result <= data1 + data2; // ADD
 			1: alu_result <= data1 - data2; // SUB

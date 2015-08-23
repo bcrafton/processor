@@ -75,7 +75,7 @@ module cpu(
 	 output wire [15:0] mem_to_reg_result;
 	 		
 	 // if/id
-	 wire [15:0] if_id_instruction, if_id_pc;
+	 wire [15:0] if_id_instruction, if_id_pc, jump_address;
 	 // id/ex
 	 wire [2:0] id_ex_rs, id_ex_rt, id_ex_rd;
 	 output wire [15:0] id_ex_reg_read_data_1, id_ex_reg_read_data_2;
@@ -112,13 +112,14 @@ module cpu(
 	 assign address[15:6] = 9'b000000000;
 	 ///////////////////////////////////////////////////////////////////////////////////////////
 	 // address shud be getting passed through ex_mem.
-	 program_counter pc_unit(.clk(clk), .branch_address(ex_mem_address), .jump_address(address), .pc(pc), .flush(flush), .stall(stall), .jump(jump));
+	 program_counter pc_unit(.clk(clk), .branch_address(ex_mem_address), .jump_address(jump_address), .pc(pc), .flush(flush), .stall(stall), .jump(jump));
 	 instruction_memory im(.clk(clk), .pc(pc), .instruction(instruction));
+	 jump_unit ju(.instruction(instruction), .jump(jump), .address(jump_address));
 	 if_id_register if_id_reg(.clk(clk), .stall(stall), .instruction_in(instruction), .instruction_out(if_id_instruction));
 	 ///////////////////////////////////////////////////////////////////////////////////////////
 	 hazard_detection_unit hdu(.id_ex_mem_op(id_ex_mem_op), .id_ex_rt(id_ex_rt), .if_id_rs(rs), .if_id_rt(rt), .stall(stall));
 	 
-	 control_unit cu(.clk(clk), .opcode(opcode), .reg_dst(reg_dst), .jump(jump), .mem_to_reg(mem_to_reg), 
+	 control_unit cu(.clk(clk), .opcode(opcode), .reg_dst(reg_dst), .mem_to_reg(mem_to_reg), 
 		.alu_op(alu_op), .alu_src(alu_src), .reg_write(reg_write), .mem_op(mem_op), .beq(beq), .bne(bne));
 	
 	 register_file regfile(.clk(clk), .write(mem_wb_reg_write), .write_address(mem_wb_reg_dst_result), 
