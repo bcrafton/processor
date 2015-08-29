@@ -20,6 +20,7 @@ module id_ex_register(
 		reg_write_in,
 		beq_in,
 		bne_in,
+		address_src_in,
 		
 		rs_out,
 		rt_out,
@@ -35,7 +36,8 @@ module id_ex_register(
 		alu_src_out,
 		reg_write_out,
 		beq_out,
-		bne_out
+		bne_out,
+		address_src_out
     );
 	 
 		input wire clk;
@@ -57,6 +59,7 @@ module id_ex_register(
 	   input wire reg_write_in;
 	   input wire beq_in;
 	   input wire bne_in;
+		input wire address_src_in;
 		
 		output reg [2:0] rs_out;
 		output reg [2:0] rt_out;
@@ -73,6 +76,7 @@ module id_ex_register(
 	   output reg reg_write_out;
 	   output reg beq_out;
 	   output reg bne_out;
+		output reg address_src_out;
 
 		initial begin
 			reg_read_data_1_out <= 0;
@@ -87,6 +91,7 @@ module id_ex_register(
 			reg_write_out <= 0;
 			beq_out <= 0;
 			bne_out <= 0;
+			address_src_out <= 0;
 		end
 
 		always @(posedge clk) begin
@@ -106,6 +111,7 @@ module id_ex_register(
 				reg_write_out <= 0;
 				beq_out <= 0;
 				bne_out <= 0;
+				address_src_out <= 0;
 			end
 			else begin	
 				rs_out <= rs_in;
@@ -123,6 +129,7 @@ module id_ex_register(
 				reg_write_out <= reg_write_in;
 				beq_out <= beq_in;
 				bne_out <= bne_in;
+				address_src_out <= address_src_in;
 			end
 		end
 endmodule

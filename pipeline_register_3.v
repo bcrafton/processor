@@ -15,6 +15,7 @@ module ex_mem_register(
 		reg_write_in,
 		compare_in,
 		address_in,
+		address_src_in,
 		
 		alu_result_out,
 		data_1_out,
@@ -26,7 +27,8 @@ module ex_mem_register(
 		mem_to_reg_out,
 		reg_write_out,
 		compare_out,
-		address_out
+		address_out,
+		address_src_out
     );
 		
 		input wire clk;
@@ -43,6 +45,7 @@ module ex_mem_register(
 		input wire reg_write_in;
 		input wire compare_in;
 		input wire [15:0] address_in;
+		input wire address_src_in;
 		
 		output reg [15:0] alu_result_out;
 		output reg [15:0] data_1_out;
@@ -55,6 +58,7 @@ module ex_mem_register(
 		output reg reg_write_out;
 		output reg compare_out;
 		output reg [15:0] address_out;
+		output reg address_src_out;
 		
 		initial begin
 				alu_result_out <= 0;
@@ -68,6 +72,7 @@ module ex_mem_register(
 				reg_write_out <= 0;
 				compare_out <= 0;
 				address_out <= 0;
+				address_src_out <= 0;
 		end
 		
 		always @(posedge clk) begin
@@ -83,6 +88,7 @@ module ex_mem_register(
 				reg_write_out <= 0;
 				compare_out <= 0;
 				address_out <= 0;
+				address_src_out <= 0;
 			end
 			else begin
 				alu_result_out <= alu_result_in;
@@ -96,6 +102,7 @@ module ex_mem_register(
 				reg_write_out <= reg_write_in;
 				compare_out <= compare_in;
 				address_out <= address_in;
+				address_src_out <= address_src_in;
 			end
 		end
 endmodule
