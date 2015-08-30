@@ -38,7 +38,9 @@ module cpu(
 	 ex_mem_beq,
 	 ex_mem_bne,
 	 ex_mem_compare,
-	 jump
+	 jump,
+	 address_src,
+	 address_src_result
     );
 	 
 	 input clk;
@@ -74,8 +76,8 @@ module cpu(
 	 wire [15:0] alu_src_result;
 	 output wire [15:0] mem_to_reg_result;
 	 
-	 wire address_src;
-	 wire [15:0] address_src_result;
+	 output wire address_src;
+	 output wire [15:0] address_src_result;
 	 		
 	 // if/id
 	 wire [15:0] if_id_instruction, if_id_pc, jump_address;
