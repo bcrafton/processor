@@ -108,15 +108,15 @@ module control_unit(
 				 address_src <= 1'b0;
 			 end
 			 7: begin
-				 reg_dst <= 0; // want to write to third register
-				 mem_op <= 2'b01;
-				 alu_src <= 0;
-				 mem_to_reg <= 1;
+				 reg_dst <= 0;
+				 mem_op <= 2'b00;
+				 alu_src <= 1;
+				 mem_to_reg <= 0;
 				 reg_write <= 1;
-				 alu_op <= 4'b0000;
+				 alu_op <= 4'b1000;
 				 beq <= 1'b0;
 				 bne <= 1'b0;
-				 address_src <= 1'b1;
+				 address_src <= 1'b0;
 			 end
 			 8: begin
 				 reg_dst <= 0;
@@ -141,7 +141,7 @@ module control_unit(
 				 address_src <= 1'b0;
 			 end
 			 10: begin
-				 reg_dst <= 0; // want to write to third register
+				 reg_dst <= 0;
 				 mem_op <= 2'b00;
 				 alu_src <= 1;
 				 mem_to_reg <= 0;
