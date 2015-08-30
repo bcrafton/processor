@@ -24,4 +24,18 @@ always @ (*) begin
 	end
 end
 
+integer f; 
+always @(posedge clk) begin
+	f = $fopen("C:\\Users\\Brian\\Desktop\\ram.txt", "w");
+	$fwrite(f,"%h\n", mem[0]);
+	$fwrite(f,"%h\n", mem[1]);
+	$fwrite(f,"%h\n", mem[2]);
+	$fwrite(f,"%h\n", mem[3]);
+	$fwrite(f,"%h\n", mem[4]);
+	$fwrite(f,"%h\n", mem[5]);
+	$fwrite(f,"%h\n", mem[6]);
+	$fwrite(f,"%h\n", mem[7]);
+	$fclose(f);
+end
+
 endmodule

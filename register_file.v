@@ -42,4 +42,18 @@ module register_file
 			regfile[write_address] <= write_data;
 		end
    end
+	
+integer f; 
+always @(posedge clk) begin
+	f = $fopen("C:\\Users\\Brian\\Desktop\\regfile.txt", "w");
+	$fwrite(f,"%h\n", regfile[0]);
+	$fwrite(f,"%h\n", regfile[1]);
+	$fwrite(f,"%h\n", regfile[2]);
+	$fwrite(f,"%h\n", regfile[3]);
+	$fwrite(f,"%h\n", regfile[4]);
+	$fwrite(f,"%h\n", regfile[5]);
+	$fwrite(f,"%h\n", regfile[6]);
+	$fwrite(f,"%h\n", regfile[7]);
+	$fclose(f);
+end
 endmodule
