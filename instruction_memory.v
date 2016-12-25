@@ -29,7 +29,7 @@ module instruction_memory(
     output wire [15:0] instruction;
 	 reg [15:0] memory [0:127];
 	 
-	 initial $readmemh("C:\\Users\\Brian\\Desktop\\code.hex", memory);
+	 initial $readmemh("code.hex", memory);
 	 
 	 // i guess whenever pc changes this also changes?
 	 // i guess basically works as a mux.

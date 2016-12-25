@@ -26,7 +26,8 @@ end
 
 integer f; 
 always @(posedge clk) begin
-	f = $fopen("C:\\Users\\Brian\\Desktop\\ram.txt", "w");
+    $display("ramhit\n");
+	f = $fopen("out/ram", "w");
 	$fwrite(f,"%h\n", mem[0]);
 	$fwrite(f,"%h\n", mem[1]);
 	$fwrite(f,"%h\n", mem[2]);

@@ -45,7 +45,8 @@ module register_file
 	
 integer f; 
 always @(posedge clk) begin
-	f = $fopen("C:\\Users\\Brian\\Desktop\\regfile.txt", "w");
+    $display("regfilehit\n");
+	f = $fopen("out/regfile", "w");
 	$fwrite(f,"%h\n", regfile[0]);
 	$fwrite(f,"%h\n", regfile[1]);
 	$fwrite(f,"%h\n", regfile[2]);
