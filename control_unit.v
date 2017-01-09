@@ -1,35 +1,35 @@
 `timescale 1ns / 1ps
 
 module control_unit(
-	 clk,
+    clk,
     opcode,
-	 reg_dst,
-	 mem_to_reg,
-	 alu_op,
-	 alu_src,
-	 reg_write,
-	 mem_op,
-	 beq,
-	 bne,
-	 address_src
+    reg_dst,
+    mem_to_reg,
+    alu_op,
+    alu_src,
+    reg_write,
+    mem_op,
+    beq,
+    bne,
+    address_src
     );
-	 
-	 input wire clk;
-	 input wire [3:0] opcode;
-	 output reg reg_dst;
-	 output reg [1:0] mem_op;
-	 output reg mem_to_reg;
-	 output reg [3:0] alu_op;
-	 output reg alu_src;
-	 output reg reg_write;
-	 output reg beq;
-	 output reg bne;
-	 output reg address_src;
-	 
-	 // this is fine because we are just setting flags, 
-	 // and only want to change it if opcode changes.
-	 always @(opcode) begin
-		 case(opcode)
+
+    input wire clk;
+    input wire [3:0] opcode;
+    output reg reg_dst;
+    output reg [1:0] mem_op;
+    output reg mem_to_reg;
+    output reg [3:0] alu_op;
+    output reg alu_src;
+    output reg reg_write;
+    output reg beq;
+    output reg bne;
+    output reg address_src;
+
+    // this is combinational logic
+    always @(*) begin
+
+        case(opcode)
 			 0: begin
 				 reg_dst <= 1;
 				 mem_op <= 2'b00;
@@ -196,6 +196,8 @@ module control_unit(
 				 bne <= 1'b0;
 				 address_src <= 1'b0;
 			 end
-		 endcase
-	 end
+        endcase
+
+    end
+
 endmodule

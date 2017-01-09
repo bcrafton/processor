@@ -171,7 +171,7 @@ module cpu(
 	 ///////////////////////////////////////////////////////////////////////////////////////////////
 	 mux16_2x1 address_src_mux(.in0(ex_mem_data_1), .in1(ex_mem_address), .sel(ex_mem_address_src), .out(address_src_result));
 	 
-    ram data_memory(.clk(clk), .address(address_src_result), .write_data(ex_mem_data_2), 
+     ram data_memory(.clk(clk), .address(address_src_result), .write_data(ex_mem_data_2), 
 		.read_data(ram_read_data), .mem_op(ex_mem_mem_op));
 	 
 	 branch_unit bu(.beq(ex_mem_beq), .bne(ex_mem_bne), .compare(ex_mem_compare), .flush(flush));

@@ -1,14 +1,18 @@
+`timescale 1ns / 1ps
+
 module  mux16_2x1(
-in0,
-in1, 
-sel,
-out      
-);
-input wire [15:0] in0;
-input wire [15:0] in1;
-input wire sel;
+    in0,
+    in1, 
+    sel,
+    out      
+    );
 
-output wire [15:0] out;
+    input wire [15:0] in0;
+    input wire [15:0] in1;
+    input wire sel;
 
-assign out = (sel) ? in1 : in0;
+    output wire [15:0] out;
+
+    assign out = (sel) ? in1 : in0;
+
 endmodule
