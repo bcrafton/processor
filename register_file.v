@@ -48,7 +48,7 @@ module register_file(
     integer f;
     always @(*) begin
         if(complete) begin
-          f = $fopen("out/ram", "w");
+          f = $fopen("out/regfile", "w");
           $fwrite(f,"%h\n", regfile[0]);
           $fwrite(f,"%h\n", regfile[1]);
           $fwrite(f,"%h\n", regfile[2]);
