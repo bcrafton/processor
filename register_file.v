@@ -1,17 +1,21 @@
 module register_file(
     clk,
+    complete,
     write,
     write_address,
     write_data,
     read_address_1,
     read_data_1,
     read_address_2,
-    read_data_2
+    read_data_2,
+    // make this an output, make testing ez.
+    //regfile
     );
 
-    reg [15:0] 	 regfile [0:7];
+    reg [15:0] regfile [0:7];
 
     input clk;
+    input complete;
     input write;
     input wire [2:0] write_address;
     input wire [15:0] write_data;
@@ -43,21 +47,26 @@ module register_file(
 
     end
 
-    integer f; 
-    always @(posedge clk) begin
-    
-        $display("regfilehit\n");
-        f = $fopen("out/regfile", "w");
-        $fwrite(f,"%h\n", regfile[0]);
-        $fwrite(f,"%h\n", regfile[1]);
-        $fwrite(f,"%h\n", regfile[2]);
-        $fwrite(f,"%h\n", regfile[3]);
-        $fwrite(f,"%h\n", regfile[4]);
-        $fwrite(f,"%h\n", regfile[5]);
-        $fwrite(f,"%h\n", regfile[6]);
-        $fwrite(f,"%h\n", regfile[7]);
-        $fclose(f);
-
+    integer f;
+    always @(*) begin
+        if(complete) begin
+          f = $fopen("out/ram", "w");
+          $fwrite(f,"%h\n", regfile[0]);
+          $fwrite(f,"%h\n", regfile[1]);
+          $fwrite(f,"%h\n", regfile[2]);
+          $fwrite(f,"%h\n", regfile[3]);
+          $fwrite(f,"%h\n", regfile[4]);
+          $fwrite(f,"%h\n", regfile[5]);
+          $fwrite(f,"%h\n", regfile[6]);
+          $fwrite(f,"%h\n", regfile[7]);
+          $fclose(f);
+        end
     end
 
 endmodule
+
+
+
+
+
+

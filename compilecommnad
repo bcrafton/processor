@@ -1,1 +1,1 @@
-iverilog test30.v cpu.v branch_unit.v control_unit.v forwarding_unit.v hazard_detection_unit.v mux.v mux16.v mux16_4x2.v ram.v register_file.v pipeline_register_4.v pipeline_register_3.v pipeline_register_2.v pipeline_register_1.v alu.v program_counter.v instruction_memory.v jump_unit.v
+iverilog test.v cpu.v branch_unit.v control_unit.v forwarding_unit.v hazard_detection_unit.v mux.v mux16.v mux16_4x2.v ram.v register_file.v pipeline_register_4.v pipeline_register_3.v pipeline_register_2.v pipeline_register_1.v alu.v program_counter.v instruction_memory.v jump_unit.v

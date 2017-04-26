@@ -1,12 +1,16 @@
 module ram (
     clk,
+    complete,
     address,
     write_data,
     read_data,
-    mem_op
+    mem_op,
+    // make this an output, make testing ez.
+    //mem
     ); 
 
     input clk;
+    input complete;
     input [15:0] address;
     input [1:0] mem_op;
 
@@ -26,21 +30,20 @@ module ram (
     
     end
 
-    integer f; 
-    always @(posedge clk) begin
-
-        $display("ramhit\n");
-        f = $fopen("out/ram", "w");
-        $fwrite(f,"%h\n", mem[0]);
-        $fwrite(f,"%h\n", mem[1]);
-        $fwrite(f,"%h\n", mem[2]);
-        $fwrite(f,"%h\n", mem[3]);
-        $fwrite(f,"%h\n", mem[4]);
-        $fwrite(f,"%h\n", mem[5]);
-        $fwrite(f,"%h\n", mem[6]);
-        $fwrite(f,"%h\n", mem[7]);
-        $fclose(f);
-
+    integer f;
+    always @(*) begin
+        if(complete) begin
+          f = $fopen("out/ram", "w");
+          $fwrite(f,"%h\n", mem[0]);
+          $fwrite(f,"%h\n", mem[1]);
+          $fwrite(f,"%h\n", mem[2]);
+          $fwrite(f,"%h\n", mem[3]);
+          $fwrite(f,"%h\n", mem[4]);
+          $fwrite(f,"%h\n", mem[5]);
+          $fwrite(f,"%h\n", mem[6]);
+          $fwrite(f,"%h\n", mem[7]);
+          $fclose(f);
+        end
     end
 
 endmodule
