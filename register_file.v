@@ -40,11 +40,9 @@ module register_file(
     assign read_data_2 = regfile[read_address_2];
 
     always @(*) begin
-
         if (write) begin
             regfile[write_address] <= write_data;
         end
-
     end
 
     integer f;
