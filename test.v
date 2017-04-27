@@ -19,13 +19,13 @@ module test30;
 
   always @(posedge clk) begin
 
-      if($time > 490) begin
-          complete <= 1;
-      end
+    if($time > 490) begin
+      complete <= 1;
+    end
 
-      if($time > 500) begin
-          $finish;
-      end
+    if($time > 500) begin
+      $finish;
+    end
 
   end
       

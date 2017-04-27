@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 
+// get rid of muxes and make 1 parameterized one.
 module  mux3_2x1(
     in0,
     in1, 
