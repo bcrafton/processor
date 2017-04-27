@@ -25,15 +25,15 @@ module register_file(
     output wire [15:0] read_data_2;
 
     initial begin
-        regfile[0] <= 4'h0000;
-        regfile[1] <= 4'h0000;
-        regfile[2] <= 4'h0000;
-        regfile[3] <= 4'h0000;
+        regfile[0] <= 16'h0000;
+        regfile[1] <= 16'h0000;
+        regfile[2] <= 16'h0000;
+        regfile[3] <= 16'h0000;
 
-        regfile[4] <= 4'h0000;
-        regfile[5] <= 4'h0000;
-        regfile[6] <= 4'h0000;
-        regfile[7] <= 4'h0000;
+        regfile[4] <= 16'h0000;
+        regfile[5] <= 16'h0000;
+        regfile[6] <= 16'h0000;
+        regfile[7] <= 16'h0000;
     end
 
     assign read_data_1 = regfile[read_address_1];
