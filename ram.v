@@ -1,3 +1,5 @@
+`include "defines.vh"
+
 module ram (
   clk,
   complete,
@@ -22,9 +24,9 @@ module ram (
   // combinational logic
   always @ (*) begin
 
-    if (mem_op == 2'b10) begin
+    if (mem_op == `MEM_OP_WRITE) begin
       mem[address] = write_data;
-    end else if (mem_op == 2'b01) begin
+    end else if (mem_op == `MEM_OP_READ) begin
       read_data = mem[address];
     end
   

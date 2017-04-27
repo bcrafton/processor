@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module test30;
+module test;
 
 	// Inputs
 	reg clk;

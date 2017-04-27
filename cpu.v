@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+`include "defines.vh"
+
 module cpu(
   clk,
   complete,
@@ -193,21 +195,21 @@ module cpu(
   .forward_a(forward_a), 
   .forward_b(forward_b));
 
-  mux16_3x2 alu_input_mux_1(
+  mux4x2 #(`DATA_WIDTH) alu_input_mux_1(
   .in0(id_ex_reg_read_data_1), 
   .in1(mem_to_reg_result), 
   .in2(ex_mem_alu_result), 
   .sel(forward_a), 
   .out(alu_input_mux_1_result));
 
-  mux16_3x2 alu_input_mux_2(
+  mux4x2 #(`DATA_WIDTH) alu_input_mux_2(
   .in0(id_ex_reg_read_data_2), 
   .in1(mem_to_reg_result), 
   .in2(ex_mem_alu_result), 
   .sel(forward_b), 
   .out(alu_input_mux_2_result));
 
-  mux16_2x1 alu_src_mux(
+  mux2x1 #(`DATA_WIDTH) alu_src_mux(
   .in0(alu_input_mux_2_result), 
   .in1(id_ex_immediate), 
   .sel(id_ex_alu_src), 
@@ -221,7 +223,7 @@ module cpu(
   .compare(compare), 
   .alu_result(alu_result));
 
-  mux3_2x1 reg_dst_mux(
+  mux2x1 #(3) reg_dst_mux(
   .in0(id_ex_rt), 
   .in1(id_ex_rd), 
   .sel(id_ex_reg_dst), 
@@ -257,7 +259,7 @@ module cpu(
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  mux16_2x1 address_src_mux(
+  mux2x1 #(`DATA_WIDTH) address_src_mux(
   .in0(ex_mem_data_1), 
   .in1(ex_mem_address), 
   .sel(ex_mem_address_src), 
@@ -292,7 +294,7 @@ module cpu(
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  mux16_2x1 mem_to_reg_mux(
+  mux2x1 #(`DATA_WIDTH) mem_to_reg_mux(
   .in0(mem_wb_alu_result), 
   .in1(mem_wb_ram_read_data), 
   .sel(mem_wb_mem_to_reg), 
