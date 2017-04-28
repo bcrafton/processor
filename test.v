@@ -6,7 +6,7 @@ module test;
 	reg clk;
   reg complete;
 
-	cpu uut (
+	processor p (
 		.clk(clk),
 		.complete(complete)
 	);
