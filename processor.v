@@ -14,68 +14,70 @@ module processor(
   // could make the ram and the regfile outputs. wud be very convenient for testing.
   // problem becomes if ram is large, we wud need a bus we can access it or some shit.
 
-  wire [15:0] pc;
+  wire [`INST_WIDTH-1:0] pc;
 
-  wire [3:0] opcode;
-  wire [2:0] rs;
-  wire [2:0] rt;
-  wire [2:0] rd;
-  wire [15:0] immediate;
-  wire [15:0] address;
+  wire [`OP_CODE_BITS-1:0] opcode;
+  wire [`NUM_REGISTERS_LOG2-1:0] rs;
+  wire [`NUM_REGISTERS_LOG2-1:0] rt;
+  wire [`NUM_REGISTERS_LOG2-1:0] rd;
+  wire [`DATA_WIDTH-1:0] immediate;
+  wire [`DATA_WIDTH-1:0] address;
 
   wire  reg_dst;
   wire  jump;
   wire  mem_to_reg;
-  wire  [3:0] alu_op;
-  wire  [1:0] mem_op;
+  wire  [`ALU_OP_BITS-1:0] alu_op;
+  wire  [`MEM_OP_BITS-1:0] mem_op;
   wire  alu_src;
   wire  reg_write;
   wire  beq;
   wire  bne;
 
-  wire [15:0] instruction;
-  wire [15:0] ram_read_data;
+  wire [`INST_WIDTH-1:0] instruction;
+  wire [`DATA_WIDTH-1:0] ram_read_data;
 
-  wire [15:0] reg_read_data_1;
-  wire [15:0] reg_read_data_2;
+  wire [`DATA_WIDTH-1:0] reg_read_data_1;
+  wire [`DATA_WIDTH-1:0] reg_read_data_2;
 
   wire compare;
-  wire [15:0] alu_result;
+  wire [`DATA_WIDTH-1:0] alu_result;
 
-  wire [2:0] reg_dst_result;
-  wire [15:0] alu_src_result;
-  wire [15:0] mem_to_reg_result;
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result;
+  wire [`DATA_WIDTH-1:0] alu_src_result;
+  wire [`DATA_WIDTH-1:0] mem_to_reg_result;
 
   wire address_src;
-  wire [15:0] address_src_result;
+  wire [`DATA_WIDTH-1:0] address_src_result;
 
   // if/id
-  wire [15:0] if_id_instruction, if_id_pc, jump_address;
+  wire [`INST_WIDTH-1:0] if_id_instruction, if_id_pc;
+  wire [`DATA_WIDTH-1:0] jump_address;
+
   // id/ex
-  wire [2:0] id_ex_rs, id_ex_rt, id_ex_rd;
-  wire [15:0] id_ex_reg_read_data_1, id_ex_reg_read_data_2;
-  wire [15:0] id_ex_immediate;
-  wire [15:0] id_ex_address;
+  wire [`NUM_REGISTERS_LOG2-1:0] id_ex_rs, id_ex_rt, id_ex_rd;
+  wire [`DATA_WIDTH-1:0] id_ex_reg_read_data_1, id_ex_reg_read_data_2;
+  wire [`DATA_WIDTH-1:0] id_ex_immediate;
+  wire [`DATA_WIDTH-1:0] id_ex_address;
   wire id_ex_reg_dst, id_ex_mem_to_reg, id_ex_beq, id_ex_bne, id_ex_alu_src, id_ex_reg_write, id_ex_address_src;
-  wire [3:0] id_ex_alu_op;
-  wire [1:0] id_ex_mem_op;
+  wire [`ALU_OP_BITS-1:0] id_ex_alu_op;
+  wire [`MEM_OP_BITS-1:0] id_ex_mem_op;
   // ex/mem
-  wire [15:0] ex_mem_alu_result;
-  wire [15:0] ex_mem_data_1, ex_mem_data_2;
-  wire [15:0] ex_mem_address;
+  wire [`DATA_WIDTH-1:0] ex_mem_alu_result;
+  wire [`DATA_WIDTH-1:0] ex_mem_data_1, ex_mem_data_2;
+  wire [`DATA_WIDTH-1:0] ex_mem_address;
   wire ex_mem_mem_to_reg, ex_mem_address_src;
   wire ex_mem_beq, ex_mem_bne, ex_mem_compare;
-  wire [1:0] ex_mem_mem_op;
-  wire [2:0] ex_mem_reg_dst_result;
+  wire [`MEM_OP_BITS-1:0] ex_mem_mem_op;
+  wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_reg_dst_result;
   // mem/wb
-  wire [15:0] mem_wb_ram_read_data, mem_wb_alu_result;
-  wire [2:0] mem_wb_reg_dst_result;
+  wire [`DATA_WIDTH-1:0] mem_wb_ram_read_data, mem_wb_alu_result;
+  wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_reg_dst_result;
   wire mem_wb_mem_to_reg, mem_wb_reg_write;
 
   wire [1:0] forward_a, forward_b;
   wire stall;
   wire flush;
-  wire [15:0] alu_input_mux_1_result, alu_input_mux_2_result;
+  wire [`DATA_WIDTH-1:0] alu_input_mux_1_result, alu_input_mux_2_result;
 
   assign opcode = if_id_instruction[15:12];
   assign rs = if_id_instruction[11:9];
