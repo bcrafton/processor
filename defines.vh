@@ -11,7 +11,7 @@
 `define ALU_OP_NAND       4'b0101
 `define ALU_OP_NOR        4'b0110
 `define ALU_OP_ASSIGN     4'b0111
-`define ALU_OP_ASSIGN     4'b1000
+`define ALU_OP_NOP        4'b1000
 // can make this ceil(log(highest one))
 
 // or can make nops for the rest, then just do the last nop.
@@ -23,7 +23,8 @@
 `define MEM_OP_NOP        2'b00
 `define MEM_OP_READ       2'b01
 `define MEM_OP_WRITE      2'b10
-`define MEM_OP_NOP2       2'b11
+//`define MEM_OP_NOP2       2'b11
+
 // can make this ceil(log(highest one))
 `define MEM_OP_BITS       2//$bits(MEM_OP_READ)
 

@@ -33,168 +33,171 @@ module control_unit(
     case(opcode)
       0: begin // add
         reg_dst <= 1;
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= 4'b0000;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        alu_op <= `ALU_OP_ADD;
+        beq <= 0;
+        bne <= 0;
+        // this is never set to 1, wtf.
         address_src <= 1'b0;
       end
       1: begin // addi
         reg_dst <= 0;
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 1; // want to load immediate not read_data_2
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= 4'b0000;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        alu_op <= `ALU_OP_ADD;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
       2: begin // sub
         reg_dst <= 1; // want to write to third register
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= 4'b0001;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        alu_op <= `ALU_OP_SUB;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
       3: begin // subi
         reg_dst <= 0;
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 1; // want to load immediate not read_data_2
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= 4'b0001;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        alu_op <= `ALU_OP_SUB;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
       4: begin // not
         reg_dst <= 1; // want to write to third register
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= 4'b0010;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        alu_op <= `ALU_OP_NOT;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
       5: begin // and
         reg_dst <= 1; // want to write to third register
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= 4'b0011;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        alu_op <= `ALU_OP_AND;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
       6: begin // or
         reg_dst <= 1; // want to write to third register
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= 4'b0100;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        alu_op <= `ALU_OP_OR;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
       7: begin // nand
         reg_dst <= 1; // want to write to third register
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= 4'b0101;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        alu_op <= `ALU_OP_NAND;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
       8: begin // nor
         reg_dst <= 1; // want to write to third register
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= 4'b0110;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        alu_op <= `ALU_OP_NOR;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
       9: begin // mov
         reg_dst <= 0; // want to write to third register
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= 4'b0111;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        alu_op <= `ALU_OP_ASSIGN;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
       10: begin // li
         reg_dst <= 0;
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 1;
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= 4'b1000;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        alu_op <= `ALU_OP_ASSIGN;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
       11: begin // lw
         reg_dst <= 0; // want to write to third register
-        mem_op <= 2'b01;
+        mem_op <= `MEM_OP_READ;
         alu_src <= 0;
         mem_to_reg <= 1;
         reg_write <= 1;
-        alu_op <= 4'b0000;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        // shudnt this be dont care?        
+        //alu_op <= 4'b0000;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
       12: begin // sw
         reg_dst <= 0;
-        mem_op <= 2'b10;
+        mem_op <= `MEM_OP_WRITE;
         alu_src <= 0;
         mem_to_reg <= 0;
         reg_write <= 0;
-        alu_op <= 4'b0000;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        // shudnt this be dont care?        
+        //alu_op <= 4'b0000;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
       13: begin // beq
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
         reg_write <= 0;
-        beq <= 1'b1;
-        bne <= 1'b0;
+        beq <= 1;
+        bne <= 0;
         address_src <= 1'b0;
       end
       14: begin // bne
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
         reg_write <= 0;
-        beq <= 1'b0;
+        beq <= 0;
         bne <= 1'b1;
         address_src <= 1'b0;
       end
       15: begin // jump
-        mem_op <= 2'b00;
+        mem_op <= `MEM_OP_NOP;
         reg_write <= 0;
-        beq <= 1'b0;
-        bne <= 1'b0;
+        beq <= 0;
+        bne <= 0;
         address_src <= 1'b0;
       end
 
