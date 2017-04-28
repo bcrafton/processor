@@ -17,11 +17,11 @@ module control_unit(
   );
 
   input wire clk;
-  input wire [3:0] opcode;
+  input wire [OP_CODE_BITS-1:0] opcode;
   output reg reg_dst;
-  output reg [1:0] mem_op;
+  output reg [MEM_OP_BITS-1:0] mem_op;
   output reg mem_to_reg;
-  output reg [3:0] alu_op;
+  output reg [`ALU_OP_BITS-1:0] alu_op;
   output reg alu_src;
   output reg reg_write;
   output reg beq;
@@ -31,7 +31,7 @@ module control_unit(
   always @(*) begin
 
     case(opcode)
-      0: begin
+      0: begin // add
         reg_dst <= 1;
         mem_op <= 2'b00;
         alu_src <= 0;
@@ -42,7 +42,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      1: begin
+      1: begin // addi
         reg_dst <= 0;
         mem_op <= 2'b00;
         alu_src <= 1; // want to load immediate not read_data_2
@@ -53,7 +53,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      2: begin
+      2: begin // sub
         reg_dst <= 1; // want to write to third register
         mem_op <= 2'b00;
         alu_src <= 0;
@@ -64,7 +64,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      3: begin
+      3: begin // subi
         reg_dst <= 0;
         mem_op <= 2'b00;
         alu_src <= 1; // want to load immediate not read_data_2
@@ -75,7 +75,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      4: begin
+      4: begin // not
         reg_dst <= 1; // want to write to third register
         mem_op <= 2'b00;
         alu_src <= 0;
@@ -86,7 +86,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      5: begin
+      5: begin // and
         reg_dst <= 1; // want to write to third register
         mem_op <= 2'b00;
         alu_src <= 0;
@@ -97,7 +97,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      6: begin
+      6: begin // or
         reg_dst <= 1; // want to write to third register
         mem_op <= 2'b00;
         alu_src <= 0;
@@ -108,7 +108,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      7: begin
+      7: begin // nand
         reg_dst <= 0;
         mem_op <= 2'b00;
         alu_src <= 1;
@@ -119,7 +119,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      8: begin
+      8: begin // nor
         reg_dst <= 0;
         mem_op <= 2'b10;
         alu_src <= 0;
@@ -130,7 +130,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b1;
       end
-      9: begin
+      9: begin // mov
         reg_dst <= 0; // want to write to third register
         mem_op <= 2'b00;
         alu_src <= 0;
@@ -141,7 +141,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      10: begin
+      10: begin // li
         reg_dst <= 0;
         mem_op <= 2'b00;
         alu_src <= 1;
@@ -152,7 +152,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      11: begin
+      11: begin // lw
         reg_dst <= 0; // want to write to third register
         mem_op <= 2'b01;
         alu_src <= 0;
@@ -163,7 +163,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      12: begin
+      12: begin // sw
         reg_dst <= 0;
         mem_op <= 2'b10;
         alu_src <= 0;
@@ -174,7 +174,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      13: begin
+      13: begin // beq
         mem_op <= 2'b00;
         alu_src <= 0;
         reg_write <= 0;
@@ -182,7 +182,7 @@ module control_unit(
         bne <= 1'b0;
         address_src <= 1'b0;
       end
-      14: begin
+      14: begin // bne
         mem_op <= 2'b00;
         alu_src <= 0;
         reg_write <= 0;
@@ -190,7 +190,7 @@ module control_unit(
         bne <= 1'b1;
         address_src <= 1'b0;
       end
-      15: begin
+      15: begin // jump
         mem_op <= 2'b00;
         reg_write <= 0;
         beq <= 1'b0;
