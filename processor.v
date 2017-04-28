@@ -201,6 +201,7 @@ module processor(
   .in0(id_ex_reg_read_data_1), 
   .in1(mem_to_reg_result), 
   .in2(ex_mem_alu_result), 
+  .in3(),
   .sel(forward_a), 
   .out(alu_input_mux_1_result));
 
@@ -208,6 +209,7 @@ module processor(
   .in0(id_ex_reg_read_data_2), 
   .in1(mem_to_reg_result), 
   .in2(ex_mem_alu_result), 
+  .in3(),
   .sel(forward_b), 
   .out(alu_input_mux_2_result));
 
