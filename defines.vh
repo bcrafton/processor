@@ -50,4 +50,9 @@
 
 `define OP_CODE_BITS      4
 
+`define NUM_REGISTERS     8
+`define NUM_REGISTERS_LOG2  3 //$clog2(`NUM_REGISTERS)
+
 `endif
+
+

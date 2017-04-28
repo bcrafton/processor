@@ -7,7 +7,6 @@
 //`include "defines.vh"
 
 module alu
-  #(parameter DATA_WIDTH = 16)
   (
   clk,
   alu_op,
@@ -19,10 +18,10 @@ module alu
 
   input wire clk;
   input wire [3:0] alu_op;
-  input wire [(DATA_WIDTH-1):0] data1;
-  input wire [(DATA_WIDTH-1):0] data2;
+  input wire [`DATA_WIDTH-1:0] data1;
+  input wire [`DATA_WIDTH-1:0] data2;
   output reg compare;
-  output reg [(DATA_WIDTH-1):0] alu_result;
+  output reg [`DATA_WIDTH-1:0] alu_result;
 
   always @(*) begin
 
