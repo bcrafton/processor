@@ -3,6 +3,11 @@
 
 `define DATA_WIDTH 16
 `define INST_WIDTH 16
+
+// todo: should put these in instead of using data width.
+`define ADDR_WIDTH `DATA_WIDTH
+`define IMM_WIDTH  `DATA_WIDTH
+
 `define IMEMORY_SIZE 128
 `define DMEMORY_SIZE 1024
 
