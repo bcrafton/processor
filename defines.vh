@@ -10,8 +10,8 @@
 `define ALU_OP_OR         4'b0100
 `define ALU_OP_NAND       4'b0101
 `define ALU_OP_NOR        4'b0110
-`define ALU_OP_ASSIGN     4'b0111
-`define ALU_OP_NOP        4'b1000
+`define ALU_OP_MOV        4'b0111
+`define ALU_OP_LI         4'b1000
 // can make this ceil(log(highest one))
 
 // or can make nops for the rest, then just do the last nop.

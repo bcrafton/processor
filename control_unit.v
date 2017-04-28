@@ -137,7 +137,7 @@ module control_unit(
         alu_src <= 0;
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= `ALU_OP_ASSIGN;
+        alu_op <= `ALU_OP_MOV;
         beq <= 0;
         bne <= 0;
         address_src <= 0;
@@ -148,7 +148,7 @@ module control_unit(
         alu_src <= 1;
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= `ALU_OP_ASSIGN;
+        alu_op <= `ALU_OP_LI;
         beq <= 0;
         bne <= 0;
         address_src <= 0;
