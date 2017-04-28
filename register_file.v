@@ -12,17 +12,17 @@ module register_file(
   //regfile
   );
 
-  reg [15:0] regfile [0:7];
+  reg [`DATA_WIDTH-1:0] regfile [0:`NUM_REGISTERS-1];
 
   input clk;
   input complete;
   input write;
-  input wire [2:0] write_address;
-  input wire [15:0] write_data;
-  input wire [2:0] read_address_1;
-  output wire [15:0] read_data_1;
-  input wire [2:0] read_address_2;
-  output wire [15:0] read_data_2;
+  input wire [`NUM_REGISTERS_LOG2-1:0] write_address;
+  input wire [`DATA_WIDTH-1:0] write_data;
+  input wire [`NUM_REGISTERS_LOG2-1:0] read_address_1;
+  output wire [`DATA_WIDTH-1:0] read_data_1;
+  input wire [`NUM_REGISTERS_LOG2-1:0] read_address_2;
+  output wire [`DATA_WIDTH-1:0] read_data_2;
 
   initial begin
     regfile[0] <= 16'h0000;

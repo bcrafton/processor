@@ -4,6 +4,7 @@
 `define DATA_WIDTH 16
 `define INST_WIDTH 16
 `define IMEMORY_SIZE 128
+`define DMEMORY_SIZE 1024
 
 `define ALU_OP_ADD        4'b0000
 `define ALU_OP_SUB        4'b0001

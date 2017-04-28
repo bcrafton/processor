@@ -21,7 +21,7 @@ module if_id_register(
   always @(*) begin
 
     if(!stall) begin
-        instruction_out <= instruction_in;
+      instruction_out <= instruction_in;
     end
 
   end

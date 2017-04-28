@@ -13,13 +13,15 @@ module ram (
 
   input clk;
   input complete;
-  input [15:0] address;
-  input [1:0] mem_op;
+  //questionable
+  input [`DATA_WIDTH-1:0] address;
+  input [`MEM_OP_BITS-1:0] mem_op;
 
-  input [15:0] write_data;
-  output reg [15:0] read_data;
+  //questionable
+  input [`DATA_WIDTH-1:0] write_data;
+  output reg [`DATA_WIDTH-1:0] read_data;
 
-  reg [15:0] mem [0:1023];
+  reg [`DATA_WIDTH-1:0] mem [0:`DMEMORY_SIZE-1];
 
   // combinational logic
   always @ (*) begin
