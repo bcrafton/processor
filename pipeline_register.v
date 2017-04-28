@@ -11,8 +11,8 @@ module if_id_register(
   input wire clk;
   input wire stall;
 
-  input wire [15:0] instruction_in;
-  output reg [15:0] instruction_out;
+  input wire [`INST_WIDTH-1:0] instruction_in;
+  output reg [`INST_WIDTH-1:0] instruction_out;
 
   initial begin
     instruction_out <= 0;
@@ -72,34 +72,34 @@ module id_ex_register(
   input wire flush;
   input wire stall;
 
-  input wire [2:0] rs_in;
-  input wire [2:0] rt_in;
-  input wire [2:0] rd_in;
-  input wire [15:0] reg_read_data_1_in;
-  input wire [15:0] reg_read_data_2_in;
-  input wire [15:0] immediate_in;
-  input wire [15:0] address_in;
+  input wire [`NUM_REGISTERS_LOG2-1:0] rs_in;
+  input wire [`NUM_REGISTERS_LOG2-1:0] rt_in;
+  input wire [`NUM_REGISTERS_LOG2-1:0] rd_in;
+  input wire [`DATA_WIDTH-1:0] reg_read_data_1_in;
+  input wire [`DATA_WIDTH-1:0] reg_read_data_2_in;
+  input wire [`DATA_WIDTH-1:0] immediate_in;
+  input wire [`DATA_WIDTH-1:0] address_in;
   input wire reg_dst_in;
   input wire mem_to_reg_in;
-  input wire [3:0] alu_op_in;
-  input wire [1:0] mem_op_in;
+  input wire [`ALU_OP_BITS-1:0] alu_op_in;
+  input wire [`MEM_OP_BITS-1:0] mem_op_in;
   input wire alu_src_in;
   input wire reg_write_in;
   input wire beq_in;
   input wire bne_in;
   input wire address_src_in;
 
-  output reg [2:0] rs_out;
-  output reg [2:0] rt_out;
-  output reg [2:0] rd_out;
-  output reg [15:0] reg_read_data_1_out;
-  output reg [15:0] reg_read_data_2_out;
-  output reg [15:0] immediate_out;
-  output reg [15:0] address_out;
+  output reg [`NUM_REGISTERS_LOG2-1:0] rs_out;
+  output reg [`NUM_REGISTERS_LOG2-1:0] rt_out;
+  output reg [`NUM_REGISTERS_LOG2-1:0] rd_out;
+  output reg [`DATA_WIDTH-1:0] reg_read_data_1_out;
+  output reg [`DATA_WIDTH-1:0] reg_read_data_2_out;
+  output reg [`DATA_WIDTH-1:0] immediate_out;
+  output reg [`DATA_WIDTH-1:0] address_out;
   output reg reg_dst_out;
   output reg mem_to_reg_out;
-  output reg [3:0] alu_op_out;
-  output reg [1:0] mem_op_out;
+  output reg [`ALU_OP_BITS-1:0] alu_op_out;
+  output reg [`MEM_OP_BITS-1:0] mem_op_out;
   output reg alu_src_out;
   output reg reg_write_out;
   output reg beq_out;
@@ -198,30 +198,30 @@ module ex_mem_register(
   input wire clk;
   input wire flush;
 
-  input wire [15:0] alu_result_in;
-  input wire [15:0] data_1_in;
-  input wire [15:0] data_2_in;
-  input wire [2:0] reg_dst_result_in;
+  input wire [`DATA_WIDTH-1:0] alu_result_in;
+  input wire [`DATA_WIDTH-1:0] data_1_in;
+  input wire [`DATA_WIDTH-1:0] data_2_in;
+  input wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_in;
   input wire beq_in;
   input wire bne_in;
-  input wire [1:0] mem_op_in;
+  input wire [`MEM_OP_BITS-1:0] mem_op_in;
   input wire mem_to_reg_in;
   input wire reg_write_in;
   input wire compare_in;
-  input wire [15:0] address_in;
+  input wire [`DATA_WIDTH-1:0] address_in;
   input wire address_src_in;
 
-  output reg [15:0] alu_result_out;
-  output reg [15:0] data_1_out;
-  output reg [15:0] data_2_out;
-  output reg [2:0] reg_dst_result_out;
+  output reg [`DATA_WIDTH-1:0] alu_result_out;
+  output reg [`DATA_WIDTH-1:0] data_1_out;
+  output reg [`DATA_WIDTH-1:0] data_2_out;
+  output reg [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_out;
   output reg beq_out;
   output reg bne_out;
-  output reg [1:0] mem_op_out;
+  output reg [`MEM_OP_BITS-1:0] mem_op_out;
   output reg mem_to_reg_out;
   output reg reg_write_out;
   output reg compare_out;
-  output reg [15:0] address_out;
+  output reg [`DATA_WIDTH-1:0] address_out;
   output reg address_src_out;
 
   initial begin
@@ -292,15 +292,15 @@ module mem_wb_register(
   input wire clk;
 
   input wire mem_to_reg_in;
-  input wire [15:0] ram_read_data_in;
-  input wire [15:0] alu_result_in;
-  input wire [2:0] reg_dst_result_in;
+  input wire [`DATA_WIDTH-1:0] ram_read_data_in;
+  input wire [`DATA_WIDTH-1:0] alu_result_in;
+  input wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_in;
   input wire reg_write_in;
 
   output reg mem_to_reg_out;
-  output reg [15:0] ram_read_data_out;
-  output reg [15:0] alu_result_out;
-  output reg [2:0] reg_dst_result_out;
+  output reg [`DATA_WIDTH-1:0] ram_read_data_out;
+  output reg [`DATA_WIDTH-1:0] alu_result_out;
+  output reg [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_out;
   output reg reg_write_out;
 
   initial begin
