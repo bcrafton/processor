@@ -17,9 +17,9 @@ module control_unit(
   );
 
   input wire clk;
-  input wire [OP_CODE_BITS-1:0] opcode;
+  input wire [`OP_CODE_BITS-1:0] opcode;
   output reg reg_dst;
-  output reg [MEM_OP_BITS-1:0] mem_op;
+  output reg [`MEM_OP_BITS-1:0] mem_op;
   output reg mem_to_reg;
   output reg [`ALU_OP_BITS-1:0] alu_op;
   output reg alu_src;
