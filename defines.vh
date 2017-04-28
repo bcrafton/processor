@@ -2,6 +2,8 @@
 `define _defines_vh_
 
 `define DATA_WIDTH 16
+`define INST_WIDTH 16
+`define IMEMORY_SIZE 128
 
 `define ALU_OP_ADD        4'b0000
 `define ALU_OP_SUB        4'b0001
@@ -26,7 +28,7 @@
 //`define MEM_OP_NOP2       2'b11
 
 // can make this ceil(log(highest one))
-`define MEM_OP_BITS       2//$bits(MEM_OP_READ)
+`define MEM_OP_BITS       2 //$bits(MEM_OP_READ)
 
 `define OP_CODE_ADD       4'b0000
 `define OP_CODE_ADDI      4'b0001

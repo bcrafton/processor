@@ -7,9 +7,9 @@ module instruction_memory(
   );
 
   input wire clk;
-  input wire [15:0] pc;
-  output wire [15:0] instruction;
-  reg [15:0] memory [0:127];
+  input wire [`INST_WIDTH-1:0] pc;
+  output wire [`INST_WIDTH-1:0] instruction;
+  reg [`INST_WIDTH-1:0] memory [0:`IMEMORY_SIZE-1];
 
   initial $readmemh("code.hex", memory);
 

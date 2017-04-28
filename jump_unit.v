@@ -6,9 +6,10 @@ module jump_unit(
   address
   );
 
-  input wire [15:0] instruction;
+  input wire [`INST_WIDTH-1:0] instruction;
   output reg jump;
-  output reg [15:0] address;
+  // questionable whether using correct macro here.
+  output reg [`INST_WIDTH-1:0] address;
 
   always @(*) begin
 
