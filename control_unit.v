@@ -109,26 +109,26 @@ module control_unit(
         address_src <= 1'b0;
       end
       7: begin // nand
-        reg_dst <= 0;
+        reg_dst <= 1; // want to write to third register
         mem_op <= 2'b00;
-        alu_src <= 1;
+        alu_src <= 0;
         mem_to_reg <= 0;
         reg_write <= 1;
-        alu_op <= 4'b1000;
+        alu_op <= 4'b0101;
         beq <= 1'b0;
         bne <= 1'b0;
         address_src <= 1'b0;
       end
       8: begin // nor
-        reg_dst <= 0;
-        mem_op <= 2'b10;
+        reg_dst <= 1; // want to write to third register
+        mem_op <= 2'b00;
         alu_src <= 0;
         mem_to_reg <= 0;
-        reg_write <= 0;
-        alu_op <= 4'b0000;
+        reg_write <= 1;
+        alu_op <= 4'b0110;
         beq <= 1'b0;
         bne <= 1'b0;
-        address_src <= 1'b1;
+        address_src <= 1'b0;
       end
       9: begin // mov
         reg_dst <= 0; // want to write to third register
