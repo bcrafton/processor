@@ -2,3 +2,5 @@
 *.o
 *.so
 out/*
+*.vvp
+*.vcd
