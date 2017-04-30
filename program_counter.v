@@ -11,9 +11,9 @@ module program_counter(
   );
 
   input wire clk;
-  input wire [`DATA_WIDTH-1:0] branch_address;
-  input wire [`DATA_WIDTH-1:0] jump_address;
-  output reg [`INST_WIDTH-1:0] pc;
+  input wire [`ADDR_WIDTH-1:0] branch_address; // instruction memory address
+  input wire [`ADDR_WIDTH-1:0] jump_address; // instruction memory address
+  output reg [`ADDR_WIDTH-1:0] pc; // instruction memory address
   input wire flush;
   input wire stall;
   input wire jump;

@@ -14,7 +14,7 @@ module ram (
   input clk;
   input complete;
   //questionable
-  input [`DATA_WIDTH-1:0] address;
+  input [`ADDR_WIDTH-1:0] address;
   input [`MEM_OP_BITS-1:0] mem_op;
 
   //questionable

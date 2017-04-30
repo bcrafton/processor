@@ -17,10 +17,13 @@ module register_file(
   input clk;
   input complete;
   input write;
+
   input wire [`NUM_REGISTERS_LOG2-1:0] write_address;
   input wire [`DATA_WIDTH-1:0] write_data;
+
   input wire [`NUM_REGISTERS_LOG2-1:0] read_address_1;
   output wire [`DATA_WIDTH-1:0] read_data_1;
+
   input wire [`NUM_REGISTERS_LOG2-1:0] read_address_2;
   output wire [`DATA_WIDTH-1:0] read_data_2;
 

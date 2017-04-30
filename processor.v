@@ -14,14 +14,14 @@ module processor(
   // could make the ram and the regfile outputs. wud be very convenient for testing.
   // problem becomes if ram is large, we wud need a bus we can access it or some shit.
 
-  wire [`INST_WIDTH-1:0] pc;
+  wire [`ADDR_WIDTH-1:0] pc;
 
   wire [`OP_CODE_BITS-1:0] opcode;
   wire [`NUM_REGISTERS_LOG2-1:0] rs;
   wire [`NUM_REGISTERS_LOG2-1:0] rt;
   wire [`NUM_REGISTERS_LOG2-1:0] rd;
-  wire [`DATA_WIDTH-1:0] immediate;
-  wire [`DATA_WIDTH-1:0] address;
+  wire [`IMM_WIDTH-1:0] immediate;
+  wire [`ADDR_WIDTH-1:0] address;
 
   wire  reg_dst;
   wire  jump;
@@ -50,21 +50,22 @@ module processor(
   wire [`DATA_WIDTH-1:0] address_src_result;
 
   // if/id
-  wire [`INST_WIDTH-1:0] if_id_instruction, if_id_pc;
-  wire [`DATA_WIDTH-1:0] jump_address;
+  wire [`INST_WIDTH-1:0] if_id_instruction;
+  wire [`ADDR_WIDTH-1:0] if_id_pc;
+  wire [`ADDR_WIDTH-1:0] jump_address;
 
   // id/ex
   wire [`NUM_REGISTERS_LOG2-1:0] id_ex_rs, id_ex_rt, id_ex_rd;
   wire [`DATA_WIDTH-1:0] id_ex_reg_read_data_1, id_ex_reg_read_data_2;
-  wire [`DATA_WIDTH-1:0] id_ex_immediate;
-  wire [`DATA_WIDTH-1:0] id_ex_address;
+  wire [`IMM_WIDTH-1:0] id_ex_immediate;
+  wire [`ADDR_WIDTH-1:0] id_ex_address;
   wire id_ex_reg_dst, id_ex_mem_to_reg, id_ex_beq, id_ex_bne, id_ex_alu_src, id_ex_reg_write, id_ex_address_src;
   wire [`ALU_OP_BITS-1:0] id_ex_alu_op;
   wire [`MEM_OP_BITS-1:0] id_ex_mem_op;
   // ex/mem
   wire [`DATA_WIDTH-1:0] ex_mem_alu_result;
   wire [`DATA_WIDTH-1:0] ex_mem_data_1, ex_mem_data_2;
-  wire [`DATA_WIDTH-1:0] ex_mem_address;
+  wire [`ADDR_WIDTH-1:0] ex_mem_address;
   wire ex_mem_mem_to_reg, ex_mem_address_src;
   wire ex_mem_beq, ex_mem_bne, ex_mem_compare;
   wire [`MEM_OP_BITS-1:0] ex_mem_mem_op;

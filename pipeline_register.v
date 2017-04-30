@@ -77,8 +77,8 @@ module id_ex_register(
   input wire [`NUM_REGISTERS_LOG2-1:0] rd_in;
   input wire [`DATA_WIDTH-1:0] reg_read_data_1_in;
   input wire [`DATA_WIDTH-1:0] reg_read_data_2_in;
-  input wire [`DATA_WIDTH-1:0] immediate_in;
-  input wire [`DATA_WIDTH-1:0] address_in;
+  input wire [`IMM_WIDTH-1:0] immediate_in;
+  input wire [`ADDR_WIDTH-1:0] address_in;
   input wire reg_dst_in;
   input wire mem_to_reg_in;
   input wire [`ALU_OP_BITS-1:0] alu_op_in;
@@ -94,8 +94,8 @@ module id_ex_register(
   output reg [`NUM_REGISTERS_LOG2-1:0] rd_out;
   output reg [`DATA_WIDTH-1:0] reg_read_data_1_out;
   output reg [`DATA_WIDTH-1:0] reg_read_data_2_out;
-  output reg [`DATA_WIDTH-1:0] immediate_out;
-  output reg [`DATA_WIDTH-1:0] address_out;
+  output reg [`IMM_WIDTH-1:0] immediate_out;
+  output reg [`ADDR_WIDTH-1:0] address_out;
   output reg reg_dst_out;
   output reg mem_to_reg_out;
   output reg [`ALU_OP_BITS-1:0] alu_op_out;
@@ -208,7 +208,7 @@ module ex_mem_register(
   input wire mem_to_reg_in;
   input wire reg_write_in;
   input wire compare_in;
-  input wire [`DATA_WIDTH-1:0] address_in;
+  input wire [`ADDR_WIDTH-1:0] address_in;
   input wire address_src_in;
 
   output reg [`DATA_WIDTH-1:0] alu_result_out;
@@ -221,7 +221,7 @@ module ex_mem_register(
   output reg mem_to_reg_out;
   output reg reg_write_out;
   output reg compare_out;
-  output reg [`DATA_WIDTH-1:0] address_out;
+  output reg [`ADDR_WIDTH-1:0] address_out;
   output reg address_src_out;
 
   initial begin
