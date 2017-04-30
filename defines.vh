@@ -72,7 +72,60 @@
 
 `define FORWARD_BITS    2
 
+/*
+`define OPCODE_MSB INST_WIDTH-1
+`define OPCODE_LSB OPCODE_MSB-OP_CODE_BITS+1
+
+`define REG_RS_MSB OPCODE_LSB-1
+`define REG_RS_LSB REG_RS_MSB-NUM_REGISTERS_LOG2+1
+
+`define REG_RT_MSB REG_RS_LSB-1
+`define REG_RT_LSB REG_RT_MSB-NUM_REGISTERS_LOG2+1
+
+// R-TYPE
+`define REG_RD_MSB REG_RT_LSB-1
+`define REG_RD_LSB REG_RD_MSB-NUM_REGISTERS_LOG2+1
+
+// I-TYPE
+`define IMM_MSB REG_RT_LSB-1
+`define IMM_LSB IMM_MSB-IMM_WIDTH+1
+// THERE SHOULD BE AN ASSERTION HERE.
+
+// THERE IS NO JTYPE, jump = I-TYPE
+*/
+
+`define OPCODE_MSB 31
+`define OPCODE_LSB 26
+
+`define REG_RS_MSB 25
+`define REG_RS_LSB 21
+
+`define REG_RT_MSB 20
+`define REG_RT_LSB 16
+
+// R-TYPE
+`define REG_RD_MSB 15
+`define REG_RD_LSB 11
+
+// I-TYPE
+`define IMM_MSB 15
+`define IMM_LSB 0
+
+// THERE IS NO JTYPE, jump = I-TYPE
 
 `endif
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
