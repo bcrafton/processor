@@ -3,24 +3,25 @@
 `include "defines.vh"
 
 module jump_unit(
-  instruction,
+  opcode,
+  address,
   jump,
-  address
+  jump_address
   );
 
-  input wire [`INST_WIDTH-1:0] instruction;
-  output reg jump;
-  output reg [`ADDR_WIDTH-1:0] address;
+  input wire  [`OP_CODE_BITS-1:0] opcode;
+  input wire  [`ADDR_WIDTH-1:0]   address;
+  output reg                      jump;
+  output reg  [`ADDR_WIDTH-1:0]   jump_address;
 
   always @(*) begin
 
-    if(instruction[15:12] == `OP_CODE_JUMP) begin
+    if(opcode == `OP_CODE_JUMP) begin
       jump <= 1;
-      address[5:0] <= instruction[5:0];
-      address[15:6] <= 9'b000000000;
+      jump_address <= address;
     end else begin
       jump <= 0;
-      address <= 0;
+      jump_address = 0;
     end
 
   end

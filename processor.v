@@ -52,7 +52,6 @@ module processor(
   // if/id
   wire [`INST_WIDTH-1:0] if_id_instruction;
   wire [`ADDR_WIDTH-1:0] if_id_pc;
-  wire [`ADDR_WIDTH-1:0] jump_address;
 
   // id/ex
   wire [`NUM_REGISTERS_LOG2-1:0] id_ex_rs, id_ex_rt, id_ex_rd;
@@ -93,22 +92,17 @@ module processor(
 
   program_counter pc_unit(
   .clk(clk), 
+  .if_id_opcode(opcode),
+  .if_id_address(address),
   .branch_address(ex_mem_address), 
-  .jump_address(jump_address), 
   .pc(pc), 
   .flush(flush), 
-  .stall(stall), 
-  .jump(jump));
+  .stall(stall));
   
   instruction_memory im(
   .clk(clk), 
   .pc(pc), 
   .instruction(instruction));
-
-  jump_unit ju(
-  .instruction(instruction), 
-  .jump(jump), 
-  .address(jump_address));
 
   if_id_register if_id_reg(
   .clk(clk), 
