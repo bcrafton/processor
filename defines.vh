@@ -61,6 +61,13 @@
 `define NUM_REGISTERS     8
 `define NUM_REGISTERS_LOG2  3 //$clog2(`NUM_REGISTERS)
 
+`define FORWARD_EX_MEM  2
+`define FORWARD_MEM_WB  1
+`define NO_FORWARD      0
+
+`define FORWARD_BITS    2
+
+
 `endif
 
 

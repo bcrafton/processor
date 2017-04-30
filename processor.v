@@ -74,7 +74,7 @@ module processor(
   wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_reg_dst_result;
   wire mem_wb_mem_to_reg, mem_wb_reg_write;
 
-  wire [1:0] forward_a, forward_b;
+  wire [`FORWARD_BITS-1:0] forward_a, forward_b;
   wire stall;
   wire flush;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result, alu_input_mux_2_result;
@@ -197,13 +197,15 @@ module processor(
   .forward_a(forward_a), 
   .forward_b(forward_b));
 
+// this takes 2 forwards and the normal 1, not 3 forwards.
   mux4x2 #(`DATA_WIDTH) alu_input_mux_1(
   .in0(id_ex_reg_read_data_1), 
-  .in1(mem_to_reg_result), 
+  .in1(mem_to_reg_result), // so is this out of mem/wb pipeline reg, the power point slides says mem/wb register
   .in2(ex_mem_alu_result), 
   .sel(forward_a), 
   .out(alu_input_mux_1_result));
 
+// this takes 2 forwards and the normal 1, not 3 forwards.
   mux4x2 #(`DATA_WIDTH) alu_input_mux_2(
   .in0(id_ex_reg_read_data_2), 
   .in1(mem_to_reg_result), 

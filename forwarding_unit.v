@@ -25,25 +25,25 @@ module forwarding_unit(
   input wire mem_wb_reg_write;
 
   // know these have to do with stage we are forwarding to.
-  output reg [1:0] forward_a;
-  output reg [1:0] forward_b;
+  output reg [`FORWARD_BITS-1:0] forward_a;
+  output reg [`FORWARD_BITS-1:0] forward_b;
 
   always @(*) begin
 
-    if(ex_mem_reg_write && id_ex_rs == ex_mem_rd) begin
-      forward_a <= 2;
-    end else if(mem_wb_reg_write && id_ex_rs == mem_wb_rd) begin
-      forward_a <= 1;
+    if(ex_mem_reg_write && (id_ex_rs == ex_mem_rd)) begin
+      forward_a <= `FORWARD_EX_MEM;
+    end else if(mem_wb_reg_write && (id_ex_rs == mem_wb_rd)) begin
+      forward_a <= `FORWARD_MEM_WB;
     end else begin
-      forward_a <= 0;
+      forward_a <= `NO_FORWARD;
     end
 
-    if(ex_mem_reg_write && id_ex_rt == ex_mem_rd) begin
-      forward_b <= 2;
-    end else if(mem_wb_reg_write && id_ex_rt == mem_wb_rd) begin
-      forward_b <= 1;
+    if(ex_mem_reg_write && (id_ex_rt == ex_mem_rd)) begin
+      forward_b <= `FORWARD_EX_MEM;
+    end else if(mem_wb_reg_write && (id_ex_rt == mem_wb_rd)) begin
+      forward_b <= `FORWARD_MEM_WB;
     end else begin
-      forward_b <= 0;
+      forward_b <= `NO_FORWARD;
     end
 
   end
