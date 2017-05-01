@@ -79,12 +79,12 @@ module processor(
   wire flush;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result, alu_input_mux_2_result;
 
-  assign opcode = if_id_instruction[OPCODE_MSB:OPCODE_LSB];
-  assign rs = if_id_instruction[REG_RS_MSB:REG_RS_LSB];
-  assign rt = if_id_instruction[REG_RT_MSB:REG_RT_LSB];
-  assign rd = if_id_instruction[REG_RD_MSB:REG_RD_LSB];
-  assign immediate[5:0] = if_id_instruction[IMM_MSB:IMM_LSB];
-  assign address[5:0] = if_id_instruction[IMM_MSB:IMM_LSB];
+  assign opcode = if_id_instruction[`OPCODE_MSB:`OPCODE_LSB];
+  assign rs = if_id_instruction[`REG_RS_MSB:`REG_RS_LSB];
+  assign rt = if_id_instruction[`REG_RT_MSB:`REG_RT_LSB];
+  assign rd = if_id_instruction[`REG_RD_MSB:`REG_RD_LSB];
+  assign immediate[5:0] = if_id_instruction[`IMM_MSB:`IMM_LSB];
+  assign address[5:0] = if_id_instruction[`IMM_MSB:`IMM_LSB];
   assign immediate[15:6] = 9'b000000000;
   assign address[15:6] = 9'b000000000;
 
