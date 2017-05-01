@@ -35,6 +35,12 @@ module alu
       6: alu_result = ~(data1 | data2); // NOR
       7: alu_result = data1;
       8: alu_result = data2;
+/* we must include shamt. wow, we thought we wudnt need those bits lol.
+      9: alu_result = data1 >>> data2;
+      10: alu_result = data1 >> data2;
+      11: alu_result = data1 << data2;
+*/
+      12: alu_result = data1 ^ data2;
     endcase
 
     if (data1 == data2) begin

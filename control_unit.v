@@ -41,6 +41,7 @@ module control_unit(
         beq <= 0;
         bne <= 0;
         // this is never set to 1, wtf.
+        // that is because this is used for la and sa, and we removed those.
         address_src <= 0;
       end
       1: begin // addi
@@ -190,7 +191,7 @@ module control_unit(
         alu_src <= 0;
         reg_write <= 0;
         beq <= 0;
-        bne <= 1'b1;
+        bne <= 1;
         address_src <= 0;
       end
       15: begin // jump
@@ -200,6 +201,77 @@ module control_unit(
         bne <= 0;
         address_src <= 0;
       end
+// if not defined.
+`ifndef PROCESSOR_16_BIT
+      16: begin // la
+        reg_dst <= 0;
+        mem_op <= `MEM_OP_READ;
+        alu_src <= 0;
+        mem_to_reg <= 1;
+        reg_write <= 1;
+        // shudnt this be dont care?        
+        //alu_op <= 4'b0000;
+        beq <= 0;
+        bne <= 0;
+        address_src <= 1;
+      end
+      17: begin // sa
+        reg_dst <= 0;
+        mem_op <= `MEM_OP_WRITE;
+        alu_src <= 0;
+        mem_to_reg <= 0;
+        reg_write <= 0;
+        // shudnt this be dont care?        
+        //alu_op <= 4'b0000;
+        beq <= 0;
+        bne <= 0;
+        address_src <= 1;
+      end
+      18: begin // sar
+        reg_dst <= 1;
+        mem_op <= `MEM_OP_NOP;
+        alu_src <= 0;
+        mem_to_reg <= 0;
+        reg_write <= 1;
+        alu_op <= `ALU_OP_SAR;
+        beq <= 0;
+        bne <= 0;
+        address_src <= 0;
+      end
+      19: begin // shr
+        reg_dst <= 1;
+        mem_op <= `MEM_OP_NOP;
+        alu_src <= 0;
+        mem_to_reg <= 0;
+        reg_write <= 1;
+        alu_op <= `ALU_OP_SHR;
+        beq <= 0;
+        bne <= 0;
+        address_src <= 0;
+      end
+      20: begin // shl
+        reg_dst <= 1;
+        mem_op <= `MEM_OP_NOP;
+        alu_src <= 0;
+        mem_to_reg <= 0;
+        reg_write <= 1;
+        alu_op <= `ALU_OP_SHL;
+        beq <= 0;
+        bne <= 0;
+        address_src <= 0;
+      end
+      21: begin // xor
+        reg_dst <= 1;
+        mem_op <= `MEM_OP_NOP;
+        alu_src <= 0;
+        mem_to_reg <= 0;
+        reg_write <= 1;
+        alu_op <= `ALU_OP_XOR;
+        beq <= 0;
+        bne <= 0;
+        address_src <= 0;
+      end
+`endif
 
     endcase
 

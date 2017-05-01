@@ -89,6 +89,12 @@
   `define ALU_OP_NOR        4'b0110
   `define ALU_OP_MOV        4'b0111
   `define ALU_OP_LI         4'b1000
+
+  `define ALU_OP_SAR        4'b1001
+  `define ALU_OP_SHR        4'b1010
+  `define ALU_OP_SHL        4'b1011
+  `define ALU_OP_XOR        4'b1100
+
   `define ALU_OP_BITS       4 //$bits(ALU_OP_ADD)
 
   `define OP_CODE_ADD       6'b000000
@@ -107,6 +113,12 @@
   `define OP_CODE_BEQ       6'b001101
   `define OP_CODE_BNE       6'b001110
   `define OP_CODE_JUMP      6'b001111
+  `define OP_CODE_SA        6'b010000
+  `define OP_CODE_LA        6'b010001
+  `define OP_CODE_SAR       6'b010010
+  `define OP_CODE_SHR       6'b010011
+  `define OP_CODE_SHL       6'b010100
+  `define OP_CODE_XOR       6'b010101
   `define OP_CODE_BITS      6 //$bits(OP_CODE_ADD)
 
   `define NUM_REGISTERS       32
@@ -124,6 +136,9 @@
   // R-TYPE
   `define REG_RD_MSB 15
   `define REG_RD_LSB 11
+
+  `define SHAMT_MSB  10
+  `define SHAMT_LSB  5
 
   // I-TYPE
   `define IMM_MSB 15
