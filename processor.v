@@ -22,6 +22,7 @@ module processor(
   wire [`NUM_REGISTERS_LOG2-1:0] rd;
   wire [`IMM_WIDTH-1:0] immediate;
   wire [`ADDR_WIDTH-1:0] address;
+  wire [`SHAMT_BITS-1:0] shamt;
 
   wire  reg_dst;
   wire  jump;
@@ -58,6 +59,7 @@ module processor(
   wire [`DATA_WIDTH-1:0] id_ex_reg_read_data_1, id_ex_reg_read_data_2;
   wire [`IMM_WIDTH-1:0] id_ex_immediate;
   wire [`ADDR_WIDTH-1:0] id_ex_address;
+  wire [`SHAMT_BITS-1:0] id_ex_shamt;
   wire id_ex_reg_dst, id_ex_mem_to_reg, id_ex_beq, id_ex_bne, id_ex_alu_src, id_ex_reg_write, id_ex_address_src;
   wire [`ALU_OP_BITS-1:0] id_ex_alu_op;
   wire [`MEM_OP_BITS-1:0] id_ex_mem_op;
@@ -85,6 +87,7 @@ module processor(
   assign rd = if_id_instruction[`REG_RD_MSB:`REG_RD_LSB];
   assign immediate = if_id_instruction[`IMM_MSB:`IMM_LSB];
   assign address = if_id_instruction[`IMM_MSB:`IMM_LSB];
+  assign shamt = if_id_instruction[`SHAMT_MSB:`SHAMT_LSB];
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -152,6 +155,7 @@ module processor(
   .reg_read_data_2_in(reg_read_data_2), 
   .immediate_in(immediate), 
   .address_in(address), 
+  .shamt_in(shamt),
   .reg_dst_in(reg_dst), 
   .mem_to_reg_in(mem_to_reg), 
   .alu_op_in(alu_op), 
@@ -161,6 +165,7 @@ module processor(
   .beq_in(beq), 
   .bne_in(bne), 
   .address_src_in(address_src),
+
   .rs_out(id_ex_rs), 
   .rt_out(id_ex_rt), 
   .rd_out(id_ex_rd), 
@@ -168,6 +173,7 @@ module processor(
   .reg_read_data_2_out(id_ex_reg_read_data_2), 
   .immediate_out(id_ex_immediate), 
   .address_out(id_ex_address),
+  .shamt_out(id_ex_shamt),
   .reg_dst_out(id_ex_reg_dst), 
   .mem_to_reg_out(id_ex_mem_to_reg), 
   .alu_op_out(id_ex_alu_op), 
@@ -219,6 +225,7 @@ module processor(
   .alu_op(id_ex_alu_op), 
   .data1(alu_input_mux_1_result), 
   .data2(alu_src_result), 
+  .shamt(id_ex_shamt),
   .compare(compare), 
   .alu_result(alu_result));
 

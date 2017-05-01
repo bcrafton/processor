@@ -40,6 +40,7 @@ module id_ex_register(
   reg_read_data_2_in,
   immediate_in,
   address_in,
+  shamt_in,
   reg_dst_in,
   mem_to_reg_in,
   alu_op_in,
@@ -57,6 +58,7 @@ module id_ex_register(
   reg_read_data_2_out,
   immediate_out,
   address_out,
+  shamt_out,
   reg_dst_out,
   mem_to_reg_out,
   alu_op_out,
@@ -79,6 +81,7 @@ module id_ex_register(
   input wire [`DATA_WIDTH-1:0] reg_read_data_2_in;
   input wire [`IMM_WIDTH-1:0] immediate_in;
   input wire [`ADDR_WIDTH-1:0] address_in;
+  input wire [`SHAMT_BITS-1:0] shamt_in;
   input wire reg_dst_in;
   input wire mem_to_reg_in;
   input wire [`ALU_OP_BITS-1:0] alu_op_in;
@@ -96,6 +99,7 @@ module id_ex_register(
   output reg [`DATA_WIDTH-1:0] reg_read_data_2_out;
   output reg [`IMM_WIDTH-1:0] immediate_out;
   output reg [`ADDR_WIDTH-1:0] address_out;
+  output reg [`SHAMT_BITS-1:0] shamt_out;
   output reg reg_dst_out;
   output reg mem_to_reg_out;
   output reg [`ALU_OP_BITS-1:0] alu_op_out;
@@ -111,6 +115,7 @@ module id_ex_register(
     reg_read_data_2_out <= 0;
     immediate_out <= 0;
     address_out <= 0;
+    shamt_out <= 0;
     reg_dst_out <= 0;
     mem_to_reg_out <= 0;
     alu_op_out <= 0;
@@ -132,6 +137,7 @@ module id_ex_register(
       reg_read_data_2_out <= 0;
       immediate_out <= 0;
       address_out <= 0;
+      shamt_out <= 0;
       reg_dst_out <= 0;
       mem_to_reg_out <= 0;
       alu_op_out <= 0;
@@ -149,6 +155,7 @@ module id_ex_register(
       reg_read_data_2_out <= reg_read_data_2_in;
       immediate_out <= immediate_in;
       address_out <= address_in;
+      shamt_out <= shamt_in;
       reg_dst_out <= reg_dst_in;
       mem_to_reg_out <= mem_to_reg_in;
       alu_op_out <= alu_op_in;

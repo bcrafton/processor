@@ -137,8 +137,10 @@
   `define REG_RD_MSB 15
   `define REG_RD_LSB 11
 
+  // can only shift 31 times.
   `define SHAMT_MSB  10
-  `define SHAMT_LSB  5
+  `define SHAMT_LSB  6
+  `define SHAMT_BITS 5
 
   // I-TYPE
   `define IMM_MSB 15
