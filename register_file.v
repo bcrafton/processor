@@ -28,16 +28,17 @@ module register_file(
   output wire [`DATA_WIDTH-1:0] read_data_2;
 
   initial begin
-    regfile[0] <= 16'h0000;
-    regfile[1] <= 16'h0000;
-    regfile[2] <= 16'h0000;
-    regfile[3] <= 16'h0000;
+    regfile[0] <= 0;
+    regfile[1] <= 0;
+    regfile[2] <= 0;
+    regfile[3] <= 0;
 
-    regfile[4] <= 16'h0000;
-    regfile[5] <= 16'h0000;
-    regfile[6] <= 16'h0000;
-    regfile[7] <= 16'h0000;
+    regfile[4] <= 0;
+    regfile[5] <= 0;
+    regfile[6] <= 0;
+    regfile[7] <= 0;
   end
+
 
   assign read_data_1 = regfile[read_address_1];
   assign read_data_2 = regfile[read_address_2];

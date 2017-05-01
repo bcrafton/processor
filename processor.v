@@ -47,7 +47,7 @@ module processor(
   wire [`DATA_WIDTH-1:0] mem_to_reg_result;
 
   wire address_src;
-  wire [`DATA_WIDTH-1:0] address_src_result;
+  wire [`ADDR_WIDTH-1:0] address_src_result;
 
   // if/id
   wire [`INST_WIDTH-1:0] if_id_instruction;
@@ -83,10 +83,8 @@ module processor(
   assign rs = if_id_instruction[`REG_RS_MSB:`REG_RS_LSB];
   assign rt = if_id_instruction[`REG_RT_MSB:`REG_RT_LSB];
   assign rd = if_id_instruction[`REG_RD_MSB:`REG_RD_LSB];
-  assign immediate[5:0] = if_id_instruction[`IMM_MSB:`IMM_LSB];
-  assign address[5:0] = if_id_instruction[`IMM_MSB:`IMM_LSB];
-  assign immediate[15:6] = 9'b000000000;
-  assign address[15:6] = 9'b000000000;
+  assign immediate = if_id_instruction[`IMM_MSB:`IMM_LSB];
+  assign address = if_id_instruction[`IMM_MSB:`IMM_LSB];
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -224,7 +222,7 @@ module processor(
   .compare(compare), 
   .alu_result(alu_result));
 
-  mux2x1 #(3) reg_dst_mux(
+  mux2x1 #(`NUM_REGISTERS_LOG2) reg_dst_mux(
   .in0(id_ex_rt), 
   .in1(id_ex_rd), 
   .sel(id_ex_reg_dst), 
@@ -260,11 +258,24 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  mux2x1 #(`DATA_WIDTH) address_src_mux(
+  // ex_mem_data_1: register result
+  // ex_mem_address: address in instruction
+  // la, sa = ex_mem_address
+  // lw, sw = ex_mem_data_1
+
+`ifdef PROCESSOR_16_BIT
+  mux2x1 #(`ADDR_WIDTH) address_src_mux(
   .in0(ex_mem_data_1), 
   .in1(ex_mem_address), 
   .sel(ex_mem_address_src), 
   .out(address_src_result));
+`elsif
+  mux2x1 #(`ADDR_WIDTH) address_src_mux(
+  .in0(ex_mem_data_1[`ADDR_WIDTH-1:0]), 
+  .in1(ex_mem_address), 
+  .sel(ex_mem_address_src), 
+  .out(address_src_result));
+`endif
 
   ram data_memory(
   .clk(clk), 
