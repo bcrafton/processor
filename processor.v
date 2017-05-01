@@ -214,9 +214,26 @@ module processor(
   .sel(forward_b), 
   .out(alu_input_mux_2_result));
 
+// this is not working for whatever reason.
+/*
+`ifdef PROCESSOR_16_BIT
   mux2x1 #(`DATA_WIDTH) alu_src_mux(
   .in0(alu_input_mux_2_result), 
   .in1(id_ex_immediate), 
+  .sel(id_ex_alu_src), 
+  .out(alu_src_result));
+`elsif
+  mux2x1 #(`DATA_WIDTH) alu_src_mux(
+  .in0(alu_input_mux_2_result), 
+  .in1({16'h0000, id_ex_immediate}), 
+  .sel(id_ex_alu_src), 
+  .out(alu_src_result));
+`endif
+*/
+
+  mux2x1 #(`DATA_WIDTH) alu_src_mux(
+  .in0(alu_input_mux_2_result), 
+  .in1({16'h0000, id_ex_immediate}), 
   .sel(id_ex_alu_src), 
   .out(alu_src_result));
 
@@ -225,7 +242,6 @@ module processor(
   .alu_op(id_ex_alu_op), 
   .data1(alu_input_mux_1_result), 
   .data2(alu_src_result), 
-  .shamt(id_ex_shamt),
   .compare(compare), 
   .alu_result(alu_result));
 

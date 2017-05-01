@@ -12,7 +12,6 @@ module alu
   alu_op,
   data1,
   data2,
-  shamt,
   compare,
   alu_result
   );
@@ -21,7 +20,6 @@ module alu
   input wire [`ALU_OP_BITS-1:0] alu_op;
   input wire [`DATA_WIDTH-1:0] data1;
   input wire [`DATA_WIDTH-1:0] data2;
-  input wire [`SHAMT_BITS-1:0] shamt;
   output reg compare;
   output reg [`DATA_WIDTH-1:0] alu_result;
 
@@ -37,10 +35,12 @@ module alu
       6: alu_result = ~(data1 | data2); // NOR
       7: alu_result = data1;
       8: alu_result = data2;
-      // use shamt here, or use data2 ... no idea.
-      9: alu_result = data1 >>> shamt;
-      10: alu_result = data1 >> shamt;
-      11: alu_result = data1 << shamt;
+      // shamt is dumb, this should be data2.
+      // a mux would be used to provide shamt to alu.
+      // although why cant the control signals be passed to alu instead of using mux outside of it.
+      9: alu_result = data1 >>> data2;
+      10: alu_result = data1 >> data2;
+      11: alu_result = data1 << data2;
 
       12: alu_result = data1 ^ data2;
     endcase
