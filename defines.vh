@@ -95,26 +95,6 @@
 */
 
 /*
-`define OPCODE_MSB 15
-`define OPCODE_LSB 12
-
-`define REG_RS_MSB 11
-`define REG_RS_LSB 9
-
-`define REG_RT_MSB 8
-`define REG_RT_LSB 6
-
-// R-TYPE
-`define REG_RD_MSB 5
-`define REG_RD_LSB 3
-
-// I-TYPE
-`define IMM_MSB 5
-`define IMM_LSB 0
-
-// THERE IS NO JTYPE, jump = I-TYPE
-*/
-
 `define OPCODE_MSB 31
 `define OPCODE_LSB 26
 
@@ -130,6 +110,26 @@
 
 // I-TYPE
 `define IMM_MSB 15
+`define IMM_LSB 0
+
+// THERE IS NO JTYPE, jump = I-TYPE
+*/
+
+`define OPCODE_MSB 15
+`define OPCODE_LSB 12
+
+`define REG_RS_MSB 11
+`define REG_RS_LSB 9
+
+`define REG_RT_MSB 8
+`define REG_RT_LSB 6
+
+// R-TYPE
+`define REG_RD_MSB 5
+`define REG_RD_LSB 3
+
+// I-TYPE
+`define IMM_MSB 5
 `define IMM_LSB 0
 
 // THERE IS NO JTYPE, jump = I-TYPE
