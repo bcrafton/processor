@@ -587,7 +587,12 @@ let check_two_num (a1 : arg) (a2 : arg) (t : tag) : instruction list =
     ILabel(pass_label);
   ]
 
-let rec assemble_section (il : instruction list) : string = 
+let rec assemble (out : string) (il : instruction list) =
+  let binary = (assemble_section il) in
+  let outfile = open_out (out ^ ".b") in
+  fprintf outfile "%s" binary
+
+and assemble_section (il : instruction list) : string = 
   match il with
   | i :: rest ->
     sprintf "%s\n%s" (assemble_instruction i) (assemble_section rest)
@@ -944,8 +949,11 @@ let errors = [
     in
     let compiled_fns = (compile_fns fns) in
     let main = (compile_decl (ADFun("our_code_starts_here", [], body, t))) in
+    let il = (compiled_fns @ main @ errors) in
 
-    let as_assembly_string = (to_asm (compiled_fns @ main @ errors)) in
+    (assemble "prog" il); 
+
+    let as_assembly_string = (to_asm il) in
     sprintf "%s%s\n" prelude as_assembly_string
     
   

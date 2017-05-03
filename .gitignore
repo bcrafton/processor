@@ -4,3 +4,9 @@
 processor/out/*
 *.vvp
 *.vcd
+assembler/_build
+assembler/_build/*
+assembler/main
+assembler/output/*
+assembler/prog.b
+assembler/test
