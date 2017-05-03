@@ -587,11 +587,14 @@ let check_two_num (a1 : arg) (a2 : arg) (t : tag) : instruction list =
     ILabel(pass_label);
   ]
 
-(*
-let rec assemble_section () : () = 
+let rec assemble_section (il : instruction list) : string = 
+  match il with
+  | i :: rest ->
+    sprintf "%s\n%s" (assemble_instruction i) (assemble_section rest)
+  | [] -> ""
 
-and assemble_instruction () : () = 
-*)
+and assemble_instruction (i : instruction) : string = 
+  sprintf "add 5, 4"
 
 let rec compile_fun (fun_name : string) (args : string list) (body : tag aexpr) (env : arg envt) : instruction list =
   (* is env suppose to be a list of var names and RegOffset pairs *)
