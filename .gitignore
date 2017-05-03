@@ -1,6 +1,6 @@
 *.out
 *.o
 *.so
-out/*
+processor/out/*
 *.vvp
 *.vcd
