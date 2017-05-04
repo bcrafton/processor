@@ -37,7 +37,7 @@ module alu
     case(alu_op)
       `ALU_OP_ADD: alu_result = data1 + data2; // ADD
       `ALU_OP_SUB: alu_result = data1 - data2; // SUB
-      `ALU_OP_NOT: alu_result = !data1; // NOT
+      `ALU_OP_NOT: alu_result = ~data1; // NOT
       `ALU_OP_AND: alu_result = data1 & data2; // AND
       `ALU_OP_OR: alu_result = data1 | data2; // OR
       `ALU_OP_NAND: alu_result = ~(data1 & data2); // NAND
