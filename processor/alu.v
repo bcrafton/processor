@@ -12,44 +12,56 @@ module alu
   alu_op,
   data1,
   data2,
-  compare,
-  alu_result
+  compare, // this is used for branches.
+  zero,
+  less,
+  greater, 
+  alu_result,
   );
 
   input wire clk;
   input wire [`ALU_OP_BITS-1:0] alu_op;
   input wire [`DATA_WIDTH-1:0] data1;
   input wire [`DATA_WIDTH-1:0] data2;
+
   output reg compare;
+
+  output reg zero;
+  output reg less;
+  output reg greater;
+
   output reg [`DATA_WIDTH-1:0] alu_result;
 
   always @(*) begin
 
     case(alu_op)
-      0: alu_result = data1 + data2; // ADD
-      1: alu_result = data1 - data2; // SUB
-      2: alu_result = !data1; // NOT
-      3: alu_result = data1 & data2; // AND
-      4: alu_result = data1 | data2; // OR
-      5: alu_result = ~(data1 & data2); // NAND
-      6: alu_result = ~(data1 | data2); // NOR
-      7: alu_result = data1;
-      8: alu_result = data2;
-      // shamt is dumb, this should be data2.
-      // a mux would be used to provide shamt to alu.
-      // although why cant the control signals be passed to alu instead of using mux outside of it.
-      9: alu_result = data1 >>> data2;
-      10: alu_result = data1 >> data2;
-      11: alu_result = data1 << data2;
+      `ALU_OP_ADD: alu_result = data1 + data2; // ADD
+      `ALU_OP_SUB: alu_result = data1 - data2; // SUB
+      `ALU_OP_NOT: alu_result = !data1; // NOT
+      `ALU_OP_AND: alu_result = data1 & data2; // AND
+      `ALU_OP_OR: alu_result = data1 | data2; // OR
+      `ALU_OP_NAND: alu_result = ~(data1 & data2); // NAND
+      `ALU_OP_NOR: alu_result = ~(data1 | data2); // NOR
+      `ALU_OP_MOV: alu_result = data1;
+      `ALU_OP_LI: alu_result = data2;
 
-      12: alu_result = data1 ^ data2;
+      `ALU_OP_SAR: alu_result = data1 >>> data2;
+      `ALU_OP_SHR: alu_result = data1 >> data2;
+      `ALU_OP_SHL: alu_result = data1 << data2;
+      `ALU_OP_XOR: alu_result = data1 ^ data2;
+      `ALU_OP_CMP: begin
+          zero <= ((data1 - data2) == 0) ? 1'b1 : 1'b0;
+          less <= data1 < data2 ? 1'b1 : 1'b0;
+          greater <= data1 > data1 ? 1'b1 : 1'b0;
+          end
+      `ALU_OP_TEST: begin
+          zero <= ((data1 & data2) == 0) ? 1'b1 : 1'b0;
+          less <= data1 < data2 ? 1'b1 : 1'b0;
+          greater <= data1 > data1 ? 1'b1 : 1'b0;
+          end
     endcase
 
-    if (data1 == data2) begin
-      compare = 1'b1;
-    end else begin
-      compare = 1'b0;
-    end
+    compare <= data1 == data2 ? 1'b1 : 1'b0;
 
   end
 

@@ -24,15 +24,19 @@ module processor(
   wire [`ADDR_WIDTH-1:0] address;
   wire [`SHAMT_BITS-1:0] shamt;
 
-  wire  reg_dst;
-  wire  jump;
-  wire  mem_to_reg;
-  wire  [`ALU_OP_BITS-1:0] alu_op;
-  wire  [`MEM_OP_BITS-1:0] mem_op;
-  wire  alu_src;
-  wire  reg_write;
-  wire  beq;
-  wire  bne;
+  wire reg_dst;
+  wire jump;
+  wire mem_to_reg;
+  wire [`ALU_OP_BITS-1:0] alu_op;
+  wire [`MEM_OP_BITS-1:0] mem_op;
+  wire alu_src;
+  wire reg_write;
+  wire beq;
+  wire bne;
+
+  wire zero;
+  wire less;
+  wire greater;
 
   wire [`INST_WIDTH-1:0] instruction;
   wire [`DATA_WIDTH-1:0] ram_read_data;
@@ -243,6 +247,9 @@ module processor(
   .data1(alu_input_mux_1_result), 
   .data2(alu_src_result), 
   .compare(compare), 
+  .zero(zero),
+  .less(less),
+  .greater(greater),
   .alu_result(alu_result));
 
   mux2x1 #(`NUM_REGISTERS_LOG2) reg_dst_mux(

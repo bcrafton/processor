@@ -95,6 +95,9 @@
   `define ALU_OP_SHL        4'b1011
   `define ALU_OP_XOR        4'b1100
 
+  `define ALU_OP_CMP        4'b1101
+  `define ALU_OP_TEST       4'b1110
+
   `define ALU_OP_BITS       4 //$bits(ALU_OP_ADD)
 
   `define OP_CODE_ADD       6'b000000
