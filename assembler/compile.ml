@@ -601,12 +601,12 @@ and assemble_section (il : instruction list) : string =
 and assemble_instruction (i : instruction) : string = 
   match i with
   | IMov(a1, a2) ->
-    let opcode = OP_CODE_ADD in
-    (* is argument a const, or is it a reg/reg offset *)
-    (* then call the respective function to handle it *)
+    let opcode = op_code_add in
+(*
     let a1' = (arg_to_asm_arg a1) in
     let a2' = (arg_to_asm_arg a2) in
-    let 
+*)
+    "00000000" 
   | _ -> "00000000"
 
 (*
@@ -673,23 +673,27 @@ and assemble_register (r : reg) : int =
 
 and assemble_r (opcode : int) (rd : reg) (rs : reg) : string =
   let rd_addr = (assemble_register rd) in
-  let rs_addr = (assenble_register rs) in
+  let rs_addr = (assemble_register rs) in
   let b = 0 in
-  let b = b lor (opcode  lsl OPCODE_LSB) in 
-  let b = b lor (rd_addr lsl REG_RS_LSB) in
-  let b = b lor (rs_addr lsl REG_RT_LSB) in
-  let b = b lor (rd_addr lsl REG_RD_LSB) in
-  b
+  let b = b lor (opcode  lsl opcode_lsb) in 
+  let b = b lor (rd_addr lsl reg_rs_lsb) in
+  let b = b lor (rs_addr lsl reg_rt_lsb) in
+  let b = b lor (rd_addr lsl reg_rd_lsb) in
+  sprintf "%x" b 
 
 and assemble_i (opcode : int) (rd : reg) (imm : int) : string =
   let rd_addr = (assemble_register rd) in
   let b = 0 in
-  let b = b lor (opcode  lsl OPCODE_LSB) in 
-  let b = b lor (rd_addr lsl REG_RS_LSB) in
-  let b = b lor (rd_addr lsl REG_RT_LSB) in
-  let b = b lor (imm     lsl IMM_LSB)    in
-  b
+  let b = b lor (opcode  lsl opcode_lsb) in 
+  let b = b lor (rd_addr lsl reg_rs_lsb) in
+  let b = b lor (rd_addr lsl reg_rt_lsb) in
+  let b = b lor (imm     lsl imm_lsb)    in
+  sprintf "%x" b 
 
+and assemble_arg (a : arg) : asm_arg = 
+  
+
+(*
 and arg_to_asm_arg (a : arg) : asm_arg =
   match a with
   | Const(c) ->          AsmArgConst(AsmConst(c))
@@ -699,13 +703,14 @@ and arg_to_asm_arg (a : arg) : asm_arg =
   | Sized(s, a') -> 
     begin
     match a' with 
-    | Const(c) ->        AsmArgConst(AsmConstSized(s, AsmConst(c))
+    | Const(c) ->        AsmArgConst(AsmConstSized(s, AsmConst(c)))
     | HexConst(h) ->     AsmArgConst(AsmConstSized(s, AsmHexConst(h)))
     | Reg(r) ->          AsmArgReg(AsmRegSized(s, AsmReg(r)))
     | RegOffset(i, r) -> AsmArgReg(AsmRegSized(s, AsmRegOffset(i, r)))
 
     | Sized(_, _) ->     failwith "cannot have nested sized()"
     end
+*)
 
 let rec compile_fun (fun_name : string) (args : string list) (body : tag aexpr) (env : arg envt) : instruction list =
   (* is env suppose to be a list of var names and RegOffset pairs *)

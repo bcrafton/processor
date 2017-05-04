@@ -2,45 +2,45 @@
 let word_size = 4
 ;;
 
-let OP_CODE_ADD       = 0
-let OP_CODE_ADDI      = 1
-let OP_CODE_SUB       = 2
-let OP_CODE_SUBI      = 3
-let OP_CODE_NOT       = 4
-let OP_CODE_AND       = 5
-let OP_CODE_OR        = 6
-let OP_CODE_NAND      = 7
-let OP_CODE_NOR       = 8
-let OP_CODE_MOV       = 9
-let OP_CODE_LI        = 10
-let OP_CODE_LW        = 11
-let OP_CODE_SW        = 12
-let OP_CODE_BEQ       = 13
-let OP_CODE_BNE       = 14
-let OP_CODE_JUMP      = 15
-let OP_CODE_SA        = 16
-let OP_CODE_LA        = 17
-let OP_CODE_SAR       = 18
-let OP_CODE_SHR       = 19
-let OP_CODE_SHL       = 20
-let OP_CODE_XOR       = 21
+let op_code_add       = 0;;
+let op_code_addi      = 1;;
+let op_code_sub       = 2;;
+let op_code_subi      = 3;;
+let op_code_not       = 4;;
+let op_code_and       = 5;;
+let op_code_or        = 6;;
+let op_code_nand      = 7;;
+let op_code_nor       = 8;;
+let op_code_mov       = 9;;
+let op_code_li        = 10;;
+let op_code_lw        = 11;;
+let op_code_sw        = 12;;
+let op_code_beq       = 13;;
+let op_code_bne       = 14
+let op_code_jump      = 15
+let op_code_sa        = 16
+let op_code_la        = 17
+let op_code_sar       = 18
+let op_code_shr       = 19
+let op_code_shl       = 20
+let op_code_xor       = 21
 
-let OPCODE_MSB = 31
-let OPCODE_LSB = 26
+let opcode_msb = 31
+let opcode_lsb = 26
 
-let REG_RS_MSB = 25
-let REG_RS_LSB = 21
+let reg_rs_msb = 25
+let reg_rs_lsb = 21
 
-let REG_RT_MSB = 20
-let REG_RT_LSB = 16
+let reg_rt_msb = 20
+let reg_rt_lsb = 16
 
 (* R-TYPE *)
-let REG_RD_MSB = 15
-let REG_RD_LSB = 11
+let reg_rd_msb = 15
+let reg_rd_lsb = 11
 
 (* I-TYPE *)
-let IMM_MSB = 15
-let IMM_LSB = 0
+let imm_msb = 15
+let imm_lsb = 0
 
 type ('a, 'b) either =
   | Left of 'a
@@ -55,8 +55,6 @@ exception DuplicateId of string * sourcespan * sourcespan (* name, where used, w
 exception DuplicateFun of string * sourcespan * sourcespan (* name, where used, where defined *)
 exception Overflow of int * sourcespan (* value, where used *)
 exception Arity of int * int * sourcespan (* intended arity, actual arity, where called *)
-
-  
 
 type reg =
   | EAX
@@ -77,18 +75,16 @@ type arg =
   | Sized of size * arg
 
 type asm_arg = 
-  | AsmArgConst(asm_const)
-  | AsmArgReg(asm_reg)  
-
-type asm_const
   | AsmConst of int
-  | AsmHexConst of int
-  | AsmConstSized of size * asm_const
-
-type asm_reg
   | AsmReg of reg
-  | AsmRegOffset of int * reg
-  | AsmRegSized of size * asm_reg
+
+type reg_addr = int
+type imm = int
+type opcode = int
+
+type asm_instruction
+  | RType opcode * reg_addr * reg_addr * reg_addr
+  | IType opcode * reg_addr * reg_addr * imm
 
 type instruction =
   | IMov of arg * arg
@@ -120,6 +116,37 @@ type instruction =
   | ITest of arg * arg
   | ILineComment of string
   | IInstrComment of instruction * string
+
+type mips_instruction =
+  | MMov of arg * arg
+  | MAdd of arg * arg
+  | MSub of arg * arg
+  | MMul of arg * arg
+  | MLabel of string
+  | MCmp of arg * arg
+  | MJo of string
+  | MJe of string
+  | MJne of string
+  | MJl of string
+  | MJle of string
+  | MJg of string
+  | MJge of string
+  | MJmp of string
+  | MJz of string
+  | MJnz of string
+  | MRet
+  | MAnd of arg * arg
+  | MOr of arg * arg
+  | MXor of arg * arg
+  | MShl of arg * arg
+  | MShr of arg * arg
+  | MSar of arg * arg
+  | MPush of arg
+  | MPop of arg
+  | MCall of string
+  | MTest of arg * arg
+  | MLineComment of string
+  | MInstrComment of instruction * string
 
 type prim1 =
   | Add1
