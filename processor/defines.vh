@@ -119,6 +119,17 @@
   `define OP_CODE_SHR       6'b010011
   `define OP_CODE_SHL       6'b010100
   `define OP_CODE_XOR       6'b010101
+  `define OP_CODE_TEST      6'b010110
+  `define OP_CODE_CMP       6'b010111
+  `define OP_CODE_JO        6'b011000
+  `define OP_CODE_JE        6'b011001
+  `define OP_CODE_JNE       6'b011010
+  `define OP_CODE_JL        6'b011011
+  `define OP_CODE_JLE       6'b011100
+  `define OP_CODE_JG        6'b011101
+  `define OP_CODE_JGE       6'b011110
+  `define OP_CODE_JZ        6'b011111
+  `define OP_CODE_JNZ       6'b100000
   `define OP_CODE_BITS      6 //$bits(OP_CODE_ADD)
 
   `define NUM_REGISTERS       32
