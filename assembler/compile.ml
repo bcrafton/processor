@@ -599,7 +599,113 @@ and assemble_section (il : instruction list) : string =
   | [] -> ""
 
 and assemble_instruction (i : instruction) : string = 
-  sprintf "add 5, 4"
+  match i with
+  | IMov(a1, a2) ->
+    let opcode = OP_CODE_ADD in
+    (* is argument a const, or is it a reg/reg offset *)
+    (* then call the respective function to handle it *)
+    let a1' = (arg_to_asm_arg a1) in
+    let a2' = (arg_to_asm_arg a2) in
+    let 
+  | _ -> "00000000"
+
+(*
+  | IAdd(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | ISub(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IMul(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | ILabel(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | ICmp(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IJo(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IJe(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IJne(a1, a2) ->
+    let opcode = OP_CODE_ADD in
+  | IJl(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IJg(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IJge(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IJmp(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IJnz(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IRet(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IAnd(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IOr(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IXor(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IShl(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IShr(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | ISar(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IPush(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IPop(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | ICall(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | ITest(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | ILineComment(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+  | IInstrComment(a1, a2) -> 
+    let opcode = OP_CODE_ADD in
+*)
+
+and assemble_register (r : reg) : int = 
+  match r with
+  | EAX -> 0
+  | EDX -> 1
+  | ESP -> 2
+  | EBP -> 3
+
+and assemble_r (opcode : int) (rd : reg) (rs : reg) : string =
+  let rd_addr = (assemble_register rd) in
+  let rs_addr = (assenble_register rs) in
+  let b = 0 in
+  let b = b lor (opcode  lsl OPCODE_LSB) in 
+  let b = b lor (rd_addr lsl REG_RS_LSB) in
+  let b = b lor (rs_addr lsl REG_RT_LSB) in
+  let b = b lor (rd_addr lsl REG_RD_LSB) in
+  b
+
+and assemble_i (opcode : int) (rd : reg) (imm : int) : string =
+  let rd_addr = (assemble_register rd) in
+  let b = 0 in
+  let b = b lor (opcode  lsl OPCODE_LSB) in 
+  let b = b lor (rd_addr lsl REG_RS_LSB) in
+  let b = b lor (rd_addr lsl REG_RT_LSB) in
+  let b = b lor (imm     lsl IMM_LSB)    in
+  b
+
+and arg_to_asm_arg (a : arg) : asm_arg =
+  match a with
+  | Const(c) ->          AsmArgConst(AsmConst(c))
+  | HexConst(h) ->       AsmArgConst(AsmHexConst(h))
+  | Reg(r) ->            AsmArgReg(AsmReg(r))
+  | RegOffset(i, r) ->   AsmArgReg(AsmRegOffset(i, r))
+  | Sized(s, a') -> 
+    begin
+    match a' with 
+    | Const(c) ->        AsmArgConst(AsmConstSized(s, AsmConst(c))
+    | HexConst(h) ->     AsmArgConst(AsmConstSized(s, AsmHexConst(h)))
+    | Reg(r) ->          AsmArgReg(AsmRegSized(s, AsmReg(r)))
+    | RegOffset(i, r) -> AsmArgReg(AsmRegSized(s, AsmRegOffset(i, r)))
+
+    | Sized(_, _) ->     failwith "cannot have nested sized()"
+    end
 
 let rec compile_fun (fun_name : string) (args : string list) (body : tag aexpr) (env : arg envt) : instruction list =
   (* is env suppose to be a list of var names and RegOffset pairs *)
