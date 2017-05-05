@@ -47,6 +47,7 @@ module id_ex_register(
   mem_op_in,
   alu_src_in,
   reg_write_in,
+  jop_in,
   address_src_in,
 
   rs_out,
@@ -63,6 +64,7 @@ module id_ex_register(
   mem_op_out,
   alu_src_out,
   reg_write_out,
+  jop_out,
   address_src_out
   );
 
@@ -84,7 +86,7 @@ module id_ex_register(
   input wire [`MEM_OP_BITS-1:0] mem_op_in;
   input wire alu_src_in;
   input wire reg_write_in;
-  input wire jop_in;
+  input wire [`JUMP_BITS-1:0] jop_in;
   input wire address_src_in;
 
   output reg [`NUM_REGISTERS_LOG2-1:0] rs_out;
@@ -101,7 +103,7 @@ module id_ex_register(
   output reg [`MEM_OP_BITS-1:0] mem_op_out;
   output reg alu_src_out;
   output reg reg_write_out;
-  output reg jop_out;
+  output reg [`JUMP_BITS-1:0] jop_out;
   output reg address_src_out;
 
   initial begin
@@ -196,7 +198,7 @@ module ex_mem_register(
   input wire [`DATA_WIDTH-1:0] data_1_in;
   input wire [`DATA_WIDTH-1:0] data_2_in;
   input wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_in;
-  input wire jop_in;
+  input wire [`JUMP_BITS-1:0] jop_in;
   input wire [`MEM_OP_BITS-1:0] mem_op_in;
   input wire mem_to_reg_in;
   input wire reg_write_in;
@@ -207,7 +209,7 @@ module ex_mem_register(
   output reg [`DATA_WIDTH-1:0] data_1_out;
   output reg [`DATA_WIDTH-1:0] data_2_out;
   output reg [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_out;
-  output reg jop_out;
+  output reg [`JUMP_BITS-1:0] jop_out;
   output reg [`MEM_OP_BITS-1:0] mem_op_out;
   output reg mem_to_reg_out;
   output reg reg_write_out;

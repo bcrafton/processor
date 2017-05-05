@@ -54,53 +54,53 @@
 
 
 // 6'b00xxxx
-`define OP_CODE_ADD       6'b000000
+`define OP_CODE_ADD       6'b000000 //0
 `define OP_CODE_SUB       6'b000001
 `define OP_CODE_NOT       6'b000010
 `define OP_CODE_AND       6'b000011
-`define OP_CODE_OR        6'b000100
+`define OP_CODE_OR        6'b000100 //4
 `define OP_CODE_NAND      6'b000101
 `define OP_CODE_NOR       6'b000110
 `define OP_CODE_MOV       6'b000111
-`define OP_CODE_SAR       6'b001000
+`define OP_CODE_SAR       6'b001000 //8
 `define OP_CODE_SHR       6'b001001
 `define OP_CODE_SHL       6'b001010
 `define OP_CODE_XOR       6'b001011
-`define OP_CODE_TEST      6'b001100
+`define OP_CODE_TEST      6'b001100 //12
 `define OP_CODE_CMP       6'b001101
 
 // 6'b01xxxx
-`define OP_CODE_ADDI      6'b010000
+`define OP_CODE_ADDI      6'b010000 //16
 `define OP_CODE_SUBI      6'b010001
 `define OP_CODE_NOTI      6'b010010
 `define OP_CODE_ANDI      6'b010011
-`define OP_CODE_ORI       6'b010100
+`define OP_CODE_ORI       6'b010100 //20
 `define OP_CODE_NANDI     6'b010101
 `define OP_CODE_NORI      6'b010110
 `define OP_CODE_MOVI      6'b010111
-`define OP_CODE_SARI      6'b011000
+`define OP_CODE_SARI      6'b011000 //24
 `define OP_CODE_SHRI      6'b011001
 `define OP_CODE_SHLI      6'b011010
 `define OP_CODE_XORI      6'b011011
-`define OP_CODE_TESTI     6'b011100
+`define OP_CODE_TESTI     6'b011100 //28
 `define OP_CODE_CMPI      6'b011101
 
 // 6'b10xxxx
-`define OP_CODE_LW        6'b100000
+`define OP_CODE_LW        6'b100000 //32
 `define OP_CODE_SW        6'b100001
 `define OP_CODE_LA        6'b100010
 `define OP_CODE_SA        6'b100011
 
 // 6'b11xxxx
-`define OP_CODE_JMP       6'b110000
+`define OP_CODE_JMP       6'b110000 //48
 `define OP_CODE_JO        6'b110001
 `define OP_CODE_JE        6'b110010
 `define OP_CODE_JNE       6'b110011
-`define OP_CODE_JL        6'b110100
+`define OP_CODE_JL        6'b110100 //52
 `define OP_CODE_JLE       6'b110101
 `define OP_CODE_JG        6'b110110
 `define OP_CODE_JGE       6'b110111
-`define OP_CODE_JZ        6'b111000
+`define OP_CODE_JZ        6'b111000 //56
 `define OP_CODE_JNZ       6'b111001
 
 `define OP_CODE_BITS      6 //$bits(OP_CODE_ADD)

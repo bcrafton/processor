@@ -12,7 +12,7 @@ module instruction_memory(
   output wire [`INST_WIDTH-1:0] instruction;
   reg [`INST_WIDTH-1:0] memory [0:`IMEMORY_SIZE-1];
 
-  initial $readmemh("programs/32_bit/code_jump_test2.hex", memory);
+  initial $readmemh("programs/32_bit/code.hex", memory);
 
   assign instruction = memory[pc];
 

@@ -114,16 +114,16 @@ module control_unit(
     endcase 
 
     case(opcode)
-      `OP_CODE_JMP: jmp <=    `JMP_OP_J;
-      `OP_CODE_JE:  je  <=    `JMP_OP_JEQ;
-      `OP_CODE_JNE: jne <=    `JMP_OP_JNE;
-      `OP_CODE_JL:  jl  <=    `JMP_OP_JL;
-      `OP_CODE_JLE: jle <=    `JMP_OP_JLE;
-      `OP_CODE_JG:  jg  <=    `JMP_OP_JG;
-      `OP_CODE_JGE: jge <=    `JMP_OP_JGE;
-      `OP_CODE_JZ:  jz  <=    `JMP_OP_JZ;
-      `OP_CODE_JNZ: jnz <=    `JMP_OP_JNZ;
-      `OP_CODE_JO:  jo  <=    `JMP_OP_JO;
+      `OP_CODE_JMP: jop <=    `JMP_OP_J;
+      `OP_CODE_JE:  jop <=    `JMP_OP_JEQ;
+      `OP_CODE_JNE: jop <=    `JMP_OP_JNE;
+      `OP_CODE_JL:  jop <=    `JMP_OP_JL;
+      `OP_CODE_JLE: jop <=    `JMP_OP_JLE;
+      `OP_CODE_JG:  jop <=    `JMP_OP_JG;
+      `OP_CODE_JGE: jop <=    `JMP_OP_JGE;
+      `OP_CODE_JZ:  jop <=    `JMP_OP_JZ;
+      `OP_CODE_JNZ: jop <=    `JMP_OP_JNZ;
+      `OP_CODE_JO:  jop <=    `JMP_OP_JO;
     endcase
 
   end

@@ -35,4 +35,6 @@ module branch_unit(
       `JMP_OP_JO:  flush <= zero == 1;
     endcase
 
+  end
+
 endmodule

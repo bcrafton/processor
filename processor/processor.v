@@ -25,7 +25,6 @@ module processor(
   wire [`SHAMT_BITS-1:0] shamt;
 
   wire reg_dst;
-  wire jump;
   wire mem_to_reg;
   wire [`ALU_OP_BITS-1:0] alu_op;
   wire [`MEM_OP_BITS-1:0] mem_op;
@@ -62,7 +61,8 @@ module processor(
   wire [`IMM_WIDTH-1:0] id_ex_immediate;
   wire [`ADDR_WIDTH-1:0] id_ex_address;
   wire [`SHAMT_BITS-1:0] id_ex_shamt;
-  wire id_ex_reg_dst, id_ex_mem_to_reg, id_ex_jop, id_ex_alu_src, id_ex_reg_write, id_ex_address_src;
+  wire id_ex_reg_dst, id_ex_mem_to_reg, id_ex_alu_src, id_ex_reg_write, id_ex_address_src;
+  wire [`JUMP_BITS-1:0] id_ex_jop;
   wire [`ALU_OP_BITS-1:0] id_ex_alu_op;
   wire [`MEM_OP_BITS-1:0] id_ex_mem_op;
   // ex/mem
@@ -70,6 +70,7 @@ module processor(
   wire [`DATA_WIDTH-1:0] ex_mem_data_1, ex_mem_data_2;
   wire [`ADDR_WIDTH-1:0] ex_mem_address;
   wire ex_mem_mem_to_reg, ex_mem_address_src;
+  wire [`JUMP_BITS-1:0] ex_mem_jop;
   wire [`MEM_OP_BITS-1:0] ex_mem_mem_op;
   wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_reg_dst_result;
   // mem/wb
