@@ -12,11 +12,7 @@ module instruction_memory(
   output wire [`INST_WIDTH-1:0] instruction;
   reg [`INST_WIDTH-1:0] memory [0:`IMEMORY_SIZE-1];
 
-`ifdef PROCESSOR_16_BIT
-  initial $readmemh("programs/16_bit/code_jump_test2.hex", memory);
-`else
   initial $readmemh("programs/32_bit/code_jump_test2.hex", memory);
-`endif
 
   assign instruction = memory[pc];
 

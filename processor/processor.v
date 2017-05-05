@@ -218,23 +218,6 @@ module processor(
   .sel(forward_b), 
   .out(alu_input_mux_2_result));
 
-// this is not working for whatever reason.
-/*
-`ifdef PROCESSOR_16_BIT
-  mux2x1 #(`DATA_WIDTH) alu_src_mux(
-  .in0(alu_input_mux_2_result), 
-  .in1(id_ex_immediate), 
-  .sel(id_ex_alu_src), 
-  .out(alu_src_result));
-`elsif
-  mux2x1 #(`DATA_WIDTH) alu_src_mux(
-  .in0(alu_input_mux_2_result), 
-  .in1({16'h0000, id_ex_immediate}), 
-  .sel(id_ex_alu_src), 
-  .out(alu_src_result));
-`endif
-*/
-
   mux2x1 #(`DATA_WIDTH) alu_src_mux(
   .in0(alu_input_mux_2_result), 
   .in1({16'h0000, id_ex_immediate}), 
@@ -293,19 +276,11 @@ module processor(
   // la, sa = ex_mem_address
   // lw, sw = ex_mem_data_1
 
-`ifdef PROCESSOR_16_BIT
-  mux2x1 #(`ADDR_WIDTH) address_src_mux(
-  .in0(ex_mem_data_1), 
-  .in1(ex_mem_address), 
-  .sel(ex_mem_address_src), 
-  .out(address_src_result));
-`elsif
   mux2x1 #(`ADDR_WIDTH) address_src_mux(
   .in0(ex_mem_data_1[`ADDR_WIDTH-1:0]), 
   .in1(ex_mem_address), 
   .sel(ex_mem_address_src), 
   .out(address_src_result));
-`endif
 
   ram data_memory(
   .clk(clk), 

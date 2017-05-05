@@ -201,8 +201,6 @@ module control_unit(
         bne <= 0;
         address_src <= 0;
       end
-// if not defined.
-`ifndef PROCESSOR_16_BIT
       16: begin // la
         reg_dst <= 0;
         mem_op <= `MEM_OP_READ;
@@ -271,7 +269,6 @@ module control_unit(
         bne <= 0;
         address_src <= 0;
       end
-`endif
 
     endcase
 
