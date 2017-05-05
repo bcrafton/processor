@@ -368,6 +368,8 @@ let anf (p : tag program) : unit aprogram =
 let r_to_asm (r : reg) : string =
   match r with
   | EAX -> "eax"
+  | EBX -> "ebx"
+  | ECX -> "ecx"
   | EDX -> "edx"
   | ESP -> "esp"
   | EBP -> "ebp"
@@ -587,89 +589,79 @@ let check_two_num (a1 : arg) (a2 : arg) (t : tag) : instruction list =
     ILabel(pass_label);
   ]
 
+(* ASSEMBLER *)
+
 let rec assemble (out : string) (il : instruction list) =
-  let binary = (assemble_section il) in
+  let mips = (to_mips il) in
+  (printf "length of x86: %d length of mips %d\n" (List.length il) (List.length mips));
+  let binary = (assemble_mips mips) in
   let outfile = open_out (out ^ ".b") in
   fprintf outfile "%s" binary
 
-and assemble_section (il : instruction list) : string = 
+and assemble_mips (il : mips_instruction list) : string = 
   match il with
   | i :: rest ->
-    sprintf "%s\n%s" (assemble_instruction i) (assemble_section rest)
+    sprintf "%s\n%s" (assemble_instruction i) (assemble_mips rest)
   | [] -> ""
 
-and assemble_instruction (i : instruction) : string = 
+and assemble_instruction (i : mips_instruction) : string = 
   match i with
-  | IMov(a1, a2) ->
-    let opcode = op_code_add in
-(*
-    let a1' = (arg_to_asm_arg a1) in
-    let a2' = (arg_to_asm_arg a2) in
-*)
-    "00000000" 
-  | _ -> "00000000"
+  |	MADD(dst, src) -> (assemble_r opcode_add dst src)
+  |	MSUB(dst, src) -> (assemble_r opcode_sub dst src)
+  |	MNOT(dst) -> "00000000"
+  |	MAND(dst, src) -> (assemble_r opcode_and dst src)
+  |	MOR(dst, src) -> (assemble_r opcode_or dst src)
+  |	MNAND(dst, src) -> (assemble_r opcode_nand dst src)
+  |	MNOR(dst, src) -> (assemble_r opcode_nor dst src)
+  |	MMOV(dst, src) -> (assemble_r opcode_mov dst src)
+  |	MSAR(dst, src) -> (assemble_r opcode_sar dst src)
+  |	MSHR(dst, src) -> (assemble_r opcode_shr dst src)
+  |	MSHL(dst, src) -> (assemble_r opcode_shl dst src)
+  |	MXOR(dst, src) -> (assemble_r opcode_xor dst src)
+  |	MTEST(dst, src) -> (assemble_r opcode_test dst src)
+  |	MCMP(dst, src) -> (assemble_r opcode_cmp dst src)
 
-(*
-  | IAdd(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | ISub(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IMul(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | ILabel(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | ICmp(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IJo(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IJe(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IJne(a1, a2) ->
-    let opcode = OP_CODE_ADD in
-  | IJl(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IJg(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IJge(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IJmp(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IJnz(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IRet(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IAnd(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IOr(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IXor(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IShl(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IShr(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | ISar(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IPush(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IPop(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | ICall(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | ITest(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | ILineComment(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-  | IInstrComment(a1, a2) -> 
-    let opcode = OP_CODE_ADD in
-*)
+  |	MADDI(dst, src) -> (assemble_i opcode_addi dst src)
+  |	MSUBI(dst, src) -> (assemble_i opcode_subi dst src)
+  |	MNOTI(dst) -> "00000000"
+  |	MANDI(dst, src) -> (assemble_i opcode_andi dst src)
+  |	MORI(dst, src) -> (assemble_i opcode_ori dst src)
+  |	MNANDI(dst, src) -> (assemble_i opcode_nandi dst src)
+  |	MNORI(dst, src) -> (assemble_i opcode_nori dst src)
+  |	MMOVI(dst, src) -> (assemble_i opcode_movi dst src)
+  |	MSARI(dst, src) -> (assemble_i opcode_sari dst src)
+  |	MSHRI(dst, src) -> (assemble_i opcode_shri dst src)
+  |	MSHLI(dst, src) -> (assemble_i opcode_shli dst src)
+  |	MXORI(dst, src) -> (assemble_i opcode_xori dst src)
+  |	MTESTI(dst, src) -> (assemble_i opcode_testi dst src)
+  |	MCMPI(dst, src) -> (assemble_i opcode_cmpi dst src)
+
+  |	MLW(dst, src, offset) -> (assemble_mem opcode_lw dst src offset)
+  |	MSW(dst, src, offset) -> (assemble_mem opcode_lw dst src offset)
+  |	MSA(dst, src) -> (assemble_i opcode_sari dst src)
+  |	MLA(dst, src) -> (assemble_i opcode_sari dst src)
+
+  |	MJUMP(addr) -> (assemble_jmp opcode_jmp addr)
+  |	MJO(addr) -> (assemble_jmp opcode_jo addr)
+  |	MJE(addr) -> (assemble_jmp opcode_je addr)
+  |	MJNE(addr) -> (assemble_jmp opcode_jne addr)
+  |	MJL(addr) -> (assemble_jmp opcode_jl addr)
+  |	MJLE(addr) -> (assemble_jmp opcode_jle addr)
+  |	MJG(addr) -> (assemble_jmp opcode_jg addr)
+  |	MJGE(addr) -> (assemble_jmp opcode_jge addr)
+  |	MJZ(addr) -> (assemble_jmp opcode_jz addr)
+  |	MJNZ(addr) -> (assemble_jmp opcode_jnz addr)
+
+  | MLabel(label) -> ""
 
 and assemble_register (r : reg) : int = 
   match r with
   | EAX -> 0
-  | EDX -> 1
-  | ESP -> 2
-  | EBP -> 3
+  | EBX -> 1
+  | ECX -> 2
+  | EDX -> 3
+  | ESP -> 4
+  | EBP -> 5
 
 and assemble_r (opcode : int) (rd : reg) (rs : reg) : string =
   let rd_addr = (assemble_register rd) in
@@ -690,27 +682,230 @@ and assemble_i (opcode : int) (rd : reg) (imm : int) : string =
   let b = b lor (imm     lsl imm_lsb)    in
   sprintf "%x" b 
 
-and assemble_arg (a : arg) : asm_arg = 
-  
+and assemble_mem (opcode : int) (rd : reg) (rs : reg) (imm : int) : string =
+  let rd_addr = (assemble_register rd) in
+  let rs_addr = (assemble_register rs) in
+  let b = 0 in
+  let b = b lor (opcode  lsl opcode_lsb) in 
+  let b = b lor (rd_addr lsl reg_rs_lsb) in
+  let b = b lor (rs_addr lsl reg_rt_lsb) in
+  let b = b lor (imm     lsl imm_lsb)    in
+  sprintf "%x" b 
 
-(*
-and arg_to_asm_arg (a : arg) : asm_arg =
+and assemble_jmp (opcode : int) (address : int) : string = 
+  let b = 0 in
+  let b = b lor (opcode  lsl opcode_lsb) in 
+  let b = b lor (address lsl imm_lsb)    in
+  sprintf "%x" b 
+
+and to_mips_dst (a : arg) : (mips_instruction list * mips_arg * mips_instruction list) = 
   match a with
-  | Const(c) ->          AsmArgConst(AsmConst(c))
-  | HexConst(h) ->       AsmArgConst(AsmHexConst(h))
-  | Reg(r) ->            AsmArgReg(AsmReg(r))
-  | RegOffset(i, r) ->   AsmArgReg(AsmRegOffset(i, r))
-  | Sized(s, a') -> 
-    begin
-    match a' with 
-    | Const(c) ->        AsmArgConst(AsmConstSized(s, AsmConst(c)))
-    | HexConst(h) ->     AsmArgConst(AsmConstSized(s, AsmHexConst(h)))
-    | Reg(r) ->          AsmArgReg(AsmRegSized(s, AsmReg(r)))
-    | RegOffset(i, r) -> AsmArgReg(AsmRegSized(s, AsmRegOffset(i, r)))
+  | Const(c) -> failwith "cannot have a constant in the destination operand"
+  | HexConst(h) -> failwith "cannot have a constant in the destination operand"
+  | Reg(r) -> 
+    let prelude = [] in
+    let postlude = [] in
+    (prelude, MReg(r), postlude)
+  | RegOffset(i, r) ->
+    let prelude = [
+      MLW(EBX, r, i); (*load r into ebx*)
+    ] in
+    let postlude = [
+      MSW(r, EBX, i); (*store ebx into r*)
+    ] in
+    (prelude, MReg(r), postlude)
+  | Sized(s, a') -> (to_mips_dst a') (* dont care about size in our processor *)
 
-    | Sized(_, _) ->     failwith "cannot have nested sized()"
-    end
+and to_mips_src (a : arg) : (mips_instruction list * mips_arg) =
+  match a with
+  | Const(c) -> 
+    let prelude = [] in
+    (prelude, MImm(c))
+  | HexConst(h) ->
+    let prelude = [] in
+    (prelude, MImm(h))
+  | Reg(r) -> 
+    let prelude = [] in
+    (prelude, MReg(r))
+  | RegOffset(i, r) ->
+    let prelude = [
+      MLW(ECX, r, i); (*load r into ecx*)
+    ] in
+    (prelude, MReg(r))
+  | Sized(s, a') -> (to_mips_src a') (* dont care about size in our processor *)
+
+and to_mips (il : instruction list) : mips_instruction list = 
+  
+  let rec help (i : instruction) : mips_instruction list = 
+    match i with
+    | IMov(dst, src) ->
+      let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
+      let (src_prelude, mips_arg_src) = (to_mips_src src) in
+      begin
+      match (mips_arg_dst, mips_arg_src) with 
+      | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MMOVI(dst', src')] @ dst_postlude
+      | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MMOV(dst', src')] @ dst_postlude
+      | _ -> failwith "impossible: cannot have a constant in the destination operand"
+      end
+    | IAdd(dst, src) ->
+      let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
+      let (src_prelude, mips_arg_src) = (to_mips_src src) in
+      begin
+      match (mips_arg_dst, mips_arg_src) with 
+      | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MADDI(dst', src')] @ dst_postlude
+      | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MADD(dst', src')] @ dst_postlude
+      | _ -> failwith "impossible: cannot have a constant in the destination operand"
+      end
+    | ISub(dst, src) ->
+      let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
+      let (src_prelude, mips_arg_src) = (to_mips_src src) in
+      begin
+      match (mips_arg_dst, mips_arg_src) with 
+      | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MSUBI(dst', src')] @ dst_postlude
+      | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MSUB(dst', src')] @ dst_postlude
+      | _ -> failwith "impossible: cannot have a constant in the destination operand"
+      end
+
+    | IMul(src, dst) -> failwith "multiply not implemented"
+    | ILabel(label) -> [MLabel(label)] 
+    | ICmp(dst, src) ->
+      let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
+      let (src_prelude, mips_arg_src) = (to_mips_src src) in
+      begin
+      match (mips_arg_dst, mips_arg_src) with 
+      | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MCMPI(dst', src')] @ dst_postlude
+      | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MCMP(dst', src')] @ dst_postlude
+      | _ -> failwith "impossible: cannot have a constant in the destination operand"
+      end
+
+    | IJo(addr) -> [MJO(0)]
+    | IJe(addr) -> [MJE(0)]
+    | IJne(addr) -> [MJNE(0)]
+    | IJl(addr) ->  [MJL(0)]
+    | IJg(addr) -> [MJG(0)]
+    | IJge(addr) -> [MJGE(0)]
+    | IJmp(addr) -> [MJUMP(0)]
+    | IJnz(addr) -> [MJNZ(0)]
+(*
+    | IRet(a1, a2) -> [MJ(0)]
 *)
+
+    | IAnd(dst, src) ->
+      let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
+      let (src_prelude, mips_arg_src) = (to_mips_src src) in
+      begin
+      match (mips_arg_dst, mips_arg_src) with 
+      | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MANDI(dst', src')] @ dst_postlude
+      | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MAND(dst', src')] @ dst_postlude
+      | _ -> failwith "impossible: cannot have a constant in the destination operand"
+      end
+
+    | IOr(dst, src) ->
+      let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
+      let (src_prelude, mips_arg_src) = (to_mips_src src) in
+      begin
+      match (mips_arg_dst, mips_arg_src) with 
+      | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MORI(dst', src')] @ dst_postlude
+      | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MOR(dst', src')] @ dst_postlude
+      | _ -> failwith "impossible: cannot have a constant in the destination operand"
+      end
+
+    | IXor(dst, src) ->
+      let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
+      let (src_prelude, mips_arg_src) = (to_mips_src src) in
+      begin
+      match (mips_arg_dst, mips_arg_src) with 
+      | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MXORI(dst', src')] @ dst_postlude
+      | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MXOR(dst', src')] @ dst_postlude
+      | _ -> failwith "impossible: cannot have a constant in the destination operand"
+      end
+
+    | IShl(dst, src) ->
+      let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
+      let (src_prelude, mips_arg_src) = (to_mips_src src) in
+      begin
+      match (mips_arg_dst, mips_arg_src) with 
+      | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MSHLI(dst', src')] @ dst_postlude
+      | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MSHL(dst', src')] @ dst_postlude
+      | _ -> failwith "impossible: cannot have a constant in the destination operand"
+      end
+
+    | IShr(dst, src) ->
+      let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
+      let (src_prelude, mips_arg_src) = (to_mips_src src) in
+      begin
+      match (mips_arg_dst, mips_arg_src) with 
+      | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MSHRI(dst', src')] @ dst_postlude
+      | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MSHR(dst', src')] @ dst_postlude
+      | _ -> failwith "impossible: cannot have a constant in the destination operand"
+      end
+
+    | ISar(dst, src) ->
+      let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
+      let (src_prelude, mips_arg_src) = (to_mips_src src) in
+      begin
+      match (mips_arg_dst, mips_arg_src) with 
+      | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MSARI(dst', src')] @ dst_postlude
+      | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MSAR(dst', src')] @ dst_postlude
+      | _ -> failwith "impossible: cannot have a constant in the destination operand"
+      end
+
+    | IPush(src) -> 
+      let (src_prelude, mips_arg_src) = (to_mips_src src) in
+      begin
+      match mips_arg_src with
+      | MImm(src') -> 
+        src_prelude @ 
+        [
+          (* just put this in a register for now *)
+          MMOVI(EBX, src');
+          MSW(ESP, EBX, 0);
+          MSUBI(ESP, 4);
+        ]
+      | MReg(src') -> 
+        src_prelude @ 
+        [
+          MSW(ESP, src', 0);
+          MSUBI(ESP, 4);
+        ]
+      end
+ 
+    | IPop(src) -> 
+      begin
+      match src with
+      (* pretty sure can only pop into a register *)
+      | Reg(r) -> 
+        [
+          MLW(r, ESP, 0);
+          MADDI(ESP, 4);
+        ]
+      | _ -> failwith "impossible: can only pop a register"
+      end
+
+    | ITest(dst, src) ->
+      let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
+      let (src_prelude, mips_arg_src) = (to_mips_src src) in
+      begin
+      match (mips_arg_dst, mips_arg_src) with 
+      | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MTESTI(dst', src')] @ dst_postlude
+      | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MTEST(dst', src')] @ dst_postlude
+      | _ -> failwith "impossible: cannot have a constant in the destination operand"
+      end
+    | ILineComment(_) -> []
+    | IInstrComment(i', _) ->  (help i')
+(*
+    | ICall(a1, a2) ->  
+*)
+    | _ -> []
+
+  in
+  
+  match il with
+  | i :: rest ->
+    (help i) @ (to_mips rest)
+  | [] -> []
+
+(* ASSEMBLER *)
 
 let rec compile_fun (fun_name : string) (args : string list) (body : tag aexpr) (env : arg envt) : instruction list =
   (* is env suppose to be a list of var names and RegOffset pairs *)

@@ -2,28 +2,51 @@
 let word_size = 4
 ;;
 
-let op_code_add       = 0;;
-let op_code_addi      = 1;;
-let op_code_sub       = 2;;
-let op_code_subi      = 3;;
-let op_code_not       = 4;;
-let op_code_and       = 5;;
-let op_code_or        = 6;;
-let op_code_nand      = 7;;
-let op_code_nor       = 8;;
-let op_code_mov       = 9;;
-let op_code_li        = 10;;
-let op_code_lw        = 11;;
-let op_code_sw        = 12;;
-let op_code_beq       = 13;;
-let op_code_bne       = 14
-let op_code_jump      = 15
-let op_code_sa        = 16
-let op_code_la        = 17
-let op_code_sar       = 18
-let op_code_shr       = 19
-let op_code_shl       = 20
-let op_code_xor       = 21
+let	opcode_add	=	0
+let	opcode_sub	=	1
+let	opcode_not	=	2
+let	opcode_and	=	3
+let	opcode_or	=	4
+let	opcode_nand	=	5
+let	opcode_nor	=	6
+let	opcode_mov	=	7
+let	opcode_sar	=	8
+let	opcode_shr	=	9
+let	opcode_shl	=	10
+let	opcode_xor	=	11
+let	opcode_test	=	12
+let	opcode_cmp	=	13
+
+let	opcode_addi	=	14
+let	opcode_subi	=	15
+let	opcode_noti	=	16
+let	opcode_andi	=	17
+let	opcode_ori = 18
+let	opcode_nandi = 19
+let	opcode_nori	=	20
+let	opcode_movi	=	21
+let	opcode_sari	=	22
+let	opcode_shri	=	23
+let	opcode_shli	=	24
+let	opcode_xori	=	25
+let	opcode_testi=	26
+let	opcode_cmpi	=	27
+
+let	opcode_lw	=	28
+let	opcode_sw	=	29
+let	opcode_la	=	30
+let	opcode_sa	=	31
+
+let	opcode_jmp	=	32
+let	opcode_jo	=	33
+let	opcode_je	=	34
+let	opcode_jne	=	35
+let	opcode_jl	=	36
+let	opcode_jle	=	37
+let	opcode_jg	=	38
+let	opcode_jge	=	39
+let	opcode_jz	=	40
+let	opcode_jnz	=	41
 
 let opcode_msb = 31
 let opcode_lsb = 26
@@ -58,6 +81,8 @@ exception Arity of int * int * sourcespan (* intended arity, actual arity, where
 
 type reg =
   | EAX
+  | EBX (* adding this *)
+  | ECX (* adding this *)
   | EDX
   | ESP
   | EBP
@@ -74,17 +99,9 @@ type arg =
   | RegOffset of int * reg (* int is # words of offset *)
   | Sized of size * arg
 
-type asm_arg = 
-  | AsmConst of int
-  | AsmReg of reg
-
-type reg_addr = int
-type imm = int
-type opcode = int
-
-type asm_instruction
-  | RType opcode * reg_addr * reg_addr * reg_addr
-  | IType opcode * reg_addr * reg_addr * imm
+type mips_arg =
+  | MImm of int
+  | MReg of reg
 
 type instruction =
   | IMov of arg * arg
@@ -118,35 +135,53 @@ type instruction =
   | IInstrComment of instruction * string
 
 type mips_instruction =
-  | MMov of arg * arg
-  | MAdd of arg * arg
-  | MSub of arg * arg
-  | MMul of arg * arg
+  |	MADD of reg * reg
+  |	MSUB of reg * reg
+  |	MNOT of reg
+  |	MAND of reg * reg
+  |	MOR of reg * reg
+  |	MNAND of reg * reg
+  |	MNOR of reg * reg
+  |	MMOV of reg * reg
+  |	MSAR of reg * reg
+  |	MSHR of reg * reg
+  |	MSHL of reg * reg
+  |	MXOR of reg * reg
+  |	MTEST of reg * reg
+  |	MCMP of reg * reg
+
+  |	MADDI of reg * int
+  |	MSUBI of reg * int
+  |	MNOTI of int
+  |	MANDI of reg * int
+  |	MORI of reg * int
+  |	MNANDI of reg * int
+  |	MNORI of reg * int
+  |	MMOVI of reg * int
+  |	MSARI of reg * int
+  |	MSHRI of reg * int
+  |	MSHLI of reg * int
+  |	MXORI of reg * int
+  |	MTESTI of reg * int
+  |	MCMPI of reg * int
+
+  |	MLW of reg * reg * int
+  |	MSW of reg * reg * int
+  |	MSA of reg * int
+  |	MLA of reg * int
+
+  |	MJUMP of int
+  |	MJO of int
+  |	MJE of int
+  |	MJNE of int
+  |	MJL of int
+  |	MJLE of int
+  |	MJG of int
+  |	MJGE of int
+  |	MJZ of int
+  |	MJNZ of int
+
   | MLabel of string
-  | MCmp of arg * arg
-  | MJo of string
-  | MJe of string
-  | MJne of string
-  | MJl of string
-  | MJle of string
-  | MJg of string
-  | MJge of string
-  | MJmp of string
-  | MJz of string
-  | MJnz of string
-  | MRet
-  | MAnd of arg * arg
-  | MOr of arg * arg
-  | MXor of arg * arg
-  | MShl of arg * arg
-  | MShr of arg * arg
-  | MSar of arg * arg
-  | MPush of arg
-  | MPop of arg
-  | MCall of string
-  | MTest of arg * arg
-  | MLineComment of string
-  | MInstrComment of instruction * string
 
 type prim1 =
   | Add1

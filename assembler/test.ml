@@ -23,10 +23,7 @@ let teq name actual expected = name>::fun _ ->
 
 let tests = [ 
 
-t "assembler" "and 5, 10" "5";
-
-t "assembler2" "and 5, 10
-and 20, 10" "5";
+t "plus" "10+10" "20";
 
 
 ]
