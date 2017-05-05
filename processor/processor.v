@@ -31,8 +31,7 @@ module processor(
   wire [`MEM_OP_BITS-1:0] mem_op;
   wire alu_src;
   wire reg_write;
-  wire beq;
-  wire bne;
+  wire [`JUMP_BITS-1:0] jop;
 
   wire zero;
   wire less;
@@ -44,7 +43,6 @@ module processor(
   wire [`DATA_WIDTH-1:0] reg_read_data_1;
   wire [`DATA_WIDTH-1:0] reg_read_data_2;
 
-  wire compare;
   wire [`DATA_WIDTH-1:0] alu_result;
 
   wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result;
@@ -64,7 +62,7 @@ module processor(
   wire [`IMM_WIDTH-1:0] id_ex_immediate;
   wire [`ADDR_WIDTH-1:0] id_ex_address;
   wire [`SHAMT_BITS-1:0] id_ex_shamt;
-  wire id_ex_reg_dst, id_ex_mem_to_reg, id_ex_beq, id_ex_bne, id_ex_alu_src, id_ex_reg_write, id_ex_address_src;
+  wire id_ex_reg_dst, id_ex_mem_to_reg, id_ex_jop, id_ex_alu_src, id_ex_reg_write, id_ex_address_src;
   wire [`ALU_OP_BITS-1:0] id_ex_alu_op;
   wire [`MEM_OP_BITS-1:0] id_ex_mem_op;
   // ex/mem
@@ -72,7 +70,6 @@ module processor(
   wire [`DATA_WIDTH-1:0] ex_mem_data_1, ex_mem_data_2;
   wire [`ADDR_WIDTH-1:0] ex_mem_address;
   wire ex_mem_mem_to_reg, ex_mem_address_src;
-  wire ex_mem_beq, ex_mem_bne, ex_mem_compare;
   wire [`MEM_OP_BITS-1:0] ex_mem_mem_op;
   wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_reg_dst_result;
   // mem/wb
@@ -133,8 +130,7 @@ module processor(
   .alu_src(alu_src), 
   .reg_write(reg_write), 
   .mem_op(mem_op), 
-  .beq(beq), 
-  .bne(bne), 
+  .jop(jop),
   .address_src(address_src));
 
   register_file regfile(
@@ -166,8 +162,7 @@ module processor(
   .mem_op_in(mem_op), 
   .alu_src_in(alu_src), 
   .reg_write_in(reg_write), 
-  .beq_in(beq), 
-  .bne_in(bne), 
+  .jop_in(jop), 
   .address_src_in(address_src),
 
   .rs_out(id_ex_rs), 
@@ -184,8 +179,7 @@ module processor(
   .mem_op_out(id_ex_mem_op), 
   .alu_src_out(id_ex_alu_src), 
   .reg_write_out(id_ex_reg_write), 
-  .beq_out(id_ex_beq), 
-  .bne_out(id_ex_bne),
+  .jop_out(id_ex_jop), 
   .address_src_out(id_ex_address_src));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -229,7 +223,6 @@ module processor(
   .alu_op(id_ex_alu_op), 
   .data1(alu_input_mux_1_result), 
   .data2(alu_src_result), 
-  .compare(compare), 
   .zero(zero),
   .less(less),
   .greater(greater),
@@ -248,24 +241,20 @@ module processor(
   .data_1_in(alu_input_mux_1_result),
   .data_2_in(alu_input_mux_2_result), 
   .reg_dst_result_in(reg_dst_result), 
-  .beq_in(id_ex_beq), 
-  .bne_in(id_ex_bne),
+  .jop_in(id_ex_jop), 
   .mem_op_in(id_ex_mem_op), 
   .mem_to_reg_in(id_ex_mem_to_reg), 
   .reg_write_in(id_ex_reg_write), 
-  .compare_in(compare),
   .address_in(id_ex_address), 
   .address_src_in(id_ex_address_src),
   .alu_result_out(ex_mem_alu_result), 
   .data_1_out(ex_mem_data_1), 
   .data_2_out(ex_mem_data_2),
   .reg_dst_result_out(ex_mem_reg_dst_result), 
-  .beq_out(ex_mem_beq), 
-  .bne_out(ex_mem_bne), 
+  .jop_out(ex_mem_jop), 
   .mem_op_out(ex_mem_mem_op),
   .mem_to_reg_out(ex_mem_mem_to_reg), 
   .reg_write_out(ex_mem_reg_write), 
-  .compare_out(ex_mem_compare), 
   .address_out(ex_mem_address),
   .address_src_out(ex_mem_address_src));
 
@@ -291,9 +280,10 @@ module processor(
   .mem_op(ex_mem_mem_op));
 
   branch_unit bu(
-  .beq(ex_mem_beq), 
-  .bne(ex_mem_bne), 
-  .compare(ex_mem_compare), 
+  .jop(ex_mem_jop),
+  .zero(zero),
+  .less(less),
+  .greater(greater), 
   .flush(flush));
 
   mem_wb_register mem_wb_reg(

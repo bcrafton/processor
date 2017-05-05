@@ -25,7 +25,7 @@ module program_counter(
   input wire stall;
   
   wire jump;
-  assign jump = if_id_opcode == `OP_CODE_JUMP;
+  assign jump = if_id_opcode == `OP_CODE_JMP;
 
   initial begin
     pc = 0;

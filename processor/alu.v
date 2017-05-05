@@ -12,7 +12,6 @@ module alu
   alu_op,
   data1,
   data2,
-  compare, // this is used for branches.
   zero,
   less,
   greater, 
@@ -23,8 +22,6 @@ module alu
   input wire [`ALU_OP_BITS-1:0] alu_op;
   input wire [`DATA_WIDTH-1:0] data1;
   input wire [`DATA_WIDTH-1:0] data2;
-
-  output reg compare;
 
   output reg zero;
   output reg less;
@@ -43,7 +40,6 @@ module alu
       `ALU_OP_NAND: alu_result = ~(data1 & data2); // NAND
       `ALU_OP_NOR: alu_result = ~(data1 | data2); // NOR
       `ALU_OP_MOV: alu_result = data1;
-      `ALU_OP_LI: alu_result = data2;
 
       `ALU_OP_SAR: alu_result = data1 >>> data2;
       `ALU_OP_SHR: alu_result = data1 >> data2;
@@ -60,8 +56,6 @@ module alu
           greater <= data1 > data1 ? 1'b1 : 1'b0;
           end
     endcase
-
-    compare <= data1 == data2 ? 1'b1 : 1'b0;
 
   end
 

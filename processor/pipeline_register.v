@@ -47,8 +47,6 @@ module id_ex_register(
   mem_op_in,
   alu_src_in,
   reg_write_in,
-  beq_in,
-  bne_in,
   address_src_in,
 
   rs_out,
@@ -65,8 +63,6 @@ module id_ex_register(
   mem_op_out,
   alu_src_out,
   reg_write_out,
-  beq_out,
-  bne_out,
   address_src_out
   );
 
@@ -88,8 +84,7 @@ module id_ex_register(
   input wire [`MEM_OP_BITS-1:0] mem_op_in;
   input wire alu_src_in;
   input wire reg_write_in;
-  input wire beq_in;
-  input wire bne_in;
+  input wire jop_in;
   input wire address_src_in;
 
   output reg [`NUM_REGISTERS_LOG2-1:0] rs_out;
@@ -106,8 +101,7 @@ module id_ex_register(
   output reg [`MEM_OP_BITS-1:0] mem_op_out;
   output reg alu_src_out;
   output reg reg_write_out;
-  output reg beq_out;
-  output reg bne_out;
+  output reg jop_out;
   output reg address_src_out;
 
   initial begin
@@ -122,8 +116,7 @@ module id_ex_register(
     mem_op_out <= 0;
     alu_src_out <= 0;
     reg_write_out <= 0;
-    beq_out <= 0;
-    bne_out <= 0;
+    jop_out <= 0;
     address_src_out <= 0;
   end
 
@@ -144,8 +137,7 @@ module id_ex_register(
       mem_op_out <= 0;
       alu_src_out <= 0;
       reg_write_out <= 0;
-      beq_out <= 0;
-      bne_out <= 0;
+      jop_out <= 0;
       address_src_out <= 0;
     end else begin	
       rs_out <= rs_in;
@@ -162,8 +154,7 @@ module id_ex_register(
       mem_op_out <= mem_op_in;
       alu_src_out <= alu_src_in;
       reg_write_out <= reg_write_in;
-      beq_out <= beq_in;
-      bne_out <= bne_in;
+      jop_out <= jop_in;
       address_src_out <= address_src_in;
     end
 
@@ -179,12 +170,10 @@ module ex_mem_register(
   data_1_in,
   data_2_in,
   reg_dst_result_in,
-  beq_in,
-  bne_in,
+  jop_in,
   mem_op_in,
   mem_to_reg_in,
   reg_write_in,
-  compare_in,
   address_in,
   address_src_in,
 
@@ -192,12 +181,10 @@ module ex_mem_register(
   data_1_out,
   data_2_out,
   reg_dst_result_out,
-  beq_out,
-  bne_out,
+  jop_out,
   mem_op_out,
   mem_to_reg_out,
   reg_write_out,
-  compare_out,
   address_out,
   address_src_out
   );
@@ -209,12 +196,10 @@ module ex_mem_register(
   input wire [`DATA_WIDTH-1:0] data_1_in;
   input wire [`DATA_WIDTH-1:0] data_2_in;
   input wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_in;
-  input wire beq_in;
-  input wire bne_in;
+  input wire jop_in;
   input wire [`MEM_OP_BITS-1:0] mem_op_in;
   input wire mem_to_reg_in;
   input wire reg_write_in;
-  input wire compare_in;
   input wire [`ADDR_WIDTH-1:0] address_in;
   input wire address_src_in;
 
@@ -222,12 +207,10 @@ module ex_mem_register(
   output reg [`DATA_WIDTH-1:0] data_1_out;
   output reg [`DATA_WIDTH-1:0] data_2_out;
   output reg [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_out;
-  output reg beq_out;
-  output reg bne_out;
+  output reg jop_out;
   output reg [`MEM_OP_BITS-1:0] mem_op_out;
   output reg mem_to_reg_out;
   output reg reg_write_out;
-  output reg compare_out;
   output reg [`ADDR_WIDTH-1:0] address_out;
   output reg address_src_out;
 
@@ -236,12 +219,10 @@ module ex_mem_register(
     data_1_out <= 0;
     data_2_out <= 0;
     reg_dst_result_out <= 0;
-    beq_out <= 0;
-    bne_out <= 0;
+    jop_out <= 0;
     mem_op_out <= 0;
     mem_to_reg_out <= 0;
     reg_write_out <= 0;
-    compare_out <= 0;
     address_out <= 0;
     address_src_out <= 0;
   end
@@ -253,12 +234,10 @@ module ex_mem_register(
       data_1_out <= 0;
       data_2_out <= 0;
       reg_dst_result_out <= 0;
-      beq_out <= 0;
-      bne_out <= 0;
+      jop_out <= 0;
       mem_op_out <= 0;
       mem_to_reg_out <= 0;
       reg_write_out <= 0;
-      compare_out <= 0;
       address_out <= 0;
       address_src_out <= 0;
     end else begin
@@ -266,12 +245,10 @@ module ex_mem_register(
       data_1_out <= data_1_in;
       data_2_out <= data_2_in;
       reg_dst_result_out <= reg_dst_result_in;
-      beq_out <= beq_in;
-      bne_out <= bne_in;
+      jop_out <= jop_in;
       mem_op_out <= mem_op_in;
       mem_to_reg_out <= mem_to_reg_in;
       reg_write_out <= reg_write_in;
-      compare_out <= compare_in;
       address_out <= address_in;
       address_src_out <= address_src_in;
     end
