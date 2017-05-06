@@ -53,12 +53,18 @@ module control_unit(
         mem_to_reg <= 1;
         reg_write <= 1;
         jop <= `JMP_OP_NOP;
+        alu_op <= `ALU_OP_ADD;
+        // dont want to overwrite cmp / test
+        // we need a alu_op_nop
       end
       6'b11????: begin // jmp, jo, je ...
         mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
         reg_write <= 0;
         address_src <= 0;
+        alu_op <= `ALU_OP_ADD; 
+        // dont want to overwrite cmp / test
+        // we need a alu_op_nop
       end
     endcase
 
@@ -82,35 +88,35 @@ module control_unit(
     endcase
 
     case(opcode)
-      `OP_CODE_ADD: alu_op <= `OP_CODE_ADD;
-      `OP_CODE_SUB: alu_op <= `OP_CODE_SUB;
-      `OP_CODE_NOT: alu_op <= `OP_CODE_NOT;
-      `OP_CODE_AND: alu_op <= `OP_CODE_AND;
-      `OP_CODE_OR: alu_op <= `OP_CODE_OR;
-      `OP_CODE_NAND: alu_op <= `OP_CODE_NAND;
-      `OP_CODE_NOR: alu_op <= `OP_CODE_NOR;
-      `OP_CODE_MOV: alu_op <= `OP_CODE_MOV;
-      `OP_CODE_SAR: alu_op <= `OP_CODE_SAR;
-      `OP_CODE_SHR: alu_op <= `OP_CODE_SHR;
-      `OP_CODE_SHL: alu_op <= `OP_CODE_SHL;
-      `OP_CODE_XOR: alu_op <= `OP_CODE_XOR;
-      `OP_CODE_TEST: alu_op <= `OP_CODE_TEST;
-      `OP_CODE_CMP: alu_op <= `OP_CODE_CMP;
+      `OP_CODE_ADD: alu_op <= `ALU_OP_ADD;
+      `OP_CODE_SUB: alu_op <= `ALU_OP_SUB;
+      `OP_CODE_NOT: alu_op <= `ALU_OP_NOT;
+      `OP_CODE_AND: alu_op <= `ALU_OP_AND;
+      `OP_CODE_OR: alu_op <= `ALU_OP_OR;
+      `OP_CODE_NAND: alu_op <= `ALU_OP_NAND;
+      `OP_CODE_NOR: alu_op <= `ALU_OP_NOR;
+      `OP_CODE_MOV: alu_op <= `ALU_OP_MOV;
+      `OP_CODE_SAR: alu_op <= `ALU_OP_SAR;
+      `OP_CODE_SHR: alu_op <= `ALU_OP_SHR;
+      `OP_CODE_SHL: alu_op <= `ALU_OP_SHL;
+      `OP_CODE_XOR: alu_op <= `ALU_OP_XOR;
+      `OP_CODE_TEST: alu_op <= `ALU_OP_TEST;
+      `OP_CODE_CMP: alu_op <= `ALU_OP_CMP;
 
-      `OP_CODE_ADDI: alu_op <= `OP_CODE_ADD;
-      `OP_CODE_SUBI: alu_op <= `OP_CODE_SUB;
-      `OP_CODE_NOTI: alu_op <= `OP_CODE_NOT;
-      `OP_CODE_ANDI: alu_op <= `OP_CODE_AND;
-      `OP_CODE_ORI: alu_op <= `OP_CODE_OR;
-      `OP_CODE_NANDI: alu_op <= `OP_CODE_NAND;
-      `OP_CODE_NORI: alu_op <= `OP_CODE_NOR;
-      `OP_CODE_MOVI: alu_op <= `OP_CODE_MOV;
-      `OP_CODE_SARI: alu_op <= `OP_CODE_SAR;
-      `OP_CODE_SHRI: alu_op <= `OP_CODE_SHR;
-      `OP_CODE_SHLI: alu_op <= `OP_CODE_SHL;
-      `OP_CODE_XORI: alu_op <= `OP_CODE_XOR;
-      `OP_CODE_TESTI: alu_op <= `OP_CODE_TEST;
-      `OP_CODE_CMPI: alu_op <= `OP_CODE_CMP;
+      `OP_CODE_ADDI: alu_op <= `ALU_OP_ADD;
+      `OP_CODE_SUBI: alu_op <= `ALU_OP_SUB;
+      `OP_CODE_NOTI: alu_op <= `ALU_OP_NOT;
+      `OP_CODE_ANDI: alu_op <= `ALU_OP_AND;
+      `OP_CODE_ORI: alu_op <= `ALU_OP_OR;
+      `OP_CODE_NANDI: alu_op <= `ALU_OP_NAND;
+      `OP_CODE_NORI: alu_op <= `ALU_OP_NOR;
+      `OP_CODE_MOVI: alu_op <= `ALU_OP_MOV;
+      `OP_CODE_SARI: alu_op <= `ALU_OP_SAR;
+      `OP_CODE_SHRI: alu_op <= `ALU_OP_SHR;
+      `OP_CODE_SHLI: alu_op <= `ALU_OP_SHL;
+      `OP_CODE_XORI: alu_op <= `ALU_OP_XOR;
+      `OP_CODE_TESTI: alu_op <= `ALU_OP_TEST;
+      `OP_CODE_CMPI: alu_op <= `ALU_OP_CMP;
     endcase 
 
     case(opcode)

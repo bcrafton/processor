@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+`define RUNTIME 1000
+
 module test;
 
 	// Inputs
@@ -23,11 +25,11 @@ module test;
 
   always @(posedge clk) begin
 
-    if($time > 490) begin
+    if($time > `RUNTIME-10) begin
       complete <= 1;
     end
 
-    if($time > 500) begin
+    if($time > `RUNTIME) begin
       $finish;
     end
 
