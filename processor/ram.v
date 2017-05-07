@@ -34,18 +34,12 @@ module ram (
   
   end
 
+  integer i;
   integer f;
   always @(*) begin
     if(complete) begin
       f = $fopen("out/ram", "w");
-      $fwrite(f,"%h\n", mem[0]);
-      $fwrite(f,"%h\n", mem[1]);
-      $fwrite(f,"%h\n", mem[2]);
-      $fwrite(f,"%h\n", mem[3]);
-      $fwrite(f,"%h\n", mem[4]);
-      $fwrite(f,"%h\n", mem[5]);
-      $fwrite(f,"%h\n", mem[6]);
-      $fwrite(f,"%h\n", mem[7]);
+      for (i=0; i<`DMEMORY_SIZE; i=i+1) $fwrite(f,"%h\n", mem[i]);
       $fclose(f);
     end
   end

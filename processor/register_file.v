@@ -27,18 +27,10 @@ module register_file(
   input wire [`NUM_REGISTERS_LOG2-1:0] read_address_2;
   output wire [`DATA_WIDTH-1:0] read_data_2;
 
+  integer i;
   initial begin
-    regfile[0] <= 0;
-    regfile[1] <= 0;
-    regfile[2] <= 0;
-    regfile[3] <= 0;
-
-    regfile[4] <= 0;
-    regfile[5] <= 0;
-    regfile[6] <= 0;
-    regfile[7] <= 0;
+    for (i=0; i<`NUM_REGISTERS; i=i+1) regfile[i] <= 32'h00000000;
   end
-
 
   assign read_data_1 = regfile[read_address_1];
   assign read_data_2 = regfile[read_address_2];
@@ -53,14 +45,7 @@ module register_file(
   always @(*) begin
     if(complete) begin
       f = $fopen("out/regfile", "w");
-      $fwrite(f,"%h\n", regfile[0]);
-      $fwrite(f,"%h\n", regfile[1]);
-      $fwrite(f,"%h\n", regfile[2]);
-      $fwrite(f,"%h\n", regfile[3]);
-      $fwrite(f,"%h\n", regfile[4]);
-      $fwrite(f,"%h\n", regfile[5]);
-      $fwrite(f,"%h\n", regfile[6]);
-      $fwrite(f,"%h\n", regfile[7]);
+      for (i=0; i<`NUM_REGISTERS; i=i+1) $fwrite(f,"%h\n", regfile[i]);
       $fclose(f);
     end
   end
