@@ -591,22 +591,26 @@ let check_two_num (a1 : arg) (a2 : arg) (t : tag) : instruction list =
 
 (* ASSEMBLER *)
 
+let rec search_label (labels : (string * int) list) (label : string) : int =
+  match labels with
+  | [] -> failwith (sprintf "Label %s not found" label)
+  | (label',addr)::rest ->
+     if label' = label then addr else (search_label rest label)
+
 let rec assemble (out : string) (il : instruction list) =
-  let mips = (to_mips il) in
-  (*
-  (printf "length of x86: %d length of mips %d\n" (List.length il) (List.length mips));
-  *)
-  let binary = (assemble_mips mips) in
+  let (mips, labels) = (to_mips il 0) in
+  (printf "lut length %d\n" (List.length labels));
+  let binary = (assemble_mips mips labels) in
   let outfile = open_out (out ^ ".b") in
   fprintf outfile "%s" binary
 
-and assemble_mips (il : mips_instruction list) : string = 
+and assemble_mips (il : mips_instruction list) (labels : (string * int) list) : string = 
   match il with
   | i :: rest ->
-    sprintf "%s\n%s" (assemble_instruction i) (assemble_mips rest)
+    sprintf "%s\n%s" (assemble_instruction i labels) (assemble_mips rest labels)
   | [] -> ""
 
-and assemble_instruction (i : mips_instruction) : string = 
+and assemble_instruction (i : mips_instruction) (labels : (string * int) list) : string = 
   match i with
   |	MADD(dst, src) -> (assemble_r opcode_add dst src)
   |	MSUB(dst, src) -> (assemble_r opcode_sub dst src)
@@ -639,20 +643,20 @@ and assemble_instruction (i : mips_instruction) : string =
   |	MCMPI(dst, src) -> (assemble_i opcode_cmpi dst src)
 
   |	MLW(dst, src, offset) -> (assemble_mem opcode_lw dst src offset)
-  |	MSW(dst, src, offset) -> (assemble_mem opcode_lw dst src offset)
-  |	MSA(dst, src) -> (assemble_i opcode_sari dst src)
-  |	MLA(dst, src) -> (assemble_i opcode_sari dst src)
+  |	MSW(dst, src, offset) -> (assemble_mem opcode_sw dst src offset)
+  |	MSA(dst, src) -> (assemble_i opcode_sa dst src)
+  |	MLA(dst, src) -> (assemble_i opcode_la dst src)
 
-  |	MJUMP(addr) -> (assemble_jmp opcode_jmp addr)
-  |	MJO(addr) -> (assemble_jmp opcode_jo addr)
-  |	MJE(addr) -> (assemble_jmp opcode_je addr)
-  |	MJNE(addr) -> (assemble_jmp opcode_jne addr)
-  |	MJL(addr) -> (assemble_jmp opcode_jl addr)
-  |	MJLE(addr) -> (assemble_jmp opcode_jle addr)
-  |	MJG(addr) -> (assemble_jmp opcode_jg addr)
-  |	MJGE(addr) -> (assemble_jmp opcode_jge addr)
-  |	MJZ(addr) -> (assemble_jmp opcode_jz addr)
-  |	MJNZ(addr) -> (assemble_jmp opcode_jnz addr)
+  | MJUMP(label) -> (assemble_jmp opcode_jmp labels label)
+  | MJO(label) -> (assemble_jmp opcode_jo labels label)
+  | MJE(label) -> (assemble_jmp opcode_je labels label)
+  | MJNE(label) -> (assemble_jmp opcode_jne labels label)
+  | MJL(label) -> (assemble_jmp opcode_jl labels label)
+  | MJLE(label) -> (assemble_jmp opcode_jle labels label)
+  | MJG(label) -> (assemble_jmp opcode_jg labels label)
+  | MJGE(label) -> (assemble_jmp opcode_jge labels label)
+  | MJZ(label) -> (assemble_jmp opcode_jz labels label)
+  | MJNZ(label) -> (assemble_jmp opcode_jnz labels label)
 
 and assemble_register (r : reg) : int = 
   match r with
@@ -692,10 +696,11 @@ and assemble_mem (opcode : int) (rd : reg) (rs : reg) (imm : int) : string =
   let b = b lor (imm     lsl imm_lsb)    in
   sprintf "%x" b 
 
-and assemble_jmp (opcode : int) (address : string) : string = 
+and assemble_jmp (opcode : int) (labels : (string * int) list) (label : string) : string = 
+  let addr = (search_label labels label) in 
   let b = 0 in
   let b = b lor (opcode  lsl opcode_lsb) in 
-  let b = b lor (0 lsl imm_lsb)    in
+  let b = b lor (addr lsl imm_lsb) in
   sprintf "%x" b 
 
 and to_mips_dst (a : arg) : (mips_instruction list * mips_arg * mips_instruction list) = 
@@ -734,111 +739,123 @@ and to_mips_src (a : arg) : (mips_instruction list * mips_arg) =
     (prelude, MReg(r))
   | Sized(s, a') -> (to_mips_src a') (* dont care about size in our processor *)
 
-and to_mips (il : instruction list) : mips_instruction list = 
+and to_mips (il : instruction list) (n : int) : (mips_instruction list * (string * int) list) = 
   
-  let rec help (i : instruction) : mips_instruction list = 
+  let rec help (i : instruction) (n : int) : (mips_instruction list, (string * int)) either = 
     match i with
     | IMov(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
-      begin
+      let mov = begin
       match (mips_arg_dst, mips_arg_src) with 
       | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MMOVI(dst', src')] @ dst_postlude
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MMOV(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
-      end
+      end in 
+      Left(mov)
+
     | IAdd(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
-      begin
+      let add = begin
       match (mips_arg_dst, mips_arg_src) with 
       | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MADDI(dst', src')] @ dst_postlude
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MADD(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
-      end
+      end in
+      Left(add)
+
     | ISub(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
-      begin
+      let sub = begin
       match (mips_arg_dst, mips_arg_src) with 
       | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MSUBI(dst', src')] @ dst_postlude
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MSUB(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
-      end
+      end in
+      Left(sub)
 
     | ICmp(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
-      begin
+      let cmp = begin
       match (mips_arg_dst, mips_arg_src) with 
       | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MCMPI(dst', src')] @ dst_postlude
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MCMP(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
-      end
+      end in 
+      Left(cmp)
 
     | IAnd(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
-      begin
+      let mand = begin
       match (mips_arg_dst, mips_arg_src) with 
       | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MANDI(dst', src')] @ dst_postlude
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MAND(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
-      end
+      end in
+      Left(mand)
 
     | IOr(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
-      begin
+      let mor = begin
       match (mips_arg_dst, mips_arg_src) with 
       | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MORI(dst', src')] @ dst_postlude
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MOR(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
-      end
+      end in 
+      Left(mor)
 
     | IXor(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
-      begin
+      let mxor = begin
       match (mips_arg_dst, mips_arg_src) with 
       | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MXORI(dst', src')] @ dst_postlude
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MXOR(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
-      end
+      end in 
+      Left(mxor)
 
     | IShl(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
-      begin
+      let mshl = begin
       match (mips_arg_dst, mips_arg_src) with 
       | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MSHLI(dst', src')] @ dst_postlude
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MSHL(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
-      end
+      end in
+      Left(mshl)
 
     | IShr(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
-      begin
+      let mshr = begin
       match (mips_arg_dst, mips_arg_src) with 
       | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MSHRI(dst', src')] @ dst_postlude
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MSHR(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
-      end
+      end in
+      Left(mshr)
 
     | ISar(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
-      begin
+      let msar = begin
       match (mips_arg_dst, mips_arg_src) with 
       | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MSARI(dst', src')] @ dst_postlude
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MSAR(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
-      end
+      end in
+      Left(msar)
 
     | IPush(src) -> 
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
-      begin
+      let mpush = begin
       match mips_arg_src with
       | MImm(src') -> 
         src_prelude @ 
@@ -854,10 +871,11 @@ and to_mips (il : instruction list) : mips_instruction list =
           MSW(ESP, src', 0);
           MSUBI(ESP, 4);
         ]
-      end
+      end in
+      Left(mpush)
  
     | IPop(src) -> 
-      begin
+      let mpop = begin
       match src with
       (* pretty sure can only pop into a register *)
       | Reg(r) -> 
@@ -866,42 +884,55 @@ and to_mips (il : instruction list) : mips_instruction list =
           MADDI(ESP, 4);
         ]
       | _ -> failwith "impossible: can only pop a register"
-      end
+      end in
+      Left(mpop)
 
     | ITest(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
-      begin
+      let mtest = begin
       match (mips_arg_dst, mips_arg_src) with 
       | (MReg(dst'), MImm(src')) -> dst_prelude @ src_prelude @ [MTESTI(dst', src')] @ dst_postlude
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MTEST(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
-      end
+      end in
+      Left(mtest)
 
-    | IJo(addr) -> [MJO(addr)]
-    | IJe(addr) -> [MJE(addr)]
-    | IJne(addr) -> [MJNE(addr)]
-    | IJl(addr) ->  [MJL(addr)]
-    | IJle(addr) -> [MJLE(addr)]
-    | IJg(addr) -> [MJG(addr)]
-    | IJge(addr) -> [MJGE(addr)]
-    | IJmp(addr) -> [MJUMP(addr)]
-    | IJz(addr) -> [MJZ(addr)]
-    | IJnz(addr) -> [MJNZ(addr)]
-    
+    | IJo(addr)  -> let j = [MJO(addr)]   in Left(j)
+    | IJe(addr)  -> let j = [MJE(addr)]   in Left(j)
+    | IJne(addr) -> let j = [MJNE(addr)]  in Left(j)
+    | IJl(addr)  -> let j = [MJL(addr)]   in Left(j)
+    | IJle(addr) -> let j = [MJLE(addr)]  in Left(j)
+    | IJg(addr)  -> let j = [MJG(addr)]   in Left(j)
+    | IJge(addr) -> let j = [MJGE(addr)]  in Left(j)
+    | IJmp(addr) -> let j = [MJUMP(addr)] in Left(j)
+    | IJz(addr)  -> let j = [MJZ(addr)]   in Left(j)
+    | IJnz(addr) -> let j = [MJNZ(addr)]  in Left(j)
+
     | IMul(src, dst) -> failwith "multiply not implemented"
-    | IInstrComment(i', _) ->  (help i')
-    | ILineComment(_) -> []
-    | ICall(label) -> []
-    | IRet -> []
-    | ILabel(label) -> []
-
+    | IInstrComment(i', _) -> (help i' n)
+    | ILineComment(_) -> Left([])
+    | ICall(label) -> Left([])
+    | IRet -> Left([])
+    | ILabel(label) -> 
+      Right((label, n))
   in
   
   match il with
   | i :: rest ->
-    (help i) @ (to_mips rest)
-  | [] -> []
+    let e = (help i n) in
+    begin
+    match e with
+    | Left(mi) ->
+      let num_instr = (List.length mi) in
+      let (mis, luts) = (to_mips rest (n+num_instr)) in
+      (mi @ mis, luts)
+    | Right(lut) ->
+      let num_instr = 0 in
+      let (mis, luts) = (to_mips rest (n+num_instr)) in
+      (mis, lut :: luts)
+    end
+  | [] -> ([], [])
 
 (* ASSEMBLER *)
 
