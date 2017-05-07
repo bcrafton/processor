@@ -766,7 +766,6 @@ and to_mips (il : instruction list) : mips_instruction list =
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
       end
 
-    | IMul(src, dst) -> failwith "multiply not implemented"
     | ICmp(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
@@ -776,17 +775,6 @@ and to_mips (il : instruction list) : mips_instruction list =
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MCMP(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
       end
-
-    | IJo(addr) -> [MJO(addr)]
-    | IJe(addr) -> [MJE(addr)]
-    | IJne(addr) -> [MJNE(addr)]
-    | IJl(addr) ->  [MJL(addr)]
-    | IJle(addr) -> [MJLE(addr)]
-    | IJg(addr) -> [MJG(addr)]
-    | IJge(addr) -> [MJGE(addr)]
-    | IJmp(addr) -> [MJUMP(addr)]
-    | IJz(addr) -> [MJZ(addr)]
-    | IJnz(addr) -> [MJNZ(addr)]
 
     | IAnd(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
@@ -889,9 +877,21 @@ and to_mips (il : instruction list) : mips_instruction list =
       | (MReg(dst'), MReg(src')) -> dst_prelude @ src_prelude @ [MTEST(dst', src')] @ dst_postlude
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
       end
-    | ILineComment(_) -> []
-    | IInstrComment(i', _) ->  (help i')
 
+    | IJo(addr) -> [MJO(addr)]
+    | IJe(addr) -> [MJE(addr)]
+    | IJne(addr) -> [MJNE(addr)]
+    | IJl(addr) ->  [MJL(addr)]
+    | IJle(addr) -> [MJLE(addr)]
+    | IJg(addr) -> [MJG(addr)]
+    | IJge(addr) -> [MJGE(addr)]
+    | IJmp(addr) -> [MJUMP(addr)]
+    | IJz(addr) -> [MJZ(addr)]
+    | IJnz(addr) -> [MJNZ(addr)]
+    
+    | IMul(src, dst) -> failwith "multiply not implemented"
+    | IInstrComment(i', _) ->  (help i')
+    | ILineComment(_) -> []
     | ICall(label) -> []
     | IRet -> []
     | ILabel(label) -> []
