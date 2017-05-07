@@ -786,9 +786,9 @@ and to_mips (il : instruction list) : mips_instruction list =
     | IJge(addr) -> [MJGE(0)]
     | IJmp(addr) -> [MJUMP(0)]
     | IJnz(addr) -> [MJNZ(0)]
-(*
-    | IRet(a1, a2) -> [MJ(0)]
-*)
+
+    | IRet -> [MLabel("")] 
+
 
     | IAnd(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
@@ -893,9 +893,9 @@ and to_mips (il : instruction list) : mips_instruction list =
       end
     | ILineComment(_) -> []
     | IInstrComment(i', _) ->  (help i')
-(*
-    | ICall(a1, a2) ->  
-*)
+
+    | ICall(label) -> [MLabel(label)] 
+
     | _ -> []
 
   in
