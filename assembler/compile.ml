@@ -599,7 +599,9 @@ let rec search_label (labels : (string * int) list) (label : string) : int =
 
 let rec assemble (out : string) (il : instruction list) =
   let (mips, labels) = (to_mips il 0) in
+  (*
   (printf "lut length %d\n" (List.length labels));
+  *)
   let binary = (assemble_mips mips labels) in
   let outfile = open_out (out ^ ".b") in
   fprintf outfile "%s" binary
@@ -667,40 +669,55 @@ and assemble_register (r : reg) : int =
   | ESP -> 4
   | EBP -> 5
 
+and assemble_opcode (opcode : int) : int = 
+  if (opcode > max_opcode_value || opcode < 0) then failwith "opcode value out of bounds"
+  else opcode
+
+and assemble_imm (imm : int) : int =
+  if (imm > max_imm_value || imm < 0) then failwith "imm value out of bounds"
+  else imm
+
 and assemble_r (opcode : int) (rd : reg) (rs : reg) : string =
+  let opcode' = assemble_opcode opcode in
   let rd_addr = (assemble_register rd) in
   let rs_addr = (assemble_register rs) in
   let b = 0 in
-  let b = b lor (opcode  lsl opcode_lsb) in 
+  let b = b lor (opcode'  lsl opcode_lsb) in 
   let b = b lor (rd_addr lsl reg_rs_lsb) in
   let b = b lor (rs_addr lsl reg_rt_lsb) in
   let b = b lor (rd_addr lsl reg_rd_lsb) in
   sprintf "%x" b 
 
 and assemble_i (opcode : int) (rd : reg) (imm : int) : string =
+  let opcode' = assemble_opcode opcode in
   let rd_addr = (assemble_register rd) in
+  let imm' = assemble_imm imm in
   let b = 0 in
-  let b = b lor (opcode  lsl opcode_lsb) in 
+  let b = b lor (opcode' lsl opcode_lsb) in 
   let b = b lor (rd_addr lsl reg_rs_lsb) in
   let b = b lor (rd_addr lsl reg_rt_lsb) in
-  let b = b lor (imm     lsl imm_lsb)    in
+  let b = b lor (imm'    lsl imm_lsb)    in
   sprintf "%x" b 
 
 and assemble_mem (opcode : int) (rd : reg) (rs : reg) (imm : int) : string =
+  let opcode' = assemble_opcode opcode in
   let rd_addr = (assemble_register rd) in
   let rs_addr = (assemble_register rs) in
+  let imm' = assemble_imm imm in
   let b = 0 in
-  let b = b lor (opcode  lsl opcode_lsb) in 
+  let b = b lor (opcode' lsl opcode_lsb) in 
   let b = b lor (rd_addr lsl reg_rs_lsb) in
   let b = b lor (rs_addr lsl reg_rt_lsb) in
-  let b = b lor (imm     lsl imm_lsb)    in
+  let b = b lor (imm'    lsl imm_lsb)    in
   sprintf "%x" b 
 
 and assemble_jmp (opcode : int) (labels : (string * int) list) (label : string) : string = 
+  let opcode' = assemble_opcode opcode in
   let addr = (search_label labels label) in 
+  let addr' = assemble_imm addr in
   let b = 0 in
-  let b = b lor (opcode  lsl opcode_lsb) in 
-  let b = b lor (addr lsl imm_lsb) in
+  let b = b lor (opcode'  lsl opcode_lsb) in 
+  let b = b lor (addr' lsl imm_lsb) in
   sprintf "%x" b 
 
 and to_mips_dst (a : arg) : (mips_instruction list * mips_arg * mips_instruction list) = 
@@ -863,13 +880,15 @@ and to_mips (il : instruction list) (n : int) : (mips_instruction list * (string
           (* just put this in a register for now *)
           MMOVI(EBX, src');
           MSW(ESP, EBX, 0);
-          MSUBI(ESP, 4);
+          (* this needs to be 1 not 4 for our processor *)
+          MSUBI(ESP, 1);
         ]
       | MReg(src') -> 
         src_prelude @ 
         [
           MSW(ESP, src', 0);
-          MSUBI(ESP, 4);
+          (* this needs to be 1 not 4 for our processor *)
+          MSUBI(ESP, 1);
         ]
       end in
       Left(mpush)
@@ -881,7 +900,8 @@ and to_mips (il : instruction list) (n : int) : (mips_instruction list * (string
       | Reg(r) -> 
         [
           MLW(r, ESP, 0);
-          MADDI(ESP, 4);
+          (* this needs to be 1 not 4 for our processor *)
+          MADDI(ESP, 1);
         ]
       | _ -> failwith "impossible: can only pop a register"
       end in

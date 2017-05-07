@@ -23,7 +23,7 @@ let teq name actual expected = name>::fun _ ->
 
 let tests = [ 
 
-t "plus" "10+10" "20";
+t "if" "if true: 15 else: 3" "15";
 
 
 ]

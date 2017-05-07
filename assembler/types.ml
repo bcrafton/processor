@@ -65,6 +65,10 @@ let reg_rd_lsb = 11
 let imm_msb = 15
 let imm_lsb = 0
 
+let max_imm_value = 65535
+let max_reg_addr = 31
+let max_opcode_value = 63
+
 type ('a, 'b) either =
   | Left of 'a
   | Right of 'b
