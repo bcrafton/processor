@@ -593,7 +593,9 @@ let check_two_num (a1 : arg) (a2 : arg) (t : tag) : instruction list =
 
 let rec assemble (out : string) (il : instruction list) =
   let mips = (to_mips il) in
+  (*
   (printf "length of x86: %d length of mips %d\n" (List.length il) (List.length mips));
+  *)
   let binary = (assemble_mips mips) in
   let outfile = open_out (out ^ ".b") in
   fprintf outfile "%s" binary
@@ -652,8 +654,6 @@ and assemble_instruction (i : mips_instruction) : string =
   |	MJZ(addr) -> (assemble_jmp opcode_jz addr)
   |	MJNZ(addr) -> (assemble_jmp opcode_jnz addr)
 
-  | MLabel(label) -> ""
-
 and assemble_register (r : reg) : int = 
   match r with
   | EAX -> 0
@@ -692,10 +692,10 @@ and assemble_mem (opcode : int) (rd : reg) (rs : reg) (imm : int) : string =
   let b = b lor (imm     lsl imm_lsb)    in
   sprintf "%x" b 
 
-and assemble_jmp (opcode : int) (address : int) : string = 
+and assemble_jmp (opcode : int) (address : string) : string = 
   let b = 0 in
   let b = b lor (opcode  lsl opcode_lsb) in 
-  let b = b lor (address lsl imm_lsb)    in
+  let b = b lor (0 lsl imm_lsb)    in
   sprintf "%x" b 
 
 and to_mips_dst (a : arg) : (mips_instruction list * mips_arg * mips_instruction list) = 
@@ -767,7 +767,6 @@ and to_mips (il : instruction list) : mips_instruction list =
       end
 
     | IMul(src, dst) -> failwith "multiply not implemented"
-    | ILabel(label) -> [MLabel(label)] 
     | ICmp(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
       let (src_prelude, mips_arg_src) = (to_mips_src src) in
@@ -778,17 +777,16 @@ and to_mips (il : instruction list) : mips_instruction list =
       | _ -> failwith "impossible: cannot have a constant in the destination operand"
       end
 
-    | IJo(addr) -> [MJO(0)]
-    | IJe(addr) -> [MJE(0)]
-    | IJne(addr) -> [MJNE(0)]
-    | IJl(addr) ->  [MJL(0)]
-    | IJg(addr) -> [MJG(0)]
-    | IJge(addr) -> [MJGE(0)]
-    | IJmp(addr) -> [MJUMP(0)]
-    | IJnz(addr) -> [MJNZ(0)]
-
-    | IRet -> [MLabel("")] 
-
+    | IJo(addr) -> [MJO(addr)]
+    | IJe(addr) -> [MJE(addr)]
+    | IJne(addr) -> [MJNE(addr)]
+    | IJl(addr) ->  [MJL(addr)]
+    | IJle(addr) -> [MJLE(addr)]
+    | IJg(addr) -> [MJG(addr)]
+    | IJge(addr) -> [MJGE(addr)]
+    | IJmp(addr) -> [MJUMP(addr)]
+    | IJz(addr) -> [MJZ(addr)]
+    | IJnz(addr) -> [MJNZ(addr)]
 
     | IAnd(dst, src) ->
       let (dst_prelude, mips_arg_dst, dst_postlude) = (to_mips_dst dst) in
@@ -894,9 +892,9 @@ and to_mips (il : instruction list) : mips_instruction list =
     | ILineComment(_) -> []
     | IInstrComment(i', _) ->  (help i')
 
-    | ICall(label) -> [MLabel(label)] 
-
-    | _ -> []
+    | ICall(label) -> []
+    | IRet -> []
+    | ILabel(label) -> []
 
   in
   

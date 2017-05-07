@@ -170,18 +170,18 @@ type mips_instruction =
   |	MSA of reg * int
   |	MLA of reg * int
 
-  |	MJUMP of int
-  |	MJO of int
-  |	MJE of int
-  |	MJNE of int
-  |	MJL of int
-  |	MJLE of int
-  |	MJG of int
-  |	MJGE of int
-  |	MJZ of int
-  |	MJNZ of int
+  |	MJUMP of string
+  |	MJO of string
+  |	MJE of string
+  |	MJNE of string
+  |	MJL of string
+  |	MJLE of string
+  |	MJG of string
+  |	MJGE of string
+  |	MJZ of string
+  |	MJNZ of string
 
-  | MLabel of string
+(*  | MLabel of string*)
 
 type prim1 =
   | Add1
