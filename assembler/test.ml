@@ -23,8 +23,12 @@ let teq name actual expected = name>::fun _ ->
 
 let tests = [ 
 
-t "if" "if false: 15 else: 3" "15";
+t "given" 
+"def f(x, y):
+  x + y
 
+f(1, 2)"
+"3";
 
 ]
 

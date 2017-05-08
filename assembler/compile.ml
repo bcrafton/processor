@@ -693,7 +693,7 @@ and assemble_r (opcode : int) (rd : reg) (rs : reg) : string =
   let b = b lor (rd_addr lsl reg_rs_lsb) in
   let b = b lor (rs_addr lsl reg_rt_lsb) in
   let b = b lor (rd_addr lsl reg_rd_lsb) in
-  sprintf "%x" b 
+  sprintf "%08lx" (Int32.of_int b)
 
 (* rt is register we write to *)
 and assemble_i (opcode : int) (rd : reg) (imm : int) : string =
@@ -705,7 +705,7 @@ and assemble_i (opcode : int) (rd : reg) (imm : int) : string =
   let b = b lor (rd_addr lsl reg_rs_lsb) in
   let b = b lor (rd_addr lsl reg_rt_lsb) in
   let b = b lor (imm'    lsl imm_lsb)    in
-  sprintf "%x" b 
+  sprintf "%08lx" (Int32.of_int b)
 
 and assemble_lw (addr : reg) (dest : reg) (offset : int) : string = 
   let opcode' = assemble_opcode opcode_lw in
@@ -717,7 +717,7 @@ and assemble_lw (addr : reg) (dest : reg) (offset : int) : string =
   let b = b lor (addr'   lsl reg_rs_lsb) in
   let b = b lor (dest'   lsl reg_rt_lsb) in
   let b = b lor (offset' lsl imm_lsb)    in
-  sprintf "%x" b 
+  sprintf "%08lx" (Int32.of_int b)
 
 and assemble_sw (addr : reg) (write_data : reg) (offset : int) : string = 
   let opcode' = assemble_opcode opcode_sw in
@@ -729,7 +729,7 @@ and assemble_sw (addr : reg) (write_data : reg) (offset : int) : string =
   let b = b lor (addr'       lsl reg_rs_lsb) in
   let b = b lor (write_data' lsl reg_rt_lsb) in
   let b = b lor (offset'     lsl imm_lsb)    in
-  sprintf "%x" b  
+  sprintf "%08lx" (Int32.of_int b)
 
 and assemble_jmp (opcode : int) (labels : (string * int) list) (label : string) : string = 
   let opcode' = assemble_opcode opcode in
@@ -738,14 +738,14 @@ and assemble_jmp (opcode : int) (labels : (string * int) list) (label : string) 
   let b = 0 in
   let b = b lor (opcode'  lsl opcode_lsb) in 
   let b = b lor (addr' lsl imm_lsb) in
-  sprintf "%x" b 
+  sprintf "%08lx" (Int32.of_int b)
 
 and assemble_jr (addr : reg) : string = 
   let addr' = (assemble_register addr) in
   let b = 0 in
   let b = b lor (opcode_jr lsl opcode_lsb) in
   let b = b lor (addr'     lsl reg_rs_lsb) in
-  sprintf "%x" b
+  sprintf "%08lx" (Int32.of_int b)
 
 and to_mips_dst (a : arg) : (mips_instruction list * mips_arg * mips_instruction list) = 
   match a with
@@ -1007,7 +1007,9 @@ and to_mips (il : instruction list) : (mips_instruction list * (string * int) li
         (mis, lut :: luts)
       end
     | [] -> ([], [])
-  in 
+  in
+  (itr il 0) 
+(*
   let prelude = 
   [
     MMOVI(EAX, 0);
@@ -1017,6 +1019,8 @@ and to_mips (il : instruction list) : (mips_instruction list * (string * int) li
   let start_length = (List.length prelude) in
   let (il', lut) = (itr il start_length) in
   (prelude @ il', lut)
+*)
+  
 
 (* ASSEMBLER *)
 
@@ -1038,6 +1042,28 @@ let rec compile_fun (fun_name : string) (args : string list) (body : tag aexpr) 
   ] in 
   let compiled_body = (compile_aexpr body 1 env (List.length args) false) in
   prelude @ compiled_body @ postlude
+
+and compile_main (body : tag aexpr) (stack_start : int) : instruction list = 
+  let offset = (count_vars body) in 
+  let prelude = [
+    IMov(Reg(EAX), Const(0)); (* First inst = NOP *)
+    IMov(Reg(ESP), Const(stack_start));
+    IMov(Reg(EBP), Const(stack_start));
+    ILabel("our_code_starts_here");
+    (* dont think pushing these is necessary but we need the offset *)
+    IPush(Reg(EBP));
+    IMov(Reg(EBP), Reg(ESP));
+    IAdd(Reg(ESP), Const(-1*word_size*offset));
+  ] in
+  (* dont think this is necessary, but these shud end up as same *)
+  let postlude = [
+    IMov(Reg(ESP), Reg(EBP));
+    IPop(Reg(EBP));
+  ] in  
+  (* why is stack index = 1 *)
+  let compiled_body = (compile_aexpr body 1 [] 0 false) in
+  prelude @ compiled_body @ postlude
+  
 
 and compile_aexpr (e : tag aexpr) (si : int) (env : arg envt) (num_args : int) (is_tail : bool) : instruction list =
   match e with
@@ -1369,9 +1395,13 @@ global our_code_starts_here" in
         (compile_decl first) @ (compile_fns rest)
       | [] -> []
     in
+    let start = 
+    [
+      IJmp("our_code_starts_here");
+    ] in
     let compiled_fns = (compile_fns fns) in
-    let main = (compile_decl (ADFun("our_code_starts_here", [], body, t))) in
-    let il = (compiled_fns @ main @ errors) in
+    let main = (compile_main body stack_start) in
+    let il = (start @ compiled_fns @ main @ errors) in
     (assemble "prog" il); 
 
     let as_assembly_string = (to_asm il) in
