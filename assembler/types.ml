@@ -176,7 +176,6 @@ type mips_instruction =
   |	MSW of reg * reg * int
   |	MSA of reg * int
 
-
   |	MJUMP of string
   |	MJO of string
   |	MJE of string
@@ -187,8 +186,6 @@ type mips_instruction =
   |	MJGE of string
   |	MJZ of string
   |	MJNZ of string
-
-(*  | MLabel of string*)
 
 type prim1 =
   | Add1

@@ -953,8 +953,30 @@ and to_mips (il : instruction list) : (mips_instruction list * (string * int) li
     | IMul(src, dst) -> failwith "multiply not implemented"
     | IInstrComment(i', _) -> (help i' n)
     | ILineComment(_) -> Left([])
-    | ICall(label) -> Left([])
-    | IRet -> Left([])
+
+    | ICall(label) -> 
+      (* push current address on the stack *)
+      (* jump to that address *)
+      let call = [
+        (* push *)
+        MMOVI(EBX, n);
+        MSW(ESP, EBX, 0);
+        MSUBI(ESP, 1);
+        (* jump *)
+        MJUMP(label);
+      ] in 
+      Left(call)
+
+    | IRet -> 
+      (* pop off return value which shud now be on top *)
+      let ret = [
+        (* pop *)
+        MLW(ESP, EBX, 0);
+        MADDI(ESP, 1);
+        (* need to be able to do a jump to a register here. *)
+      ] in
+      Left(ret)
+
     | ILabel(label) -> 
       Right((label, n))
   in
