@@ -4,6 +4,8 @@
 `define IMEMORY_SIZE 128
 `define DMEMORY_SIZE 1024
 
+`define GARBAGE 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
 `define MEM_OP_NOP        2'b00
 `define MEM_OP_READ       2'b01
 `define MEM_OP_WRITE      2'b10
@@ -42,13 +44,18 @@
 `define ALU_OP_NOR        4'b0110
 `define ALU_OP_MOV        4'b0111
 
-`define ALU_OP_SAR        4'b1000
-`define ALU_OP_SHR        4'b1001
-`define ALU_OP_SHL        4'b1010
-`define ALU_OP_XOR        4'b1011
+// this uses data2 instead of data1
+// we can be smart at assembler level and for mov just put rs in rt.
+// but want to use this method because more maintainable
+`define ALU_OP_MOVI       4'b1000 
+`define ALU_OP_SAR        4'b1001
+`define ALU_OP_SHR        4'b1010
+`define ALU_OP_SHL        4'b1011
+`define ALU_OP_XOR        4'b1100
 
-`define ALU_OP_CMP        4'b1100
-`define ALU_OP_TEST       4'b1101
+`define ALU_OP_CMP        4'b1101
+`define ALU_OP_TEST       4'b1110
+`define ALU_OP_NOP        4'b1111
 
 `define ALU_OP_BITS       4 //$bits(ALU_OP_ADD)
 

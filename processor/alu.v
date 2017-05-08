@@ -46,6 +46,12 @@ module alu
       `ALU_OP_NAND: alu_result = ~(data1 & data2); // NAND
       `ALU_OP_NOR: alu_result = ~(data1 | data2); // NOR
       `ALU_OP_MOV: alu_result = data1;
+      `ALU_OP_MOVI: alu_result = data2;
+/*    
+      use to do this:
+			7: alu_result <= data1;
+			8: alu_result <= data2;
+*/
 
       `ALU_OP_SAR: alu_result = data1 >>> data2;
       `ALU_OP_SHR: alu_result = data1 >> data2;
@@ -57,15 +63,12 @@ module alu
           greater <= (data1 > data1) ? 1'b1 : 1'b0;
       end
       `ALU_OP_TEST: begin
-/*
           zero <= ((data1 & data2) == 0) ? 1'b1 : 1'b0;
           less <= data1 < data2 ? 1'b1 : 1'b0;
           greater <= data1 > data1 ? 1'b1 : 1'b0;
-*/
       end
-      default: begin
-        // do nothing
-      end
+      `ALU_OP_NOP: alu_result = `GARBAGE;
+      default: alu_result = `GARBAGE;
     endcase
 
 

@@ -53,7 +53,7 @@ module control_unit(
         mem_to_reg <= 1;
         reg_write <= 1;
         jop <= `JMP_OP_NOP;
-        alu_op <= `ALU_OP_ADD;
+        alu_op <= `ALU_OP_NOP;
         // dont want to overwrite cmp / test
         // we need a alu_op_nop
       end
@@ -62,7 +62,7 @@ module control_unit(
         alu_src <= 0;
         reg_write <= 0;
         address_src <= 0;
-        alu_op <= `ALU_OP_ADD; 
+        alu_op <= `ALU_OP_NOP; 
         // dont want to overwrite cmp / test
         // we need a alu_op_nop
       end
@@ -110,7 +110,8 @@ module control_unit(
       `OP_CODE_ORI: alu_op <= `ALU_OP_OR;
       `OP_CODE_NANDI: alu_op <= `ALU_OP_NAND;
       `OP_CODE_NORI: alu_op <= `ALU_OP_NOR;
-      `OP_CODE_MOVI: alu_op <= `ALU_OP_MOV;
+// we need to have a movi instruction so we use data2 and not data1 for the immediate.
+      `OP_CODE_MOVI: alu_op <= `ALU_OP_MOVI;
       `OP_CODE_SARI: alu_op <= `ALU_OP_SAR;
       `OP_CODE_SHRI: alu_op <= `ALU_OP_SHR;
       `OP_CODE_SHLI: alu_op <= `ALU_OP_SHL;

@@ -22,7 +22,7 @@ and is_imm e =
 ;;
 
 
-let const_true = HexConst (0xFFFFFFFF)
+let const_true = HexConst(0xFFFFFFFF)
 let const_false = HexConst(0x7FFFFFFF)
 let bool_mask = HexConst(0x80000000)
 let tag_as_bool = HexConst(0x00000001)
@@ -621,6 +621,7 @@ and assemble_instruction (i : mips_instruction) (labels : (string * int) list) :
   |	MOR(dst, src) -> (assemble_r opcode_or dst src)
   |	MNAND(dst, src) -> (assemble_r opcode_nand dst src)
   |	MNOR(dst, src) -> (assemble_r opcode_nor dst src)
+    (* we cud flip flop src and dst here because we dont want to add an li instruction *)
   |	MMOV(dst, src) -> (assemble_r opcode_mov dst src)
   |	MSAR(dst, src) -> (assemble_r opcode_sar dst src)
   |	MSHR(dst, src) -> (assemble_r opcode_shr dst src)
@@ -674,7 +675,7 @@ and assemble_opcode (opcode : int) : int =
   else opcode
 
 and assemble_imm (imm : int) : int =
-  if (imm > max_imm_value || imm < 0) then failwith "imm value out of bounds"
+  if (imm > max_imm_value || imm < 0) then (imm lsr 16)
   else imm
 
 and assemble_r (opcode : int) (rd : reg) (rs : reg) : string =
@@ -682,7 +683,7 @@ and assemble_r (opcode : int) (rd : reg) (rs : reg) : string =
   let rd_addr = (assemble_register rd) in
   let rs_addr = (assemble_register rs) in
   let b = 0 in
-  let b = b lor (opcode'  lsl opcode_lsb) in 
+  let b = b lor (opcode' lsl opcode_lsb) in 
   let b = b lor (rd_addr lsl reg_rs_lsb) in
   let b = b lor (rs_addr lsl reg_rt_lsb) in
   let b = b lor (rd_addr lsl reg_rd_lsb) in
@@ -993,21 +994,23 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
     let compile_cond = (compile_imm cond env) in
     let compile_then = (compile_aexpr thn si env num_args is_tail) in
     let compile_else = (compile_aexpr els si env num_args is_tail) in
-    let else_label = (sprintf "if_false_%d" t) in
+    let if_false_label = (sprintf "if_false_%d" t) in
     let done_label = (sprintf "done_%d" t) in
     (check_bool_if compile_cond) @
     [
       IMov(Reg(EAX), compile_cond);
-      ICmp(Reg(EAX), Const(0xFFFFFFFF));
-      IJne(else_label);
+      ICmp(Reg(EAX), HexConst(0xFFFFFFFF));
+      IJne(if_false_label);
     ] @
     compile_then @
     [
       IJmp(done_label);
-      ILabel(else_label);
+      ILabel(if_false_label);
     ] @
     compile_else @
-    [ILabel(done_label);]
+    [
+      ILabel(done_label);
+    ]
 
   | CPrim1(op, e, t) -> 
     let e_reg = (compile_imm e env) in
