@@ -5,7 +5,8 @@ module branch_unit(
   less,
   greater,
   jop,
-  flush
+  flush,
+  jump_address,
   );
 
   input wire zero;
@@ -13,9 +14,11 @@ module branch_unit(
   input wire greater;
   input wire [`JUMP_BITS-1:0] jop;
   output reg flush;
+  output reg jump_address;
 
   initial begin
     flush <= 0;
+    jump_address <= 1;
   end
 
   always@(*) begin
@@ -23,6 +26,7 @@ module branch_unit(
     case(jop)
       `JMP_OP_NOP: flush <= 0;
       `JMP_OP_J:   flush <= 0;
+      `JMP_OP_JR:  flush <= 1;
 
       `JMP_OP_JEQ: flush <= (zero == 1'b1);
       `JMP_OP_JNE: flush <= (zero == 1'b0);
@@ -38,6 +42,12 @@ module branch_unit(
 
       `JMP_OP_JO:  flush <= (zero == 1'b1);
     endcase
+
+    if(jop == `JMP_OP_JR) begin
+      jump_address <= 0;
+    end else begin
+      jump_address <= 1;
+    end
 
   end
 

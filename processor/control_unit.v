@@ -135,6 +135,7 @@ module control_unit(
       `OP_CODE_JZ:  jop <=    `JMP_OP_JZ;
       `OP_CODE_JNZ: jop <=    `JMP_OP_JNZ;
       `OP_CODE_JO:  jop <=    `JMP_OP_JO;
+      `OP_CODE_JR:  jop <=    `JMP_OP_JR;
     endcase
 
   end

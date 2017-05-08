@@ -73,6 +73,8 @@ module processor(
   wire [`JUMP_BITS-1:0] ex_mem_jop;
   wire [`MEM_OP_BITS-1:0] ex_mem_mem_op;
   wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_reg_dst_result;
+  wire ex_mem_jump_address;
+  wire [`ADDR_WIDTH-1:0] jump_address_result;
   // mem/wb
   wire [`DATA_WIDTH-1:0] mem_wb_ram_read_data, mem_wb_alu_result;
   wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_reg_dst_result;
@@ -93,11 +95,17 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
+  mux2x1 #(`ADDR_WIDTH) jump_address_mux(
+  .in0(ex_mem_data_1[`ADDR_WIDTH-1:0]), 
+  .in1(ex_mem_address), 
+  .sel(ex_mem_jump_address), 
+  .out(jump_address_result));
+
   program_counter pc_unit(
   .clk(clk), 
   .if_id_opcode(opcode),
   .if_id_address(address),
-  .branch_address(ex_mem_address), 
+  .branch_address(jump_address_result), 
   .pc(pc), 
   .flush(flush), 
   .stall(stall));

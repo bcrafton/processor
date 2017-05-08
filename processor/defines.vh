@@ -23,6 +23,7 @@
 `define JMP_OP_JZ         4'b1000
 `define JMP_OP_JNZ        4'b1001
 `define JMP_OP_JO         4'b1010
+`define JMP_OP_JR         4'b1011 // jump to a register
 `define JUMP_BITS         4 // $bits(JMP_OP_NOP)
 
 `define FORWARD_EX_MEM    2'b10
@@ -109,6 +110,7 @@
 `define OP_CODE_JGE       6'b110111
 `define OP_CODE_JZ        6'b111000 //56
 `define OP_CODE_JNZ       6'b111001
+`define OP_CODE_JR        6'b111010 //58
 
 `define OP_CODE_BITS      6 //$bits(OP_CODE_ADD)
 
