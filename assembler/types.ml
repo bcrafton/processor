@@ -69,6 +69,8 @@ let max_imm_value = 65535
 let max_reg_addr = 31
 let max_opcode_value = 63
 
+let stack_start = 4
+
 type ('a, 'b) either =
   | Left of 'a
   | Right of 'b
@@ -170,9 +172,10 @@ type mips_instruction =
   |	MCMPI of reg * int
 
   |	MLW of reg * reg * int
+  |	MLA of reg * int
   |	MSW of reg * reg * int
   |	MSA of reg * int
-  |	MLA of reg * int
+
 
   |	MJUMP of string
   |	MJO of string

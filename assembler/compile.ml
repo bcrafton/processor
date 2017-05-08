@@ -598,7 +598,7 @@ let rec search_label (labels : (string * int) list) (label : string) : int =
      if label' = label then addr else (search_label rest label)
 
 let rec assemble (out : string) (il : instruction list) =
-  let (mips, labels) = (to_mips il 0) in
+  let (mips, labels) = (to_mips il) in
   (*
   (printf "lut length %d\n" (List.length labels));
   *)
@@ -645,10 +645,13 @@ and assemble_instruction (i : mips_instruction) (labels : (string * int) list) :
   |	MTESTI(dst, src) -> (assemble_i opcode_testi dst src)
   |	MCMPI(dst, src) -> (assemble_i opcode_cmpi dst src)
 
-  |	MLW(dst, src, offset) -> (assemble_mem opcode_lw dst src offset)
-  |	MSW(dst, src, offset) -> (assemble_mem opcode_sw dst src offset)
-  |	MSA(dst, src) -> (assemble_i opcode_sa dst src)
-  |	MLA(dst, src) -> (assemble_i opcode_la dst src)
+  (* data1 = address *)
+  (* data2 = write data *)
+  (* data2 = destination *)
+  |	MLW(addr, dest, offset) -> (assemble_lw addr dest offset)
+  |	MLA(addr, dest)         -> (assemble_i opcode_la addr dest)
+  |	MSW(addr, data, offset) -> (assemble_sw addr data offset)
+  |	MSA(addr, data)         -> (assemble_i opcode_sa addr data)
 
   | MJUMP(label) -> (assemble_jmp opcode_jmp labels label)
   | MJO(label) -> (assemble_jmp opcode_jo labels label)
@@ -678,6 +681,7 @@ and assemble_imm (imm : int) : int =
   if (imm > max_imm_value || imm < 0) then (imm lsr 16)
   else imm
 
+(* rd is register we write to *)
 and assemble_r (opcode : int) (rd : reg) (rs : reg) : string =
   let opcode' = assemble_opcode opcode in
   let rd_addr = (assemble_register rd) in
@@ -689,6 +693,7 @@ and assemble_r (opcode : int) (rd : reg) (rs : reg) : string =
   let b = b lor (rd_addr lsl reg_rd_lsb) in
   sprintf "%x" b 
 
+(* rt is register we write to *)
 and assemble_i (opcode : int) (rd : reg) (imm : int) : string =
   let opcode' = assemble_opcode opcode in
   let rd_addr = (assemble_register rd) in
@@ -700,17 +705,29 @@ and assemble_i (opcode : int) (rd : reg) (imm : int) : string =
   let b = b lor (imm'    lsl imm_lsb)    in
   sprintf "%x" b 
 
-and assemble_mem (opcode : int) (rd : reg) (rs : reg) (imm : int) : string =
-  let opcode' = assemble_opcode opcode in
-  let rd_addr = (assemble_register rd) in
-  let rs_addr = (assemble_register rs) in
-  let imm' = assemble_imm imm in
+and assemble_lw (addr : reg) (dest : reg) (offset : int) : string = 
+  let opcode' = assemble_opcode opcode_lw in
+  let addr' = (assemble_register addr) in
+  let dest' = (assemble_register dest) in
+  let offset' = assemble_imm offset in
   let b = 0 in
   let b = b lor (opcode' lsl opcode_lsb) in 
-  let b = b lor (rd_addr lsl reg_rs_lsb) in
-  let b = b lor (rs_addr lsl reg_rt_lsb) in
-  let b = b lor (imm'    lsl imm_lsb)    in
+  let b = b lor (addr'   lsl reg_rs_lsb) in
+  let b = b lor (dest'   lsl reg_rt_lsb) in
+  let b = b lor (offset' lsl imm_lsb)    in
   sprintf "%x" b 
+
+and assemble_sw (addr : reg) (write_data : reg) (offset : int) : string = 
+  let opcode' = assemble_opcode opcode_sw in
+  let addr' = (assemble_register addr) in
+  let write_data' = (assemble_register write_data) in
+  let offset' = assemble_imm offset in
+  let b = 0 in
+  let b = b lor (opcode'     lsl opcode_lsb) in 
+  let b = b lor (addr'       lsl reg_rs_lsb) in
+  let b = b lor (write_data' lsl reg_rt_lsb) in
+  let b = b lor (offset'     lsl imm_lsb)    in
+  sprintf "%x" b  
 
 and assemble_jmp (opcode : int) (labels : (string * int) list) (label : string) : string = 
   let opcode' = assemble_opcode opcode in
@@ -730,9 +747,11 @@ and to_mips_dst (a : arg) : (mips_instruction list * mips_arg * mips_instruction
     let postlude = [] in
     (prelude, MReg(r), postlude)
   | RegOffset(i, r) ->
+    (* EBX is just a tmp register we are using for this purpose *)
     let prelude = [
-      MLW(EBX, r, i); (*load r into ebx*)
+      MLW(r, EBX, i); (*load r into ebx*)
     ] in
+    (* EBX is just a tmp register we are using for this purpose *)
     let postlude = [
       MSW(r, EBX, i); (*store ebx into r*)
     ] in
@@ -752,12 +771,13 @@ and to_mips_src (a : arg) : (mips_instruction list * mips_arg) =
     (prelude, MReg(r))
   | RegOffset(i, r) ->
     let prelude = [
-      MLW(ECX, r, i); (*load r into ecx*)
+      (* ECX is just a tmp register we are using for this purpose *)
+      MLW(r, ECX, i); (*load r into ecx*)
     ] in
     (prelude, MReg(r))
   | Sized(s, a') -> (to_mips_src a') (* dont care about size in our processor *)
 
-and to_mips (il : instruction list) (n : int) : (mips_instruction list * (string * int) list) = 
+and to_mips (il : instruction list) : (mips_instruction list * (string * int) list) = 
   
   let rec help (i : instruction) (n : int) : (mips_instruction list, (string * int)) either = 
     match i with
@@ -900,7 +920,7 @@ and to_mips (il : instruction list) (n : int) : (mips_instruction list * (string
       (* pretty sure can only pop into a register *)
       | Reg(r) -> 
         [
-          MLW(r, ESP, 0);
+          MLW(ESP, r, 0);
           (* this needs to be 1 not 4 for our processor *)
           MADDI(ESP, 1);
         ]
@@ -939,21 +959,32 @@ and to_mips (il : instruction list) (n : int) : (mips_instruction list * (string
       Right((label, n))
   in
   
-  match il with
-  | i :: rest ->
-    let e = (help i n) in
-    begin
-    match e with
-    | Left(mi) ->
-      let num_instr = (List.length mi) in
-      let (mis, luts) = (to_mips rest (n+num_instr)) in
-      (mi @ mis, luts)
-    | Right(lut) ->
-      let num_instr = 0 in
-      let (mis, luts) = (to_mips rest (n+num_instr)) in
-      (mis, lut :: luts)
-    end
-  | [] -> ([], [])
+  let rec itr (il : instruction list) (n : int) : (mips_instruction list * (string * int) list) = 
+    match il with
+    | i :: rest ->
+      let e = (help i n) in
+      begin
+      match e with
+      | Left(mi) ->
+        let num_instr = (List.length mi) in
+        let (mis, luts) = (itr rest (n+num_instr)) in
+        (mi @ mis, luts)
+      | Right(lut) ->
+        let num_instr = 0 in
+        let (mis, luts) = (itr rest (n+num_instr)) in
+        (mis, lut :: luts)
+      end
+    | [] -> ([], [])
+  in 
+  let prelude = 
+  [
+    MMOVI(EAX, 0);
+    MMOVI(ESP, stack_start);
+    MMOVI(EBP, stack_start);
+  ] in
+  let start_length = (List.length prelude) in
+  let (il', lut) = (itr il start_length) in
+  (prelude @ il', lut)
 
 (* ASSEMBLER *)
 
@@ -1273,28 +1304,29 @@ let compile_prog (prog : tag aprogram) : string =
 extern error
 extern print
 global our_code_starts_here" in
-let errors = [
-      (* arith expected number *)
-      ILabel("err_arith_not_num");
-      IPush(Const(err_ARITH_NOT_NUM));
-      ICall("error");
-      (* comp expected number *)
-      ILabel("err_comp_not_num");
-      IPush(Const(err_COMP_NOT_NUM));
-      ICall("error");
-      (* overflow *)
-      ILabel("err_overflow");
-      IPush(Const(err_OVERFLOW));
-      ICall("error");
-      (* if expects boolean *)
-      ILabel("err_if_not_bool");
-      IPush(Const(err_IF_NOT_BOOL));
-      ICall("error");
-      (* logical operator expects boolean *)
-      ILabel("err_logic_not_bool");
-      IPush(Const(err_LOGIC_NOT_BOOL));
-      ICall("error");
-    ] in
+  let errors = [
+    (* jump to the end of the program *)
+    IJmp("end_of_program");
+
+    (* arith expected number *)
+    ILabel("err_arith_not_num");
+    IPush(Const(err_ARITH_NOT_NUM));
+    (* comp expected number *)
+    ILabel("err_comp_not_num");
+    IPush(Const(err_COMP_NOT_NUM));
+    (* overflow *)
+    ILabel("err_overflow");
+    IPush(Const(err_OVERFLOW));
+    (* if expects boolean *)
+    ILabel("err_if_not_bool");
+    IPush(Const(err_IF_NOT_BOOL));
+    (* logical operator expects boolean *)
+    ILabel("err_logic_not_bool");
+    IPush(Const(err_LOGIC_NOT_BOOL));
+
+    (* jump to the end of the program *)
+    ILabel("end_of_program");
+  ] in
   match prog with
   | AProgram(fns, body, t) ->
     (* iterate through each decl and get the instruction list *)
@@ -1308,7 +1340,6 @@ let errors = [
     let compiled_fns = (compile_fns fns) in
     let main = (compile_decl (ADFun("our_code_starts_here", [], body, t))) in
     let il = (compiled_fns @ main @ errors) in
-
     (assemble "prog" il); 
 
     let as_assembly_string = (to_asm il) in

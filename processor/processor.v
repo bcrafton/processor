@@ -266,6 +266,9 @@ module processor(
   // la, sa = ex_mem_address
   // lw, sw = ex_mem_data_1
 
+  // address is always rs or imm
+  // write data is always rt
+  // desintation of load is always rt 
   mux2x1 #(`ADDR_WIDTH) address_src_mux(
   .in0(ex_mem_data_1[`ADDR_WIDTH-1:0]), 
   .in1(ex_mem_address), 
