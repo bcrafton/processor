@@ -37,16 +37,16 @@ let	opcode_sw	=	33
 let	opcode_la	=	33
 let	opcode_sa	=	34
 
-let	opcode_jmp	=	48
-let	opcode_jo	=	49
-let	opcode_je	=	50
-let	opcode_jne	=	51
-let	opcode_jl	=	52
-let	opcode_jle	=	53
+let	opcode_jmp = 48
+let	opcode_jo = 49
+let	opcode_je = 50
+let	opcode_jne = 51
+let	opcode_jl = 52
+let	opcode_jle = 53
 let	opcode_jg	=	54
-let	opcode_jge	=	55
+let	opcode_jge = 55
 let	opcode_jz	=	56
-let	opcode_jnz	=	57
+let	opcode_jnz = 57
 let opcode_jr = 58
 
 let opcode_msb = 31
