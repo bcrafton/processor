@@ -1,5 +1,5 @@
 (* Abstract syntax of (a small subset of) x86 assembly instructions *)
-let word_size = 4
+let word_size = 1
 ;;
 
 let	opcode_add	=	0
@@ -70,7 +70,7 @@ let max_imm_value = 65535
 let max_reg_addr = 31
 let max_opcode_value = 63
 
-let stack_start = 4
+let stack_start = 32
 
 type ('a, 'b) either =
   | Left of 'a

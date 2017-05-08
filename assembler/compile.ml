@@ -603,7 +603,7 @@ let rec assemble (out : string) (il : instruction list) =
   (printf "lut length %d\n" (List.length labels));
   *)
   let binary = (assemble_mips mips labels) in
-  let outfile = open_out (out ^ ".b") in
+  let outfile = open_out (out ^ ".hex") in
   fprintf outfile "%s" binary
 
 and assemble_mips (il : mips_instruction list) (labels : (string * int) list) : string = 
@@ -1046,10 +1046,10 @@ let rec compile_fun (fun_name : string) (args : string list) (body : tag aexpr) 
 and compile_main (body : tag aexpr) (stack_start : int) : instruction list = 
   let offset = (count_vars body) in 
   let prelude = [
+    ILabel("our_code_starts_here");
     IMov(Reg(EAX), Const(0)); (* First inst = NOP *)
     IMov(Reg(ESP), Const(stack_start));
-    IMov(Reg(EBP), Const(stack_start));
-    ILabel("our_code_starts_here");
+    IMov(Reg(EBP), Const(stack_start));    
     (* dont think pushing these is necessary but we need the offset *)
     IPush(Reg(EBP));
     IMov(Reg(EBP), Reg(ESP));
@@ -1344,7 +1344,8 @@ let get_env (args : string list) : arg envt =
   let rec aux (args : string list) (index : int) : arg envt =
     match args with
     | first :: rest ->
-      (first, RegOffset(8+index*4, EBP)) :: (aux rest (index+1))
+      (* changing from 8 -> 2, 4 -> word_size (1) *)
+      (first, RegOffset(2+index*word_size, EBP)) :: (aux rest (index+1))
     | [] -> []
   in
   (aux args 0)
