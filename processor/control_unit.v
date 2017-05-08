@@ -50,12 +50,10 @@ module control_unit(
       6'b10????: begin // lw, sw, la, sa
         // this writes to rt.
         reg_dst <= 0;
-        alu_src <= 0;
+        // pretty sure this is accross the board what we want. use immediate, not rt.
+        alu_src <= 1;
         mem_to_reg <= 1;
         jop <= `JMP_OP_NOP;
-        alu_op <= `ALU_OP_NOP;
-        // dont want to overwrite cmp / test
-        // we need a alu_op_nop
       end
       6'b11????: begin // jmp, jo, je ...
         mem_op <= `MEM_OP_NOP;
@@ -70,21 +68,25 @@ module control_unit(
 
     case(opcode)
       `OP_CODE_LW: begin
+        alu_op <= `ALU_OP_ADD;
         address_src <= 0;
         reg_write <= 1;
         mem_op = `MEM_OP_READ;
       end
       `OP_CODE_LA: begin
+        alu_op <= `ALU_OP_NOP;
         address_src <= 1;
         reg_write <= 1;
         mem_op = `MEM_OP_READ;
       end
       `OP_CODE_SW: begin
+        alu_op <= `ALU_OP_ADD;
         address_src <= 0;
         reg_write <= 0;
         mem_op = `MEM_OP_WRITE;
       end
       `OP_CODE_SA: begin
+        alu_op <= `ALU_OP_NOP;
         address_src <= 1;
         reg_write <= 0;
         mem_op = `MEM_OP_WRITE;
