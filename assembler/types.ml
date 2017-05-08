@@ -46,7 +46,8 @@ let	opcode_jle	=	53
 let	opcode_jg	=	54
 let	opcode_jge	=	55
 let	opcode_jz	=	56
-let	opcode_jnz	=	59
+let	opcode_jnz	=	57
+let opcode_jr = 58
 
 let opcode_msb = 31
 let opcode_lsb = 26
@@ -186,6 +187,7 @@ type mips_instruction =
   |	MJGE of string
   |	MJZ of string
   |	MJNZ of string
+  | MJR of reg
 
 type prim1 =
   | Add1

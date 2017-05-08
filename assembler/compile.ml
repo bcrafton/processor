@@ -664,6 +664,8 @@ and assemble_instruction (i : mips_instruction) (labels : (string * int) list) :
   | MJZ(label) -> (assemble_jmp opcode_jz labels label)
   | MJNZ(label) -> (assemble_jmp opcode_jnz labels label)
 
+  | MJR(addr) -> (assemble_jr addr)
+
 and assemble_register (r : reg) : int = 
   match r with
   | EAX -> 0
@@ -737,6 +739,13 @@ and assemble_jmp (opcode : int) (labels : (string * int) list) (label : string) 
   let b = b lor (opcode'  lsl opcode_lsb) in 
   let b = b lor (addr' lsl imm_lsb) in
   sprintf "%x" b 
+
+and assemble_jr (addr : reg) : string = 
+  let addr' = (assemble_register addr) in
+  let b = 0 in
+  let b = b lor (opcode_jr lsl opcode_lsb) in
+  let b = b lor (addr'     lsl reg_rs_lsb) in
+  sprintf "%x" b
 
 and to_mips_dst (a : arg) : (mips_instruction list * mips_arg * mips_instruction list) = 
   match a with
@@ -974,6 +983,7 @@ and to_mips (il : instruction list) : (mips_instruction list * (string * int) li
         MLW(ESP, EBX, 0);
         MADDI(ESP, 1);
         (* need to be able to do a jump to a register here. *)
+        MJR(EBX);
       ] in
       Left(ret)
 
