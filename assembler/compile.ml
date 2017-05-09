@@ -907,18 +907,18 @@ and to_mips (il : instruction list) : (mips_instruction list * (string * int) li
       | MImm(src') -> 
         src_prelude @ 
         [
+          (* this needs to be 1 not 4 for our processor *)
+          MSUBI(ESP, 1);
           (* just put this in a register for now *)
           MMOVI(EBX, src');
           MSW(ESP, EBX, 0);
-          (* this needs to be 1 not 4 for our processor *)
-          MSUBI(ESP, 1);
         ]
       | MReg(src') -> 
         src_prelude @ 
         [
-          MSW(ESP, src', 0);
           (* this needs to be 1 not 4 for our processor *)
           MSUBI(ESP, 1);
+          MSW(ESP, src', 0);
         ]
       end in
       Left(mpush)
@@ -929,11 +929,10 @@ and to_mips (il : instruction list) : (mips_instruction list * (string * int) li
       (* pretty sure can only pop into a register *)
       | Reg(r) -> 
         [
-          (* THIS NEEDS TO INCREMENT FIRST. *)
-          (* may be useful to fill new location with garbage for debug. *)
+          (* THIS NEEDS TO LOAD FIRST. *)
+          MLW(ESP, r, 0);
           (* this needs to be 1 not 4 for our processor *)
           MADDI(ESP, 1);
-          MLW(ESP, r, 0);
         ]
       | _ -> failwith "impossible: can only pop a register"
       end in
@@ -973,8 +972,8 @@ and to_mips (il : instruction list) : (mips_instruction list * (string * int) li
         MMOVI(EBX, (n+4)); 
         (* this is not n, this must be end of call *)
         (* which is n+4 *)
-        MSW(ESP, EBX, 0);
         MSUBI(ESP, 1);
+        MSW(ESP, EBX, 0);
         (* jump *)
         MJUMP(label);
       ] in 
@@ -984,9 +983,9 @@ and to_mips (il : instruction list) : (mips_instruction list * (string * int) li
       (* pop off return value which shud now be on top *)
       let ret = [
         (* pop *)
-        (* any time you change pop you need to change ret. same goes for push & call *)
-        MADDI(ESP, 1);
-        MLW(ESP, EBX, 0);        
+        (* any time you change pop you need to change ret. same goes for push & call *)        
+        MLW(ESP, EBX, 0);   
+        MADDI(ESP, 1);     
         (* need to be able to do a jump to a register here. *)
         MJR(EBX);
       ] in
