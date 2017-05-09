@@ -968,7 +968,9 @@ and to_mips (il : instruction list) : (mips_instruction list * (string * int) li
       (* jump to that address *)
       let call = [
         (* push *)
-        MMOVI(EBX, n);
+        MMOVI(EBX, (n+4)); 
+        (* this is not n, this must be end of call *)
+        (* which is n+4 *)
         MSW(ESP, EBX, 0);
         MSUBI(ESP, 1);
         (* jump *)

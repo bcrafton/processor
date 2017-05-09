@@ -292,11 +292,12 @@ module processor(
   .mem_op(ex_mem_mem_op));
 
   branch_unit bu(
-  .jop(ex_mem_jop),
   .zero(zero),
   .less(less),
-  .greater(greater), 
-  .flush(flush));
+  .greater(greater),
+  .jop(ex_mem_jop), 
+  .flush(flush),
+  .jump_address(ex_mem_jump_address));
 
   mem_wb_register mem_wb_reg(
   .clk(clk), 
