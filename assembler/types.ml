@@ -70,7 +70,7 @@ let max_imm_value = 65535
 let max_reg_addr = 31
 let max_opcode_value = 63
 
-let stack_start = 32
+let stack_start = 128
 
 type ('a, 'b) either =
   | Left of 'a

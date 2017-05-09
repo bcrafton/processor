@@ -1,7 +1,7 @@
 `ifndef _defines_vh_
 `define _defines_vh_
 
-`define IMEMORY_SIZE 128
+`define IMEMORY_SIZE 256
 `define DMEMORY_SIZE 1024
 
 `define GARBAGE 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
