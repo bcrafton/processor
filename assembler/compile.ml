@@ -929,9 +929,11 @@ and to_mips (il : instruction list) : (mips_instruction list * (string * int) li
       (* pretty sure can only pop into a register *)
       | Reg(r) -> 
         [
-          MLW(ESP, r, 0);
+          (* THIS NEEDS TO INCREMENT FIRST. *)
+          (* may be useful to fill new location with garbage for debug. *)
           (* this needs to be 1 not 4 for our processor *)
           MADDI(ESP, 1);
+          MLW(ESP, r, 0);
         ]
       | _ -> failwith "impossible: can only pop a register"
       end in
@@ -982,8 +984,9 @@ and to_mips (il : instruction list) : (mips_instruction list * (string * int) li
       (* pop off return value which shud now be on top *)
       let ret = [
         (* pop *)
-        MLW(ESP, EBX, 0);
+        (* any time you change pop you need to change ret. same goes for push & call *)
         MADDI(ESP, 1);
+        MLW(ESP, EBX, 0);        
         (* need to be able to do a jump to a register here. *)
         MJR(EBX);
       ] in
