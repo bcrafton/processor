@@ -764,7 +764,7 @@ and to_mips_dst (a : arg) : (mips_instruction list * mips_arg * mips_instruction
     let postlude = [
       MSW(r, EBX, i); (*store ebx into r*)
     ] in
-    (prelude, MReg(r), postlude)
+    (prelude, MReg(EBX), postlude)
   | Sized(s, a') -> (to_mips_dst a') (* dont care about size in our processor *)
 
 and to_mips_src (a : arg) : (mips_instruction list * mips_arg) =
@@ -783,7 +783,7 @@ and to_mips_src (a : arg) : (mips_instruction list * mips_arg) =
       (* ECX is just a tmp register we are using for this purpose *)
       MLW(r, ECX, i); (*load r into ecx*)
     ] in
-    (prelude, MReg(r))
+    (prelude, MReg(ECX))
   | Sized(s, a') -> (to_mips_src a') (* dont care about size in our processor *)
 
 and to_mips (il : instruction list) : (mips_instruction list * (string * int) list) = 
