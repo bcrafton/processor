@@ -5,12 +5,14 @@
 module processor(
   clk,
   complete,
+  program,
   // regfile
   // mem
   );
 	 
   input clk;
   input complete;
+  input [`NUM_TESTS_LOG2-1:0] program;
   // could make the ram and the regfile outputs. wud be very convenient for testing.
   // problem becomes if ram is large, we wud need a bus we can access it or some shit.
 
@@ -113,6 +115,7 @@ module processor(
   instruction_memory im(
   .clk(clk), 
   .pc(pc), 
+  .program(program),
   .instruction(instruction));
 
   if_id_register if_id_reg(
@@ -151,7 +154,8 @@ module processor(
   .read_address_1(rs), 
   .read_data_1(reg_read_data_1), 
   .read_address_2(rt), 
-  .read_data_2(reg_read_data_2));
+  .read_data_2(reg_read_data_2),
+  .program(program));
 
   id_ex_register id_ex_reg(
   .clk(clk), 
@@ -289,7 +293,8 @@ module processor(
   .address(address_src_result), 
   .write_data(ex_mem_data_2), 
   .read_data(ram_read_data), 
-  .mem_op(ex_mem_mem_op));
+  .mem_op(ex_mem_mem_op),
+  .program(program));
 
   branch_unit bu(
   .zero(zero),

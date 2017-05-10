@@ -6,6 +6,19 @@
 
 `define GARBAGE 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
+`define NUM_TESTS_LOG2 16
+`define NUM_TESTS 4
+
+`define STRING_BITS      100 * 8
+
+`define TEST_ADD            "add"
+`define TEST_IF_FALSE       "if_false"
+`define TEST_IF_TRUE        "if_true"
+
+`define TEST_ADD_ENUM       0
+`define TEST_IF_FALSE_ENUM  1
+`define TEST_IF_TRUE_ENUM   2
+
 `define MEM_OP_NOP        2'b00
 `define MEM_OP_READ       2'b01
 `define MEM_OP_WRITE      2'b10
