@@ -21,27 +21,18 @@ module ram (
   input [`DATA_WIDTH-1:0] write_data;
   output reg [`DATA_WIDTH-1:0] read_data;
 
-  reg [`DATA_WIDTH-1:0] mem [0:`DMEMORY_SIZE-1];
+  //reg [`DATA_WIDTH-1:0] mem [0:`DMEMORY_SIZE-1];
+  reg bit;
 
   // combinational logic
   always @ (*) begin
 
     if (mem_op == `MEM_OP_WRITE) begin
-      mem[address] = write_data;
+      bit <= $mem_write(address, write_data, $time);
     end else if (mem_op == `MEM_OP_READ) begin
-      read_data = mem[address];
+      read_data <= $mem_read(address, $time);
     end
   
-  end
-
-  integer i;
-  integer f;
-  always @(*) begin
-    if(complete) begin
-      f = $fopen("out/ram", "w");
-      for (i=0; i<`DMEMORY_SIZE; i=i+1) $fwrite(f,"%h\n", mem[i]);
-      $fclose(f);
-    end
   end
 
 endmodule

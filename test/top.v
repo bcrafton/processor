@@ -10,8 +10,6 @@ module top;
 
     reg clk;
 
-    reg dump_valid;
-
     memory_controller mc(
     .clk(clk),
     .wr_address(wr_address),
