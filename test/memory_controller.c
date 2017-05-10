@@ -9,6 +9,10 @@ static TIME test_start_time;
 
 #define TEST_DURATION 1000
 
+static void dump_memory(int memory_id);
+static void load_program(char* filename);
+static void clear_memory(int memory_id);
+
 static PLI_INT32 mem_read(char* user_data)
 {    
     assert(user_data == NULL);
@@ -140,36 +144,7 @@ static PLI_INT32 dump(char* user_data)
     memory_id = inval.value.integer;
 
     // dump program
-    if(memory_id == DMEM_ID)
-    {
-      FILE *file;
-      file = fopen("out/ram", "w");
-      
-      int i;
-      for(i=0; i<DMEMORY_SIZE; i++)
-      {
-          fprintf(file, "%08x\n", dmemory[i]);
-      }
-
-      fclose(file);
-    }
-    else if(memory_id == REGFILE_ID)
-    {
-      FILE *file;
-      file = fopen("out/regfile", "w");
-      
-      int i;
-      for(i=0; i<REGFILE_SIZE; i++)
-      {
-          fprintf(file, "%08x\n", regfile[i]);
-      }
-
-      fclose(file);
-    }
-    else
-    {
-      assert(0);
-    }
+    dump_memory(memory_id);
 
     return 0; 
 }
@@ -207,17 +182,7 @@ static PLI_INT32 init(char* user_data)
     test_start_time = current_time;
 
     // load program
-    FILE *file;
-    file = fopen("/home/brian/Desktop/processor/assembler/prog.hex", "r");
-    if(file == NULL) assert(0);
-
-    // assert if we are too big
-    int i;
-    for(i=0; i<IMEMORY_SIZE; i++)
-    {
-      if(!fscanf(file, "%x", &imemory[i]))
-        break;
-    }
+    load_program("/home/brian/Desktop/processor/assembler/prog.hex");
 
     return 0; 
 }
@@ -247,11 +212,21 @@ static PLI_INT32 update(char* user_data)
 
     if(current_time - test_start_time > TEST_DURATION)
     {
-      // dump
+      // dump memory
+      dump_memory(DMEM_ID);
+      dump_memory(REGFILE_ID);
+
       // reset = 1
+
       // clear memory
+      clear_memory(DMEM_ID);
+      clear_memory(IMEM_ID);
+      clear_memory(REGFILE_ID);
+
       // load next program
-      // test_start_time = current_time;
+      load_program("/home/brian/Desktop/processor/assembler/prog.hex");
+
+      test_start_time = current_time;
     }
     else
     {
@@ -259,6 +234,73 @@ static PLI_INT32 update(char* user_data)
     }
 
     return 0; 
+}
+
+static void dump_memory(int memory_id)
+{
+  if(memory_id == DMEM_ID)
+  {
+    FILE *file;
+    file = fopen("out/ram", "w");
+    
+    int i;
+    for(i=0; i<DMEMORY_SIZE; i++)
+    {
+        fprintf(file, "%08x\n", dmemory[i]);
+    }
+
+    fclose(file);
+  }
+  else if(memory_id == REGFILE_ID)
+  {
+    FILE *file;
+    file = fopen("out/regfile", "w");
+    
+    int i;
+    for(i=0; i<REGFILE_SIZE; i++)
+    {
+        fprintf(file, "%08x\n", regfile[i]);
+    }
+
+    fclose(file);
+  }
+  else
+  {
+    assert(0);
+  }
+}
+
+static void load_program(char* filename)
+{
+  FILE *file;
+  file = fopen(filename, "r");
+  if(file == NULL) assert(0);
+
+  // assert if we are too big
+  int i;
+  for(i=0; i<IMEMORY_SIZE; i++)
+  {
+    if(!fscanf(file, "%x", &imemory[i]))
+      break;
+  }
+}
+
+static void clear_memory(int memory_id)
+{
+  switch(memory_id)
+  {
+    case DMEM_ID:
+      memset(&dmemory[0], 0, DMEMORY_SIZE * sizeof(WORD));
+      break;
+    case IMEM_ID:
+      memset(&imemory[0], 0, IMEMORY_SIZE * sizeof(INSTRUCTION));
+      break;
+    case REGFILE_ID:
+      memset(&regfile[0], 0, REGFILE_SIZE * sizeof(REGISTER));
+      break;
+    default:
+      assert(0);
+  }
 }
 
 void mem_read_register(void)
