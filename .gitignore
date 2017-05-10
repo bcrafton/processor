@@ -4,6 +4,7 @@
 processor/out/*
 *.vvp
 *.vcd
+*.vpi
 assembler/_build
 assembler/_build/*
 assembler/main

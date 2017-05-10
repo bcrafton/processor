@@ -4,6 +4,10 @@
 `define IMEMORY_SIZE 256
 `define DMEMORY_SIZE 1024
 
+`define DMEM_ID 0
+`define IMEM_ID 1
+`define REGFILE_ID 2
+
 `define GARBAGE 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 `define MEM_OP_NOP        2'b00

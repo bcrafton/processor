@@ -28,9 +28,9 @@ module ram (
   always @ (*) begin
 
     if (mem_op == `MEM_OP_WRITE) begin
-      write_bit <= $mem_write(address, write_data, $time);
+      write_bit <= $mem_write(address, write_data, `DMEM_ID, $time);
     end else if (mem_op == `MEM_OP_READ) begin
-      read_data <= $mem_read(address, $time);
+      read_data <= $mem_read(address, `DMEM_ID, $time);
     end
   
   end
