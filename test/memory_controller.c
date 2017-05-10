@@ -19,9 +19,13 @@ static PLI_INT32 mem_read(char* user_data)
     iterator = vpi_iterate(vpiArgument, vhandle);
 
     arg = vpi_scan(iterator);
-    inval.format = vpiIntVal;
+    inval.format = vpiVectorVal;
     vpi_get_value(arg, &inval);
-    rd_address = inval.value.integer;
+    rd_address = inval.value.vector[0].aval;
+    if(inval.value.vector[0].bval > 0)
+    {
+      return 0;
+    }
 
     arg = vpi_scan(iterator);
     inval.format = vpiIntVal;
@@ -75,14 +79,22 @@ static PLI_INT32 mem_write(char* user_data)
     iterator = vpi_iterate(vpiArgument, vhandle);
     
     arg = vpi_scan(iterator);
-    inval.format = vpiIntVal;
+    inval.format = vpiVectorVal;
     vpi_get_value(arg, &inval);
-    wr_address = inval.value.integer;
+    wr_address = inval.value.vector[0].aval;
+    if(inval.value.vector[0].bval > 0)
+    {
+      return 0;
+    }
 
     arg = vpi_scan(iterator);
-    inval.format = vpiIntVal;
+    inval.format = vpiVectorVal;
     vpi_get_value(arg, &inval);
-    wr_data = inval.value.integer;
+    wr_data = inval.value.vector[0].aval;
+    if(inval.value.vector[0].bval > 0)
+    {
+      return 0;
+    }
 
     arg = vpi_scan(iterator);
     inval.format = vpiIntVal;
@@ -98,7 +110,7 @@ static PLI_INT32 mem_write(char* user_data)
         imemory[wr_address] = wr_data;
         break;
       case REGFILE_ID:
-        printf("%x %x\n", wr_address, wr_data);
+        //printf("%x %x\n", wr_address, wr_data);
         regfile[wr_address] = wr_data;
         break;
     }

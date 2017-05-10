@@ -32,7 +32,7 @@ module register_file(
   always @(*) begin
 
     if (write) begin
-      $display("writing %d %d %d\n", $time, write_address, write_data);
+      //$display("writing %d %d %d\n", $time, write_address, write_data);
       write_bit = $mem_write(write_address, write_data, `REGFILE_ID);
     end
 
