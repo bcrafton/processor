@@ -21,7 +21,7 @@ module test;
     $dumpfile("test.vcd");
     $dumpvars(0,test);
 
-    init_bit <= $init(`IMEM_ID);
+    init_bit <= $init(`IMEM_ID, $time);
 
 		clk <= 0;
 	end

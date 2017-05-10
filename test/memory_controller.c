@@ -5,6 +5,10 @@ static WORD dmemory[DMEMORY_SIZE];
 static REGISTER regfile[REGFILE_SIZE];
 static INSTRUCTION imemory[IMEMORY_SIZE];
 
+static TIME test_start_time;
+
+#define TEST_DURATION 1000
+
 static PLI_INT32 mem_read(char* user_data)
 {    
     assert(user_data == NULL);
@@ -135,6 +139,7 @@ static PLI_INT32 dump(char* user_data)
     vpi_get_value(arg, &inval);
     memory_id = inval.value.integer;
 
+    // dump program
     if(memory_id == DMEM_ID)
     {
       FILE *file;
@@ -178,6 +183,9 @@ static PLI_INT32 init(char* user_data)
     s_vpi_value inval;
     
     unsigned int memory_id;
+    unsigned int time_h;
+    unsigned int time_l;
+    unsigned long current_time;
 
     iterator = vpi_iterate(vpiArgument, vhandle);
 
@@ -185,9 +193,20 @@ static PLI_INT32 init(char* user_data)
     inval.format = vpiIntVal;
     vpi_get_value(arg, &inval);
     memory_id = inval.value.integer;
-
     assert(memory_id == IMEM_ID);
 
+    arg = vpi_scan(iterator);
+    inval.format = vpiTimeVal;
+    vpi_get_value(arg, &inval);
+    time_h = inval.value.time->high;
+    time_l = inval.value.time->low;
+    
+    current_time = time_h;
+    current_time = (current_time << BITS_IN_INT) | time_l;
+
+    test_start_time = current_time;
+
+    // load program
     FILE *file;
     file = fopen("/home/brian/Desktop/processor/assembler/prog.hex", "r");
     if(file == NULL) assert(0);
@@ -198,6 +217,45 @@ static PLI_INT32 init(char* user_data)
     {
       if(!fscanf(file, "%x", &imemory[i]))
         break;
+    }
+
+    return 0; 
+}
+
+static PLI_INT32 update(char* user_data)
+{    
+    assert(user_data == NULL);
+    vpiHandle vhandle, iterator, arg;
+    vhandle = vpi_handle(vpiSysTfCall, NULL);
+
+    s_vpi_value inval;
+    
+    unsigned int time_h;
+    unsigned int time_l;
+    unsigned long current_time;
+
+    iterator = vpi_iterate(vpiArgument, vhandle);
+
+    arg = vpi_scan(iterator);
+    inval.format = vpiTimeVal;
+    vpi_get_value(arg, &inval);
+    time_h = inval.value.time->high;
+    time_l = inval.value.time->low;
+    
+    current_time = time_h;
+    current_time = (current_time << BITS_IN_INT) | time_l;
+
+    if(current_time - test_start_time > TEST_DURATION)
+    {
+      // dump
+      // reset = 1
+      // clear memory
+      // load next program
+      // test_start_time = current_time;
+    }
+    else
+    {
+      // reset = 0
     }
 
     return 0; 
@@ -255,11 +313,25 @@ void init_register(void)
     vpi_register_systf(&tf_data);
 }
 
+void update_register(void)
+{
+    s_vpi_systf_data tf_data;
+    tf_data.type        = vpiSysFunc;
+    tf_data.sysfunctype = vpiIntFunc;
+    tf_data.tfname    = "$update";
+    tf_data.calltf    = update;
+    tf_data.compiletf = 0;
+    tf_data.sizetf    = 0;
+    tf_data.user_data = 0;
+    vpi_register_systf(&tf_data);
+}
+
 void (*vlog_startup_routines[])() = {
     mem_read_register,
     mem_write_register,
     dump_register,
     init_register,
+    update_register,
     0
 };
 
