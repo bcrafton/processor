@@ -15,9 +15,6 @@ static PLI_INT32 mem_read(char* user_data)
     
     unsigned int rd_address;
     unsigned int memory_id;
-    unsigned int time_h;
-    unsigned int time_l;
-    unsigned long current_time;
 
     iterator = vpi_iterate(vpiArgument, vhandle);
 
@@ -30,14 +27,6 @@ static PLI_INT32 mem_read(char* user_data)
     inval.format = vpiIntVal;
     vpi_get_value(arg, &inval);
     memory_id = inval.value.integer;
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiTimeVal;
-    vpi_get_value(arg, &inval);
-    time_h = inval.value.time->high;
-    time_l = inval.value.time->low;
-    current_time = time_h;
-    current_time = (current_time << BITS_IN_INT) | time_l;
 
     unsigned int rd_data;
     switch(memory_id)
@@ -82,9 +71,6 @@ static PLI_INT32 mem_write(char* user_data)
     unsigned int wr_address;
     unsigned int wr_data;
     unsigned int memory_id;
-    unsigned int time_h;
-    unsigned int time_l;
-    unsigned long current_time;
 
     iterator = vpi_iterate(vpiArgument, vhandle);
     
@@ -102,15 +88,6 @@ static PLI_INT32 mem_write(char* user_data)
     inval.format = vpiIntVal;
     vpi_get_value(arg, &inval);
     memory_id = inval.value.integer;
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiTimeVal;
-    vpi_get_value(arg, &inval);
-    time_h = inval.value.time->high;
-    time_l = inval.value.time->low;
-    
-    current_time = time_h;
-    current_time = (current_time << BITS_IN_INT) | time_l;
 
     switch(memory_id)
     {
@@ -137,9 +114,6 @@ static PLI_INT32 dump(char* user_data)
     s_vpi_value inval;
     
     unsigned int memory_id;
-    unsigned int time_h;
-    unsigned int time_l;
-    unsigned long current_time;
 
     iterator = vpi_iterate(vpiArgument, vhandle);
 
@@ -147,15 +121,6 @@ static PLI_INT32 dump(char* user_data)
     inval.format = vpiIntVal;
     vpi_get_value(arg, &inval);
     memory_id = inval.value.integer;
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiTimeVal;
-    vpi_get_value(arg, &inval);
-    time_h = inval.value.time->high;
-    time_l = inval.value.time->low;
-    
-    current_time = time_h;
-    current_time = (current_time << BITS_IN_INT) | time_l;
 
     if(memory_id == DMEM_ID)
     {
@@ -187,6 +152,7 @@ static PLI_INT32 dump(char* user_data)
     {
       assert(0);
     }
+
     return 0; 
 }
 
