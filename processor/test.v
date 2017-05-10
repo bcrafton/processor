@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 
+`include "defines.vh"
 `define RUNTIME 1000
 
 module test;
@@ -13,10 +14,14 @@ module test;
 		.complete(complete)
 	);
 
+  reg init_bit;
+
 	initial begin
 
     $dumpfile("test.vcd");
     $dumpvars(0,test);
+
+    init_bit <= $init(`IMEM_ID);
 
 		clk <= 0;
 	end

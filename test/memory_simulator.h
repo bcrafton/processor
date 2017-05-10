@@ -11,7 +11,7 @@
 #define DATA_WIDTH 32
 
 #define IMEMORY_SIZE 256
-#define INST_WIDTH 16
+#define INST_WIDTH 32
 
 #define ADDRESS_WIDTH 16
 
@@ -30,7 +30,7 @@
 
 typedef unsigned int WORD;
 typedef unsigned int REGISTER;
-typedef unsigned short INSTRUCTION;
+typedef unsigned int INSTRUCTION;
 typedef unsigned long TIME;
 typedef unsigned char BYTE;
 typedef unsigned char BOOL;
