@@ -2,17 +2,13 @@
 
 module ram (
   clk,
-  complete,
   address,
   write_data,
   read_data,
   mem_op,
-  // make this an output, make testing ez.
-  //mem
   ); 
 
   input clk;
-  input complete;
 
   input [`ADDR_WIDTH-1:0] address;
   input [`MEM_OP_BITS-1:0] mem_op;
@@ -32,12 +28,6 @@ module ram (
       read_data = $mem_read(address, `DMEM_ID);
     end
   
-  end
-
-  always @(complete) begin
-    
-    dump_bit <= $dump(`DMEM_ID);
-
   end
 
 endmodule

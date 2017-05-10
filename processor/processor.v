@@ -4,13 +4,11 @@
 
 module processor(
   clk,
-  complete,
-  // regfile
-  // mem
+  reset,
   );
 	 
   input clk;
-  input complete;
+  input reset;
   // could make the ram and the regfile outputs. wud be very convenient for testing.
   // problem becomes if ram is large, we wud need a bus we can access it or some shit.
 
@@ -144,7 +142,6 @@ module processor(
 
   register_file regfile(
   .clk(clk), 
-  .complete(complete), 
   .write(mem_wb_reg_write), 
   .write_address(mem_wb_reg_dst_result), 
   .write_data(mem_to_reg_result), 
@@ -285,7 +282,6 @@ module processor(
 
   ram data_memory(
   .clk(clk), 
-  .complete(complete), 
   .address(address_src_result), 
   .write_data(ex_mem_data_2), 
   .read_data(ram_read_data), 

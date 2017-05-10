@@ -1,6 +1,5 @@
 module register_file(
   clk,
-  complete,
   write,
   write_address,
   write_data,
@@ -8,14 +7,11 @@ module register_file(
   read_data_1,
   read_address_2,
   read_data_2,
-  // make this an output, make testing ez.
-  //regfile
   );
 
  // reg [`DATA_WIDTH-1:0] regfile [0:`NUM_REGISTERS-1];
 
   input clk;
-  input complete;
   input write;
 
   input wire [`NUM_REGISTERS_LOG2-1:0] write_address;
@@ -38,12 +34,6 @@ module register_file(
 
     read_data_1 = $mem_read(read_address_1, `REGFILE_ID);
     read_data_2 = $mem_read(read_address_2, `REGFILE_ID);
-
-  end
-
-  always @(complete) begin
-    
-    dump_bit <= $dump(`REGFILE_ID);
 
   end
 

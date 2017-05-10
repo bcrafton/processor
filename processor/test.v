@@ -8,10 +8,11 @@ module test;
 	// Inputs
 	reg clk;
   reg complete;
+  reg reset;
 
 	processor p (
 		.clk(clk),
-		.complete(complete)
+		.reset(reset)
 	);
 
   reg init_bit;
@@ -30,11 +31,9 @@ module test;
 
   always @(posedge clk) begin
 
-    if($time > `RUNTIME-10) begin
-      complete <= 1;
-    end
+    {reset, complete} <= $update($time);
 
-    if($time > `RUNTIME) begin
+    if(complete) begin
       $finish;
     end
 

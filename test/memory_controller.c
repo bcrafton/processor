@@ -6,6 +6,8 @@ static REGISTER regfile[REGFILE_SIZE];
 static INSTRUCTION imemory[IMEMORY_SIZE];
 
 static TIME test_start_time;
+static int program_number;
+static int num_programs = 1;
 
 #define TEST_DURATION 1000
 
@@ -199,6 +201,9 @@ static PLI_INT32 update(char* user_data)
     unsigned int time_l;
     unsigned long current_time;
 
+    int reset = 0;
+    int complete = 0;
+
     iterator = vpi_iterate(vpiArgument, vhandle);
 
     arg = vpi_scan(iterator);
@@ -217,6 +222,7 @@ static PLI_INT32 update(char* user_data)
       dump_memory(REGFILE_ID);
 
       // reset = 1
+      reset = 1;
 
       // clear memory
       clear_memory(DMEM_ID);
@@ -224,14 +230,29 @@ static PLI_INT32 update(char* user_data)
       clear_memory(REGFILE_ID);
 
       // load next program
+      program_number++;
       load_program("/home/brian/Desktop/processor/assembler/prog.hex");
 
+      // reset start time
       test_start_time = current_time;
+
+      if(program_number == num_programs)
+      {
+        complete = 1;
+      }
     }
-    else
-    {
-      // reset = 0
-    }
+
+    unsigned long bus_out;
+    bus_out = reset;
+    bus_out = (bus_out << 1) | complete;
+
+    s_vpi_value out;
+    out.format = vpiVectorVal;
+    out.value.vector = (s_vpi_vecval*) malloc(sizeof(s_vpi_vecval));
+    out.value.vector[0].aval = bus_out;
+    out.value.vector[0].bval = 0;
+
+    vpi_put_value(vhandle, &out, NULL, vpiNoDelay);
 
     return 0; 
 }
