@@ -22,17 +22,23 @@ module ram (
   output reg [`DATA_WIDTH-1:0] read_data;
 
   //reg [`DATA_WIDTH-1:0] mem [0:`DMEMORY_SIZE-1];
-  reg bit;
+  reg write_bit, dump_bit;
 
   // combinational logic
   always @ (*) begin
 
     if (mem_op == `MEM_OP_WRITE) begin
-      bit <= $mem_write(address, write_data, $time);
+      write_bit <= $mem_write(address, write_data, $time);
     end else if (mem_op == `MEM_OP_READ) begin
       read_data <= $mem_read(address, $time);
     end
   
+  end
+
+  always @(complete) begin
+    
+    dump_bit <= $dump($time);
+
   end
 
 endmodule

@@ -32,7 +32,6 @@ static PLI_INT32 mem_read(char* user_data)
     current_time = (current_time << BITS_IN_INT) | time_l;
 
     unsigned int rd_data = memory[rd_address];
-
     unsigned long bus_out;
     bus_out = rd_data;
 
@@ -89,6 +88,43 @@ static PLI_INT32 mem_write(char* user_data)
     return 0; 
 }
 
+static PLI_INT32 dump(char* user_data)
+{    
+    assert(user_data == NULL);
+    vpiHandle vhandle, iterator, arg;
+    vhandle = vpi_handle(vpiSysTfCall, NULL);
+
+    s_vpi_value inval;
+    
+    unsigned int time_h;
+    unsigned int time_l;
+    unsigned long current_time;
+
+    iterator = vpi_iterate(vpiArgument, vhandle);
+
+    arg = vpi_scan(iterator);
+    inval.format = vpiTimeVal;
+    vpi_get_value(arg, &inval);
+    time_h = inval.value.time->high;
+    time_l = inval.value.time->low;
+    
+    current_time = time_h;
+    current_time = (current_time << BITS_IN_INT) | time_l;
+
+    FILE *file;
+    file = fopen("out/ram", "w");
+    
+    int i;
+    for(i=0; i<MEMORY_SIZE; i++)
+    {
+        fprintf(file, "%08x\n", memory[i]);
+    }
+
+    fclose(file);
+
+    return 0; 
+}
+
 void mem_read_register(void)
 {
     s_vpi_systf_data tf_data;
@@ -115,9 +151,23 @@ void mem_write_register(void)
     vpi_register_systf(&tf_data);
 }
 
+void dump_register(void)
+{
+    s_vpi_systf_data tf_data;
+    tf_data.type        = vpiSysFunc;
+    tf_data.sysfunctype = vpiIntFunc;
+    tf_data.tfname    = "$dump";
+    tf_data.calltf    = dump;
+    tf_data.compiletf = 0;
+    tf_data.sizetf    = 0;
+    tf_data.user_data = 0;
+    vpi_register_systf(&tf_data);
+}
+
 void (*vlog_startup_routines[])() = {
     mem_read_register,
     mem_write_register,
+    dump_register,
     0
 };
 
