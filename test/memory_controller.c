@@ -136,11 +136,17 @@ static PLI_INT32 dump(char* user_data)
 
     s_vpi_value inval;
     
+    unsigned int memory_id;
     unsigned int time_h;
     unsigned int time_l;
     unsigned long current_time;
 
     iterator = vpi_iterate(vpiArgument, vhandle);
+
+    arg = vpi_scan(iterator);
+    inval.format = vpiIntVal;
+    vpi_get_value(arg, &inval);
+    memory_id = inval.value.integer;
 
     arg = vpi_scan(iterator);
     inval.format = vpiTimeVal;
@@ -151,17 +157,36 @@ static PLI_INT32 dump(char* user_data)
     current_time = time_h;
     current_time = (current_time << BITS_IN_INT) | time_l;
 
-    FILE *file;
-    file = fopen("out/ram", "w");
-    
-    int i;
-    for(i=0; i<DMEMORY_SIZE; i++)
+    if(memory_id == DMEM_ID)
     {
-        fprintf(file, "%08x\n", dmemory[i]);
+      FILE *file;
+      file = fopen("out/ram", "w");
+      
+      int i;
+      for(i=0; i<DMEMORY_SIZE; i++)
+      {
+          fprintf(file, "%08x\n", dmemory[i]);
+      }
+
+      fclose(file);
     }
+    else if(memory_id == REGFILE_ID)
+    {
+      FILE *file;
+      file = fopen("out/regfile", "w");
+      
+      int i;
+      for(i=0; i<REGFILE_SIZE; i++)
+      {
+          fprintf(file, "%08x\n", regfile[i]);
+      }
 
-    fclose(file);
-
+      fclose(file);
+    }
+    else
+    {
+      assert(0);
+    }
     return 0; 
 }
 

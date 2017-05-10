@@ -37,7 +37,7 @@ module ram (
 
   always @(complete) begin
     
-    dump_bit <= $dump($time);
+    dump_bit <= $dump(`DMEM_ID, $time);
 
   end
 
