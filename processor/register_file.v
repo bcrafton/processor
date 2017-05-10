@@ -12,7 +12,7 @@ module register_file(
   //regfile
   );
 
-  reg [`DATA_WIDTH-1:0] regfile [0:`NUM_REGISTERS-1];
+ // reg [`DATA_WIDTH-1:0] regfile [0:`NUM_REGISTERS-1];
 
   input clk;
   input complete;
@@ -22,32 +22,29 @@ module register_file(
   input wire [`DATA_WIDTH-1:0] write_data;
 
   input wire [`NUM_REGISTERS_LOG2-1:0] read_address_1;
-  output wire [`DATA_WIDTH-1:0] read_data_1;
+  output reg [`DATA_WIDTH-1:0] read_data_1;
 
   input wire [`NUM_REGISTERS_LOG2-1:0] read_address_2;
-  output wire [`DATA_WIDTH-1:0] read_data_2;
+  output reg [`DATA_WIDTH-1:0] read_data_2;
 
-  integer i;
-  initial begin
-    for (i=0; i<`NUM_REGISTERS; i=i+1) regfile[i] <= 32'h00000000;
-  end
-
-  assign read_data_1 = regfile[read_address_1];
-  assign read_data_2 = regfile[read_address_2];
+  reg write_bit, dump_bit;
 
   always @(*) begin
+
     if (write) begin
-      regfile[write_address] <= write_data;
+      $display("writing %d %d %d\n", $time, write_address, write_data);
+      write_bit = $mem_write(write_address, write_data, `REGFILE_ID);
     end
+
+    read_data_1 = $mem_read(read_address_1, `REGFILE_ID);
+    read_data_2 = $mem_read(read_address_2, `REGFILE_ID);
+
   end
 
-  integer f;
-  always @(*) begin
-    if(complete) begin
-      f = $fopen("out/regfile", "w");
-      for (i=0; i<`NUM_REGISTERS; i=i+1) $fwrite(f,"%h\n", regfile[i]);
-      $fclose(f);
-    end
+  always @(complete) begin
+    
+    dump_bit <= $dump(`REGFILE_ID);
+
   end
 
 endmodule

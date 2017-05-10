@@ -98,6 +98,7 @@ static PLI_INT32 mem_write(char* user_data)
         imemory[wr_address] = wr_data;
         break;
       case REGFILE_ID:
+        printf("%x %x\n", wr_address, wr_data);
         regfile[wr_address] = wr_data;
         break;
     }
