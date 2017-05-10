@@ -1,19 +1,25 @@
 
 #include "memory_simulator.h"
 
-static WORD dmemory[DMEMORY_SIZE];
-static REGISTER regfile[REGFILE_SIZE];
-static INSTRUCTION imemory[IMEMORY_SIZE];
-
-static TIME test_start_time;
-static int program_number;
-static int num_programs = 1;
-
 #define TEST_DURATION 1000
 
 static void dump_memory(int memory_id);
 static void load_program(char* filename);
 static void clear_memory(int memory_id);
+
+static WORD dmemory[DMEMORY_SIZE];
+static REGISTER regfile[REGFILE_SIZE];
+static INSTRUCTION imemory[IMEMORY_SIZE];
+
+static TIME test_start_time;
+
+static char buffer[100];
+const char* test_path = "../processor/programs/";
+const char* tests[] = { "add", "if_true", "if_false" };
+const char* file_ext = ".hex";
+
+static int program_number;
+static int num_programs = sizeof(tests)/sizeof(const char*);
 
 static PLI_INT32 mem_read(char* user_data)
 {    
@@ -183,8 +189,11 @@ static PLI_INT32 init(char* user_data)
 
     test_start_time = current_time;
 
+    program_number = 0;
+
     // load program
-    load_program("/home/brian/Desktop/processor/assembler/prog.hex");
+    sprintf(buffer, "%s%s%s", test_path, tests[program_number], file_ext);
+    load_program(buffer);
 
     return 0; 
 }
@@ -229,14 +238,18 @@ static PLI_INT32 update(char* user_data)
       clear_memory(IMEM_ID);
       clear_memory(REGFILE_ID);
 
-      // load next program
-      program_number++;
-      load_program("/home/brian/Desktop/processor/assembler/prog.hex");
-
       // reset start time
       test_start_time = current_time;
 
-      if(program_number == num_programs)
+      program_number++;
+
+      if(program_number < num_programs)
+      {
+        // load next program
+        sprintf(buffer, "%s%s%s", test_path, tests[program_number], file_ext);
+        load_program(buffer);
+      }
+      else
       {
         complete = 1;
       }
@@ -295,7 +308,11 @@ static void load_program(char* filename)
 {
   FILE *file;
   file = fopen(filename, "r");
-  if(file == NULL) assert(0);
+  if(file == NULL)
+  {
+    fprintf(stderr, "could not find %s\n", filename);
+    assert(0);
+  }
 
   // assert if we are too big
   int i;
