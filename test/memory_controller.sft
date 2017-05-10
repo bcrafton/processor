@@ -1,0 +1,2 @@
+$rd_ret vpiSysFuncSized 64 unsigned
+$wr_ret vpiSysFuncSized 32 unsigned
