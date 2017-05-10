@@ -101,6 +101,7 @@ module processor(
 
   program_counter pc_unit(
   .clk(clk), 
+  .reset(reset),
   .if_id_opcode(opcode),
   .if_id_address(address),
   .branch_address(jump_address_result), 

@@ -4,6 +4,7 @@
 
 module program_counter(
   clk,
+  reset, 
   if_id_opcode,
   if_id_address,
   branch_address,
@@ -13,6 +14,7 @@ module program_counter(
   );
 
   input wire clk;
+  input wire reset;
 
   input wire [`OP_CODE_BITS-1:0] if_id_opcode;
   input wire [`ADDR_WIDTH-1:0] if_id_address;
@@ -34,7 +36,9 @@ module program_counter(
   always @(posedge clk) begin
 
     if(!stall) begin
-      if(flush) begin
+      if(reset) begin
+        pc <= 0;
+      end else if(flush) begin
         pc <= branch_address;
       end else if(jump) begin
         pc <= if_id_address;
