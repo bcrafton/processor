@@ -3,7 +3,7 @@
 
 #define TEST_DURATION 1000
 
-static void dump_memory(int memory_id);
+static void dump_memory(int memory_id, const char* test_name);
 static void load_program(char* filename);
 static void clear_memory(int memory_id);
 
@@ -17,6 +17,8 @@ static char buffer[100];
 const char* test_path = "../processor/programs/";
 const char* tests[] = { "add", "if_true", "if_false" };
 const char* file_ext = ".hex";
+
+const char* out_path = "../processor/out/";
 
 static int program_number;
 static int num_programs = sizeof(tests)/sizeof(const char*);
@@ -134,29 +136,6 @@ static PLI_INT32 mem_write(char* user_data)
     return 0; 
 }
 
-static PLI_INT32 dump(char* user_data)
-{    
-    assert(user_data == NULL);
-    vpiHandle vhandle, iterator, arg;
-    vhandle = vpi_handle(vpiSysTfCall, NULL);
-
-    s_vpi_value inval;
-    
-    unsigned int memory_id;
-
-    iterator = vpi_iterate(vpiArgument, vhandle);
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiIntVal;
-    vpi_get_value(arg, &inval);
-    memory_id = inval.value.integer;
-
-    // dump program
-    dump_memory(memory_id);
-
-    return 0; 
-}
-
 static PLI_INT32 init(char* user_data)
 {    
     assert(user_data == NULL);
@@ -227,8 +206,8 @@ static PLI_INT32 update(char* user_data)
     if(current_time - test_start_time > TEST_DURATION)
     {
       // dump memory
-      dump_memory(DMEM_ID);
-      dump_memory(REGFILE_ID);
+      dump_memory(DMEM_ID, tests[program_number]);
+      dump_memory(REGFILE_ID, tests[program_number]);
 
       // reset = 1
       reset = 1;
@@ -270,12 +249,19 @@ static PLI_INT32 update(char* user_data)
     return 0; 
 }
 
-static void dump_memory(int memory_id)
+static void dump_memory(int memory_id, const char* test_name)
 {
   if(memory_id == DMEM_ID)
   {
+    sprintf(buffer, "%s%s.mem%s", out_path, test_name, file_ext);
+    
     FILE *file;
-    file = fopen("out/ram", "w");
+    file = fopen(buffer, "w");
+    if(file == NULL)
+    {
+      fprintf(stderr, "could not find %s\n", buffer);
+      assert(0);
+    }
     
     int i;
     for(i=0; i<DMEMORY_SIZE; i++)
@@ -287,9 +273,16 @@ static void dump_memory(int memory_id)
   }
   else if(memory_id == REGFILE_ID)
   {
-    FILE *file;
-    file = fopen("out/regfile", "w");
+    sprintf(buffer, "%s%s.reg%s", out_path, test_name, file_ext);
     
+    FILE *file;
+    file = fopen(buffer, "w");
+    if(file == NULL)
+    {
+      fprintf(stderr, "could not find %s\n", buffer);
+      assert(0);
+    }
+
     int i;
     for(i=0; i<REGFILE_SIZE; i++)
     {
@@ -367,19 +360,6 @@ void mem_write_register(void)
     vpi_register_systf(&tf_data);
 }
 
-void dump_register(void)
-{
-    s_vpi_systf_data tf_data;
-    tf_data.type        = vpiSysFunc;
-    tf_data.sysfunctype = vpiIntFunc;
-    tf_data.tfname    = "$dump";
-    tf_data.calltf    = dump;
-    tf_data.compiletf = 0;
-    tf_data.sizetf    = 0;
-    tf_data.user_data = 0;
-    vpi_register_systf(&tf_data);
-}
-
 void init_register(void)
 {
     s_vpi_systf_data tf_data;
@@ -409,7 +389,6 @@ void update_register(void)
 void (*vlog_startup_routines[])() = {
     mem_read_register,
     mem_write_register,
-    dump_register,
     init_register,
     update_register,
     0

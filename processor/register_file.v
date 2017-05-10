@@ -23,7 +23,7 @@ module register_file(
   input wire [`NUM_REGISTERS_LOG2-1:0] read_address_2;
   output reg [`DATA_WIDTH-1:0] read_data_2;
 
-  reg write_bit, dump_bit;
+  reg write_bit;
 
   always @(*) begin
 

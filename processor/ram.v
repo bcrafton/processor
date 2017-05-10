@@ -17,7 +17,7 @@ module ram (
   output reg [`DATA_WIDTH-1:0] read_data;
 
   //reg [`DATA_WIDTH-1:0] mem [0:`DMEMORY_SIZE-1];
-  reg write_bit, dump_bit;
+  reg write_bit;
 
   // combinational logic
   always @(*) begin
