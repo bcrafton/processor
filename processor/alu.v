@@ -45,13 +45,9 @@ module alu
       `ALU_OP_OR: alu_result = data1 | data2; // OR
       `ALU_OP_NAND: alu_result = ~(data1 & data2); // NAND
       `ALU_OP_NOR: alu_result = ~(data1 | data2); // NOR
+
+      // both MOVI and MOV do the same thing. assign to data2
       `ALU_OP_MOV: alu_result = data2;
-      `ALU_OP_MOVI: alu_result = data2;
-/*    
-      use to do this:
-			7: alu_result <= data1;
-			8: alu_result <= data2;
-*/
 
       `ALU_OP_SAR: alu_result = data1 >>> data2;
       `ALU_OP_SHR: alu_result = data1 >> data2;

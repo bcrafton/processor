@@ -29,7 +29,17 @@ module control_unit(
   always @(*) begin
 
     casex(opcode)
-      6'b00????: begin // add, subi...
+      6'b000000: begin
+        reg_dst <= 0;
+        mem_op <= `MEM_OP_NOP;
+        alu_src <= 0;
+        mem_to_reg <= 0;
+        reg_write <= 0;
+        address_src <= 0;
+        jop <= `JMP_OP_NOP;
+        alu_op <= `ALU_OP_NOP; 
+      end
+      6'b00????: begin // add, sub...
         reg_dst <= 1;
         mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
@@ -117,7 +127,7 @@ module control_unit(
       `OP_CODE_NANDI: alu_op <= `ALU_OP_NAND;
       `OP_CODE_NORI: alu_op <= `ALU_OP_NOR;
 // we need to have a movi instruction so we use data2 and not data1 for the immediate.
-      `OP_CODE_MOVI: alu_op <= `ALU_OP_MOVI;
+      `OP_CODE_MOVI: alu_op <= `ALU_OP_MOV;
       `OP_CODE_SARI: alu_op <= `ALU_OP_SAR;
       `OP_CODE_SHRI: alu_op <= `ALU_OP_SHR;
       `OP_CODE_SHLI: alu_op <= `ALU_OP_SHL;

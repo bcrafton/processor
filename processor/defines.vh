@@ -40,19 +40,18 @@
 `define ADDR_WIDTH 16 
 `define IMM_WIDTH  16 
 
-`define ALU_OP_ADD        4'b0000
-`define ALU_OP_SUB        4'b0001
-`define ALU_OP_NOT        4'b0010
-`define ALU_OP_AND        4'b0011
-`define ALU_OP_OR         4'b0100
-`define ALU_OP_NAND       4'b0101
-`define ALU_OP_NOR        4'b0110
-`define ALU_OP_MOV        4'b0111
+`define ALU_OP_NOP        4'b0000
+`define ALU_OP_ADD        4'b0001
+`define ALU_OP_SUB        4'b0010
+`define ALU_OP_NOT        4'b0011
+`define ALU_OP_AND        4'b0100
+`define ALU_OP_OR         4'b0101
+`define ALU_OP_NAND       4'b0110
+`define ALU_OP_NOR        4'b0111
 
-// this uses data2 instead of data1
-// we can be smart at assembler level and for mov just put rs in rt.
-// but want to use this method because more maintainable
-`define ALU_OP_MOVI       4'b1000 
+// both MOVI and MOV do the same thing. assign to data2
+`define ALU_OP_MOV        4'b1000
+
 `define ALU_OP_SAR        4'b1001
 `define ALU_OP_SHR        4'b1010
 `define ALU_OP_SHL        4'b1011
@@ -60,26 +59,28 @@
 
 `define ALU_OP_CMP        4'b1101
 `define ALU_OP_TEST       4'b1110
-`define ALU_OP_NOP        4'b1111
+
 
 `define ALU_OP_BITS       4 //$bits(ALU_OP_ADD)
 
 
+`define OP_CODE_NOP       6'b000000
+
 // 6'b00xxxx
-`define OP_CODE_ADD       6'b000000 //0
-`define OP_CODE_SUB       6'b000001
-`define OP_CODE_NOT       6'b000010
-`define OP_CODE_AND       6'b000011
-`define OP_CODE_OR        6'b000100 //4
-`define OP_CODE_NAND      6'b000101
-`define OP_CODE_NOR       6'b000110
-`define OP_CODE_MOV       6'b000111
-`define OP_CODE_SAR       6'b001000 //8
-`define OP_CODE_SHR       6'b001001
-`define OP_CODE_SHL       6'b001010
-`define OP_CODE_XOR       6'b001011
-`define OP_CODE_TEST      6'b001100 //12
-`define OP_CODE_CMP       6'b001101
+`define OP_CODE_ADD       6'b000001 //0
+`define OP_CODE_SUB       6'b000010
+`define OP_CODE_NOT       6'b000011
+`define OP_CODE_AND       6'b000100
+`define OP_CODE_OR        6'b000101 //4
+`define OP_CODE_NAND      6'b000110
+`define OP_CODE_NOR       6'b000111
+`define OP_CODE_MOV       6'b001000
+`define OP_CODE_SAR       6'b001001 //8
+`define OP_CODE_SHR       6'b001010
+`define OP_CODE_SHL       6'b001011
+`define OP_CODE_XOR       6'b001100
+`define OP_CODE_TEST      6'b001101 //12
+`define OP_CODE_CMP       6'b001110
 
 // 6'b01xxxx
 `define OP_CODE_ADDI      6'b010000 //16
