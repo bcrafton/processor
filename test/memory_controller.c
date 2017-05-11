@@ -16,7 +16,7 @@ static TIME test_start_time;
 static char buffer[100];
 const char* test_path = "../processor/programs/";
 const char* tests[] = { "add", "if_true", "if_false" };
-const char* file_ext = ".hex";
+//const char* file_ext = ".hex";
 
 const char* out_path = "../processor/out/";
 
@@ -171,7 +171,7 @@ static PLI_INT32 init(char* user_data)
     program_number = 0;
 
     // load program
-    sprintf(buffer, "%s%s%s", test_path, tests[program_number], file_ext);
+    sprintf(buffer, "%s%s.hex", test_path, tests[program_number]);
     load_program(buffer);
 
     return 0; 
@@ -225,7 +225,7 @@ static PLI_INT32 update(char* user_data)
       if(program_number < num_programs)
       {
         // load next program
-        sprintf(buffer, "%s%s%s", test_path, tests[program_number], file_ext);
+        sprintf(buffer, "%s%s.hex", test_path, tests[program_number]);
         load_program(buffer);
       }
       else
@@ -253,7 +253,7 @@ static void dump_memory(int memory_id, const char* test_name)
 {
   if(memory_id == DMEM_ID)
   {
-    sprintf(buffer, "%s%s.mem%s", out_path, test_name, file_ext);
+    sprintf(buffer, "%s%s.mem.hex", out_path, test_name);
     
     FILE *file;
     file = fopen(buffer, "w");
@@ -273,7 +273,7 @@ static void dump_memory(int memory_id, const char* test_name)
   }
   else if(memory_id == REGFILE_ID)
   {
-    sprintf(buffer, "%s%s.reg%s", out_path, test_name, file_ext);
+    sprintf(buffer, "%s%s.reg.hex", out_path, test_name);
     
     FILE *file;
     file = fopen(buffer, "w");
