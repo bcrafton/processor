@@ -18,13 +18,14 @@ static char buffer[100];
 const char* test_path = "../test/programs/";
 
 const char* tests[] = {
-"add",
+
+"fn_add",
 "if_true",
 "if_false",
 
 "addi",
 "subi",
-// noti,
+//"noti",
 "andi",
 "ori",
 "nandi",
@@ -34,6 +35,26 @@ const char* tests[] = {
 "shri",
 "shli",
 "xori",
+
+"add",
+"sub",
+//"not",
+"and",
+"or",
+"nand",
+"nor",
+"mov",
+"sar",
+"shr",
+"shl",
+"xor",
+
+/*
+"lw",
+"sw",
+"la",
+"sa",
+*/
 
 };
 
