@@ -49,12 +49,10 @@ const char* tests[] = {
 "shl",
 "xor",
 
-/*
 "lw",
 "sw",
 "la",
 "sa",
-*/
 
 };
 
