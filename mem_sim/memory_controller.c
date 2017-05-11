@@ -15,7 +15,7 @@ static INSTRUCTION imemory[IMEMORY_SIZE];
 static TIME test_start_time;
 
 static char buffer[100];
-const char* test_path = "../processor/programs/";
+const char* test_path = "../test/programs/";
 
 const char* tests[] = {
 "add",
@@ -38,7 +38,7 @@ const char* tests[] = {
 };
 
 const char* out_path = "../processor/out/";
-const char* actual_path = "../processor/actual/";
+const char* actual_path = "../test/actual/";
 
 static int program_number;
 static int num_programs = sizeof(tests)/sizeof(const char*);
