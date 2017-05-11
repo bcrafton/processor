@@ -16,7 +16,6 @@ static TIME test_start_time;
 static char buffer[100];
 const char* test_path = "../processor/programs/";
 const char* tests[] = { "add", "if_true", "if_false" };
-//const char* file_ext = ".hex";
 
 const char* out_path = "../processor/out/";
 
@@ -253,7 +252,7 @@ static void dump_memory(int memory_id, const char* test_name)
 {
   if(memory_id == DMEM_ID)
   {
-    sprintf(buffer, "%s%s.mem.hex", out_path, test_name);
+    sprintf(buffer, "%s%s.mem", out_path, test_name);
     
     FILE *file;
     file = fopen(buffer, "w");
@@ -273,7 +272,7 @@ static void dump_memory(int memory_id, const char* test_name)
   }
   else if(memory_id == REGFILE_ID)
   {
-    sprintf(buffer, "%s%s.reg.hex", out_path, test_name);
+    sprintf(buffer, "%s%s.reg", out_path, test_name);
     
     FILE *file;
     file = fopen(buffer, "w");
@@ -333,7 +332,11 @@ static void clear_memory(int memory_id)
       assert(0);
   }
 }
-
+/*
+static bool check(char* test_name)
+{
+}
+*/
 void mem_read_register(void)
 {
     s_vpi_systf_data tf_data;
