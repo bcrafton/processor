@@ -6,7 +6,7 @@
 static void dump_memory(int memory_id, const char* test_name);
 static void load_program(char* filename);
 static void clear_memory(int memory_id);
-static bool check(char* test_name);
+static bool check(const char* test_name);
 
 static WORD dmemory[DMEMORY_SIZE];
 static REGISTER regfile[REGFILE_SIZE];
@@ -16,7 +16,26 @@ static TIME test_start_time;
 
 static char buffer[100];
 const char* test_path = "../processor/programs/";
-const char* tests[] = { "add", "if_true", "if_false" };
+
+const char* tests[] = {
+"add",
+"if_true",
+"if_false",
+
+"addi",
+"subi",
+// noti,
+"andi",
+"ori",
+"nandi",
+"nori",
+"movi",
+"sari",
+"shri",
+"shli",
+"xori",
+
+};
 
 const char* out_path = "../processor/out/";
 const char* actual_path = "../processor/actual/";
@@ -346,7 +365,7 @@ static void clear_memory(int memory_id)
   }
 }
 
-static bool check(char* test_name)
+static bool check(const char* test_name)
 {
 
   WORD mem_val;
@@ -356,7 +375,7 @@ static bool check(char* test_name)
   
   /////////////////
 
-  sprintf(buffer, "%s%s.mem.actual", actual_path, test_name);  
+  sprintf(buffer, "%s/mem/%s.mem.actual", actual_path, test_name);  
   file = fopen(buffer, "r");
   if(file == NULL)
   {
@@ -380,7 +399,7 @@ static bool check(char* test_name)
 
   /////////////////
   
-  sprintf(buffer, "%s%s.reg.actual", actual_path, test_name);  
+  sprintf(buffer, "%s/reg/%s.reg.actual", actual_path, test_name);  
   file = fopen(buffer, "r");
   if(file == NULL)
   {
