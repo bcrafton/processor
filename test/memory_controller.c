@@ -6,6 +6,7 @@
 static void dump_memory(int memory_id, const char* test_name);
 static void load_program(char* filename);
 static void clear_memory(int memory_id);
+static bool check(char* test_name);
 
 static WORD dmemory[DMEMORY_SIZE];
 static REGISTER regfile[REGFILE_SIZE];
@@ -18,6 +19,7 @@ const char* test_path = "../processor/programs/";
 const char* tests[] = { "add", "if_true", "if_false" };
 
 const char* out_path = "../processor/out/";
+const char* actual_path = "../processor/actual/";
 
 static int program_number;
 static int num_programs = sizeof(tests)/sizeof(const char*);
@@ -204,6 +206,17 @@ static PLI_INT32 update(char* user_data)
 
     if(current_time - test_start_time > TEST_DURATION)
     {
+
+      bool pass = check(tests[program_number]);
+      if(pass)
+      {
+        printf("Test %s: Passed\n", tests[program_number]);
+      }
+      else
+      {
+        printf("Test %s: Failed\n", tests[program_number]);
+      }
+
       // dump memory
       dump_memory(DMEM_ID, tests[program_number]);
       dump_memory(REGFILE_ID, tests[program_number]);
@@ -332,11 +345,69 @@ static void clear_memory(int memory_id)
       assert(0);
   }
 }
-/*
+
 static bool check(char* test_name)
 {
+
+  WORD mem_val;
+  REGISTER reg_val;
+  int i;
+  FILE *file;
+  
+  /////////////////
+
+  sprintf(buffer, "%s%s.mem.actual", actual_path, test_name);  
+  file = fopen(buffer, "r");
+  if(file == NULL)
+  {
+    fprintf(stderr, "could not find %s\n", buffer);
+    assert(0);
+  }
+  
+  for(i=0; i<DMEMORY_SIZE; i++)
+  {
+    if(!fscanf(file, "%x", &mem_val))
+    {
+      fprintf(stderr, "file does not contain enough words");
+      assert(0);
+    }
+    if(mem_val != dmemory[i])
+    {
+      return false;
+    }
+  }
+  fclose(file);
+
+  /////////////////
+  
+  sprintf(buffer, "%s%s.reg.actual", actual_path, test_name);  
+  file = fopen(buffer, "r");
+  if(file == NULL)
+  {
+    fprintf(stderr, "could not find %s\n", buffer);
+    assert(0);
+  }
+
+  for(i=0; i<REGFILE_SIZE; i++)
+  {
+    if(!fscanf(file, "%x", &reg_val))
+    {
+      fprintf(stderr, "file does not contain enough words");
+      assert(0);
+    }
+    if(reg_val != regfile[i])
+    {
+      return false;
+    }
+  }
+  fclose(file);
+
+  /////////////////
+
+  return true;
+
 }
-*/
+
 void mem_read_register(void)
 {
     s_vpi_systf_data tf_data;
