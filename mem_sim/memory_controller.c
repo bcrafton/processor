@@ -20,7 +20,7 @@ const char* actual_path = "../test/actual/";
 const char* expected_path = "../test/expected/";
 
 const char* tests[] = {
-/*
+
 "fn_add",
 "if_true",
 "if_false",
@@ -54,8 +54,21 @@ const char* tests[] = {
 "lw",
 "sw",
 "la",
-*/
+
 "sa",
+"jmp",
+"jo",
+"je",
+"jne",
+"jl",
+"jle",
+"jg",
+"jge",
+"jz",
+"jnz",
+"jr",
+
+
 
 };
 
