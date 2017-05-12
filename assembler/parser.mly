@@ -4,31 +4,52 @@ open Types
 %}
 
 %token <int> NUM
-%token <string> ID
-%token DEF ADD1 SUB1 LPARENSPACE LPARENNOSPACE RPAREN LET IN EQUAL COMMA PLUS MINUS TIMES IF COLON ELSECOLON EOF PRINT PRINTSTACK TRUE FALSE ISBOOL ISNUM EQEQ LESS GREATER LESSEQ GREATEREQ AND OR NOT IAND
-
-%left PLUS MINUS TIMES GREATER LESS GREATEREQ LESSEQ EQEQ AND OR IAND
+%token <string> LABEL
+%token LPARENSPACE LPARENNOSPACE RPAREN COMMA PLUS MINUS TIMES COLON EOF MOV ADD SUB MUL CMP JO JE JNE JL JLE JG JMP JZ JNZ RET AND OR XOR SHL SHR SAR PUSH POP CALL TEST REAX REBX RECX REDX RESP REBP SECTION TEXT
 
 
-%type <(Lexing.position * Lexing.position) Types.program> program
 
-%start program
+%left MOV ADD SUB MUL CMP JO JE JNE JL JLE JG JMP JZ JNZ RET AND OR XOR SHL SHR SAR PUSH POP CALL TEST LABEL SECTION
+
+
+%type <(Lexing.position * Lexing.position) Types.section> section
+
+(* is this the base type ... section for us *)
+%start section
 
 %%
 
 const :
   | NUM { ENumber($1, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | TRUE { EBool(true, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | FALSE { EBool(false, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
 
-prim1 :
-  | ADD1 { Add1 }
-  | SUB1 { Sub1 }
-  | NOT { Not }
-  | PRINT { Print }
-  | ISBOOL { IsBool }
-  | ISNUM { IsNum }
-  | PRINTSTACK { PrintStack }
+register :
+ | REAX
+ | REBX 
+ | RECX 
+  
+
+inst :
+ | IMov MOV 
+ | ADD  
+ | SUB  
+ | MUL  
+ | CMP  
+ | JO  
+ | JE  
+ | JNE  
+ | JL  
+ | JLE  
+ | JG  
+ | JMP  
+ | JZ  
+ | JNZ  
+ | RET  
+ | AND  
+ | OR  
+ | XOR  
+ | SHL  
+ | SHR  
+ | SAR
 
 binds :
   | ID EQUAL expr { [($1, $3, (Parsing.rhs_start_pos 1, Parsing.rhs_end_pos 1))] }

@@ -13,6 +13,7 @@ let blank = [' ' '\t']+
 
 let space = [' ' '\t' '\n']+
 
+(*
 rule token = parse
   | '#' [^ '\n']+ { token lexbuf }
   | blank "(" { LPARENSPACE }
@@ -53,9 +54,63 @@ rule token = parse
   | ident as x { ID x }
   | eof { EOF }
   | _ as c { failwith (sprintf "Unrecognized character: %c" c) }
+*)
 
+rule token = parse
+  | '#' [^ '\n']+ { token lexbuf }
+  | blank "(" { LPARENSPACE }
+  | '\n' "(" { LPARENSPACE }
+  | blank { token lexbuf }
+  | '\n' { new_line lexbuf; token lexbuf }
+  | signed_int as x { NUM (int_of_string x) }
+  | "mov" { MOV }
+  | "add" { ADD }
+  | "sub" { SUB }
+  | "mul" { MUL }
+  | "cmp" { CMP }
+  | "jo" { JO }
+  | "je" { JE }
+  | "jne" { JNE }
+  | "jl" { JL }
+  | "jle" { JLE }
+  | "jg" { JG }
+  | "jge" { JGE }
+  | "jmp" { JMP }
+  | "jz" { JZ }
+  | "jnz" { JNZ }
+  | "ret" { RET }
+  | "and" { AND }
+  | "or" { OR }
+  | "xor" { XOR }
+  | "shl" { SHL }
+  | "shr" { SHR }
+  | "sar" { SAR }
+  | "push" { PUSH }
+  | "pop" { POP }
+  | "call" { CALL }
+  | "test" { TEST }
 
+  | "eax" { REAX }
+  | "ebx" { REBX }
+  | "ecx" { RECX }
+  | "edx" { REDX }
+  | "esp" { RESP }
+  | "ebp" { REBP }
 
+  | ":" { COLON }
+  | "," { COMMA }
+  | "(" { LPARENNOSPACE }
+  | ")" { RPAREN }
+  | "+" { PLUS }
+  | "-" { MINUS }
+  | "*" { TIMES }
+
+  | ".section" { SECTION }
+  | ".text"    { TEXT }
+
+  | ident as x { LABEL x }
+  | eof { EOF }
+  | _ as c { failwith (sprintf "Unrecognized character: %c" c) }
 
 
 
