@@ -66,6 +66,7 @@ module processor(
   wire [`MEM_OP_BITS-1:0] id_ex_mem_op;
   // ex/mem
   wire [`DATA_WIDTH-1:0] ex_mem_alu_result;
+  reg [`DATA_WIDTH-1:0] tmp1;
   wire [`DATA_WIDTH-1:0] ex_mem_data_1, ex_mem_data_2;
   wire [`ADDR_WIDTH-1:0] ex_mem_address;
   wire ex_mem_mem_to_reg, ex_mem_address_src;
@@ -282,6 +283,11 @@ module processor(
   .sel(ex_mem_address_src), 
   .out(address_src_result));
 
+
+  always @(ex_mem_data_2) begin
+    tmp1 = ex_mem_data_2;  
+  end
+
   always @(ex_mem_mem_op) begin
     tmp = ex_mem_mem_op;  
   end
@@ -289,7 +295,7 @@ module processor(
   ram data_memory(
   .clk(clk), 
   .address(address_src_result), 
-  .write_data(ex_mem_data_2), 
+  .write_data(tmp1), 
   .read_data(ram_read_data), 
   .mem_op(tmp));
 

@@ -20,7 +20,7 @@ module ram (
   reg write_bit;
 
   // combinational logic
-  always @(mem_op) begin
+  always @(*) begin
 
     if (mem_op == `MEM_OP_WRITE) begin
       write_bit = $mem_write(address, write_data, `DMEM_ID);
