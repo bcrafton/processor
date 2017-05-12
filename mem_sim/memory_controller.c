@@ -15,7 +15,9 @@ static INSTRUCTION imemory[IMEMORY_SIZE];
 static TIME test_start_time;
 
 static char buffer[100];
-const char* test_path = "../test/programs/";
+const char* program_path = "../test/programs/";
+const char* actual_path = "../test/actual/";
+const char* expected_path = "../test/expected/";
 
 const char* tests[] = {
 
@@ -56,8 +58,6 @@ const char* tests[] = {
 
 };
 
-const char* out_path = "../processor/out/";
-const char* actual_path = "../test/actual/";
 
 static int program_number;
 static int num_programs = sizeof(tests)/sizeof(const char*);
@@ -210,7 +210,7 @@ static PLI_INT32 init(char* user_data)
     program_number = 0;
 
     // load program
-    sprintf(buffer, "%s%s.hex", test_path, tests[program_number]);
+    sprintf(buffer, "%s%s.hex", program_path, tests[program_number]);
     load_program(buffer);
 
     return 0; 
@@ -275,7 +275,7 @@ static PLI_INT32 update(char* user_data)
       if(program_number < num_programs)
       {
         // load next program
-        sprintf(buffer, "%s%s.hex", test_path, tests[program_number]);
+        sprintf(buffer, "%s%s.hex", program_path, tests[program_number]);
         load_program(buffer);
       }
       else
@@ -303,7 +303,7 @@ static void dump_memory(int memory_id, const char* test_name)
 {
   if(memory_id == DMEM_ID)
   {
-    sprintf(buffer, "%s%s.mem", out_path, test_name);
+    sprintf(buffer, "%s%s.mem", actual_path, test_name);
     
     FILE *file;
     file = fopen(buffer, "w");
@@ -323,7 +323,7 @@ static void dump_memory(int memory_id, const char* test_name)
   }
   else if(memory_id == REGFILE_ID)
   {
-    sprintf(buffer, "%s%s.reg", out_path, test_name);
+    sprintf(buffer, "%s%s.reg", actual_path, test_name);
     
     FILE *file;
     file = fopen(buffer, "w");
@@ -394,7 +394,7 @@ static bool check(const char* test_name)
   
   /////////////////
 
-  sprintf(buffer, "%s/mem/%s.mem.actual", actual_path, test_name);  
+  sprintf(buffer, "%s/mem/%s.mem.expected", expected_path, test_name);  
   file = fopen(buffer, "r");
   if(file == NULL)
   {
@@ -418,7 +418,7 @@ static bool check(const char* test_name)
 
   /////////////////
   
-  sprintf(buffer, "%s/reg/%s.reg.actual", actual_path, test_name);  
+  sprintf(buffer, "%s/reg/%s.reg.expected", expected_path, test_name);  
   file = fopen(buffer, "r");
   if(file == NULL)
   {
