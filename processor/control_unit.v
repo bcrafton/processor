@@ -3,7 +3,6 @@
 // for this module, need to define all the control values in defines.
 // make it parameterizable based on the number of possible control values.
 module control_unit(
-  clk,
   opcode,
   reg_dst,
   mem_to_reg,
@@ -15,7 +14,6 @@ module control_unit(
   jop,
   );
 
-  input wire clk;
   input wire [`OP_CODE_BITS-1:0] opcode;
   output reg reg_dst;
   output reg [`MEM_OP_BITS-1:0] mem_op;

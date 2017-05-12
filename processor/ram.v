@@ -1,14 +1,11 @@
 `include "defines.vh"
 
 module ram (
-  clk,
   address,
   write_data,
   read_data,
   mem_op,
   ); 
-
-  input clk;
 
   input [`ADDR_WIDTH-1:0] address;
   input [`MEM_OP_BITS-1:0] mem_op;

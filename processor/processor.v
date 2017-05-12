@@ -113,7 +113,6 @@ module processor(
   .stall(stall));
   
   instruction_memory im(
-  .clk(clk), 
   .pc(pc), 
   .instruction(instruction));
 
@@ -133,7 +132,6 @@ module processor(
   .stall(stall));
 
   control_unit cu(
-  .clk(clk), 
   .opcode(opcode), 
   .reg_dst(reg_dst), 
   .mem_to_reg(mem_to_reg), 
@@ -144,8 +142,7 @@ module processor(
   .jop(jop),
   .address_src(address_src));
 
-  register_file regfile(
-  .clk(clk), 
+  register_file regfile( 
   .write(mem_wb_reg_write), 
   .write_address(mem_wb_reg_dst_result), 
   .write_data(mem_to_reg_result), 
@@ -229,7 +226,6 @@ module processor(
   .out(alu_src_result));
 
   alu alu_unit(
-  .clk(clk), 
   .alu_op(id_ex_alu_op), 
   .data1(alu_input_mux_1_result), 
   .data2(alu_src_result), 
@@ -287,7 +283,6 @@ module processor(
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   ram data_memory(
-  .clk(clk), 
   .address(ex_mem_address_src_result), 
   .write_data(ex_mem_data_2), 
   .read_data(ram_read_data), 

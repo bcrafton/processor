@@ -1,5 +1,4 @@
 module register_file(
-  clk,
   write,
   write_address,
   write_data,
@@ -11,7 +10,6 @@ module register_file(
 
  // reg [`DATA_WIDTH-1:0] regfile [0:`NUM_REGISTERS-1];
 
-  input clk;
   input write;
 
   input wire [`NUM_REGISTERS_LOG2-1:0] write_address;

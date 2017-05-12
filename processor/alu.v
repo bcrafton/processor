@@ -8,7 +8,6 @@
 
 module alu
   (
-  clk,
   alu_op,
   data1,
   data2,
@@ -18,7 +17,6 @@ module alu
   alu_result,
   );
 
-  input wire clk;
   input wire [`ALU_OP_BITS-1:0] alu_op;
   input wire [`DATA_WIDTH-1:0] data1;
   input wire [`DATA_WIDTH-1:0] data2;
