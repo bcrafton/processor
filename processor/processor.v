@@ -26,7 +26,6 @@ module processor(
   wire mem_to_reg;
   wire [`ALU_OP_BITS-1:0] alu_op;
   wire [`MEM_OP_BITS-1:0] mem_op;
-  reg [`MEM_OP_BITS-1:0] tmp;
   wire alu_src;
   wire reg_write;
   wire [`JUMP_BITS-1:0] jop;
@@ -66,7 +65,6 @@ module processor(
   wire [`MEM_OP_BITS-1:0] id_ex_mem_op;
   // ex/mem
   wire [`DATA_WIDTH-1:0] ex_mem_alu_result;
-  reg [`DATA_WIDTH-1:0] tmp1;
   wire [`DATA_WIDTH-1:0] ex_mem_data_1, ex_mem_data_2;
   wire [`ADDR_WIDTH-1:0] ex_mem_address;
   wire [`ADDR_WIDTH-1:0] ex_mem_address_src_result;
