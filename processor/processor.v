@@ -26,6 +26,7 @@ module processor(
   wire mem_to_reg;
   wire [`ALU_OP_BITS-1:0] alu_op;
   wire [`MEM_OP_BITS-1:0] mem_op;
+  reg [`MEM_OP_BITS-1:0] tmp;
   wire alu_src;
   wire reg_write;
   wire [`JUMP_BITS-1:0] jop;
@@ -281,12 +282,16 @@ module processor(
   .sel(ex_mem_address_src), 
   .out(address_src_result));
 
+  always @(ex_mem_mem_op) begin
+    tmp = ex_mem_mem_op;  
+  end
+
   ram data_memory(
   .clk(clk), 
   .address(address_src_result), 
   .write_data(ex_mem_data_2), 
   .read_data(ram_read_data), 
-  .mem_op(ex_mem_mem_op));
+  .mem_op(tmp));
 
   branch_unit bu(
   .zero(zero),
