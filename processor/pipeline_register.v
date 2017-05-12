@@ -177,7 +177,7 @@ module ex_mem_register(
   mem_to_reg_in,
   reg_write_in,
   address_in,
-  address_src_in,
+  address_src_result_in,
 
   alu_result_out,
   data_1_out,
@@ -188,7 +188,7 @@ module ex_mem_register(
   mem_to_reg_out,
   reg_write_out,
   address_out,
-  address_src_out
+  address_src_result_out
   );
 
   input wire clk;
@@ -203,7 +203,7 @@ module ex_mem_register(
   input wire mem_to_reg_in;
   input wire reg_write_in;
   input wire [`ADDR_WIDTH-1:0] address_in;
-  input wire address_src_in;
+  input wire [`ADDR_WIDTH-1:0] address_src_result_in;
 
   output reg [`DATA_WIDTH-1:0] alu_result_out;
   output reg [`DATA_WIDTH-1:0] data_1_out;
@@ -214,7 +214,7 @@ module ex_mem_register(
   output reg mem_to_reg_out;
   output reg reg_write_out;
   output reg [`ADDR_WIDTH-1:0] address_out;
-  output reg address_src_out;
+  output reg [`ADDR_WIDTH-1:0] address_src_result_out;
 
   initial begin
     alu_result_out <= 0;
@@ -226,7 +226,7 @@ module ex_mem_register(
     mem_to_reg_out <= 0;
     reg_write_out <= 0;
     address_out <= 0;
-    address_src_out <= 0;
+    address_src_result_out <= 0;
   end
 
   always @(posedge clk) begin
@@ -241,7 +241,7 @@ module ex_mem_register(
       mem_to_reg_out <= 0;
       reg_write_out <= 0;
       address_out <= 0;
-      address_src_out <= 0;
+      address_src_result_out <= 0;
     end else begin
       alu_result_out <= alu_result_in;
       data_1_out <= data_1_in;
@@ -252,7 +252,7 @@ module ex_mem_register(
       mem_to_reg_out <= mem_to_reg_in;
       reg_write_out <= reg_write_in;
       address_out <= address_in;
-      address_src_out <= address_src_in;
+      address_src_result_out <= address_src_result_in;
     end
   
   end
