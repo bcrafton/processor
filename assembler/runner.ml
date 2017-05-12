@@ -34,6 +34,10 @@ let compile_file_to_string name input_file =
   let input_program = parse_file name input_file in
   (compile_to_string input_program);;
 
+let assemble_file_to_string name input_file : string = 
+  (*let input_program = parse_file name input_file in*)
+  (assemble_to_string []);;
+
 let print_errors exns =
   List.map (fun e ->
       match e with

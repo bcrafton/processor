@@ -599,9 +599,6 @@ let rec search_label (labels : (string * int) list) (label : string) : int =
 
 let rec assemble (out : string) (il : instruction list) =
   let (mips, labels) = (to_mips il) in
-  (*
-  (printf "lut length %d\n" (List.length labels));
-  *)
   let binary = (assemble_mips mips labels) in
   let filename = (sprintf "bin/%s.hex" out) in
   let outfile = open_out (filename) in
@@ -1408,11 +1405,8 @@ global our_code_starts_here" in
     let compiled_fns = (compile_fns fns) in
     let main = (compile_main body stack_start) in
     let il = (start @ compiled_fns @ main @ errors) in
-    (assemble "prog" il); 
-
     let as_assembly_string = (to_asm il) in
     sprintf "%s%s\n" prelude as_assembly_string
-    
   
 let compile_to_string prog : (exn list, string) either =
   let errors = well_formed prog in
@@ -1426,4 +1420,27 @@ let compile_to_string prog : (exn list, string) either =
      (* printf "made it here"; *)
      Right(compile_prog anfed)
   | _ -> Left(errors)
+
+let rec assemble_to_string (il : instruction list) : string =
+  let (mips, labels) = (to_mips il) in
+  let binary = (assemble_mips mips labels) in
+  binary
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
