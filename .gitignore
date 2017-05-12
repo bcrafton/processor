@@ -1,7 +1,7 @@
 *.out
 *.o
 *.so
-processor/out/*
+test/actual/*
 *.vvp
 *.vcd
 *.vpi
