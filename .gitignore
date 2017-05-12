@@ -1,12 +1,14 @@
 *.out
 *.o
 *.so
-processor/out/*
+test/actual/*
 *.vvp
 *.vcd
+*.vpi
 assembler/_build
 assembler/_build/*
 assembler/main
+assembler/bin/*
 assembler/output/*
 assembler/prog.b
 assembler/test

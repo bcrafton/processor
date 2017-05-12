@@ -603,7 +603,8 @@ let rec assemble (out : string) (il : instruction list) =
   (printf "lut length %d\n" (List.length labels));
   *)
   let binary = (assemble_mips mips labels) in
-  let outfile = open_out (out ^ ".hex") in
+  let filename = (sprintf "bin/%s.hex" out) in
+  let outfile = open_out (filename) in
   fprintf outfile "%s" binary
 
 and assemble_mips (il : mips_instruction list) (labels : (string * int) list) : string = 

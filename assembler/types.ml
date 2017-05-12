@@ -2,20 +2,22 @@
 let word_size = 1
 ;;
 
-let	opcode_add	=	0
-let	opcode_sub	=	1
-let	opcode_not	=	2
-let	opcode_and	=	3
-let	opcode_or	=	4
-let	opcode_nand	=	5
-let	opcode_nor	=	6
-let	opcode_mov	=	7
-let	opcode_sar	=	8
-let	opcode_shr	=	9
-let	opcode_shl	=	10
-let	opcode_xor	=	11
-let	opcode_test	=	12
-let	opcode_cmp	=	13
+let	opcode_nop	=	0
+
+let	opcode_add	=	1
+let	opcode_sub	=	2
+let	opcode_not	=	3
+let	opcode_and	=	4
+let	opcode_or	=	5
+let	opcode_nand	=	6
+let	opcode_nor	=	7
+let	opcode_mov	=	8
+let	opcode_sar	=	9
+let	opcode_shr	=	10
+let	opcode_shl	=	11
+let	opcode_xor	=	12
+let	opcode_test	=	13
+let	opcode_cmp	=	14
 
 let	opcode_addi	=	16
 let	opcode_subi	=	17

@@ -4,13 +4,11 @@
 
 module processor(
   clk,
-  complete,
-  // regfile
-  // mem
+  reset,
   );
 	 
   input clk;
-  input complete;
+  input reset;
   // could make the ram and the regfile outputs. wud be very convenient for testing.
   // problem becomes if ram is large, we wud need a bus we can access it or some shit.
 
@@ -69,7 +67,8 @@ module processor(
   wire [`DATA_WIDTH-1:0] ex_mem_alu_result;
   wire [`DATA_WIDTH-1:0] ex_mem_data_1, ex_mem_data_2;
   wire [`ADDR_WIDTH-1:0] ex_mem_address;
-  wire ex_mem_mem_to_reg, ex_mem_address_src;
+  wire [`ADDR_WIDTH-1:0] ex_mem_address_src_result;
+  wire ex_mem_mem_to_reg;
   wire [`JUMP_BITS-1:0] ex_mem_jop;
   wire [`MEM_OP_BITS-1:0] ex_mem_mem_op;
   wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_reg_dst_result;
@@ -103,6 +102,7 @@ module processor(
 
   program_counter pc_unit(
   .clk(clk), 
+  .reset(reset),
   .if_id_opcode(opcode),
   .if_id_address(address),
   .branch_address(jump_address_result), 
@@ -111,7 +111,6 @@ module processor(
   .stall(stall));
   
   instruction_memory im(
-  .clk(clk), 
   .pc(pc), 
   .instruction(instruction));
 
@@ -131,7 +130,6 @@ module processor(
   .stall(stall));
 
   control_unit cu(
-  .clk(clk), 
   .opcode(opcode), 
   .reg_dst(reg_dst), 
   .mem_to_reg(mem_to_reg), 
@@ -142,9 +140,7 @@ module processor(
   .jop(jop),
   .address_src(address_src));
 
-  register_file regfile(
-  .clk(clk), 
-  .complete(complete), 
+  register_file regfile( 
   .write(mem_wb_reg_write), 
   .write_address(mem_wb_reg_dst_result), 
   .write_data(mem_to_reg_result), 
@@ -228,7 +224,6 @@ module processor(
   .out(alu_src_result));
 
   alu alu_unit(
-  .clk(clk), 
   .alu_op(id_ex_alu_op), 
   .data1(alu_input_mux_1_result), 
   .data2(alu_src_result), 
@@ -243,32 +238,6 @@ module processor(
   .sel(id_ex_reg_dst), 
   .out(reg_dst_result));
 
-  ex_mem_register ex_mem_reg(
-  .clk(clk), 
-  .flush(flush), 
-  .alu_result_in(alu_result), 
-  .data_1_in(alu_input_mux_1_result),
-  .data_2_in(alu_input_mux_2_result), 
-  .reg_dst_result_in(reg_dst_result), 
-  .jop_in(id_ex_jop), 
-  .mem_op_in(id_ex_mem_op), 
-  .mem_to_reg_in(id_ex_mem_to_reg), 
-  .reg_write_in(id_ex_reg_write), 
-  .address_in(id_ex_address), 
-  .address_src_in(id_ex_address_src),
-  .alu_result_out(ex_mem_alu_result), 
-  .data_1_out(ex_mem_data_1), 
-  .data_2_out(ex_mem_data_2),
-  .reg_dst_result_out(ex_mem_reg_dst_result), 
-  .jop_out(ex_mem_jop), 
-  .mem_op_out(ex_mem_mem_op),
-  .mem_to_reg_out(ex_mem_mem_to_reg), 
-  .reg_write_out(ex_mem_reg_write), 
-  .address_out(ex_mem_address),
-  .address_src_out(ex_mem_address_src));
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////
-
   // ex_mem_data_1: register result
   // ex_mem_address: address in instruction
   // la, sa = ex_mem_address
@@ -278,15 +247,41 @@ module processor(
   // write data is always rt
   // desintation of load is always rt 
   mux2x1 #(`ADDR_WIDTH) address_src_mux(
-  .in0(ex_mem_alu_result[`ADDR_WIDTH-1:0]), 
-  .in1(ex_mem_address), 
-  .sel(ex_mem_address_src), 
+  .in0(alu_result[`ADDR_WIDTH-1:0]), 
+  .in1(id_ex_address), 
+  .sel(id_ex_address_src), 
   .out(address_src_result));
 
-  ram data_memory(
+  ex_mem_register ex_mem_reg(
   .clk(clk), 
-  .complete(complete), 
-  .address(address_src_result), 
+  .flush(flush), 
+
+  .alu_result_in(alu_result), 
+  .data_1_in(alu_input_mux_1_result),
+  .data_2_in(alu_input_mux_2_result), 
+  .reg_dst_result_in(reg_dst_result), 
+  .jop_in(id_ex_jop), 
+  .mem_op_in(id_ex_mem_op), 
+  .mem_to_reg_in(id_ex_mem_to_reg), 
+  .reg_write_in(id_ex_reg_write), 
+  .address_in(id_ex_address), 
+  .address_src_result_in(address_src_result),
+
+  .alu_result_out(ex_mem_alu_result), 
+  .data_1_out(ex_mem_data_1), 
+  .data_2_out(ex_mem_data_2),
+  .reg_dst_result_out(ex_mem_reg_dst_result), 
+  .jop_out(ex_mem_jop), 
+  .mem_op_out(ex_mem_mem_op),
+  .mem_to_reg_out(ex_mem_mem_to_reg), 
+  .reg_write_out(ex_mem_reg_write), 
+  .address_out(ex_mem_address),
+  .address_src_result_out(ex_mem_address_src_result));
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
+  ram data_memory(
+  .address(ex_mem_address_src_result), 
   .write_data(ex_mem_data_2), 
   .read_data(ram_read_data), 
   .mem_op(ex_mem_mem_op));
