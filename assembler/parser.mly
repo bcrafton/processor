@@ -18,8 +18,18 @@ open Types
 
 %%
 
+reg :
+  | REAX { Reg(EAX) }
+
+inst :
+  | MOV reg COMMA reg { IMov($2, $4) }
+
+insts :
+  | inst { [$1] }
+  | inst insts { $1::$2 }
+
 section : 
-  | SECTION TEXT EOF { Section([]) }
+  | SECTION TEXT insts EOF { Section( $3 ) }
 
 
 %%

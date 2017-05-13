@@ -40,7 +40,7 @@ let assemble_file_to_string name input_file : string =
   let sect = parse_file name input_file in
   match sect with 
   | Section(il) ->
-    (assemble_to_string []);;
+    (assemble_to_string il);;
 
 let print_errors exns =
   List.map (fun e ->
