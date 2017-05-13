@@ -1,7 +1,7 @@
 open Unix
 open Filename
 open Str
-open Compile
+open Assemble
 open Printf
 open OUnit2
 open ExtLib
@@ -29,12 +29,6 @@ let parse name lexbuf =
 let parse_file name input_file = 
   let lexbuf = Lexing.from_channel input_file in
   parse name lexbuf
-
-(*
-let compile_file_to_string name input_file =
-  let input_program = parse_file name input_file in
-  (compile_to_string input_program);;
-*)
 
 let assemble_file_to_string name input_file : string = 
   let sect = parse_file name input_file in
