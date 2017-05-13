@@ -1,6 +1,7 @@
 (* Abstract syntax of (a small subset of) x86 assembly instructions *)
-let word_size = 4
+let word_size = 1
 ;;
+let stack_start = 128
 
 type ('a, 'b) either =
   | Left of 'a
@@ -16,10 +17,12 @@ exception DuplicateFun of string * sourcespan * sourcespan (* name, where used, 
 exception Overflow of int * sourcespan (* value, where used *)
 exception Arity of int * int * sourcespan (* intended arity, actual arity, where called *)
 
-  
+
 
 type reg =
   | EAX
+  | EBX (* adding this *)
+  | ECX (* adding this *)
   | EDX
   | ESP
   | EBP
