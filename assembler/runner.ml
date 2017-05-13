@@ -20,7 +20,7 @@ let string_of_position p =
 let parse name lexbuf =
   try 
     lexbuf.lex_curr_p <- { lexbuf.lex_curr_p with pos_fname = name };
-    Parser.program Lexer.token lexbuf
+    Parser.section Lexer.token lexbuf
   with
   |  Failure "lexing: empty token" ->
       failwith (sprintf "lexical error at %s"
@@ -30,13 +30,17 @@ let parse_file name input_file =
   let lexbuf = Lexing.from_channel input_file in
   parse name lexbuf
 
+(*
 let compile_file_to_string name input_file =
   let input_program = parse_file name input_file in
   (compile_to_string input_program);;
+*)
 
 let assemble_file_to_string name input_file : string = 
-  (*let input_program = parse_file name input_file in*)
-  (assemble_to_string []);;
+  let sect = parse_file name input_file in
+  match sect with 
+  | Section(il) ->
+    (assemble_to_string []);;
 
 let print_errors exns =
   List.map (fun e ->
