@@ -14,10 +14,10 @@ our_code_starts_here:
   mov eax, 0xffffffff
   cmp eax, 0xffffffff
   jne if_false_1
-  mov eax, 10
+  mov eax, 20
   jmp done_1
 if_false_1:
-  mov eax, 4
+  mov eax, 10
 done_1:
   mov esp, ebp
   pop ebp
@@ -33,4 +33,3 @@ err_if_not_bool:
 err_logic_not_bool:
   push 2
 end_of_program:
-
