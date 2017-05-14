@@ -167,14 +167,33 @@ and to_mips_dst (a : arg) : (mips_instruction list * mips_arg * mips_instruction
     let postlude = [] in
     (prelude, MReg(r), postlude)
   | RegOffset(i, r) ->
-    (* EBX is just a tmp register we are using for this purpose *)
-    let prelude = [
-      MLW(r, EBX, i); (*load r into ebx*)
-    ] in
-    (* EBX is just a tmp register we are using for this purpose *)
-    let postlude = [
-      MSW(r, EBX, i); (*store ebx into r*)
-    ] in
+
+    let prelude = 
+      if i < 0 then
+      [
+        MMOV(EDX, r);
+        MSUBI(EDX, (-1*i));
+        MLW(EDX, EBX, 0);
+      ]
+      else 
+      [
+        MLW(r, EBX, i);
+      ]
+    in
+
+    let postlude = 
+      if i < 0 then
+      [
+        MMOV(EDX, r);
+        MSUBI(EDX, (-1*i));
+        MSW(EDX, EBX, 0);
+      ]
+      else 
+      [
+        MSW(r, EBX, i);
+      ]
+    in
+
     (prelude, MReg(EBX), postlude)
   | Sized(s, a') -> (to_mips_dst a') (* dont care about size in our processor *)
 
@@ -190,11 +209,23 @@ and to_mips_src (a : arg) : (mips_instruction list * mips_arg) =
     let prelude = [] in
     (prelude, MReg(r))
   | RegOffset(i, r) ->
-    let prelude = [
-      (* ECX is just a tmp register we are using for this purpose *)
-      MLW(r, ECX, i); (*load r into ecx*)
-    ] in
-    (prelude, MReg(ECX))
+(*
+    (printf "reg offset: %d\n" (-1*i));
+*)
+    let prelude = 
+      if i < 0 then
+      [
+        MMOV(EDX, r);
+        MSUBI(EDX, (-1*i));
+        MLW(EDX, ECX, 0);
+      ]
+      else 
+      [
+        MLW(r, ECX, i);
+      ]
+      in
+      (prelude, MReg(ECX))
+
   | Sized(s, a') -> (to_mips_src a') (* dont care about size in our processor *)
 
 and to_mips (il : instruction list) : (mips_instruction list * (string * int) list) = 

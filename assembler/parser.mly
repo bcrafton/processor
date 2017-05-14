@@ -19,30 +19,38 @@ open Types
 %%
 
 reg :
-  | REAX { Reg(EAX) }
-  | REBX { Reg(EBX) }
-  | RECX { Reg(ECX) }
-  | REDX { Reg(EDX) }
-  | RESP { Reg(ESP) }
-  | REBP { Reg(EBP) }
+  | REAX { EAX }
+  | REBX { EBX }
+  | RECX { ECX }
+  | REDX { EDX }
+  | RESP { ESP }
+  | REBP { EBP }
+
+rreg :
+  | reg { Reg($1) }
 
 const :
   | NUM { Const($1) }
 
 reg_offset :
-  | LBRACKET reg PLUS 
+  | LBRACKET reg PLUS NUM RBRACKET { RegOffset($4, $2) }
+  | LBRACKET reg MINUS NUM RBRACKET { RegOffset(-1*$4, $2) }
 
-imm :
+src :
   | const { $1 }
-  | reg { $1 }
+  | rreg { $1 }
+  | reg_offset { $1 }
+
+dst :
+  | rreg { $1 }
   | reg_offset { $1 }
 
 inst :
-  | MOV reg COMMA imm { IMov($2, $4) }
-  | ADD reg COMMA imm { IAdd($2, $4) }
-  | SUB reg COMMA imm { ISub($2, $4) }
-  | MUL reg COMMA imm { IMul($2, $4) }
-  | CMP reg COMMA imm { ICmp($2, $4) }
+  | MOV dst COMMA src { IMov($2, $4) }
+  | ADD dst COMMA src { IAdd($2, $4) }
+  | SUB dst COMMA src { ISub($2, $4) }
+  | MUL dst COMMA src { IMul($2, $4) }
+  | CMP dst COMMA src { ICmp($2, $4) }
 
   | JO LABEL { IJo($2) }
   | JE LABEL { IJe($2) }
@@ -57,19 +65,19 @@ inst :
 
   | RET { IRet }
 
-  | AND reg COMMA imm { IAnd($2, $4) }
-  | OR reg COMMA imm { IOr($2, $4) }
-  | XOR reg COMMA imm { IXor($2, $4) }
+  | AND dst COMMA src { IAnd($2, $4) }
+  | OR dst COMMA src { IOr($2, $4) }
+  | XOR dst COMMA src { IXor($2, $4) }
 
-  | SHL reg COMMA imm { IShl($2, $4) }
-  | SHR reg COMMA imm { IShr($2, $4) }
-  | SAR reg COMMA imm { ISar($2, $4) }
+  | SHL dst COMMA src { IShl($2, $4) }
+  | SHR dst COMMA src { IShr($2, $4) }
+  | SAR dst COMMA src { ISar($2, $4) }
 
-  | PUSH imm { IPush($2) }
-  | POP reg { IPop($2) }
+  | PUSH src { IPush($2) }
+  | POP rreg { IPop($2) }
   | CALL LABEL { ICall($2) }
 
-  | TEST reg COMMA imm { ITest($2, $4) }
+  | TEST dst COMMA src { ITest($2, $4) }
 
   | LABEL COLON { ILabel($1) }
 
