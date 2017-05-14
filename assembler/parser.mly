@@ -4,82 +4,78 @@ open Types
 %}
 
 %token <int> NUM
-%token <string> ID
-%token DEF ADD1 SUB1 LPARENSPACE LPARENNOSPACE RPAREN LET IN EQUAL COMMA PLUS MINUS TIMES IF COLON ELSECOLON EOF PRINT PRINTSTACK TRUE FALSE ISBOOL ISNUM EQEQ LESS GREATER LESSEQ GREATEREQ AND OR NOT IAND
-
-%left PLUS MINUS TIMES GREATER LESS GREATEREQ LESSEQ EQEQ AND OR IAND
+%token <string> LABEL
+%token LPARENSPACE LPARENNOSPACE RPAREN COMMA PLUS MINUS TIMES COLON EOF MOV ADD SUB MUL CMP JO JE JNE JL JLE JG JGE JMP JZ JNZ RET AND OR XOR SHL SHR SAR PUSH POP CALL TEST REAX REBX RECX REDX RESP REBP SECTION TEXT
 
 
-%type <(Lexing.position * Lexing.position) Types.program> program
 
-%start program
+%left MOV ADD SUB MUL CMP JO JE JNE JL JLE JG JMP JZ JNZ RET AND OR XOR SHL SHR SAR PUSH POP CALL TEST LABEL SECTION
+
+
+%type <(Lexing.position * Lexing.position) Types.section> section
+
+%start section
 
 %%
 
+reg :
+  | REAX { Reg(EAX) }
+  | REBX { Reg(EBX) }
+  | RECX { Reg(ECX) }
+  | REDX { Reg(EDX) }
+  | RESP { Reg(ESP) }
+  | REBP { Reg(EBP) }
+
 const :
-  | NUM { ENumber($1, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | TRUE { EBool(true, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | FALSE { EBool(false, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
+  | NUM { Const($1) }
 
-prim1 :
-  | ADD1 { Add1 }
-  | SUB1 { Sub1 }
-  | NOT { Not }
-  | PRINT { Print }
-  | ISBOOL { IsBool }
-  | ISNUM { IsNum }
-  | PRINTSTACK { PrintStack }
-
-binds :
-  | ID EQUAL expr { [($1, $3, (Parsing.rhs_start_pos 1, Parsing.rhs_end_pos 1))] }
-  | ID EQUAL expr COMMA binds { ($1, $3, (Parsing.rhs_start_pos 1, Parsing.rhs_end_pos 1))::$5 }
-
-instruction:
-  | IAND const COMMA const { EPrim2(And, $2, $4, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-
-binop_expr :
-  | prim1 LPARENNOSPACE expr RPAREN { EPrim1($1, $3, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | ID LPARENNOSPACE exprs RPAREN { EApp($1, $3, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | ID LPARENNOSPACE RPAREN { EApp($1, [], (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | LPARENSPACE expr RPAREN { $2 }
-  | LPARENNOSPACE expr RPAREN { $2 }
-  | binop_expr PLUS binop_expr { EPrim2(Plus, $1, $3, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | binop_expr MINUS binop_expr { EPrim2(Minus, $1, $3, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | binop_expr TIMES binop_expr { EPrim2(Times, $1, $3, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | binop_expr AND binop_expr { EPrim2(And, $1, $3, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | binop_expr OR binop_expr { EPrim2(Or, $1, $3, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | binop_expr GREATER binop_expr { EPrim2(Greater, $1, $3, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | binop_expr GREATEREQ binop_expr { EPrim2(GreaterEq, $1, $3, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | binop_expr LESS binop_expr { EPrim2(Less, $1, $3, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | binop_expr LESSEQ binop_expr { EPrim2(LessEq, $1, $3, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | binop_expr EQEQ binop_expr { EPrim2(Eq, $1, $3, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
+imm :
   | const { $1 }
-  | ID { EId($1, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | instruction { $1 }
+  | reg { $1 }
 
-expr :
-  | LET binds IN expr { ELet($2, $4, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | IF expr COLON expr ELSECOLON expr { EIf($2, $4, $6, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | binop_expr { $1 }
+inst :
+  | MOV reg COMMA imm { IMov($2, $4) }
+  | ADD reg COMMA imm { IAdd($2, $4) }
+  | SUB reg COMMA imm { ISub($2, $4) }
+  | MUL reg COMMA imm { IMul($2, $4) }
+  | CMP reg COMMA imm { ICmp($2, $4) }
 
-exprs :
-  | expr { [$1] }
-  | expr COMMA exprs { $1::$3 }
+  | JO LABEL { IJo($2) }
+  | JE LABEL { IJe($2) }
+  | JNE LABEL { IJne($2) }
+  | JL LABEL { IJl($2) }
+  | JLE LABEL { IJle($2) }
+  | JG LABEL { IJg($2) }
+  | JGE LABEL { IJge($2) }
+  | JMP LABEL { IJmp($2) }
+  | JZ LABEL { IJz($2) }
+  | JNZ LABEL { IJnz($2) }
 
-decl :
-  | DEF ID LPARENNOSPACE RPAREN COLON expr { DFun($2, [], $6, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | DEF ID LPARENNOSPACE ids RPAREN COLON expr { DFun($2, $4, $7, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
+  | RET { IRet }
 
-ids :
-  | ID { [$1, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())] }
-  | ID COMMA ids { ($1, (Parsing.rhs_start_pos 1, Parsing.rhs_end_pos 1))::$3 }
+  | AND reg COMMA imm { IAnd($2, $4) }
+  | OR reg COMMA imm { IOr($2, $4) }
+  | XOR reg COMMA imm { IXor($2, $4) }
 
-decls :
-  | decl { [$1] }
-  | decl decls { $1::$2 }
+  | SHL reg COMMA imm { IShl($2, $4) }
+  | SHR reg COMMA imm { IShr($2, $4) }
+  | SAR reg COMMA imm { ISar($2, $4) }
 
-program :
-  | decls expr EOF { Program($1, $2, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
-  | expr EOF { Program([], $1, (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())) }
+  | PUSH imm { IPush($2) }
+  | POP reg { IPop($2) }
+  | CALL LABEL { ICall($2) }
+
+  | TEST reg COMMA imm { ITest($2, $4) }
+
+  | LABEL COLON { ILabel($1) }
+
+
+insts :
+  | inst { [$1] }
+  | inst insts { $1::$2 }
+
+section : 
+  | SECTION TEXT insts EOF { Section( $3 ) }
+
 
 %%

@@ -250,3 +250,13 @@ and 'a aprogram =
   | AProgram of 'a adecl list * 'a aexpr * 'a
 
 
+type 'a section = 
+  | Section of instruction list
+
+
+
+
+
+
+
+

@@ -1,1 +1,1 @@
-This directory is for generated files from the compiler
+This directory is for generated files from the assembler

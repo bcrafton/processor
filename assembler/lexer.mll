@@ -7,6 +7,8 @@
 let dec_digit = ['0'-'9']
 let signed_int = dec_digit+ | ('-' dec_digit+)
 
+let hex_number = ['0']['x' 'X']['0'-'9' 'a'-'f' 'A'-'F']+
+
 let ident = ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']*
 
 let blank = [' ' '\t']+
@@ -20,42 +22,56 @@ rule token = parse
   | blank { token lexbuf }
   | '\n' { new_line lexbuf; token lexbuf }
   | signed_int as x { NUM (int_of_string x) }
-  | "def" { DEF }
-  | "print" { PRINT }
-  | "printStack" { PRINTSTACK }
-  | "true" { TRUE }
-  | "false" { FALSE }
-  | "isbool" { ISBOOL }
-  | "isnum" { ISNUM }
-  | "add1" { ADD1 }
-  | "sub1" { SUB1 }
-  | "if" { IF }
+  | hex_number as x { NUM (int_of_string x) }
+
+  | "mov" { MOV }
+  | "add" { ADD }
+  | "sub" { SUB }
+  | "mul" { MUL }
+  | "cmp" { CMP }
+  | "jo" { JO }
+  | "je" { JE }
+  | "jne" { JNE }
+  | "jl" { JL }
+  | "jle" { JLE }
+  | "jg" { JG }
+  | "jge" { JGE }
+  | "jmp" { JMP }
+  | "jz" { JZ }
+  | "jnz" { JNZ }
+  | "ret" { RET }
+  | "and" { AND }
+  | "or" { OR }
+  | "xor" { XOR }
+  | "shl" { SHL }
+  | "shr" { SHR }
+  | "sar" { SAR }
+  | "push" { PUSH }
+  | "pop" { POP }
+  | "call" { CALL }
+  | "test" { TEST }
+
+  | "eax" { REAX }
+  | "ebx" { REBX }
+  | "ecx" { RECX }
+  | "edx" { REDX }
+  | "esp" { RESP }
+  | "ebp" { REBP }
+
   | ":" { COLON }
-  | "else:" { ELSECOLON }
-  | "let" { LET }
-  | "in" { IN }
-  | "=" { EQUAL }
   | "," { COMMA }
   | "(" { LPARENNOSPACE }
   | ")" { RPAREN }
   | "+" { PLUS }
   | "-" { MINUS }
   | "*" { TIMES }
-  | "==" { EQEQ }
-  | "<" { LESS }
-  | ">" { GREATER }
-  | "<=" { LESSEQ }
-  | ">=" { GREATEREQ }
-  | "&&" { AND }
-  | "||" { OR }
-  | "!" { NOT }
-  | "and" { IAND }
-  | ident as x { ID x }
+
+  | "section" { SECTION }
+  | ".text"    { TEXT }
+
+  | ident as x { LABEL x }
   | eof { EOF }
   | _ as c { failwith (sprintf "Unrecognized character: %c" c) }
-
-
-
 
 
 
