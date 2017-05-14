@@ -15,7 +15,7 @@ let () =
     | Left errs ->
        printf "Errors:\n%s\n" (ExtString.String.join "\n" (print_errors errs))
     | Right program -> 
-      let outfile = open_out (out_dir ^ name ^ ".hex") in
+      let outfile = open_out (out_dir ^ name ^ ".s") in
       fprintf outfile "%s" program
 
   in
