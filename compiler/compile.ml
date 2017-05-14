@@ -22,7 +22,7 @@ and is_imm e =
 ;;
 
 
-let const_true = HexConst (0xFFFFFFFF)
+let const_true = HexConst(0xFFFFFFFF)
 let const_false = HexConst(0x7FFFFFFF)
 let bool_mask = HexConst(0x80000000)
 let tag_as_bool = HexConst(0x00000001)
@@ -368,6 +368,8 @@ let anf (p : tag program) : unit aprogram =
 let r_to_asm (r : reg) : string =
   match r with
   | EAX -> "eax"
+  | EBX -> "ebx"
+  | ECX -> "ecx"
   | EDX -> "edx"
   | ESP -> "esp"
   | EBP -> "ebp"
@@ -606,6 +608,27 @@ let rec compile_fun (fun_name : string) (args : string list) (body : tag aexpr) 
   let compiled_body = (compile_aexpr body 1 env (List.length args) false) in
   prelude @ compiled_body @ postlude
 
+and compile_main (body : tag aexpr) (stack_start : int) : instruction list = 
+  let offset = (count_vars body) in 
+  let prelude = [
+    ILabel("our_code_starts_here");
+    IMov(Reg(EAX), Const(0)); (* First inst = NOP *)
+    IMov(Reg(ESP), Const(stack_start));
+    IMov(Reg(EBP), Const(stack_start));    
+    (* dont think pushing these is necessary but we need the offset *)
+    IPush(Reg(EBP));
+    IMov(Reg(EBP), Reg(ESP));
+    IAdd(Reg(ESP), Const(-1*word_size*offset));
+  ] in
+  (* dont think this is necessary, but these shud end up as same *)
+  let postlude = [
+    IMov(Reg(ESP), Reg(EBP));
+    IPop(Reg(EBP));
+  ] in  
+  (* why is stack index = 1 *)
+  let compiled_body = (compile_aexpr body 1 [] 0 false) in
+  prelude @ compiled_body @ postlude
+  
 and compile_aexpr (e : tag aexpr) (si : int) (env : arg envt) (num_args : int) (is_tail : bool) : instruction list =
   match e with
   | ALet(var, bind, body, t) ->
@@ -624,21 +647,23 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
     let compile_cond = (compile_imm cond env) in
     let compile_then = (compile_aexpr thn si env num_args is_tail) in
     let compile_else = (compile_aexpr els si env num_args is_tail) in
-    let else_label = (sprintf "if_false_%d" t) in
+    let if_false_label = (sprintf "if_false_%d" t) in
     let done_label = (sprintf "done_%d" t) in
     (check_bool_if compile_cond) @
     [
       IMov(Reg(EAX), compile_cond);
-      ICmp(Reg(EAX), Const(0xFFFFFFFF));
-      IJne(else_label);
+      ICmp(Reg(EAX), HexConst(0xFFFFFFFF));
+      IJne(if_false_label);
     ] @
     compile_then @
     [
       IJmp(done_label);
-      ILabel(else_label);
+      ILabel(if_false_label);
     ] @
     compile_else @
-    [ILabel(done_label);]
+    [
+      ILabel(done_label);
+    ]
 
   | CPrim1(op, e, t) -> 
     let e_reg = (compile_imm e env) in
@@ -883,7 +908,8 @@ let get_env (args : string list) : arg envt =
   let rec aux (args : string list) (index : int) : arg envt =
     match args with
     | first :: rest ->
-      (first, RegOffset(8+index*4, EBP)) :: (aux rest (index+1))
+      (* changing from 8 -> 2, 4 -> word_size (1) *)
+      (first, RegOffset(2+index*word_size, EBP)) :: (aux rest (index+1))
     | [] -> []
   in
   (aux args 0)
@@ -897,32 +923,30 @@ let compile_decl (d : tag adecl) : instruction list =
 
 let compile_prog (prog : tag aprogram) : string =
   let prelude =
-    "section .text
-extern error
-extern print
-global our_code_starts_here" in
-let errors = [
-      (* arith expected number *)
-      ILabel("err_arith_not_num");
-      IPush(Const(err_ARITH_NOT_NUM));
-      ICall("error");
-      (* comp expected number *)
-      ILabel("err_comp_not_num");
-      IPush(Const(err_COMP_NOT_NUM));
-      ICall("error");
-      (* overflow *)
-      ILabel("err_overflow");
-      IPush(Const(err_OVERFLOW));
-      ICall("error");
-      (* if expects boolean *)
-      ILabel("err_if_not_bool");
-      IPush(Const(err_IF_NOT_BOOL));
-      ICall("error");
-      (* logical operator expects boolean *)
-      ILabel("err_logic_not_bool");
-      IPush(Const(err_LOGIC_NOT_BOOL));
-      ICall("error");
-    ] in
+    "section .text" in
+  let errors = [
+    (* jump to the end of the program *)
+    IJmp("end_of_program");
+
+    (* arith expected number *)
+    ILabel("err_arith_not_num");
+    IPush(Const(err_ARITH_NOT_NUM));
+    (* comp expected number *)
+    ILabel("err_comp_not_num");
+    IPush(Const(err_COMP_NOT_NUM));
+    (* overflow *)
+    ILabel("err_overflow");
+    IPush(Const(err_OVERFLOW));
+    (* if expects boolean *)
+    ILabel("err_if_not_bool");
+    IPush(Const(err_IF_NOT_BOOL));
+    (* logical operator expects boolean *)
+    ILabel("err_logic_not_bool");
+    IPush(Const(err_LOGIC_NOT_BOOL));
+
+    (* jump to the end of the program *)
+    ILabel("end_of_program");
+  ] in
   match prog with
   | AProgram(fns, body, t) ->
     (* iterate through each decl and get the instruction list *)
@@ -933,10 +957,14 @@ let errors = [
         (compile_decl first) @ (compile_fns rest)
       | [] -> []
     in
+    let start = 
+    [
+      IJmp("our_code_starts_here");
+    ] in
     let compiled_fns = (compile_fns fns) in
-    let main = (compile_decl (ADFun("our_code_starts_here", [], body, t))) in
-
-    let as_assembly_string = (to_asm (compiled_fns @ main @ errors)) in
+    let main = (compile_main body stack_start) in
+    let il = (start @ compiled_fns @ main @ errors) in
+    let as_assembly_string = (to_asm il) in
     sprintf "%s%s\n" prelude as_assembly_string
     
   
