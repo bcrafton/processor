@@ -14,16 +14,6 @@ main: *.ml parser.mly lexer.mll
 	$(BUILD) -package $(PKGS) main.native
 	mv main.native main
 
-test: *.ml parser.mly lexer.mll
-	$(BUILD) -package $(PKGS) test.native
-	mv test.native test
-
-output/%.run: output/%.o main.c
-	clang -mstackrealign -g -m32 -o $@ main.c $<
-
-output/%.o: output/%.s
-	nasm -f $(FORMAT) -o $@ $<
-
 .PRECIOUS: output/%.s
 output/%.s: input/%.diamond main
 	./main $< > $@
