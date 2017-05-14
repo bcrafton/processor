@@ -3,10 +3,24 @@
 
 #define TEST_DURATION 1000
 
+typedef enum test_type{
+  BINARY_TEST,
+  CODE_TEST,
+} test_type_t;
+
+typedef struct test{
+  char name[25];
+  test_type_t test_type;
+
+} test_t;
+
 static void dump_memory(int memory_id, const char* test_name);
-static void load_program(char* filename);
+static void load_program(test_t* t);
 static void clear_memory(int memory_id);
-static bool check(const char* test_name);
+static bool check(test_t* t);
+static bool check_binary(const char* test_name);
+static bool check_code();
+
 
 static WORD dmemory[DMEMORY_SIZE];
 static REGISTER regfile[REGFILE_SIZE];
@@ -15,66 +29,73 @@ static INSTRUCTION imemory[IMEMORY_SIZE];
 static TIME test_start_time;
 
 static char buffer[100];
-const char* program_path = "../test/programs/binary/src/";
+
+const char* binary_program_path = "../test/programs/bin/";
+const char* code_program_path = "../test/programs/code/bin/";
+const char* asm_program_path = "../test/programs/asm/bin/";
+
 const char* actual_path = "../test/actual/";
 const char* expected_path = "../test/expected/";
 
-const char* tests[] = {
+static test_t tests[] = {
 
-"fn_add",
-"if_true",
-"if_false",
+{"fn_add", BINARY_TEST},
 
-"addi",
-"subi",
-//"noti",
-"andi",
-"ori",
-"nandi",
-"nori",
-"movi",
-"sari",
-"shri",
-"shli",
-"xori",
+{"if_true", BINARY_TEST},
+{"if_false", BINARY_TEST},
+{"addi", BINARY_TEST},
+{"subi", BINARY_TEST},
+{"andi", BINARY_TEST},
 
-"add",
-"sub",
-//"not",
-"and",
-"or",
-"nand",
-"nor",
-"mov",
-"sar",
-"shr",
-"shl",
-"xor",
+{"ori", BINARY_TEST},
+{"nandi", BINARY_TEST},
+{"nori", BINARY_TEST},
+{"movi", BINARY_TEST},
+{"sari", BINARY_TEST},
 
-"lw",
-"sw",
-"la",
+{"shri", BINARY_TEST},
+{"shli", BINARY_TEST},
+{"xori", BINARY_TEST},
+{"add", BINARY_TEST},
+{"sub", BINARY_TEST},
 
-"sa",
-"jmp",
-"jo",
-"je",
-"jne",
-"jl",
-"jle",
-"jg",
-"jge",
-"jz",
-"jnz",
-"jr",
+{"and", BINARY_TEST},
+{"or", BINARY_TEST},
+{"nand", BINARY_TEST},
+{"nor", BINARY_TEST},
+{"mov", BINARY_TEST},
 
+{"sar", BINARY_TEST},
+{"shr", BINARY_TEST},
+{"shl", BINARY_TEST},
+{"xor", BINARY_TEST},
+{"lw", BINARY_TEST},
 
+{"sw", BINARY_TEST},
+{"la", BINARY_TEST},
+{"sa", BINARY_TEST},
+{"jmp", BINARY_TEST},
+{"jo", BINARY_TEST},
+
+{"je", BINARY_TEST},
+{"jne", BINARY_TEST},
+{"jl", BINARY_TEST},
+{"jle", BINARY_TEST},
+{"jg", BINARY_TEST},
+
+{"jge", BINARY_TEST},
+{"jz", BINARY_TEST},
+{"jnz", BINARY_TEST},
+{"jr", BINARY_TEST},
+
+{"if_true", CODE_TEST},
+{"if_false", CODE_TEST},
 
 };
 
 
 static int program_number;
-static int num_programs = sizeof(tests)/sizeof(const char*);
+static int num_programs = sizeof(tests)/sizeof(test_t);
 
 static PLI_INT32 mem_read(char* user_data)
 {    
@@ -223,9 +244,7 @@ static PLI_INT32 init(char* user_data)
 
     program_number = 0;
 
-    // load program
-    sprintf(buffer, "%s%s.hex", program_path, tests[program_number]);
-    load_program(buffer);
+    load_program(&(tests[program_number]));
 
     return 0; 
 }
@@ -259,19 +278,19 @@ static PLI_INT32 update(char* user_data)
     if(current_time - test_start_time > TEST_DURATION)
     {
 
-      bool pass = check(tests[program_number]);
+      bool pass = check(&(tests[program_number]));
       if(pass)
       {
-        printf("Test %s: Passed\n", tests[program_number]);
+        printf("Test %s: Passed\n", tests[program_number].name);
       }
       else
       {
-        printf("Test %s: Failed\n", tests[program_number]);
+        printf("Test %s: Failed\n", tests[program_number].name);
       }
 
       // dump memory
-      dump_memory(DMEM_ID, tests[program_number]);
-      dump_memory(REGFILE_ID, tests[program_number]);
+      dump_memory(DMEM_ID, tests[program_number].name);
+      dump_memory(REGFILE_ID, tests[program_number].name);
 
       // reset = 1
       reset = 1;
@@ -288,9 +307,7 @@ static PLI_INT32 update(char* user_data)
 
       if(program_number < num_programs)
       {
-        // load next program
-        sprintf(buffer, "%s%s.hex", program_path, tests[program_number]);
-        load_program(buffer);
+        load_program(&(tests[program_number]));
       }
       else
       {
@@ -361,13 +378,26 @@ static void dump_memory(int memory_id, const char* test_name)
   }
 }
 
-static void load_program(char* filename)
+static void load_program(test_t* t)
 {
+  switch(t->test_type)
+  {
+    case BINARY_TEST:
+      sprintf(buffer, "%s%s.hex", binary_program_path, t->name);
+      break;
+    case CODE_TEST:
+      sprintf(buffer, "%s%s.bc.s.hex", code_program_path, t->name);
+      break;
+    default:
+      fprintf(stderr, "invalid enum %s = %d\n", t->name, t->test_type);
+      assert(0);
+  }
+
   FILE *file;
-  file = fopen(filename, "r");
+  file = fopen(buffer, "r");
   if(file == NULL)
   {
-    fprintf(stderr, "could not find %s\n", filename);
+    fprintf(stderr, "could not find %s\n", buffer);
     assert(0);
   }
 
@@ -398,7 +428,35 @@ static void clear_memory(int memory_id)
   }
 }
 
-static bool check(const char* test_name)
+static bool check(test_t *t)
+{
+  switch(t->test_type)
+  {
+    case BINARY_TEST:
+      return check_binary(t->name);
+      break;
+    case CODE_TEST:
+      return check_code();
+      break;
+    default:
+      fprintf(stderr, "invalid enum %d\n", t->test_type);
+      assert(0);
+  }
+}
+
+static bool check_code(int test_number)
+{
+  REGISTER eax = 0x14;
+
+  if(regfile[0] != eax)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+static bool check_binary(const char* test_name)
 {
 
   WORD mem_val;
@@ -408,7 +466,7 @@ static bool check(const char* test_name)
   
   /////////////////
 
-  sprintf(buffer, "%s/mem/%s.mem.expected", expected_path, test_name);  
+  sprintf(buffer, "%smem/%s.mem.expected", expected_path, test_name); 
   file = fopen(buffer, "r");
   if(file == NULL)
   {
@@ -432,7 +490,7 @@ static bool check(const char* test_name)
 
   /////////////////
   
-  sprintf(buffer, "%s/reg/%s.reg.expected", expected_path, test_name);  
+  sprintf(buffer, "%sreg/%s.reg.expected", expected_path, test_name);  
   file = fopen(buffer, "r");
   if(file == NULL)
   {
