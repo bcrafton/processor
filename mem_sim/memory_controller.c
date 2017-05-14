@@ -15,7 +15,7 @@ static INSTRUCTION imemory[IMEMORY_SIZE];
 static TIME test_start_time;
 
 static char buffer[100];
-const char* program_path = "../test/programs/";
+const char* program_path = "../test/programs/binary/src/";
 const char* actual_path = "../test/actual/";
 const char* expected_path = "../test/expected/";
 
