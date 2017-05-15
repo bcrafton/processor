@@ -96,9 +96,11 @@ static test_t tests[] = {
 {"fib10", CODE_TEST, 110},
 
 {"fn_add", CODE_TEST, 6},
+{"two_fun", CODE_TEST, 60},
 */
 
-{"two_fun", CODE_TEST, 60},
+{"a", CODE_TEST, 60},
+{"b", CODE_TEST, 60},
 
 };
 
