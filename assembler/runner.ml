@@ -34,8 +34,7 @@ let assemble_file name input_file : (string * string) =
   let sect = parse_file name input_file in
   match sect with 
   | Section(il) ->
-    let bin = (assemble_to_string il) in
-    let asm = (assemble_to_mips il) in
+    let (bin, asm) = (assemble il) in
     (bin, asm)
 
 let print_errors exns =
