@@ -878,7 +878,7 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
     match args with
     | first :: rest ->
       let compile_arg = (compile_imm first env) in
-      IPush(Sized(DWORD_PTR, compile_arg)) :: (push_parameters rest env)
+      (push_parameters rest env) @ [IPush(Sized(DWORD_PTR, compile_arg))]
     | [] -> []
     in
     let prelude = (push_parameters args env) in
