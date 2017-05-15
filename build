@@ -1,0 +1,11 @@
+cd .;
+cd compiler;
+make clean;
+make;
+./main;
+cd ../assembler;
+make clean;
+make;
+./main;
+cd ../processor;
+make

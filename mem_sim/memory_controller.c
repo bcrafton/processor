@@ -39,7 +39,7 @@ const char* actual_path = "../test/actual/";
 const char* expected_path = "../test/expected/";
 
 static test_t tests[] = {
-
+/*
 {"fn_add", BINARY_TEST, 0},
 
 {"if_true", BINARY_TEST, 0},
@@ -96,6 +96,9 @@ static test_t tests[] = {
 {"fib10", CODE_TEST, 110},
 
 {"fn_add", CODE_TEST, 6},
+*/
+
+{"two_fun", CODE_TEST, 60},
 
 };
 
