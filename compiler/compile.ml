@@ -381,13 +381,10 @@ let rec arg_to_asm (a : arg) : string =
   | Reg(r) -> r_to_asm r
   | RegOffset(n, r) ->
      if n >= 0 then
-       sprintf "[%s+%d]" (r_to_asm r) n
+       sprintf "[%s + %d]" (r_to_asm r) n
      else
-       sprintf "[%s-%d]" (r_to_asm r) (-1 * n)
-  | Sized(size, a) ->
-     sprintf "%s %s"
-             (match size with | DWORD_PTR -> "DWORD" | WORD_PTR -> "WORD" | BYTE_PTR -> "BYTE")
-             (arg_to_asm a)
+       sprintf "[%s - %d]" (r_to_asm r) (-1 * n)
+  | Sized(size, a) -> (arg_to_asm a)
 ;;
 
 let rec i_to_asm (i : instruction) : string =
@@ -598,7 +595,7 @@ let rec compile_fun (fun_name : string) (args : string list) (body : tag aexpr) 
     ILabel(fun_name);
     IPush(Reg(EBP));
     IMov(Reg(EBP), Reg(ESP));
-    IAdd(Reg(ESP), Const(-1*word_size*offset));
+    ISub(Reg(ESP), Const(word_size*offset));
   ] in
   let postlude = [
     IMov(Reg(ESP), Reg(EBP));
@@ -618,7 +615,7 @@ and compile_main (body : tag aexpr) (stack_start : int) : instruction list =
     (* dont think pushing these is necessary but we need the offset *)
     IPush(Reg(EBP));
     IMov(Reg(EBP), Reg(ESP));
-    IAdd(Reg(ESP), Const(-1*word_size*offset));
+    ISub(Reg(ESP), Const(word_size*offset));
   ] in
   (* dont think this is necessary, but these shud end up as same *)
   let postlude = [

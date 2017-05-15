@@ -62,6 +62,8 @@ rule token = parse
   | "," { COMMA }
   | "(" { LPARENNOSPACE }
   | ")" { RPAREN }
+  | "[" { LBRACKET }
+  | "]" { RBRACKET }
   | "+" { PLUS }
   | "-" { MINUS }
   | "*" { TIMES }
