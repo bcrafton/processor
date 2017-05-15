@@ -1,0 +1,10 @@
+def f(n):
+  if n == 0:
+    0
+  else:
+    if n == 1:
+      1
+    else:
+      f(n - 1) + f(n - 2)
+
+f(0)

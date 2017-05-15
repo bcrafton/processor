@@ -91,7 +91,11 @@ static test_t tests[] = {
 
 {"if_true", CODE_TEST, 20},
 {"if_false", CODE_TEST, 10},
-{"fib", CODE_TEST, 110},
+{"fib1", CODE_TEST, 1},
+{"fib0", CODE_TEST, 1},
+{"fib10", CODE_TEST, 110},
+
+{"fn_add", CODE_TEST, 6},
 
 };
 

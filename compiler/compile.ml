@@ -525,14 +525,14 @@ let check_two_bool (a1 : arg) (a2 : arg) (t : tag) : instruction list =
   let pass_label = (sprintf "pass_label_%d" t) in
   [
     IMov(Reg(EAX), a1);
-    IAnd(Reg(EAX), Sized(DWORD_PTR, Const(0x7FFFFFFF)));
-    ICmp(Reg(EAX), Sized(DWORD_PTR, Const(0x7FFFFFFF)));
+    IAnd(Reg(EAX), Sized(DWORD_PTR, HexConst(0x7FFFFFFF)));
+    ICmp(Reg(EAX), Sized(DWORD_PTR, HexConst(0x7FFFFFFF)));
     IJne(err_label);
   ] @
   [
     IMov(Reg(EAX), a2);
-    IAnd(Reg(EAX), Sized(DWORD_PTR, Const(0x7FFFFFFF)));
-    ICmp(Reg(EAX), Sized(DWORD_PTR, Const(0x7FFFFFFF)));
+    IAnd(Reg(EAX), Sized(DWORD_PTR, HexConst(0x7FFFFFFF)));
+    ICmp(Reg(EAX), Sized(DWORD_PTR, HexConst(0x7FFFFFFF)));
     IJne(err_label);
   ] @
   [IJmp(pass_label);] @
@@ -689,20 +689,20 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
       let done_label = (sprintf "done_%d" t) in
       [
         IMov(Reg(EAX), e_reg);
-        ICmp(Reg(EAX), Const(0xFFFFFFFF));
+        ICmp(Reg(EAX), HexConst(0xFFFFFFFF));
         IJe(true_label);
       ] @
       [
         IMov(Reg(EAX), e_reg);
-        ICmp(Reg(EAX), Const(0x7FFFFFFF));
+        ICmp(Reg(EAX), HexConst(0x7FFFFFFF));
         IJe(true_label);
       ] @
       [
-        IMov(Reg(EAX), Const(0x7FFFFFFF));
+        IMov(Reg(EAX), HexConst(0x7FFFFFFF));
         IJmp(done_label);
 
         ILabel(true_label);
-        IMov(Reg(EAX), Const(0xFFFFFFFF));
+        IMov(Reg(EAX), HexConst(0xFFFFFFFF));
 
         ILabel(done_label);
       ]
@@ -716,11 +716,11 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
         ITest(Reg(EAX), Const(0x00000001));
         IJnz(else_label);
 
-        IMov(Reg(EAX), Const(0xFFFFFFFF));
+        IMov(Reg(EAX), HexConst(0xFFFFFFFF));
         IJmp(done_label);
 
         ILabel(else_label);
-        IMov(Reg(EAX), Const(0x7FFFFFFF));
+        IMov(Reg(EAX), HexConst(0x7FFFFFFF));
         
         ILabel(done_label);
       ]
@@ -728,7 +728,7 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
       (check_bool_logic e_reg) @
       [
         IMov(Reg(EAX), e_reg);
-        IXor(Reg(EAX), Sized(DWORD_PTR, Const(0x80000000)));
+        IXor(Reg(EAX), Sized(DWORD_PTR, HexConst(0x80000000)));
       ]
 
     | PrintStack -> failwith "print stack not implemented"
@@ -789,11 +789,11 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
         ICmp(Reg(EAX), compile_right);
         IJg(true_label);
 
-        IMov(Reg(EAX), Const(0x7FFFFFFF));
+        IMov(Reg(EAX), HexConst(0x7FFFFFFF));
         IJmp(done_label);
 
         ILabel(true_label);
-        IMov(Reg(EAX), Const(0xFFFFFFFF));
+        IMov(Reg(EAX), HexConst(0xFFFFFFFF));
 
         ILabel(done_label);
       ]
@@ -806,11 +806,11 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
         ICmp(Reg(EAX), compile_right);
         IJge(true_label);
 
-        IMov(Reg(EAX), Const(0x7FFFFFFF));
+        IMov(Reg(EAX), HexConst(0x7FFFFFFF));
         IJmp(done_label);
 
         ILabel(true_label);
-        IMov(Reg(EAX), Const(0xFFFFFFFF));
+        IMov(Reg(EAX), HexConst(0xFFFFFFFF));
 
         ILabel(done_label);
       ]
@@ -823,11 +823,11 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
         ICmp(Reg(EAX), compile_right);
         IJl(true_label);
 
-        IMov(Reg(EAX), Const(0x7FFFFFFF));
+        IMov(Reg(EAX), HexConst(0x7FFFFFFF));
         IJmp(done_label);
 
         ILabel(true_label);
-        IMov(Reg(EAX), Const(0xFFFFFFFF));
+        IMov(Reg(EAX), HexConst(0xFFFFFFFF));
 
         ILabel(done_label);
       ]
@@ -840,11 +840,11 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
         ICmp(Reg(EAX), compile_right);
         IJle(true_label);
 
-        IMov(Reg(EAX), Const(0x7FFFFFFF));
+        IMov(Reg(EAX), HexConst(0x7FFFFFFF));
         IJmp(done_label);
 
         ILabel(true_label);
-        IMov(Reg(EAX), Const(0xFFFFFFFF));
+        IMov(Reg(EAX), HexConst(0xFFFFFFFF));
 
         ILabel(done_label);
       ]
@@ -857,11 +857,11 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
         ICmp(Reg(EAX), compile_right);
         IJe(true_label);
 
-        IMov(Reg(EAX), Const(0x7FFFFFFF));
+        IMov(Reg(EAX), HexConst(0x7FFFFFFF));
         IJmp(done_label);
 
         ILabel(true_label);
-        IMov(Reg(EAX), Const(0xFFFFFFFF));
+        IMov(Reg(EAX), HexConst(0xFFFFFFFF));
 
         ILabel(done_label);
       ]
