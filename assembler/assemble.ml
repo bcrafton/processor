@@ -11,7 +11,7 @@ let rec to_bin (il : instruction list) : string =
 
 and to_asm (il : instruction list) : string =
   let (mips, labels) = (to_mips il) in
-  let asm = (assemble_asm_program mips labels) in
+  let asm = (assemble_asm_program mips labels 0) in
   asm
 
 and to_mips (il : instruction list) : (mips_instruction list * (string * int) list) = 
@@ -460,10 +460,10 @@ and search_label (labels : (string * int) list) (label : string) : int =
   | (label',addr)::rest ->
      if label' = label then addr else (search_label rest label)
 
-and assemble_asm_program (il : mips_instruction list) (labels : (string * int) list) : string = 
+and assemble_asm_program (il : mips_instruction list) (labels : (string * int) list) (inst_num : int) : string = 
   match il with
   | i :: rest ->
-    sprintf "%s\n%s" (assemble_instruction_asm i labels) (assemble_asm_program rest labels)
+    sprintf "%s\n%s" (assemble_instruction_asm i labels) (assemble_asm_program rest labels (inst_num+1))
   | [] -> ""
 
 and get_labels (labels : (string * int) list) (inst_num : int) : string = 
