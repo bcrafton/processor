@@ -9,7 +9,10 @@ test/actual/*
 
 test/programs/code/asm/*
 test/programs/code/bin/*
+test/programs/code/mips/*
+
 test/programs/asm/bin/*
+test/programs/asm/mips/*
 
 assembler/_build
 assembler/_build/*

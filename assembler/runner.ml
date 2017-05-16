@@ -30,9 +30,11 @@ let parse_file name input_file =
   let lexbuf = Lexing.from_channel input_file in
   parse name lexbuf
 
-let assemble name input_file : string = 
+let assemble name input_file : (string * string) = 
   let sect = parse_file name input_file in
   match sect with 
   | Section(il) ->
-    (to_bin il);;
+    let bin = (to_bin il) in
+    let debug = (to_asm il) in
+    (bin, debug)
 

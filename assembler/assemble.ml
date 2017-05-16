@@ -463,10 +463,77 @@ and search_label (labels : (string * int) list) (label : string) : int =
 and assemble_asm_program (il : mips_instruction list) (labels : (string * int) list) : string = 
   match il with
   | i :: rest ->
-    sprintf "%s\n%s" (assemble_bin_instruction i labels) (assemble_asm_program rest labels)
+    sprintf "%s\n%s" (assemble_instruction_asm i labels) (assemble_asm_program rest labels)
   | [] -> ""
 
+and get_labels (labels : (string * int) list) (inst_num : int) : string = 
+  match labels with
+  | [] -> ""
+  | (label',addr)::rest ->
+     if addr = inst_num then label' ^ "\n" ^ (get_labels rest inst_num) else (get_labels rest inst_num)
 
+and assemble_instruction_asm (i : mips_instruction) (labels : (string * int) list) : string = 
+
+  match i with
+  |	MADD(dst, src) -> (sprintf "add %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+  |	MSUB(dst, src) -> (sprintf "sub %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+  |	MNOT(dst) -> failwith "not implemented"
+  |	MAND(dst, src) -> (sprintf "and %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+  |	MOR(dst, src) -> (sprintf "or %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+  |	MNAND(dst, src) -> (sprintf "nand %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+  |	MNOR(dst, src) -> (sprintf "nor %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+  |	MMOV(dst, src) -> (sprintf "mov %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+  |	MSAR(dst, src) -> (sprintf "sar %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+  |	MSHR(dst, src) -> (sprintf "shr %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+  |	MSHL(dst, src) -> (sprintf "shl %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+  |	MXOR(dst, src) -> (sprintf "xor %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+  |	MTEST(dst, src) -> (sprintf "test %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+  |	MCMP(dst, src) -> (sprintf "cmp %s, %s" (assemble_register_asm dst) (assemble_register_asm src))
+
+  |	MADDI(dst, src) -> (sprintf "addi %s, %d" (assemble_register_asm dst) src)
+  |	MSUBI(dst, src) -> (sprintf "subi %s, %d" (assemble_register_asm dst) src)
+  |	MNOTI(dst) -> failwith "not implemented"
+  |	MANDI(dst, src) -> (sprintf "andi %s, %d" (assemble_register_asm dst) src)
+  |	MORI(dst, src) -> (sprintf "ori %s, %d" (assemble_register_asm dst) src)
+  |	MNANDI(dst, src) -> (sprintf "nandi %s, %d" (assemble_register_asm dst) src)
+  |	MNORI(dst, src) -> (sprintf "nori %s, %d" (assemble_register_asm dst) src)
+  |	MMOVI(dst, src) -> (sprintf "movi %s, %d" (assemble_register_asm dst) src)
+  |	MSARI(dst, src) -> (sprintf "sari %s, %d" (assemble_register_asm dst) src)
+  |	MSHRI(dst, src) -> (sprintf "shri %s, %d" (assemble_register_asm dst) src)
+  |	MSHLI(dst, src) -> (sprintf "shli %s, %d" (assemble_register_asm dst) src)
+  |	MXORI(dst, src) -> (sprintf "xori %s, %d" (assemble_register_asm dst) src)
+  |	MTESTI(dst, src) -> (sprintf "testi %s, %d" (assemble_register_asm dst) src)
+  |	MCMPI(dst, src) -> (sprintf "cmpi %s, %d" (assemble_register_asm dst) src)
+
+  (* data1 = address *)
+  (* data2 = write data *)
+  (* data2 = destination *)
+  |	MLW(addr, dest, offset) -> (sprintf "lw %s, %s, %d" (assemble_register_asm addr) (assemble_register_asm dest) offset)
+  |	MLA(addr, dest)         -> (sprintf "la %s, %d" (assemble_register_asm addr) dest)
+  |	MSW(addr, data, offset) -> (sprintf "sw %s, %s, %d" (assemble_register_asm addr) (assemble_register_asm data) offset)
+  |	MSA(addr, data)         -> (sprintf "sa %s, %d" (assemble_register_asm addr) data)
+
+  | MJUMP(label) -> (sprintf "jmp %d" (search_label labels label))
+  | MJO(label) -> (sprintf "jo %d" (search_label labels label))
+  | MJE(label) -> (sprintf "je %d" (search_label labels label))
+  | MJNE(label) -> (sprintf "jne %d" (search_label labels label))
+  | MJL(label) -> (sprintf "jl %d" (search_label labels label))
+  | MJLE(label) -> (sprintf "jle %d" (search_label labels label))
+  | MJG(label) -> (sprintf "jg %d" (search_label labels label))
+  | MJGE(label) -> (sprintf "jge %d" (search_label labels label))
+  | MJZ(label) -> (sprintf "jz %d" (search_label labels label))
+  | MJNZ(label) -> (sprintf "jnz %d" (search_label labels label))
+
+  | MJR(addr) -> (sprintf "jr %s" (assemble_register_asm addr))
+
+and assemble_register_asm (r : reg) : string = 
+  match r with
+  | EAX -> "eax"
+  | EBX -> "ebx"
+  | ECX -> "ecx"
+  | EDX -> "edx"
+  | ESP -> "esp"
+  | EBP -> "ebp"
 
 
 
