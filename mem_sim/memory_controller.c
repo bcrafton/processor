@@ -6,6 +6,7 @@
 typedef enum test_type{
   BINARY_TEST,
   CODE_TEST,
+  ASM_TEST,
 } test_type_t;
 
 typedef struct test{
@@ -20,6 +21,7 @@ static void clear_memory(int memory_id);
 static bool check();
 static bool check_binary();
 static bool check_code();
+static bool check_asm();
 static bool next_test();
 
 
@@ -101,6 +103,10 @@ static test_t tests[] = {
 
 {"a", CODE_TEST, 60},
 {"b", CODE_TEST, 60},
+
+{"push", ASM_TEST, 100},
+{"push1", ASM_TEST, 100},
+{"pop", ASM_TEST, 100},
 
 };
 
@@ -396,6 +402,9 @@ static void load_program()
     case CODE_TEST:
       sprintf(buffer, "%s%s.bc.s.hex", code_program_path, current_test->name);
       break;
+    case ASM_TEST:
+      sprintf(buffer, "%s%s.s.hex", asm_program_path, current_test->name);
+      break;
     default:
       fprintf(stderr, "invalid enum %s = %d\n", current_test->name, current_test->test_type);
       assert(0);
@@ -447,6 +456,9 @@ static bool check()
     case CODE_TEST:
       return check_code();
       break;
+    case ASM_TEST:
+      return check_asm();
+      break;
     default:
       fprintf(stderr, "invalid enum %d\n", current_test->test_type);
       assert(0);
@@ -456,6 +468,18 @@ static bool check()
 }
 
 static bool check_code()
+{
+  REGISTER ans = current_test->ans;
+
+  if(regfile[0] != ans)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+static bool check_asm()
 {
   REGISTER ans = current_test->ans;
 
