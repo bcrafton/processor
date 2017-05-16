@@ -28,7 +28,7 @@ let () =
       match ext with
       | Some("s") ->
         let input_file = open_in (in_dir ^ name) in
-        let program = assemble_file_to_string name input_file in
+        let program = assemble name input_file in
         let outfile = open_out (out_dir ^ name ^ ".hex") in
         fprintf outfile "%s" program
       | _ -> ()
