@@ -101,12 +101,12 @@ static test_t tests[] = {
 {"two_fun", CODE_TEST, 60},
 */
 
-//{"a", CODE_TEST, 60},
+{"a", CODE_TEST, 60},
 {"b", CODE_TEST, 60},
 
-//{"push", ASM_TEST, 100},
-//{"push1", ASM_TEST, 100},
-//{"pop", ASM_TEST, 100},
+{"push", ASM_TEST, 100},
+{"push1", ASM_TEST, 100},
+{"pop", ASM_TEST, 100},
 
 };
 

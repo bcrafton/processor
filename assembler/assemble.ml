@@ -461,10 +461,14 @@ and search_label (labels : (string * int) list) (label : string) : int =
      if label' = label then addr else (search_label rest label)
 
 and assemble_asm_program (il : mips_instruction list) (labels : (string * int) list) (inst_num : int) : string = 
-  let labels' = (get_labels labels inst_num) in
+
   match il with
   | i :: rest ->
-    (sprintf "%s %s | %s\n%s" labels' (assemble_bin_instruction i labels) (assemble_instruction_asm i labels) (assemble_asm_program rest labels (inst_num+1)))
+    let labels' = (get_labels labels inst_num) in
+    let bin = (assemble_bin_instruction i labels) in
+    let asm = (assemble_instruction_asm i labels) in
+    let ret = (sprintf "%s %s | %s\n%s" labels' bin asm (assemble_asm_program rest labels (inst_num+1))) in
+    ret
   | [] -> ""
 
 and get_labels (labels : (string * int) list) (inst_num : int) : string = 
