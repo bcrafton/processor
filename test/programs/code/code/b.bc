@@ -1,8 +1,11 @@
 
 def f(x):
-  g(x, 0)
+  if x == 10:
+    g(x)
+  else:
+    0
 
-def g(x, y):
+def g(x):
   if x == 10:
     30
   else:
