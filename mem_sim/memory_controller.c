@@ -1,8 +1,6 @@
 
 #include "memory_simulator.h"
 
-#define TEST_DURATION 500000
-
 typedef enum test_type{
   BINARY_TEST,
   CODE_TEST,
@@ -13,6 +11,7 @@ typedef struct test{
   char name[25];
   test_type_t test_type;
   int ans;
+  unsigned int sim_time;
 } test_t;
 
 static void dump_memory(int memory_id);
@@ -42,75 +41,75 @@ const char* expected_path = "../test/expected/";
 
 static test_t tests[] = {
 
-{"fn_add", BINARY_TEST, 0},
+{"fn_add", BINARY_TEST, 0, 1000},
 
-{"if_true", BINARY_TEST, 0},
-{"if_false", BINARY_TEST, 0},
-{"addi", BINARY_TEST, 0},
-{"subi", BINARY_TEST, 0},
-{"andi", BINARY_TEST, 0},
+{"if_true", BINARY_TEST, 0, 1000},
+{"if_false", BINARY_TEST, 0, 1000},
+{"addi", BINARY_TEST, 0, 1000},
+{"subi", BINARY_TEST, 0, 1000},
+{"andi", BINARY_TEST, 0, 1000},
 
-{"ori", BINARY_TEST, 0},
-{"nandi", BINARY_TEST, 0},
-{"nori", BINARY_TEST, 0},
-{"movi", BINARY_TEST, 0},
-{"sari", BINARY_TEST, 0},
+{"ori", BINARY_TEST, 0, 1000},
+{"nandi", BINARY_TEST, 0, 1000},
+{"nori", BINARY_TEST, 0, 1000},
+{"movi", BINARY_TEST, 0, 1000},
+{"sari", BINARY_TEST, 0, 1000},
 
-{"shri", BINARY_TEST, 0},
-{"shli", BINARY_TEST, 0},
-{"xori", BINARY_TEST, 0},
-{"add", BINARY_TEST, 0},
-{"sub", BINARY_TEST, 0},
+{"shri", BINARY_TEST, 0, 1000},
+{"shli", BINARY_TEST, 0, 1000},
+{"xori", BINARY_TEST, 0, 1000},
+{"add", BINARY_TEST, 0, 1000},
+{"sub", BINARY_TEST, 0, 1000},
 
-{"and", BINARY_TEST, 0},
-{"or", BINARY_TEST, 0},
-{"nand", BINARY_TEST, 0},
-{"nor", BINARY_TEST, 0},
-{"mov", BINARY_TEST, 0},
+{"and", BINARY_TEST, 0, 1000},
+{"or", BINARY_TEST, 0, 1000},
+{"nand", BINARY_TEST, 0, 1000},
+{"nor", BINARY_TEST, 0, 1000},
+{"mov", BINARY_TEST, 0, 1000},
 
-{"sar", BINARY_TEST, 0},
-{"shr", BINARY_TEST, 0},
-{"shl", BINARY_TEST, 0},
-{"xor", BINARY_TEST, 0},
-{"lw", BINARY_TEST, 0},
+{"sar", BINARY_TEST, 0, 1000},
+{"shr", BINARY_TEST, 0, 1000},
+{"shl", BINARY_TEST, 0, 1000},
+{"xor", BINARY_TEST, 0, 1000},
+{"lw", BINARY_TEST, 0, 1000},
 
-{"sw", BINARY_TEST, 0},
-{"la", BINARY_TEST, 0},
-{"sa", BINARY_TEST, 0},
-{"jmp", BINARY_TEST, 0},
-{"jo", BINARY_TEST, 0},
+{"sw", BINARY_TEST, 0, 1000},
+{"la", BINARY_TEST, 0, 1000},
+{"sa", BINARY_TEST, 0, 1000},
+{"jmp", BINARY_TEST, 0, 1000},
+{"jo", BINARY_TEST, 0, 1000},
 
-{"je", BINARY_TEST, 0},
-{"jne", BINARY_TEST, 0},
-{"jl", BINARY_TEST, 0},
-{"jle", BINARY_TEST, 0},
-{"jg", BINARY_TEST, 0},
+{"je", BINARY_TEST, 0, 1000},
+{"jne", BINARY_TEST, 0, 1000},
+{"jl", BINARY_TEST, 0, 1000},
+{"jle", BINARY_TEST, 0, 1000},
+{"jg", BINARY_TEST, 0, 1000},
 
-{"jge", BINARY_TEST, 0},
-{"jz", BINARY_TEST, 0},
-{"jnz", BINARY_TEST, 0},
-{"jr", BINARY_TEST, 0},
+{"jge", BINARY_TEST, 0, 1000},
+{"jz", BINARY_TEST, 0, 1000},
+{"jnz", BINARY_TEST, 0, 1000},
+{"jr", BINARY_TEST, 0, 1000},
 
-{"a", CODE_TEST, 60},
-{"b", CODE_TEST, 60},
-{"fn_add", CODE_TEST, 6},
-{"if_false", CODE_TEST, 10},
-{"if_true", CODE_TEST, 20},
+{"a", CODE_TEST, 60, 10000},
+{"b", CODE_TEST, 60, 10000},
+{"fn_add", CODE_TEST, 6, 10000},
+{"if_false", CODE_TEST, 10, 10000},
+{"if_true", CODE_TEST, 20, 10000},
 
-{"fib0", CODE_TEST, 0},
-{"fib1", CODE_TEST, 2},
-{"fib2", CODE_TEST, 2},
-{"fib3", CODE_TEST, 4},
-{"fib4", CODE_TEST, 6},
-{"fib5", CODE_TEST, 10},
-{"fib10", CODE_TEST, 110},
+{"fib0", CODE_TEST, 0, 10000},
+{"fib1", CODE_TEST, 2, 10000},
+{"fib2", CODE_TEST, 2, 10000},
+{"fib3", CODE_TEST, 4, 100000},
+{"fib4", CODE_TEST, 6, 100000},
+{"fib5", CODE_TEST, 10, 100000},
+{"fib10", CODE_TEST, 110, 500000},
 
-{"to_10", CODE_TEST, 20},
+{"to_10", CODE_TEST, 20, 10000},
 
-{"mov", ASM_TEST, 0},
-{"push", ASM_TEST, 100},
-{"pop", ASM_TEST, 100},
-{"push1", ASM_TEST, 100},
+{"mov", ASM_TEST, 0, 1000},
+{"push", ASM_TEST, 100, 1000},
+{"pop", ASM_TEST, 100, 1000},
+{"push1", ASM_TEST, 100, 1000},
 
 };
 
@@ -302,7 +301,7 @@ static PLI_INT32 update(char* user_data)
     current_time = time_h;
     current_time = (current_time << BITS_IN_INT) | time_l;
 
-    if(current_time - test_start_time > TEST_DURATION)
+    if(current_time - test_start_time > current_test->sim_time)
     {
 
       bool pass = check();
