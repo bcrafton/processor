@@ -1,0 +1,20 @@
+sudo apt-get install gcc;
+sudo apt-get install ocaml;
+sudo apt-get install iverilog;
+
+mkdir tmp;
+cd tmp;
+
+git clone https://github.com/mlin/ounit;
+cd ounit;
+sudo make;
+sudo make install;
+cd ..;
+
+git clone https://github.com/ygrek/ocaml-extlib;
+cd ocaml-extlib;
+sudo make;
+sudo make install;
+cd ..;
+
+sudo rm -rf tmp;

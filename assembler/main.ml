@@ -54,7 +54,7 @@ let () =
         fprintf outfile "%s" bin;
         close_out outfile;
 
-        let mips_out = open_out (mips_dir ^ name ^ ".d") in
+        let mips_out = open_out (mips_dir ^ name ^ ".m") in
         fprintf mips_out "%s" mips;
         close_out mips_out;
         
