@@ -11,7 +11,14 @@ let () =
 
     "a.bc.s";
     "b.bc.s";
-    
+
+    "fib0.bc.s";
+    "fib1.bc.s";
+    "fib2.bc.s";
+    "fib3.bc.s";
+    "fib4.bc.s";
+    "fib5.bc.s";
+ 
   ] in
 
   let asm_tests = [
@@ -39,8 +46,11 @@ let () =
         
         let outfile = open_out (out_dir ^ name ^ ".hex") in
         fprintf outfile "%s" bin;
+        close_out outfile;
+
         let debug_out = open_out (debug_dir ^ name ^ ".d") in
-        fprintf debug_out "%s" debug
+        fprintf debug_out "%s" debug;
+        close_out debug_out;
         
     in
 

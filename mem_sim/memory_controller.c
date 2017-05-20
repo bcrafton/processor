@@ -1,7 +1,7 @@
 
 #include "memory_simulator.h"
 
-#define TEST_DURATION 1000
+#define TEST_DURATION 10000
 
 typedef enum test_type{
   BINARY_TEST,
@@ -103,6 +103,13 @@ static test_t tests[] = {
 
 //{"a", CODE_TEST, 60},
 {"b", CODE_TEST, 60},
+{"fib0", CODE_TEST, 0},
+{"fib1", CODE_TEST, 2},
+{"fib2", CODE_TEST, 2},
+{"fib3", CODE_TEST, 4},
+{"fib4", CODE_TEST, 6},
+{"fib5", CODE_TEST, 10},
+
 
 //{"push", ASM_TEST, 100},
 //{"push1", ASM_TEST, 100},

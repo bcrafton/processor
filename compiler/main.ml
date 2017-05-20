@@ -11,6 +11,13 @@ let () =
 
     "a.bc";
     "b.bc";
+
+    "fib0.bc";
+    "fib1.bc";
+    "fib2.bc";
+    "fib3.bc";
+    "fib4.bc";
+    "fib5.bc";
     
   ] in
 
@@ -27,7 +34,8 @@ let () =
          printf "Errors:\n%s\n" (ExtString.String.join "\n" (print_errors errs))
       | Right program -> 
         let outfile = open_out (out_dir ^ name ^ ".s") in
-        fprintf outfile "%s" program
+        fprintf outfile "%s" program;
+        close_out outfile;
     in
 
     List.iter help code_tests
