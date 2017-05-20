@@ -21,6 +21,9 @@ let () =
     "fib3.bc.s";
     "fib4.bc.s";
     "fib5.bc.s";
+    "fib10.bc.s";
+
+    "to_10.bc.s";
  
   ] in
 

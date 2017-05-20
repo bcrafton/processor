@@ -1,7 +1,7 @@
 
 #include "memory_simulator.h"
 
-#define TEST_DURATION 10000
+#define TEST_DURATION 500000
 
 typedef enum test_type{
   BINARY_TEST,
@@ -41,7 +41,7 @@ const char* actual_path = "../test/actual/";
 const char* expected_path = "../test/expected/";
 
 static test_t tests[] = {
-
+/*
 {"fn_add", BINARY_TEST, 0},
 
 {"if_true", BINARY_TEST, 0},
@@ -104,10 +104,18 @@ static test_t tests[] = {
 {"fib4", CODE_TEST, 6},
 {"fib5", CODE_TEST, 10},
 
+{"to_10", CODE_TEST, 20},
+
 {"mov", ASM_TEST, 0},
 {"push", ASM_TEST, 100},
 {"pop", ASM_TEST, 100},
 {"push1", ASM_TEST, 100},
+
+*/
+
+{"fib4", CODE_TEST, 6},
+{"fib5", CODE_TEST, 10},
+{"fib10", CODE_TEST, 110},
 
 };
 
@@ -149,7 +157,14 @@ static PLI_INT32 mem_read(char* user_data)
         rd_data = dmemory[rd_address];
         break;
       case IMEM_ID:
-        rd_data = imemory[rd_address];
+        if (rd_address >= IMEMORY_SIZE) 
+        {
+          rd_data = 0;
+        }
+        else
+        {
+          rd_data = imemory[rd_address];
+        }
         break;
       case REGFILE_ID:
         rd_data = regfile[rd_address];
