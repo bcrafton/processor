@@ -30,35 +30,11 @@ let parse_file name input_file =
   let lexbuf = Lexing.from_channel input_file in
   parse name lexbuf
 
-let assemble_file_to_string name input_file : string = 
+let assemble name input_file : (string * string) = 
   let sect = parse_file name input_file in
   match sect with 
   | Section(il) ->
-    (assemble_to_string il);;
+    let bin = (to_bin il) in
+    let asm = (to_asm il) in
+    (bin, asm)
 
-let print_errors exns =
-  List.map (fun e ->
-      match e with
-      | UnboundId(x, loc) ->
-         sprintf "The identifier %s, used at <%s>, is not in scope" x (string_of_pos loc)
-      | UnboundFun(x, loc) ->
-         sprintf "The function name %s, used at <%s>, is not in scope" x (string_of_pos loc)
-      | ShadowId(x, loc, existing) ->
-         sprintf "The identifier %s, defined at <%s>, shadows one defined at <%s>"
-                 x (string_of_pos loc) (string_of_pos existing)
-      | DuplicateId(x, loc, existing) ->
-         sprintf "The identifier %s, redefined at <%s>, duplicates one at <%s>"
-                 x (string_of_pos loc) (string_of_pos existing)
-      | DuplicateFun(x, loc, existing) ->
-         sprintf "The function name %s, redefined at <%s>, duplicates one at <%s>"
-                 x (string_of_pos loc) (string_of_pos existing)
-      | Overflow(num, loc) ->
-         sprintf "The number literal %d, used at <%s>, is not supported in this language"
-                 num (string_of_pos loc)
-      | Arity(expected, actual, loc) ->
-         sprintf "The function called at <%s> expected an arity of %d, but received %d arguments"
-                 (string_of_pos loc) expected actual
-      | _ ->
-         sprintf "%s" (Printexc.to_string e)
-    ) exns
-;;

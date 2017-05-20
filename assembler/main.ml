@@ -7,38 +7,60 @@ open Str
 
 let () =
 
+  let code_tests = [
+
+    "a.bc.s";
+    "b.bc.s";
+    "fn_add.bc.s";
+    "if_false.bc.s";
+    "if_true.bc.s";
+
+    "fib0.bc.s";
+    "fib1.bc.s";
+    "fib2.bc.s";
+    "fib3.bc.s";
+    "fib4.bc.s";
+    "fib5.bc.s";
+ 
+  ] in
+
+  let asm_tests = [
+    "mov.s";
+    "push.s";
+    "pop.s";
+    "push1.s";
+    
+  ] in
+
   let asm_in = "../test/programs/asm/asm/" in 
   let asm_out = "../test/programs/asm/bin/" in
+  let asm_mips = "../test/programs/asm/mips/" in
 
   let compiled_in = "../test/programs/code/asm/" in 
   let compiled_out = "../test/programs/code/bin/" in
+  let compiled_mips = "../test/programs/code/mips/" in
 
-  let rec last (l : string list) = 
-    match l with
-    | [x] -> Some(x)
-    | _::rest -> last rest
-    | [] -> None
-  in
-
-  let assemble (in_dir : string) (out_dir : string) =
+  let assemble (names : string list) (in_dir : string) (out_dir : string) (mips_dir : string) =
 
     let help (name : string) = 
-      let s = (Str.split (regexp "\\.") name) in
-      let ext = (last s) in 
-      match ext with
-      | Some("s") ->
         let input_file = open_in (in_dir ^ name) in
-        let program = assemble_file_to_string name input_file in
+
+        let (bin, mips) = assemble name input_file in
+        
         let outfile = open_out (out_dir ^ name ^ ".hex") in
-        fprintf outfile "%s" program
-      | _ -> ()
+        fprintf outfile "%s" bin;
+        close_out outfile;
+
+        let mips_out = open_out (mips_dir ^ name ^ ".d") in
+        fprintf mips_out "%s" mips;
+        close_out mips_out;
+        
     in
 
-    let filenames = Sys.readdir(in_dir) in
-    Array.iter help filenames;
+    List.iter help names;
 
   in
 
-  (assemble asm_in asm_out); 
-  (assemble compiled_in compiled_out);
+  (assemble asm_tests asm_in asm_out asm_mips); 
+  (assemble code_tests compiled_in compiled_out compiled_mips);
 

@@ -1,11 +1,12 @@
 
 #include "memory_simulator.h"
 
-#define TEST_DURATION 1000
+#define TEST_DURATION 10000
 
 typedef enum test_type{
   BINARY_TEST,
   CODE_TEST,
+  ASM_TEST,
 } test_type_t;
 
 typedef struct test{
@@ -20,6 +21,7 @@ static void clear_memory(int memory_id);
 static bool check();
 static bool check_binary();
 static bool check_code();
+static bool check_asm();
 static bool next_test();
 
 
@@ -39,7 +41,7 @@ const char* actual_path = "../test/actual/";
 const char* expected_path = "../test/expected/";
 
 static test_t tests[] = {
-/*
+
 {"fn_add", BINARY_TEST, 0},
 
 {"if_true", BINARY_TEST, 0},
@@ -89,18 +91,23 @@ static test_t tests[] = {
 {"jnz", BINARY_TEST, 0},
 {"jr", BINARY_TEST, 0},
 
-{"if_true", CODE_TEST, 20},
-{"if_false", CODE_TEST, 10},
-{"fib1", CODE_TEST, 1},
-{"fib0", CODE_TEST, 1},
-{"fib10", CODE_TEST, 110},
-
-{"fn_add", CODE_TEST, 6},
-{"two_fun", CODE_TEST, 60},
-*/
-
 {"a", CODE_TEST, 60},
 {"b", CODE_TEST, 60},
+{"fn_add", CODE_TEST, 6},
+{"if_false", CODE_TEST, 10},
+{"if_true", CODE_TEST, 20},
+
+{"fib0", CODE_TEST, 0},
+{"fib1", CODE_TEST, 2},
+{"fib2", CODE_TEST, 2},
+{"fib3", CODE_TEST, 4},
+{"fib4", CODE_TEST, 6},
+{"fib5", CODE_TEST, 10},
+
+{"mov", ASM_TEST, 0},
+{"push", ASM_TEST, 100},
+{"pop", ASM_TEST, 100},
+{"push1", ASM_TEST, 100},
 
 };
 
@@ -396,6 +403,9 @@ static void load_program()
     case CODE_TEST:
       sprintf(buffer, "%s%s.bc.s.hex", code_program_path, current_test->name);
       break;
+    case ASM_TEST:
+      sprintf(buffer, "%s%s.s.hex", asm_program_path, current_test->name);
+      break;
     default:
       fprintf(stderr, "invalid enum %s = %d\n", current_test->name, current_test->test_type);
       assert(0);
@@ -447,6 +457,9 @@ static bool check()
     case CODE_TEST:
       return check_code();
       break;
+    case ASM_TEST:
+      return check_asm();
+      break;
     default:
       fprintf(stderr, "invalid enum %d\n", current_test->test_type);
       assert(0);
@@ -456,6 +469,18 @@ static bool check()
 }
 
 static bool check_code()
+{
+  REGISTER ans = current_test->ans;
+
+  if(regfile[0] != ans)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+static bool check_asm()
 {
   REGISTER ans = current_test->ans;
 

@@ -49,6 +49,7 @@ module id_ex_register(
   reg_write_in,
   jop_in,
   address_src_in,
+  instruction_in,
 
   rs_out,
   rt_out,
@@ -65,7 +66,8 @@ module id_ex_register(
   alu_src_out,
   reg_write_out,
   jop_out,
-  address_src_out
+  address_src_out,
+  instruction_out,
   );
 
   input wire clk;
@@ -88,6 +90,7 @@ module id_ex_register(
   input wire reg_write_in;
   input wire [`JUMP_BITS-1:0] jop_in;
   input wire address_src_in;
+  input wire [`INST_WIDTH-1:0] instruction_in;
 
   output reg [`NUM_REGISTERS_LOG2-1:0] rs_out;
   output reg [`NUM_REGISTERS_LOG2-1:0] rt_out;
@@ -105,6 +108,7 @@ module id_ex_register(
   output reg reg_write_out;
   output reg [`JUMP_BITS-1:0] jop_out;
   output reg address_src_out;
+  output reg [`INST_WIDTH-1:0] instruction_out;
 
   initial begin
     reg_read_data_1_out <= 0;
@@ -120,6 +124,7 @@ module id_ex_register(
     reg_write_out <= 0;
     jop_out <= 0;
     address_src_out <= 0;
+    instruction_out <= 0;
   end
 
   always @(posedge clk) begin
@@ -141,6 +146,7 @@ module id_ex_register(
       reg_write_out <= 0;
       jop_out <= 0;
       address_src_out <= 0;
+      instruction_out <= 0;
     end else begin	
       rs_out <= rs_in;
       rt_out <= rt_in;
@@ -158,6 +164,7 @@ module id_ex_register(
       reg_write_out <= reg_write_in;
       jop_out <= jop_in;
       address_src_out <= address_src_in;
+      instruction_out <=instruction_in;
     end
 
   end
@@ -178,6 +185,7 @@ module ex_mem_register(
   reg_write_in,
   address_in,
   address_src_result_in,
+  instruction_in,
 
   alu_result_out,
   data_1_out,
@@ -188,7 +196,8 @@ module ex_mem_register(
   mem_to_reg_out,
   reg_write_out,
   address_out,
-  address_src_result_out
+  address_src_result_out,
+  instruction_out,
   );
 
   input wire clk;
@@ -204,6 +213,7 @@ module ex_mem_register(
   input wire reg_write_in;
   input wire [`ADDR_WIDTH-1:0] address_in;
   input wire [`ADDR_WIDTH-1:0] address_src_result_in;
+  input wire [`INST_WIDTH-1:0] instruction_in;
 
   output reg [`DATA_WIDTH-1:0] alu_result_out;
   output reg [`DATA_WIDTH-1:0] data_1_out;
@@ -215,6 +225,7 @@ module ex_mem_register(
   output reg reg_write_out;
   output reg [`ADDR_WIDTH-1:0] address_out;
   output reg [`ADDR_WIDTH-1:0] address_src_result_out;
+  output reg [`INST_WIDTH-1:0] instruction_out;
 
   initial begin
     alu_result_out <= 0;
@@ -227,6 +238,7 @@ module ex_mem_register(
     reg_write_out <= 0;
     address_out <= 0;
     address_src_result_out <= 0;
+    instruction_out <= 0;
   end
 
   always @(posedge clk) begin
@@ -242,6 +254,7 @@ module ex_mem_register(
       reg_write_out <= 0;
       address_out <= 0;
       address_src_result_out <= 0;
+      instruction_out <= 0;
     end else begin
       alu_result_out <= alu_result_in;
       data_1_out <= data_1_in;
@@ -253,6 +266,7 @@ module ex_mem_register(
       reg_write_out <= reg_write_in;
       address_out <= address_in;
       address_src_result_out <= address_src_result_in;
+      instruction_out <= instruction_in;
     end
   
   end
@@ -267,12 +281,14 @@ module mem_wb_register(
   alu_result_in,
   reg_dst_result_in,
   reg_write_in,
+  instruction_in,
 
   mem_to_reg_out,
   ram_read_data_out,
   alu_result_out,
   reg_dst_result_out,
-  reg_write_out
+  reg_write_out,
+  instruction_out,
   );
 
   input wire clk;
@@ -282,12 +298,14 @@ module mem_wb_register(
   input wire [`DATA_WIDTH-1:0] alu_result_in;
   input wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_in;
   input wire reg_write_in;
+  input wire [`INST_WIDTH-1:0] instruction_in;
 
   output reg mem_to_reg_out;
   output reg [`DATA_WIDTH-1:0] ram_read_data_out;
   output reg [`DATA_WIDTH-1:0] alu_result_out;
   output reg [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_out;
   output reg reg_write_out;
+  output reg [`INST_WIDTH-1:0] instruction_out;
 
   initial begin
     mem_to_reg_out <= 0;
@@ -295,6 +313,7 @@ module mem_wb_register(
     alu_result_out <= 0;
     reg_dst_result_out <= 0;
     reg_write_out <= 0;
+    instruction_out <= 0;
   end
 
   always @(posedge clk) begin
@@ -304,6 +323,7 @@ module mem_wb_register(
     alu_result_out <= alu_result_in;
     reg_dst_result_out <= reg_dst_result_in;
     reg_write_out <= reg_write_in;
+    instruction_out <= instruction_in;
 
   end
 

@@ -54,6 +54,7 @@ module processor(
   wire [`ADDR_WIDTH-1:0] if_id_pc;
 
   // id/ex
+  wire [`INST_WIDTH-1:0] id_ex_instruction;
   wire [`NUM_REGISTERS_LOG2-1:0] id_ex_rs, id_ex_rt, id_ex_rd;
   wire [`DATA_WIDTH-1:0] id_ex_reg_read_data_1, id_ex_reg_read_data_2;
   wire [`IMM_WIDTH-1:0] id_ex_immediate;
@@ -64,6 +65,7 @@ module processor(
   wire [`ALU_OP_BITS-1:0] id_ex_alu_op;
   wire [`MEM_OP_BITS-1:0] id_ex_mem_op;
   // ex/mem
+  wire [`INST_WIDTH-1:0] ex_mem_instruction;
   wire [`DATA_WIDTH-1:0] ex_mem_alu_result;
   wire [`DATA_WIDTH-1:0] ex_mem_data_1, ex_mem_data_2;
   wire [`ADDR_WIDTH-1:0] ex_mem_address;
@@ -75,6 +77,7 @@ module processor(
   wire ex_mem_jump_address;
   wire [`ADDR_WIDTH-1:0] jump_address_result;
   // mem/wb
+  wire [`INST_WIDTH-1:0] mem_wb_instruction;
   wire [`DATA_WIDTH-1:0] mem_wb_ram_read_data, mem_wb_alu_result;
   wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_reg_dst_result;
   wire mem_wb_mem_to_reg, mem_wb_reg_write;
@@ -169,6 +172,7 @@ module processor(
   .reg_write_in(reg_write), 
   .jop_in(jop), 
   .address_src_in(address_src),
+  .instruction_in(if_id_instruction),
 
   .rs_out(id_ex_rs), 
   .rt_out(id_ex_rt), 
@@ -185,7 +189,9 @@ module processor(
   .alu_src_out(id_ex_alu_src), 
   .reg_write_out(id_ex_reg_write), 
   .jop_out(id_ex_jop), 
-  .address_src_out(id_ex_address_src));
+  .address_src_out(id_ex_address_src),
+  .instruction_out(id_ex_instruction)
+  );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -266,6 +272,7 @@ module processor(
   .reg_write_in(id_ex_reg_write), 
   .address_in(id_ex_address), 
   .address_src_result_in(address_src_result),
+  .instruction_in(id_ex_instruction),
 
   .alu_result_out(ex_mem_alu_result), 
   .data_1_out(ex_mem_data_1), 
@@ -276,7 +283,9 @@ module processor(
   .mem_to_reg_out(ex_mem_mem_to_reg), 
   .reg_write_out(ex_mem_reg_write), 
   .address_out(ex_mem_address),
-  .address_src_result_out(ex_mem_address_src_result));
+  .address_src_result_out(ex_mem_address_src_result),
+  .instruction_out(ex_mem_instruction)
+  );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -301,11 +310,15 @@ module processor(
   .alu_result_in(ex_mem_alu_result), 
   .reg_dst_result_in(ex_mem_reg_dst_result), 
   .reg_write_in(ex_mem_reg_write), 
+  .instruction_in(ex_mem_instruction),
+
   .mem_to_reg_out(mem_wb_mem_to_reg), 
   .ram_read_data_out(mem_wb_ram_read_data), 
   .alu_result_out(mem_wb_alu_result),
   .reg_dst_result_out(mem_wb_reg_dst_result), 
-  .reg_write_out(mem_wb_reg_write));
+  .reg_write_out(mem_wb_reg_write),
+  .instruction_out(mem_wb_instruction)
+  );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
