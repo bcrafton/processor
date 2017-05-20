@@ -18,6 +18,7 @@ let () =
 
     "push.s";
     "pop.s";
+    "push1.s";
     
   ] in
 
