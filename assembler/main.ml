@@ -11,6 +11,9 @@ let () =
 
     "a.bc.s";
     "b.bc.s";
+    "fn_add.bc.s";
+    "if_false.bc.s";
+    "if_true.bc.s";
 
     "fib0.bc.s";
     "fib1.bc.s";
@@ -22,7 +25,7 @@ let () =
   ] in
 
   let asm_tests = [
-
+    "mov.s";
     "push.s";
     "pop.s";
     "push1.s";
@@ -31,26 +34,26 @@ let () =
 
   let asm_in = "../test/programs/asm/asm/" in 
   let asm_out = "../test/programs/asm/bin/" in
-  let asm_debug = "../test/programs/asm/mips/" in
+  let asm_mips = "../test/programs/asm/mips/" in
 
   let compiled_in = "../test/programs/code/asm/" in 
   let compiled_out = "../test/programs/code/bin/" in
-  let compiled_debug = "../test/programs/code/mips/" in
+  let compiled_mips = "../test/programs/code/mips/" in
 
-  let assemble (names : string list) (in_dir : string) (out_dir : string) (debug_dir : string) =
+  let assemble (names : string list) (in_dir : string) (out_dir : string) (mips_dir : string) =
 
     let help (name : string) = 
         let input_file = open_in (in_dir ^ name) in
 
-        let (bin, debug) = assemble name input_file in
+        let (bin, mips) = assemble name input_file in
         
         let outfile = open_out (out_dir ^ name ^ ".hex") in
         fprintf outfile "%s" bin;
         close_out outfile;
 
-        let debug_out = open_out (debug_dir ^ name ^ ".d") in
-        fprintf debug_out "%s" debug;
-        close_out debug_out;
+        let mips_out = open_out (mips_dir ^ name ^ ".d") in
+        fprintf mips_out "%s" mips;
+        close_out mips_out;
         
     in
 
@@ -58,6 +61,6 @@ let () =
 
   in
 
-  (assemble asm_tests asm_in asm_out asm_debug); 
-  (assemble code_tests compiled_in compiled_out compiled_debug);
+  (assemble asm_tests asm_in asm_out asm_mips); 
+  (assemble code_tests compiled_in compiled_out compiled_mips);
 

@@ -11,6 +11,9 @@ let () =
 
     "a.bc";
     "b.bc";
+    "fn_add.bc";
+    "if_false.bc";
+    "if_true.bc";
 
     "fib0.bc";
     "fib1.bc";

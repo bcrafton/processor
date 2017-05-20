@@ -41,7 +41,7 @@ const char* actual_path = "../test/actual/";
 const char* expected_path = "../test/expected/";
 
 static test_t tests[] = {
-/*
+
 {"fn_add", BINARY_TEST, 0},
 
 {"if_true", BINARY_TEST, 0},
@@ -91,18 +91,12 @@ static test_t tests[] = {
 {"jnz", BINARY_TEST, 0},
 {"jr", BINARY_TEST, 0},
 
-{"if_true", CODE_TEST, 20},
-{"if_false", CODE_TEST, 10},
-{"fib1", CODE_TEST, 1},
-{"fib0", CODE_TEST, 1},
-{"fib10", CODE_TEST, 110},
-
-{"fn_add", CODE_TEST, 6},
-{"two_fun", CODE_TEST, 60},
-*/
-
-//{"a", CODE_TEST, 60},
+{"a", CODE_TEST, 60},
 {"b", CODE_TEST, 60},
+{"fn_add", CODE_TEST, 6},
+{"if_false", CODE_TEST, 10},
+{"if_true", CODE_TEST, 20},
+
 {"fib0", CODE_TEST, 0},
 {"fib1", CODE_TEST, 2},
 {"fib2", CODE_TEST, 2},
@@ -110,10 +104,10 @@ static test_t tests[] = {
 {"fib4", CODE_TEST, 6},
 {"fib5", CODE_TEST, 10},
 
-
-//{"push", ASM_TEST, 100},
-//{"push1", ASM_TEST, 100},
-//{"pop", ASM_TEST, 100},
+{"mov", ASM_TEST, 0},
+{"push", ASM_TEST, 100},
+{"pop", ASM_TEST, 100},
+{"push1", ASM_TEST, 100},
 
 };
 

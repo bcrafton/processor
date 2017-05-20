@@ -35,6 +35,6 @@ let assemble name input_file : (string * string) =
   match sect with 
   | Section(il) ->
     let bin = (to_bin il) in
-    let debug = (to_asm il) in
-    (bin, debug)
+    let asm = (to_asm il) in
+    (bin, asm)
 
