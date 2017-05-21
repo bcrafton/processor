@@ -27,8 +27,8 @@ let () =
     
   ] in
 
-  let code_in = "../test/programs/code/code/" in 
-  let code_out = "../test/programs/code/asm/" in
+  let code_in = "../test_bench/programs/code/code/" in 
+  let code_out = "../test_bench/programs/code/asm/" in
 
   let compile (in_dir : string) (out_dir : string) = 
 

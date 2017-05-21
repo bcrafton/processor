@@ -1,43 +1,9 @@
 
-#include "memory_simulator.h"
+#include "test_bench.h"
 
-typedef enum test_type{
-  BINARY_TEST,
-  CODE_TEST,
-  ASM_TEST,
-} test_type_t;
-
-typedef struct test{
-  char name[25];
-  test_type_t test_type;
-  int ans;
-  unsigned int sim_time;
-} test_t;
-
-static void dump_memory(int memory_id);
-static void load_program();
-static void clear_memory(int memory_id);
-static bool check();
-static bool check_binary();
-static bool check_code();
-static bool check_asm();
-static bool next_test();
-
-
-static WORD dmemory[DMEMORY_SIZE];
-static REGISTER regfile[REGFILE_SIZE];
-static INSTRUCTION imemory[IMEMORY_SIZE];
-
-static TIME test_start_time;
-
-static char buffer[100];
-
-const char* binary_program_path = "../test/programs/bin/";
-const char* code_program_path = "../test/programs/code/bin/";
-const char* asm_program_path = "../test/programs/asm/bin/";
-
-const char* actual_path = "../test/actual/";
-const char* expected_path = "../test/expected/";
+extern WORD dmemory[DMEMORY_SIZE];
+extern REGISTER regfile[REGFILE_SIZE];
+extern INSTRUCTION imemory[IMEMORY_SIZE];
 
 static test_t tests[] = {
 
@@ -113,131 +79,12 @@ static test_t tests[] = {
 
 };
 
+static TIME test_start_time;
 static int test_counter = 0;
 static int num_programs = sizeof(tests)/sizeof(test_t);
 static test_t* current_test = NULL;
 
-static PLI_INT32 mem_read(char* user_data)
-{    
-    assert(user_data == NULL);
-    vpiHandle vhandle, iterator, arg;
-    vhandle = vpi_handle(vpiSysTfCall, NULL);
-
-    s_vpi_value inval;
-    
-    unsigned int rd_address;
-    unsigned int memory_id;
-
-    iterator = vpi_iterate(vpiArgument, vhandle);
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiVectorVal;
-    vpi_get_value(arg, &inval);
-    rd_address = inval.value.vector[0].aval;
-    if(inval.value.vector[0].bval > 0)
-    {
-      return 0;
-    }
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiIntVal;
-    vpi_get_value(arg, &inval);
-    memory_id = inval.value.integer;
-
-    unsigned int rd_data;
-    switch(memory_id)
-    {
-      case DMEM_ID:
-        rd_data = dmemory[rd_address];
-        break;
-      case IMEM_ID:
-        if (rd_address >= IMEMORY_SIZE) 
-        {
-          rd_data = 0;
-        }
-        else
-        {
-          rd_data = imemory[rd_address];
-        }
-        break;
-      case REGFILE_ID:
-        rd_data = regfile[rd_address];
-        break;
-      default:
-        assert(0);
-    }
-
-    unsigned long bus_out;
-    bus_out = rd_data;
-
-    s_vpi_value out;
-    out.format = vpiVectorVal;
-    out.value.vector = (s_vpi_vecval*) malloc(sizeof(s_vpi_vecval) * 2);
-    out.value.vector[0].aval = bus_out;
-    out.value.vector[0].bval = 0;
-    out.value.vector[1].aval = bus_out >> 32;
-    out.value.vector[1].bval = 0;
-
-    vpi_put_value(vhandle, &out, NULL, vpiNoDelay);
-
-    return 0; 
-}
-
-static PLI_INT32 mem_write(char* user_data)
-{    
-    assert(user_data == NULL);
-    vpiHandle vhandle, iterator, arg;
-    vhandle = vpi_handle(vpiSysTfCall, NULL);
-
-    s_vpi_value inval;
-    
-    unsigned int wr_address;
-    unsigned int wr_data;
-    unsigned int memory_id;
-
-    iterator = vpi_iterate(vpiArgument, vhandle);
-    
-    arg = vpi_scan(iterator);
-    inval.format = vpiVectorVal;
-    vpi_get_value(arg, &inval);
-    wr_address = inval.value.vector[0].aval;
-    if(inval.value.vector[0].bval > 0)
-    {
-      return 0;
-    }
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiVectorVal;
-    vpi_get_value(arg, &inval);
-    wr_data = inval.value.vector[0].aval;
-    if(inval.value.vector[0].bval > 0)
-    {
-      return 0;
-    }
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiIntVal;
-    vpi_get_value(arg, &inval);
-    memory_id = inval.value.integer;
-
-    switch(memory_id)
-    {
-      case DMEM_ID:
-        dmemory[wr_address] = wr_data;
-        break;
-      case IMEM_ID:
-        imemory[wr_address] = wr_data;
-        break;
-      case REGFILE_ID:
-        //printf("%x %x\n", wr_address, wr_data);
-        regfile[wr_address] = wr_data;
-        break;
-    }
-    
-    return 0; 
-}
-
-static PLI_INT32 init(char* user_data)
+PLI_INT32 init(char* user_data)
 {    
     assert(user_data == NULL);
     vpiHandle vhandle, iterator, arg;
@@ -275,7 +122,7 @@ static PLI_INT32 init(char* user_data)
     return 0; 
 }
 
-static PLI_INT32 update(char* user_data)
+PLI_INT32 update(char* user_data)
 {    
     assert(user_data == NULL);
     vpiHandle vhandle, iterator, arg;
@@ -354,11 +201,12 @@ static PLI_INT32 update(char* user_data)
     return 0; 
 }
 
-static void dump_memory(int memory_id)
+void dump_memory(int memory_id)
 {
+  char buffer[100];
   if(memory_id == DMEM_ID)
   {
-    sprintf(buffer, "%s%s.mem", actual_path, current_test->name);
+    sprintf(buffer, "%s%s.mem", ACTUAL_PATH, current_test->name);
     
     FILE *file;
     file = fopen(buffer, "w");
@@ -378,7 +226,7 @@ static void dump_memory(int memory_id)
   }
   else if(memory_id == REGFILE_ID)
   {
-    sprintf(buffer, "%s%s.reg", actual_path, current_test->name);
+    sprintf(buffer, "%s%s.reg", ACTUAL_PATH, current_test->name);
     
     FILE *file;
     file = fopen(buffer, "w");
@@ -402,18 +250,19 @@ static void dump_memory(int memory_id)
   }
 }
 
-static void load_program()
+void load_program()
 {
+  char buffer[100];
   switch(current_test->test_type)
   {
     case BINARY_TEST:
-      sprintf(buffer, "%s%s.hex", binary_program_path, current_test->name);
+      sprintf(buffer, "%s%s.hex", BINARY_PROGRAM_PATH, current_test->name);
       break;
     case CODE_TEST:
-      sprintf(buffer, "%s%s.bc.s.hex", code_program_path, current_test->name);
+      sprintf(buffer, "%s%s.bc.s.hex", CODE_PROGRAM_PATH, current_test->name);
       break;
     case ASM_TEST:
-      sprintf(buffer, "%s%s.s.hex", asm_program_path, current_test->name);
+      sprintf(buffer, "%s%s.s.hex", ASM_PROGRAM_PATH, current_test->name);
       break;
     default:
       fprintf(stderr, "invalid enum %s = %d\n", current_test->name, current_test->test_type);
@@ -437,7 +286,7 @@ static void load_program()
   }
 }
 
-static void clear_memory(int memory_id)
+void clear_memory(int memory_id)
 {
   switch(memory_id)
   {
@@ -455,7 +304,7 @@ static void clear_memory(int memory_id)
   }
 }
 
-static bool check()
+bool check()
 {
   switch(current_test->test_type)
   {
@@ -477,7 +326,7 @@ static bool check()
   assert(0);
 }
 
-static bool check_code()
+bool check_code()
 {
   REGISTER ans = current_test->ans;
 
@@ -489,7 +338,7 @@ static bool check_code()
   return true;
 }
 
-static bool check_asm()
+bool check_asm()
 {
   REGISTER ans = current_test->ans;
 
@@ -501,17 +350,17 @@ static bool check_asm()
   return true;
 }
 
-static bool check_binary()
+bool check_binary()
 {
-
   WORD mem_val;
   REGISTER reg_val;
   int i;
   FILE *file;
+  char buffer[100];
   
   /////////////////
 
-  sprintf(buffer, "%smem/%s.mem.expected", expected_path, current_test->name); 
+  sprintf(buffer, "%smem/%s.mem.expected", EXPECTED_PATH, current_test->name); 
   //printf("%s\n", buffer);
   file = fopen(buffer, "r");
   if(file == NULL)
@@ -536,7 +385,7 @@ static bool check_binary()
 
   /////////////////
   
-  sprintf(buffer, "%sreg/%s.reg.expected", expected_path, current_test->name);  
+  sprintf(buffer, "%sreg/%s.reg.expected", EXPECTED_PATH, current_test->name);  
   //printf("%s\n", buffer);
   file = fopen(buffer, "r");
   if(file == NULL)
@@ -565,7 +414,7 @@ static bool check_binary()
 
 }
 
-static bool next_test()
+bool next_test()
 {
   if(test_counter == 0 && current_test == NULL)
   {
