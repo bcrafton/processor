@@ -5,14 +5,14 @@
 *.vcd
 *.vpi
 
-test/actual/*
+test_bench/actual/*
 
-test/programs/code/asm/*
-test/programs/code/bin/*
-test/programs/code/mips/*
+test_bench/programs/code/asm/*
+test_bench/programs/code/bin/*
+test_bench/programs/code/mips/*
 
-test/programs/asm/bin/*
-test/programs/asm/mips/*
+test_bench/programs/asm/bin/*
+test_bench/programs/asm/mips/*
 
 assembler/_build
 assembler/_build/*
