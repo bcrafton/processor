@@ -38,10 +38,6 @@ typedef unsigned char BOOL;
 
 ///////////////////////////////////////////
 
-int time_compare(void *o1, void *o2);
-int address_compare(void *o1, void *o2);
-
-///////////////////////////////////////////
 
 
 
