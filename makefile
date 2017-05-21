@@ -14,6 +14,6 @@ clean:
 	cd compiler && $(MAKE) clean
 	cd assembler && $(MAKE) clean
 	cd processor && $(MAKE) clean
-	rm test/actual/*.reg test/actual/*.mem
-	rm test/programs/asm/bin/*.hex test/programs/asm/mips/*.m
-	rm test/programs/code/asm/*.s test/programs/code/bin/*.hex test/programs/code/mips/*.m
+	rm test_bench/actual/*.reg test_bench/actual/*.mem
+	rm test_bench/programs/asm/bin/*.hex test_bench/programs/asm/mips/*.m
+	rm test_bench/programs/code/asm/*.s test_bench/programs/code/bin/*.hex test_bench/programs/code/mips/*.m

@@ -77,12 +77,12 @@ bool next_test();
 
 ///////////////////////////////////////////
 
-#define BINARY_PROGRAM_PATH   "../test/programs/bin/"
-#define CODE_PROGRAM_PATH     "../test/programs/code/bin/"
-#define ASM_PROGRAM_PATH      "../test/programs/asm/bin/"
+#define BINARY_PROGRAM_PATH   "../test_bench/programs/bin/"
+#define CODE_PROGRAM_PATH     "../test_bench/programs/code/bin/"
+#define ASM_PROGRAM_PATH      "../test_bench/programs/asm/bin/"
 
-#define ACTUAL_PATH           "../test/actual/"
-#define EXPECTED_PATH         "../test/expected/"
+#define ACTUAL_PATH           "../test_bench/actual/"
+#define EXPECTED_PATH         "../test_bench/expected/"
 
 ///////////////////////////////////////////
 

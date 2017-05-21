@@ -35,13 +35,13 @@ let () =
     
   ] in
 
-  let asm_in = "../test/programs/asm/asm/" in 
-  let asm_out = "../test/programs/asm/bin/" in
-  let asm_mips = "../test/programs/asm/mips/" in
+  let asm_in = "../test_bench/programs/asm/asm/" in 
+  let asm_out = "../test_bench/programs/asm/bin/" in
+  let asm_mips = "../test_bench/programs/asm/mips/" in
 
-  let compiled_in = "../test/programs/code/asm/" in 
-  let compiled_out = "../test/programs/code/bin/" in
-  let compiled_mips = "../test/programs/code/mips/" in
+  let compiled_in = "../test_bench/programs/code/asm/" in 
+  let compiled_out = "../test_bench/programs/code/bin/" in
+  let compiled_mips = "../test_bench/programs/code/mips/" in
 
   let assemble (names : string list) (in_dir : string) (out_dir : string) (mips_dir : string) =
 
