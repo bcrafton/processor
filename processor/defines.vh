@@ -8,7 +8,8 @@
 `define IMEM_ID 1
 `define REGFILE_ID 2
 
-`define GARBAGE 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+`define GARBAGE         32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+`define NOP_INSTRUCTION 32'b00000000000000000000000000000000
 
 `define MEM_OP_NOP        2'b00
 `define MEM_OP_READ       2'b01
