@@ -12,16 +12,6 @@ module processor(
   // could make the ram and the regfile outputs. wud be very convenient for testing.
   // problem becomes if ram is large, we wud need a bus we can access it or some shit.
 
-  wire [`ADDR_WIDTH-1:0] pc;
-
-  wire [`OP_CODE_BITS-1:0] opcode;
-  wire [`NUM_REGISTERS_LOG2-1:0] rs;
-  wire [`NUM_REGISTERS_LOG2-1:0] rt;
-  wire [`NUM_REGISTERS_LOG2-1:0] rd;
-  wire [`IMM_WIDTH-1:0] immediate;
-  wire [`ADDR_WIDTH-1:0] address;
-  wire [`SHAMT_BITS-1:0] shamt;
-
   wire reg_dst;
   wire mem_to_reg;
   wire [`ALU_OP_BITS-1:0] alu_op;
@@ -34,7 +24,6 @@ module processor(
   wire less;
   wire greater;
 
-  wire [`INST_WIDTH-1:0] instruction;
   wire [`DATA_WIDTH-1:0] ram_read_data;
 
   wire [`DATA_WIDTH-1:0] reg_read_data_1;
@@ -50,8 +39,16 @@ module processor(
   wire [`ADDR_WIDTH-1:0] address_src_result;
 
   // if/id
-  wire [`INST_WIDTH-1:0] if_id_instruction;
-  wire [`ADDR_WIDTH-1:0] if_id_pc;
+  wire [`INST_WIDTH-1:0] instruction;
+  wire [`ADDR_WIDTH-1:0] pc;
+
+  wire [`OP_CODE_BITS-1:0] opcode;
+  wire [`NUM_REGISTERS_LOG2-1:0] rs;
+  wire [`NUM_REGISTERS_LOG2-1:0] rt;
+  wire [`NUM_REGISTERS_LOG2-1:0] rd;
+  wire [`IMM_WIDTH-1:0] immediate;
+  wire [`ADDR_WIDTH-1:0] address;
+  wire [`SHAMT_BITS-1:0] shamt;
 
   // id/ex
   wire [`INST_WIDTH-1:0] id_ex_instruction;
@@ -87,13 +84,13 @@ module processor(
   wire flush;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result, alu_input_mux_2_result;
 
-  assign opcode = if_id_instruction[`OPCODE_MSB:`OPCODE_LSB];
-  assign rs = if_id_instruction[`REG_RS_MSB:`REG_RS_LSB];
-  assign rt = if_id_instruction[`REG_RT_MSB:`REG_RT_LSB];
-  assign rd = if_id_instruction[`REG_RD_MSB:`REG_RD_LSB];
-  assign immediate = if_id_instruction[`IMM_MSB:`IMM_LSB];
-  assign address = if_id_instruction[`IMM_MSB:`IMM_LSB];
-  assign shamt = if_id_instruction[`SHAMT_MSB:`SHAMT_LSB];
+  assign opcode = instruction[`OPCODE_MSB:`OPCODE_LSB];
+  assign rs = instruction[`REG_RS_MSB:`REG_RS_LSB];
+  assign rt = instruction[`REG_RT_MSB:`REG_RT_LSB];
+  assign rd = instruction[`REG_RD_MSB:`REG_RD_LSB];
+  assign immediate = instruction[`IMM_MSB:`IMM_LSB];
+  assign address = instruction[`IMM_MSB:`IMM_LSB];
+  assign shamt = instruction[`SHAMT_MSB:`SHAMT_LSB];
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -106,8 +103,8 @@ module processor(
   program_counter pc_unit(
   .clk(clk), 
   .reset(reset),
-  .if_id_opcode(opcode),
-  .if_id_address(address),
+  .prev_opcode(opcode),
+  .prev_address(address),
   .branch_address(jump_address_result), 
   .pc(pc), 
   .flush(flush), 
@@ -116,12 +113,6 @@ module processor(
   instruction_memory im(
   .pc(pc), 
   .instruction(instruction));
-
-  if_id_register if_id_reg(
-  .clk(clk), 
-  .stall(stall), 
-  .instruction_in(instruction), 
-  .instruction_out(if_id_instruction));
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   
@@ -172,7 +163,7 @@ module processor(
   .reg_write_in(reg_write), 
   .jop_in(jop), 
   .address_src_in(address_src),
-  .instruction_in(if_id_instruction),
+  .instruction_in(instruction),
 
   .rs_out(id_ex_rs), 
   .rt_out(id_ex_rt), 
