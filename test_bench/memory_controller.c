@@ -1,5 +1,5 @@
 
-#include "memory_simulator.h"
+#include "test_bench.h"
 
 WORD dmemory[DMEMORY_SIZE];
 REGISTER regfile[REGFILE_SIZE];
