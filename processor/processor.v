@@ -39,7 +39,8 @@ module processor(
   wire [`ADDR_WIDTH-1:0] address_src_result;
 
   // if/id
-  wire [`INST_WIDTH-1:0] instruction;
+  wire [`INST_WIDTH-1:0] instruction0;
+  wire [`INST_WIDTH-1:0] instruction1;
   wire [`ADDR_WIDTH-1:0] pc;
 
   wire [`OP_CODE_BITS-1:0] opcode;
@@ -84,13 +85,13 @@ module processor(
   wire flush;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result, alu_input_mux_2_result;
 
-  assign opcode = instruction[`OPCODE_MSB:`OPCODE_LSB];
-  assign rs = instruction[`REG_RS_MSB:`REG_RS_LSB];
-  assign rt = instruction[`REG_RT_MSB:`REG_RT_LSB];
-  assign rd = instruction[`REG_RD_MSB:`REG_RD_LSB];
-  assign immediate = instruction[`IMM_MSB:`IMM_LSB];
-  assign address = instruction[`IMM_MSB:`IMM_LSB];
-  assign shamt = instruction[`SHAMT_MSB:`SHAMT_LSB];
+  assign opcode = instruction0[`OPCODE_MSB:`OPCODE_LSB];
+  assign rs = instruction0[`REG_RS_MSB:`REG_RS_LSB];
+  assign rt = instruction0[`REG_RT_MSB:`REG_RT_LSB];
+  assign rd = instruction0[`REG_RD_MSB:`REG_RD_LSB];
+  assign immediate = instruction0[`IMM_MSB:`IMM_LSB];
+  assign address = instruction0[`IMM_MSB:`IMM_LSB];
+  assign shamt = instruction0[`SHAMT_MSB:`SHAMT_LSB];
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -112,7 +113,8 @@ module processor(
   
   instruction_memory im(
   .pc(pc), 
-  .instruction(instruction));
+  .instruction0(instruction0),
+  .instruction1(instruction1));
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   
@@ -163,7 +165,7 @@ module processor(
   .reg_write_in(reg_write), 
   .jop_in(jop), 
   .address_src_in(address_src),
-  .instruction_in(instruction),
+  .instruction_in(instruction0),
 
   .rs_out(id_ex_rs), 
   .rt_out(id_ex_rt), 
