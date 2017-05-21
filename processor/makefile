@@ -3,7 +3,7 @@ all: vpi compile run
 
 .PHONY: vpi
 vpi:
-	iverilog-vpi ../mem_sim/memory_controller.c
+	iverilog-vpi ../mem_sim/memory_controller.c ../mem_sim/test.c
 
 .PHONY: compile
 compile:
