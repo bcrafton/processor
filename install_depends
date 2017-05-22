@@ -1,10 +1,12 @@
 sudo apt-get install gcc;
 sudo apt-get install ocaml;
 sudo apt-get install iverilog;
+sudo apt-get install cppo;
 
 mkdir tmp;
 cd tmp;
 
+this dont work
 git clone https://github.com/mlin/ounit;
 cd ounit;
 sudo make;
@@ -17,4 +19,5 @@ sudo make;
 sudo make install;
 cd ..;
 
+cd ..;
 sudo rm -rf tmp;
