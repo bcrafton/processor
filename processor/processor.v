@@ -12,13 +12,23 @@ module processor(
   // could make the ram and the regfile outputs. wud be very convenient for testing.
   // problem becomes if ram is large, we wud need a bus we can access it or some shit.
 
-  wire reg_dst;
-  wire mem_to_reg;
-  wire [`ALU_OP_BITS-1:0] alu_op;
-  wire [`MEM_OP_BITS-1:0] mem_op;
-  wire alu_src;
-  wire reg_write;
-  wire [`JUMP_BITS-1:0] jop;
+  wire reg_dst0;
+  wire mem_to_reg0;
+  wire [`ALU_OP_BITS-1:0] alu_op0;
+  wire [`MEM_OP_BITS-1:0] mem_op0;
+  wire alu_src0;
+  wire reg_write0;
+  wire [`JUMP_BITS-1:0] jop0;
+  wire address_src0;
+
+  wire reg_dst1;
+  wire mem_to_reg1;
+  wire [`ALU_OP_BITS-1:0] alu_op1;
+  wire [`MEM_OP_BITS-1:0] mem_op1;
+  wire alu_src1;
+  wire reg_write1;
+  wire [`JUMP_BITS-1:0] jop1;
+  wire address_src1;
 
   wire zero;
   wire less;
@@ -26,8 +36,11 @@ module processor(
 
   wire [`DATA_WIDTH-1:0] ram_read_data;
 
-  wire [`DATA_WIDTH-1:0] reg_read_data_1;
-  wire [`DATA_WIDTH-1:0] reg_read_data_2;
+  wire [`DATA_WIDTH-1:0] reg_read_data_1_0;
+  wire [`DATA_WIDTH-1:0] reg_read_data_2_0;
+
+  wire [`DATA_WIDTH-1:0] reg_read_data_1_1;
+  wire [`DATA_WIDTH-1:0] reg_read_data_2_1;
 
   wire [`DATA_WIDTH-1:0] alu_result;
 
@@ -35,7 +48,6 @@ module processor(
   wire [`DATA_WIDTH-1:0] alu_src_result;
   wire [`DATA_WIDTH-1:0] mem_to_reg_result;
 
-  wire address_src;
   wire [`ADDR_WIDTH-1:0] address_src_result;
 
   // if/id
@@ -145,65 +157,69 @@ module processor(
 
   control_unit cu0(
   .opcode(opcode0), 
-  .reg_dst(reg_dst), 
-  .mem_to_reg(mem_to_reg), 
-  .alu_op(alu_op), 
-  .alu_src(alu_src), 
-  .reg_write(reg_write), 
-  .mem_op(mem_op), 
-  .jop(jop),
-  .address_src(address_src));
+  .reg_dst(reg_dst0), 
+  .mem_to_reg(mem_to_reg0), 
+  .alu_op(alu_op0), 
+  .alu_src(alu_src0), 
+  .reg_write(reg_write0), 
+  .mem_op(mem_op0), 
+  .jop(jop0),
+  .address_src(address_src0));
 
   control_unit cu1(
-  .opcode(), 
-  .reg_dst(), 
-  .mem_to_reg(), 
-  .alu_op(), 
-  .alu_src(), 
-  .reg_write(), 
-  .mem_op(), 
-  .jop(),
-  .address_src());
+  .opcode(opcode1), 
+  .reg_dst(reg_dst1), 
+  .mem_to_reg(mem_to_reg1), 
+  .alu_op(alu_op1), 
+  .alu_src(alu_src1), 
+  .reg_write(reg_write1), 
+  .mem_op(mem_op1), 
+  .jop(jop1),
+  .address_src(address_src1));
 
   register_file regfile0( 
   .write(mem_wb_reg_write), 
   .write_address(mem_wb_reg_dst_result), 
   .write_data(mem_to_reg_result), 
   .read_address_1(rs0), 
-  .read_data_1(reg_read_data_1), 
+  .read_data_1(reg_read_data_1_0), 
   .read_address_2(rt0), 
-  .read_data_2(reg_read_data_2));
+  .read_data_2(reg_read_data_2_0));
 
   register_file regfile1( 
-  .write(), 
-  .write_address(), 
-  .write_data(), 
-  .read_address_1(), 
-  .read_data_1(), 
-  .read_address_2(), 
-  .read_data_2());
+  .write(1'b0), // this cannot write stuff or it will break us
+  .write_address(mem_wb_reg_dst_result), 
+  .write_data(mem_to_reg_result), 
+  .read_address_1(rs1), 
+  .read_data_1(reg_read_data_1_1), 
+  .read_address_2(rt1), 
+  .read_data_2(reg_read_data_2_1));
 
   id_ex_register id_ex_reg(
   .clk(clk), 
+  // flush will have to flush all instructions behind it. 
+  // cud be even the one in parallel as well.
   .flush(flush), 
-
+  // stall will stall both instructions. easiest way moving forward.
+  // need to finish in order.
   .stall(stall), 
+
   .rs_in(rs0), 
   .rt_in(rt0), 
   .rd_in(rd0), 
-  .reg_read_data_1_in(reg_read_data_1),
-  .reg_read_data_2_in(reg_read_data_2), 
+  .reg_read_data_1_in(reg_read_data_1_0),
+  .reg_read_data_2_in(reg_read_data_2_0), 
   .immediate_in(immediate0), 
   .address_in(address0), 
   .shamt_in(shamt0),
-  .reg_dst_in(reg_dst), 
-  .mem_to_reg_in(mem_to_reg), 
-  .alu_op_in(alu_op), 
-  .mem_op_in(mem_op), 
-  .alu_src_in(alu_src), 
-  .reg_write_in(reg_write), 
-  .jop_in(jop), 
-  .address_src_in(address_src),
+  .reg_dst_in(reg_dst0), 
+  .mem_to_reg_in(mem_to_reg0), 
+  .alu_op_in(alu_op0), 
+  .mem_op_in(mem_op0), 
+  .alu_src_in(alu_src0), 
+  .reg_write_in(reg_write0), 
+  .jop_in(jop0), 
+  .address_src_in(address_src0),
   .instruction_in(instruction0),
 
   .rs_out(id_ex_rs), 
