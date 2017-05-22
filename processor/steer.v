@@ -6,18 +6,22 @@ module steer(
 
   instruction0_out,
   instruction1_out,
+  fetch_stall,
 
-  stall,    
+  stall,
+  first,
   );
 
 
   input wire [`INST_WIDTH-1:0] instruction0_in;
   input wire [`INST_WIDTH-1:0] instruction1_in;
+  input wire fetch_stall;
 
   output reg [`INST_WIDTH-1:0] instruction0_out;
   output reg [`INST_WIDTH-1:0] instruction1_out;
 
   output reg stall;
+  output reg first;
 
   wire [`OP_CODE_BITS-1:0] opcode0;
   wire [`OP_CODE_BITS-1:0] opcode1;
@@ -70,34 +74,54 @@ module steer(
 
     case( {instruction0_type, instruction1_type} )
       {2'b00, 2'b00}: begin
-        instruction0_out = instruction0_in;
-        instruction1_out = `NOP_INSTRUCTION;
-        stall = 1;
+        if (fetch_stall == 0) begin
+          instruction0_out = instruction0_in;
+          instruction1_out = `NOP_INSTRUCTION;
+          stall = 1;
+          first = 0;
+        end else begin
+          instruction0_out = instruction1_in;
+          instruction1_out = `NOP_INSTRUCTION;
+          stall = 0;
+          first = 0;
+        end
       end
       {2'b01, 2'b00}: begin
         instruction0_out = instruction1_in;
         instruction1_out = instruction0_in;
         stall = 0;
+        first = 1;
       end
       {2'b01, 2'b01}: begin
-        instruction0_out = `NOP_INSTRUCTION;
-        instruction1_out = instruction0_in;
-        stall = 1;
+        if (fetch_stall == 0) begin
+          instruction0_out = `NOP_INSTRUCTION;
+          instruction1_out = instruction0_in;
+          stall = 1;
+          first = 1;
+        end else begin
+          instruction0_out = `NOP_INSTRUCTION;
+          instruction1_out = instruction1_in;
+          stall = 0;
+          first = 1;
+        end
       end
       {2'b01, 2'b10}: begin
         instruction0_out = instruction1_in;
         instruction1_out = instruction0_in;
         stall = 0;
+        first = 1;
       end
       {2'b10, 2'b00}: begin
         instruction0_out = instruction1_in;
         instruction1_out = instruction0_in;
         stall = 0;
+        first = 1;
       end
       default: begin
         instruction0_out = instruction0_in;
         instruction1_out = instruction1_in;
         stall = 0;
+        first = 0;
       end
     endcase
 
