@@ -43,13 +43,21 @@ module processor(
   wire [`INST_WIDTH-1:0] instruction1;
   wire [`ADDR_WIDTH-1:0] pc;
 
-  wire [`OP_CODE_BITS-1:0] opcode;
-  wire [`NUM_REGISTERS_LOG2-1:0] rs;
-  wire [`NUM_REGISTERS_LOG2-1:0] rt;
-  wire [`NUM_REGISTERS_LOG2-1:0] rd;
-  wire [`IMM_WIDTH-1:0] immediate;
-  wire [`ADDR_WIDTH-1:0] address;
-  wire [`SHAMT_BITS-1:0] shamt;
+  wire [`OP_CODE_BITS-1:0] opcode0;
+  wire [`NUM_REGISTERS_LOG2-1:0] rs0;
+  wire [`NUM_REGISTERS_LOG2-1:0] rt0;
+  wire [`NUM_REGISTERS_LOG2-1:0] rd0;
+  wire [`IMM_WIDTH-1:0] immediate0;
+  wire [`ADDR_WIDTH-1:0] address0;
+  wire [`SHAMT_BITS-1:0] shamt0;
+
+  wire [`OP_CODE_BITS-1:0] opcode1;
+  wire [`NUM_REGISTERS_LOG2-1:0] rs1;
+  wire [`NUM_REGISTERS_LOG2-1:0] rt1;
+  wire [`NUM_REGISTERS_LOG2-1:0] rd1;
+  wire [`IMM_WIDTH-1:0] immediate1;
+  wire [`ADDR_WIDTH-1:0] address1;
+  wire [`SHAMT_BITS-1:0] shamt1;
 
   // id/ex
   wire [`INST_WIDTH-1:0] id_ex_instruction;
@@ -85,13 +93,21 @@ module processor(
   wire flush;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result, alu_input_mux_2_result;
 
-  assign opcode = instruction0[`OPCODE_MSB:`OPCODE_LSB];
-  assign rs = instruction0[`REG_RS_MSB:`REG_RS_LSB];
-  assign rt = instruction0[`REG_RT_MSB:`REG_RT_LSB];
-  assign rd = instruction0[`REG_RD_MSB:`REG_RD_LSB];
-  assign immediate = instruction0[`IMM_MSB:`IMM_LSB];
-  assign address = instruction0[`IMM_MSB:`IMM_LSB];
-  assign shamt = instruction0[`SHAMT_MSB:`SHAMT_LSB];
+  assign opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
+  assign rs0 = instruction0[`REG_RS_MSB:`REG_RS_LSB];
+  assign rt0 = instruction0[`REG_RT_MSB:`REG_RT_LSB];
+  assign rd0 = instruction0[`REG_RD_MSB:`REG_RD_LSB];
+  assign immediate0 = instruction0[`IMM_MSB:`IMM_LSB];
+  assign address0 = instruction0[`IMM_MSB:`IMM_LSB];
+  assign shamt0 = instruction0[`SHAMT_MSB:`SHAMT_LSB];
+
+  assign opcode1 = instruction1[`OPCODE_MSB:`OPCODE_LSB];
+  assign rs1 = instruction1[`REG_RS_MSB:`REG_RS_LSB];
+  assign rt1 = instruction1[`REG_RT_MSB:`REG_RT_LSB];
+  assign rd1 = instruction1[`REG_RD_MSB:`REG_RD_LSB];
+  assign immediate1 = instruction1[`IMM_MSB:`IMM_LSB];
+  assign address1 = instruction1[`IMM_MSB:`IMM_LSB];
+  assign shamt1 = instruction1[`SHAMT_MSB:`SHAMT_LSB];
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -104,8 +120,10 @@ module processor(
   program_counter pc_unit(
   .clk(clk), 
   .reset(reset),
-  .prev_opcode(opcode),
-  .prev_address(address),
+  .prev_opcode0(opcode0),
+  .prev_address0(address0),
+  .prev_opcode1(opcode1),
+  .prev_address1(address1),
   .branch_address(jump_address_result), 
   .pc(pc), 
   .flush(flush), 
@@ -121,12 +139,12 @@ module processor(
   hazard_detection_unit hdu(
   .id_ex_mem_op(id_ex_mem_op), 
   .id_ex_rt(id_ex_rt), 
-  .if_id_rs(rs), 
-  .if_id_rt(rt), 
+  .if_id_rs(rs0), 
+  .if_id_rt(rt0), 
   .stall(stall));
 
-  control_unit cu(
-  .opcode(opcode), 
+  control_unit cu0(
+  .opcode(opcode0), 
   .reg_dst(reg_dst), 
   .mem_to_reg(mem_to_reg), 
   .alu_op(alu_op), 
@@ -136,27 +154,48 @@ module processor(
   .jop(jop),
   .address_src(address_src));
 
-  register_file regfile( 
+  control_unit cu1(
+  .opcode(), 
+  .reg_dst(), 
+  .mem_to_reg(), 
+  .alu_op(), 
+  .alu_src(), 
+  .reg_write(), 
+  .mem_op(), 
+  .jop(),
+  .address_src());
+
+  register_file regfile0( 
   .write(mem_wb_reg_write), 
   .write_address(mem_wb_reg_dst_result), 
   .write_data(mem_to_reg_result), 
-  .read_address_1(rs), 
+  .read_address_1(rs0), 
   .read_data_1(reg_read_data_1), 
-  .read_address_2(rt), 
+  .read_address_2(rt0), 
   .read_data_2(reg_read_data_2));
+
+  register_file regfile1( 
+  .write(), 
+  .write_address(), 
+  .write_data(), 
+  .read_address_1(), 
+  .read_data_1(), 
+  .read_address_2(), 
+  .read_data_2());
 
   id_ex_register id_ex_reg(
   .clk(clk), 
   .flush(flush), 
+
   .stall(stall), 
-  .rs_in(rs), 
-  .rt_in(rt), 
-  .rd_in(rd), 
+  .rs_in(rs0), 
+  .rt_in(rt0), 
+  .rd_in(rd0), 
   .reg_read_data_1_in(reg_read_data_1),
   .reg_read_data_2_in(reg_read_data_2), 
-  .immediate_in(immediate), 
-  .address_in(address), 
-  .shamt_in(shamt),
+  .immediate_in(immediate0), 
+  .address_in(address0), 
+  .shamt_in(shamt0),
   .reg_dst_in(reg_dst), 
   .mem_to_reg_in(mem_to_reg), 
   .alu_op_in(alu_op), 
@@ -222,7 +261,7 @@ module processor(
   .sel(id_ex_alu_src), 
   .out(alu_src_result));
 
-  alu alu_unit(
+  alu alu0(
   .alu_op(id_ex_alu_op), 
   .data1(alu_input_mux_1_result), 
   .data2(alu_src_result), 
@@ -230,6 +269,15 @@ module processor(
   .less(less),
   .greater(greater),
   .alu_result(alu_result));
+
+  alu alu1(
+  .alu_op(), 
+  .data1(), 
+  .data2(), 
+  .zero(),
+  .less(),
+  .greater(),
+  .alu_result());
 
   mux2x1 #(`NUM_REGISTERS_LOG2) reg_dst_mux(
   .in0(id_ex_rt), 
