@@ -72,16 +72,28 @@ module processor(
   wire [`SHAMT_BITS-1:0] shamt1;
 
   // id/ex
-  wire [`INST_WIDTH-1:0] id_ex_instruction;
-  wire [`NUM_REGISTERS_LOG2-1:0] id_ex_rs, id_ex_rt, id_ex_rd;
-  wire [`DATA_WIDTH-1:0] id_ex_reg_read_data_1, id_ex_reg_read_data_2;
-  wire [`IMM_WIDTH-1:0] id_ex_immediate;
-  wire [`ADDR_WIDTH-1:0] id_ex_address;
-  wire [`SHAMT_BITS-1:0] id_ex_shamt;
-  wire id_ex_reg_dst, id_ex_mem_to_reg, id_ex_alu_src, id_ex_reg_write, id_ex_address_src;
-  wire [`JUMP_BITS-1:0] id_ex_jop;
-  wire [`ALU_OP_BITS-1:0] id_ex_alu_op;
-  wire [`MEM_OP_BITS-1:0] id_ex_mem_op;
+  wire [`INST_WIDTH-1:0] id_ex_instruction0;
+  wire [`NUM_REGISTERS_LOG2-1:0] id_ex_rs0, id_ex_rt0, id_ex_rd0;
+  wire [`DATA_WIDTH-1:0] id_ex_reg_read_data_1_0, id_ex_reg_read_data_2_0;
+  wire [`IMM_WIDTH-1:0] id_ex_immediate0;
+  wire [`ADDR_WIDTH-1:0] id_ex_address0;
+  wire [`SHAMT_BITS-1:0] id_ex_shamt0;
+  wire id_ex_reg_dst0, id_ex_mem_to_reg0, id_ex_alu_src0, id_ex_reg_write0, id_ex_address_src0;
+  wire [`JUMP_BITS-1:0] id_ex_jop0;
+  wire [`ALU_OP_BITS-1:0] id_ex_alu_op0;
+  wire [`MEM_OP_BITS-1:0] id_ex_mem_op0;
+
+  wire [`INST_WIDTH-1:0] id_ex_instruction1;
+  wire [`NUM_REGISTERS_LOG2-1:0] id_ex_rs1, id_ex_rt1, id_ex_rd1;
+  wire [`DATA_WIDTH-1:0] id_ex_reg_read_data_1_1, id_ex_reg_read_data_2_1;
+  wire [`IMM_WIDTH-1:0] id_ex_immediate1;
+  wire [`ADDR_WIDTH-1:0] id_ex_address1;
+  wire [`SHAMT_BITS-1:0] id_ex_shamt1;
+  wire id_ex_reg_dst1, id_ex_mem_to_reg1, id_ex_alu_src1, id_ex_reg_write1, id_ex_address_src1;
+  wire [`JUMP_BITS-1:0] id_ex_jop1;
+  wire [`ALU_OP_BITS-1:0] id_ex_alu_op1;
+  wire [`MEM_OP_BITS-1:0] id_ex_mem_op1;
+
   // ex/mem
   wire [`INST_WIDTH-1:0] ex_mem_instruction;
   wire [`DATA_WIDTH-1:0] ex_mem_alu_result;
@@ -149,8 +161,8 @@ module processor(
   ///////////////////////////////////////////////////////////////////////////////////////////
   
   hazard_detection_unit hdu(
-  .id_ex_mem_op(id_ex_mem_op), 
-  .id_ex_rt(id_ex_rt), 
+  .id_ex_mem_op(id_ex_mem_op0), 
+  .id_ex_rt(id_ex_rt0), 
   .if_id_rs(rs0), 
   .if_id_rt(rt0), 
   .stall(stall));
@@ -240,48 +252,48 @@ module processor(
   .address_src_in1(address_src1),
   .instruction_in1(instruction1),
 
-  .rs_out0(id_ex_rs), 
-  .rt_out0(id_ex_rt), 
-  .rd_out0(id_ex_rd), 
-  .reg_read_data_1_out0(id_ex_reg_read_data_1),
-  .reg_read_data_2_out0(id_ex_reg_read_data_2), 
-  .immediate_out0(id_ex_immediate), 
-  .address_out0(id_ex_address),
-  .shamt_out0(id_ex_shamt),
-  .reg_dst_out0(id_ex_reg_dst), 
-  .mem_to_reg_out0(id_ex_mem_to_reg), 
-  .alu_op_out0(id_ex_alu_op), 
-  .mem_op_out0(id_ex_mem_op), 
-  .alu_src_out0(id_ex_alu_src), 
-  .reg_write_out0(id_ex_reg_write), 
-  .jop_out0(id_ex_jop), 
-  .address_src_out0(id_ex_address_src),
-  .instruction_out0(id_ex_instruction),
+  .rs_out0(id_ex_rs0), 
+  .rt_out0(id_ex_rt0), 
+  .rd_out0(id_ex_rd0), 
+  .reg_read_data_1_out0(id_ex_reg_read_data_1_0),
+  .reg_read_data_2_out0(id_ex_reg_read_data_2_0), 
+  .immediate_out0(id_ex_immediate0), 
+  .address_out0(id_ex_address0),
+  .shamt_out0(id_ex_shamt0),
+  .reg_dst_out0(id_ex_reg_dst0), 
+  .mem_to_reg_out0(id_ex_mem_to_reg0), 
+  .alu_op_out0(id_ex_alu_op0), 
+  .mem_op_out0(id_ex_mem_op0), 
+  .alu_src_out0(id_ex_alu_src0), 
+  .reg_write_out0(id_ex_reg_write0), 
+  .jop_out0(id_ex_jop0), 
+  .address_src_out0(id_ex_address_src0),
+  .instruction_out0(id_ex_instruction0),
 
-  .rs_out1(id_ex_rs), 
-  .rt_out1(id_ex_rt), 
-  .rd_out1(id_ex_rd), 
-  .reg_read_data_1_out1(id_ex_reg_read_data_1),
-  .reg_read_data_2_out1(id_ex_reg_read_data_2), 
-  .immediate_out1(id_ex_immediate), 
-  .address_out1(id_ex_address),
-  .shamt_out1(id_ex_shamt),
-  .reg_dst_out1(id_ex_reg_dst), 
-  .mem_to_reg_out1(id_ex_mem_to_reg), 
-  .alu_op_out1(id_ex_alu_op), 
-  .mem_op_out1(id_ex_mem_op), 
-  .alu_src_out1(id_ex_alu_src), 
-  .reg_write_out1(id_ex_reg_write), 
-  .jop_out1(id_ex_jop), 
-  .address_src_out1(id_ex_address_src),
-  .instruction_out1(id_ex_instruction)
+  .rs_out1(id_ex_rs1), 
+  .rt_out1(id_ex_rt1), 
+  .rd_out1(id_ex_rd1), 
+  .reg_read_data_1_out1(id_ex_reg_read_data_1_1),
+  .reg_read_data_2_out1(id_ex_reg_read_data_2_1), 
+  .immediate_out1(id_ex_immediate1), 
+  .address_out1(id_ex_address1),
+  .shamt_out1(id_ex_shamt1),
+  .reg_dst_out1(id_ex_reg_dst1), 
+  .mem_to_reg_out1(id_ex_mem_to_reg1), 
+  .alu_op_out1(id_ex_alu_op1), 
+  .mem_op_out1(id_ex_mem_op1), 
+  .alu_src_out1(id_ex_alu_src1), 
+  .reg_write_out1(id_ex_reg_write1), 
+  .jop_out1(id_ex_jop1), 
+  .address_src_out1(id_ex_address_src1),
+  .instruction_out1(id_ex_instruction1)
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   forwarding_unit fu(
-  .id_ex_rs(id_ex_rs), 
-  .id_ex_rt(id_ex_rt), 
+  .id_ex_rs(id_ex_rs0), 
+  .id_ex_rt(id_ex_rt0), 
   .ex_mem_rd(ex_mem_reg_dst_result), 
   .mem_wb_rd(mem_wb_reg_dst_result), 
   .ex_mem_reg_write(ex_mem_reg_write), 
@@ -291,7 +303,7 @@ module processor(
 
 // this takes 2 forwards and the normal 1, not 3 forwards.
   mux4x2 #(`DATA_WIDTH) alu_input_mux_1(
-  .in0(id_ex_reg_read_data_1), 
+  .in0(id_ex_reg_read_data_1_0), 
   .in1(mem_to_reg_result), // so is this out of mem/wb pipeline reg, the power point slides says mem/wb register
   .in2(ex_mem_alu_result), 
   .in3(),
@@ -300,7 +312,7 @@ module processor(
 
 // this takes 2 forwards and the normal 1, not 3 forwards.
   mux4x2 #(`DATA_WIDTH) alu_input_mux_2(
-  .in0(id_ex_reg_read_data_2), 
+  .in0(id_ex_reg_read_data_2_0), 
   .in1(mem_to_reg_result), 
   .in2(ex_mem_alu_result), 
   .in3(),
@@ -309,12 +321,12 @@ module processor(
 
   mux2x1 #(`DATA_WIDTH) alu_src_mux(
   .in0(alu_input_mux_2_result), 
-  .in1({16'h0000, id_ex_immediate}), 
-  .sel(id_ex_alu_src), 
+  .in1({16'h0000, id_ex_immediate0}), 
+  .sel(id_ex_alu_src0), 
   .out(alu_src_result));
 
   alu alu0(
-  .alu_op(id_ex_alu_op), 
+  .alu_op(id_ex_alu_op0), 
   .data1(alu_input_mux_1_result), 
   .data2(alu_src_result), 
   .zero(zero),
@@ -332,9 +344,9 @@ module processor(
   .alu_result());
 
   mux2x1 #(`NUM_REGISTERS_LOG2) reg_dst_mux(
-  .in0(id_ex_rt), 
-  .in1(id_ex_rd), 
-  .sel(id_ex_reg_dst), 
+  .in0(id_ex_rt0), 
+  .in1(id_ex_rd0), 
+  .sel(id_ex_reg_dst0), 
   .out(reg_dst_result));
 
   // ex_mem_data_1: register result
@@ -347,8 +359,8 @@ module processor(
   // desintation of load is always rt 
   mux2x1 #(`ADDR_WIDTH) address_src_mux(
   .in0(alu_result[`ADDR_WIDTH-1:0]), 
-  .in1(id_ex_address), 
-  .sel(id_ex_address_src), 
+  .in1(id_ex_address0), 
+  .sel(id_ex_address_src0), 
   .out(address_src_result));
 
   ex_mem_register ex_mem_reg(
@@ -359,13 +371,13 @@ module processor(
   .data_1_in(alu_input_mux_1_result),
   .data_2_in(alu_input_mux_2_result), 
   .reg_dst_result_in(reg_dst_result), 
-  .jop_in(id_ex_jop), 
-  .mem_op_in(id_ex_mem_op), 
-  .mem_to_reg_in(id_ex_mem_to_reg), 
-  .reg_write_in(id_ex_reg_write), 
-  .address_in(id_ex_address), 
+  .jop_in(id_ex_jop0), 
+  .mem_op_in(id_ex_mem_op0), 
+  .mem_to_reg_in(id_ex_mem_to_reg0), 
+  .reg_write_in(id_ex_reg_write0), 
+  .address_in(id_ex_address0), 
   .address_src_result_in(address_src_result),
-  .instruction_in(id_ex_instruction),
+  .instruction_in(id_ex_instruction0),
 
   .alu_result_out(ex_mem_alu_result), 
   .data_1_out(ex_mem_data_1), 
