@@ -36,7 +36,14 @@ PLI_INT32 mem_read(char* user_data)
     switch(memory_id)
     {
       case DMEM_ID:
-        rd_data = dmemory[rd_address];
+        if (rd_address >= DMEMORY_SIZE || rd_address < 0)
+        {
+          assert(0);
+        }
+        else
+        {
+          rd_data = dmemory[rd_address];
+        }
         break;
       case IMEM_ID:
         if (rd_address >= IMEMORY_SIZE) 
@@ -49,7 +56,14 @@ PLI_INT32 mem_read(char* user_data)
         }
         break;
       case REGFILE_ID:
-        rd_data = regfile[rd_address];
+        if (rd_address >= REGFILE_SIZE || rd_address < 0)
+        {
+          assert(0);
+        }
+        else
+        {
+          rd_data = regfile[rd_address];
+        }
         break;
       default:
         assert(0);
