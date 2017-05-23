@@ -461,54 +461,96 @@ endmodule
 module mem_wb_register(
   clk,
 
-  mem_to_reg_in,
-  ram_read_data_in,
-  alu_result_in,
-  reg_dst_result_in,
-  reg_write_in,
-  instruction_in,
+  mem_to_reg_in0,
+  ram_read_data_in0,
+  alu_result_in0,
+  reg_dst_result_in0,
+  reg_write_in0,
+  instruction_in0,
 
-  mem_to_reg_out,
-  ram_read_data_out,
-  alu_result_out,
-  reg_dst_result_out,
-  reg_write_out,
-  instruction_out,
+  mem_to_reg_in1,
+  ram_read_data_in1,
+  alu_result_in1,
+  reg_dst_result_in1,
+  reg_write_in1,
+  instruction_in1,
+
+  mem_to_reg_out0,
+  ram_read_data_out0,
+  alu_result_out0,
+  reg_dst_result_out0,
+  reg_write_out0,
+  instruction_out0,
+
+  mem_to_reg_out1,
+  ram_read_data_out1,
+  alu_result_out1,
+  reg_dst_result_out1,
+  reg_write_out1,
+  instruction_out1,
   );
 
   input wire clk;
 
-  input wire mem_to_reg_in;
-  input wire [`DATA_WIDTH-1:0] ram_read_data_in;
-  input wire [`DATA_WIDTH-1:0] alu_result_in;
-  input wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_in;
-  input wire reg_write_in;
-  input wire [`INST_WIDTH-1:0] instruction_in;
+  input wire mem_to_reg_in0;
+  input wire [`DATA_WIDTH-1:0] ram_read_data_in0;
+  input wire [`DATA_WIDTH-1:0] alu_result_in0;
+  input wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_in0;
+  input wire reg_write_in0;
+  input wire [`INST_WIDTH-1:0] instruction_in0;
 
-  output reg mem_to_reg_out;
-  output reg [`DATA_WIDTH-1:0] ram_read_data_out;
-  output reg [`DATA_WIDTH-1:0] alu_result_out;
-  output reg [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_out;
-  output reg reg_write_out;
-  output reg [`INST_WIDTH-1:0] instruction_out;
+  input wire mem_to_reg_in1;
+  input wire [`DATA_WIDTH-1:0] ram_read_data_in1;
+  input wire [`DATA_WIDTH-1:0] alu_result_in1;
+  input wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_in1;
+  input wire reg_write_in1;
+  input wire [`INST_WIDTH-1:0] instruction_in1;
+
+  output reg mem_to_reg_out0;
+  output reg [`DATA_WIDTH-1:0] ram_read_data_out0;
+  output reg [`DATA_WIDTH-1:0] alu_result_out0;
+  output reg [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_out0;
+  output reg reg_write_out0;
+  output reg [`INST_WIDTH-1:0] instruction_out0;
+
+  output reg mem_to_reg_out1;
+  output reg [`DATA_WIDTH-1:0] ram_read_data_out1;
+  output reg [`DATA_WIDTH-1:0] alu_result_out1;
+  output reg [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_out1;
+  output reg reg_write_out1;
+  output reg [`INST_WIDTH-1:0] instruction_out1;
 
   initial begin
-    mem_to_reg_out <= 0;
-    ram_read_data_out <= 0;
-    alu_result_out <= 0;
-    reg_dst_result_out <= 0;
-    reg_write_out <= 0;
-    instruction_out <= 0;
+    mem_to_reg_out0 <= 0;
+    ram_read_data_out0 <= 0;
+    alu_result_out0 <= 0;
+    reg_dst_result_out0 <= 0;
+    reg_write_out0 <= 0;
+    instruction_out0 <= 0;
+
+    mem_to_reg_out1 <= 0;
+    ram_read_data_out1 <= 0;
+    alu_result_out1 <= 0;
+    reg_dst_result_out1 <= 0;
+    reg_write_out1 <= 0;
+    instruction_out1 <= 0;
   end
 
   always @(posedge clk) begin
 
-    mem_to_reg_out <= mem_to_reg_in;
-    ram_read_data_out <= ram_read_data_in;
-    alu_result_out <= alu_result_in;
-    reg_dst_result_out <= reg_dst_result_in;
-    reg_write_out <= reg_write_in;
-    instruction_out <= instruction_in;
+    mem_to_reg_out0 <= mem_to_reg_in0;
+    ram_read_data_out0 <= ram_read_data_in0;
+    alu_result_out0 <= alu_result_in0;
+    reg_dst_result_out0 <= reg_dst_result_in0;
+    reg_write_out0 <= reg_write_in0;
+    instruction_out0 <= instruction_in0;
+
+    mem_to_reg_out1 <= mem_to_reg_in1;
+    ram_read_data_out1 <= ram_read_data_in1;
+    alu_result_out1 <= alu_result_in1;
+    reg_dst_result_out1 <= reg_dst_result_in1;
+    reg_write_out1 <= reg_write_in1;
+    instruction_out1 <= instruction_in1;
 
   end
 

@@ -130,10 +130,15 @@ module processor(
   wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_reg_dst_result1;
 
   // mem/wb
-  wire [`INST_WIDTH-1:0] mem_wb_instruction;
-  wire [`DATA_WIDTH-1:0] mem_wb_ram_read_data, mem_wb_alu_result;
-  wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_reg_dst_result;
-  wire mem_wb_mem_to_reg, mem_wb_reg_write;
+  wire [`INST_WIDTH-1:0] mem_wb_instruction0;
+  wire [`DATA_WIDTH-1:0] mem_wb_ram_read_data0, mem_wb_alu_result0;
+  wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_reg_dst_result0;
+  wire mem_wb_mem_to_reg0, mem_wb_reg_write0;
+
+  wire [`INST_WIDTH-1:0] mem_wb_instruction1;
+  wire [`DATA_WIDTH-1:0] mem_wb_ram_read_data1, mem_wb_alu_result1;
+  wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_reg_dst_result1;
+  wire mem_wb_mem_to_reg1, mem_wb_reg_write1;
 
   wire [`FORWARD_BITS-1:0] forward_a, forward_b;
   wire stall;
@@ -214,8 +219,8 @@ module processor(
   .address_src(address_src1));
 
   register_file regfile0( 
-  .write(mem_wb_reg_write), 
-  .write_address(mem_wb_reg_dst_result), 
+  .write(mem_wb_reg_write0), 
+  .write_address(mem_wb_reg_dst_result0), 
   .write_data(mem_to_reg_result), 
   .read_address_1(rs0), 
   .read_data_1(reg_read_data_1_0), 
@@ -223,8 +228,8 @@ module processor(
   .read_data_2(reg_read_data_2_0));
 
   register_file regfile1( 
-  .write(1'b0), // this cannot write stuff or it will break us
-  .write_address(mem_wb_reg_dst_result), 
+  .write(mem_wb_reg_write1), // this cannot write stuff or it will break us
+  .write_address(mem_wb_reg_dst_result1), 
   .write_data(mem_to_reg_result), 
   .read_address_1(rs1), 
   .read_data_1(reg_read_data_1_1), 
@@ -319,7 +324,7 @@ module processor(
   .id_ex_rs(id_ex_rs0), 
   .id_ex_rt(id_ex_rt0), 
   .ex_mem_rd(ex_mem_reg_dst_result0), 
-  .mem_wb_rd(mem_wb_reg_dst_result), 
+  .mem_wb_rd(mem_wb_reg_dst_result0), 
   .ex_mem_reg_write(ex_mem_reg_write0), 
   .mem_wb_reg_write(mem_wb_reg_write),
   .forward_a(forward_a), 
@@ -486,27 +491,42 @@ module processor(
 
   mem_wb_register mem_wb_reg(
   .clk(clk), 
-  .mem_to_reg_in(ex_mem_mem_to_reg0), 
-  .ram_read_data_in(ram_read_data), 
-  .alu_result_in(ex_mem_alu_result0), 
-  .reg_dst_result_in(ex_mem_reg_dst_result0), 
-  .reg_write_in(ex_mem_reg_write0), 
-  .instruction_in(ex_mem_instruction0),
 
-  .mem_to_reg_out(mem_wb_mem_to_reg), 
-  .ram_read_data_out(mem_wb_ram_read_data), 
-  .alu_result_out(mem_wb_alu_result),
-  .reg_dst_result_out(mem_wb_reg_dst_result), 
-  .reg_write_out(mem_wb_reg_write),
-  .instruction_out(mem_wb_instruction)
+  .mem_to_reg_in0(ex_mem_mem_to_reg0), 
+  .ram_read_data_in0(ram_read_data), 
+  .alu_result_in0(ex_mem_alu_result0), 
+  .reg_dst_result_in0(ex_mem_reg_dst_result0), 
+  .reg_write_in0(ex_mem_reg_write0), 
+  .instruction_in0(ex_mem_instruction0),
+
+  .mem_to_reg_in1(ex_mem_mem_to_reg1), 
+  .ram_read_data_in1(ram_read_data), 
+  .alu_result_in1(ex_mem_alu_result1), 
+  .reg_dst_result_in1(ex_mem_reg_dst_result1), 
+  .reg_write_in1(ex_mem_reg_write1), 
+  .instruction_in1(ex_mem_instruction1),
+
+  .mem_to_reg_out0(mem_wb_mem_to_reg0), 
+  .ram_read_data_out0(mem_wb_ram_read_data0), 
+  .alu_result_out0(mem_wb_alu_result0),
+  .reg_dst_result_out0(mem_wb_reg_dst_result0), 
+  .reg_write_out0(mem_wb_reg_write0),
+  .instruction_out0(mem_wb_instruction0),
+
+  .mem_to_reg_out1(mem_wb_mem_to_reg1), 
+  .ram_read_data_out1(mem_wb_ram_read_data1), 
+  .alu_result_out1(mem_wb_alu_result1),
+  .reg_dst_result_out1(mem_wb_reg_dst_result1), 
+  .reg_write_out1(mem_wb_reg_write1),
+  .instruction_out1(mem_wb_instruction1)
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   mux2x1 #(`DATA_WIDTH) mem_to_reg_mux(
-  .in0(mem_wb_alu_result), 
-  .in1(mem_wb_ram_read_data), 
-  .sel(mem_wb_mem_to_reg), 
+  .in0(mem_wb_alu_result0), 
+  .in1(mem_wb_ram_read_data0), 
+  .sel(mem_wb_mem_to_reg0), 
   .out(mem_to_reg_result));
 
 endmodule
