@@ -141,8 +141,6 @@ module processor(
   wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_reg_dst_result1;
   wire mem_wb_mem_to_reg1, mem_wb_reg_write1;
 
-  wire [`FORWARD_BITS-1:0] forward_a, forward_b;
-
   wire [`FORWARD_BITS-1:0] forward_a0;
   wire [`FORWARD_BITS-1:0] forward_a1;
   wire [`FORWARD_BITS-1:0] forward_b0;
@@ -327,7 +325,7 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  forwarding_unit fu(
+  forwarding_unit fu0(
   .id_ex_rs(id_ex_rs0), 
   .id_ex_rt(id_ex_rt0), 
 
@@ -341,8 +339,25 @@ module processor(
   .ex_mem_reg_write1(), 
   .mem_wb_reg_write1(),
 
-  .forward_a(forward_a), 
-  .forward_b(forward_b));
+  .forward_a(forward_a0), 
+  .forward_b(forward_b0));
+
+  forwarding_unit fu1(
+  .id_ex_rs(id_ex_rs1), 
+  .id_ex_rt(id_ex_rt1), 
+
+  .ex_mem_rd0(ex_mem_reg_dst_result0), 
+  .mem_wb_rd0(mem_wb_reg_dst_result0), 
+  .ex_mem_reg_write0(ex_mem_reg_write0), 
+  .mem_wb_reg_write0(mem_wb_reg_write0),
+
+  .ex_mem_rd1(ex_mem_reg_dst_result1), 
+  .mem_wb_rd1(mem_wb_reg_dst_result1), 
+  .ex_mem_reg_write1(ex_mem_reg_write1), 
+  .mem_wb_reg_write1(mem_wb_reg_write1),
+
+  .forward_a(forward_a1), 
+  .forward_b(forward_b1));
 
   // pipe 1
   mux8x3 #(`DATA_WIDTH) alu_input_mux_1_0(
@@ -350,7 +365,7 @@ module processor(
   .in1(mem_to_reg_result0), 
   .in2(ex_mem_alu_result0), 
   .in3(),
-  .sel(forward_a), 
+  .sel(forward_a0), 
   .out(alu_input_mux_1_result0));
 
   mux8x3 #(`DATA_WIDTH) alu_input_mux_2_0(
@@ -358,7 +373,7 @@ module processor(
   .in1(mem_to_reg_result0), 
   .in2(ex_mem_alu_result0), 
   .in3(),
-  .sel(forward_b), 
+  .sel(forward_b0), 
   .out(alu_input_mux_2_result0));
 
   // pipe 2
@@ -367,7 +382,7 @@ module processor(
   .in1(mem_to_reg_result1), 
   .in2(ex_mem_alu_result1), 
   .in3(),
-  .sel(forward_b), 
+  .sel(forward_a1), 
   .out(alu_input_mux_1_result1));
 
   mux8x3 #(`DATA_WIDTH) alu_input_mux_2_1(
@@ -375,7 +390,7 @@ module processor(
   .in1(mem_to_reg_result1), 
   .in2(ex_mem_alu_result1), 
   .in3(),
-  .sel(forward_b), 
+  .sel(forward_b1), 
   .out(alu_input_mux_2_result1));
   //
 
