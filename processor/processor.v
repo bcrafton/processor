@@ -336,42 +336,22 @@ module processor(
   forwarding_unit fu(
   .id_ex_rs(id_ex_rs0), 
   .id_ex_rt(id_ex_rt0), 
-  .ex_mem_rd(ex_mem_reg_dst_result0), 
-  .mem_wb_rd(mem_wb_reg_dst_result0), 
-  .ex_mem_reg_write(ex_mem_reg_write0), 
-  .mem_wb_reg_write(mem_wb_reg_write0),
-  .forward_a(forward_a), 
-  .forward_b(forward_b));
 
-  forwarding_unit fu_0_1(
-  .id_ex_rs(id_ex_rs0), 
-  .id_ex_rt(id_ex_rt0), 
-  .ex_mem_rd(ex_mem_reg_dst_result1), 
-  .mem_wb_rd(mem_wb_reg_dst_result1), 
-  .ex_mem_reg_write(ex_mem_reg_write1), 
-  .mem_wb_reg_write(mem_wb_reg_write1),
-  .forward_a(forward_a_0_1), 
-  .forward_b(forward_b_0_1));
+  .ex_mem_rd0(ex_mem_reg_dst_result0), 
+  .mem_wb_rd0(mem_wb_reg_dst_result0), 
+  .ex_mem_reg_write0(ex_mem_reg_write0), 
+  .mem_wb_reg_write0(mem_wb_reg_write0),
 
-  forwarding_unit fu_1_0(
-  .id_ex_rs(id_ex_rs1), 
-  .id_ex_rt(id_ex_rt1), 
-  .ex_mem_rd(ex_mem_reg_dst_result0), 
-  .mem_wb_rd(mem_wb_reg_dst_result0), 
-  .ex_mem_reg_write(ex_mem_reg_write0), 
-  .mem_wb_reg_write(mem_wb_reg_write0),
-  .forward_a(forward_a_1_0), 
-  .forward_b(forward_b_1_0));
+  .ex_mem_rd1(), 
+  .mem_wb_rd1(), 
+  .ex_mem_reg_write1(), 
+  .mem_wb_reg_write1(),
 
-  forwarding_unit fu_1_1(
-  .id_ex_rs(id_ex_rs1), 
-  .id_ex_rt(id_ex_rt1), 
-  .ex_mem_rd(ex_mem_reg_dst_result1), 
-  .mem_wb_rd(mem_wb_reg_dst_result1), 
-  .ex_mem_reg_write(ex_mem_reg_write1), 
-  .mem_wb_reg_write(mem_wb_reg_write1),
-  .forward_a(forward_a_1_1), 
-  .forward_b(forward_b_1_1));
+  .forward_a0(forward_a), 
+  .forward_b0(forward_b),
+
+  .forward_a1(), 
+  .forward_b1());
 
   // pipe 1
   mux4x2 #(`DATA_WIDTH) alu_input_mux_1_0(
