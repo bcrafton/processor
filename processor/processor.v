@@ -229,13 +229,13 @@ module processor(
   .read_data_2(reg_read_data_2_0));
 
   register_file regfile1( 
-  .write(), // this cannot write stuff or it will break us
-  .write_address(), 
-  .write_data(), 
-  .read_address_1(), 
-  .read_data_1(), 
-  .read_address_2(), 
-  .read_data_2());
+  .write(1'b0), 
+  .write_address(mem_wb_reg_dst_result1), 
+  .write_data(mem_to_reg_result1), 
+  .read_address_1(rs1), 
+  .read_data_1(reg_read_data_1_1), 
+  .read_address_2(rt1), 
+  .read_data_2(reg_read_data_2_1));
 
   id_ex_register id_ex_reg(
   .clk(clk), 
