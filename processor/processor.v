@@ -143,16 +143,10 @@ module processor(
 
   wire [`FORWARD_BITS-1:0] forward_a, forward_b;
 
-  wire [`FORWARD_BITS-1:0] forward_a_0_0;
-  wire [`FORWARD_BITS-1:0] forward_a_0_1;
-  wire [`FORWARD_BITS-1:0] forward_a_1_0;
-  wire [`FORWARD_BITS-1:0] forward_a_1_1;
-
-  wire [`FORWARD_BITS-1:0] forward_b_0_0;
-  wire [`FORWARD_BITS-1:0] forward_b_0_1;
-  wire [`FORWARD_BITS-1:0] forward_b_1_0;
-  wire [`FORWARD_BITS-1:0] forward_b_1_1;
-
+  wire [`FORWARD_BITS-1:0] forward_a0;
+  wire [`FORWARD_BITS-1:0] forward_a1;
+  wire [`FORWARD_BITS-1:0] forward_b0;
+  wire [`FORWARD_BITS-1:0] forward_b1;
 
   wire stall;
   wire flush;
@@ -347,11 +341,8 @@ module processor(
   .ex_mem_reg_write1(), 
   .mem_wb_reg_write1(),
 
-  .forward_a0(forward_a), 
-  .forward_b0(forward_b),
-
-  .forward_a1(), 
-  .forward_b1());
+  .forward_a(forward_a), 
+  .forward_b(forward_b));
 
   // pipe 1
   mux4x2 #(`DATA_WIDTH) alu_input_mux_1_0(
