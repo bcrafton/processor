@@ -54,7 +54,8 @@ module processor(
 
   wire [`DATA_WIDTH-1:0] alu_src_result0;
   wire [`DATA_WIDTH-1:0] alu_src_result1;
-  wire [`DATA_WIDTH-1:0] mem_to_reg_result;
+  wire [`DATA_WIDTH-1:0] mem_to_reg_result0;
+  wire [`DATA_WIDTH-1:0] mem_to_reg_result1;
 
   wire [`ADDR_WIDTH-1:0] address_src_result0;
   wire [`ADDR_WIDTH-1:0] address_src_result1;
@@ -221,7 +222,7 @@ module processor(
   register_file regfile0( 
   .write(mem_wb_reg_write0), 
   .write_address(mem_wb_reg_dst_result0), 
-  .write_data(mem_to_reg_result), 
+  .write_data(mem_to_reg_result0), 
   .read_address_1(rs0), 
   .read_data_1(reg_read_data_1_0), 
   .read_address_2(rt0), 
@@ -333,7 +334,7 @@ module processor(
   // pipe 1
   mux4x2 #(`DATA_WIDTH) alu_input_mux_1_0(
   .in0(id_ex_reg_read_data_1_0), 
-  .in1(mem_to_reg_result), 
+  .in1(mem_to_reg_result0), 
   .in2(ex_mem_alu_result0), 
   .in3(),
   .sel(forward_a), 
@@ -341,7 +342,7 @@ module processor(
 
   mux4x2 #(`DATA_WIDTH) alu_input_mux_2_0(
   .in0(id_ex_reg_read_data_2_0), 
-  .in1(mem_to_reg_result), 
+  .in1(mem_to_reg_result0), 
   .in2(ex_mem_alu_result0), 
   .in3(),
   .sel(forward_b), 
@@ -350,7 +351,7 @@ module processor(
   // pipe 2
   mux4x2 #(`DATA_WIDTH) alu_input_mux_1_1(
   .in0(id_ex_reg_read_data_2_1), 
-  .in1(mem_to_reg_result), 
+  .in1(mem_to_reg_result1), 
   .in2(ex_mem_alu_result1), 
   .in3(),
   .sel(forward_b), 
@@ -358,7 +359,7 @@ module processor(
 
   mux4x2 #(`DATA_WIDTH) alu_input_mux_2_1(
   .in0(id_ex_reg_read_data_2_1), 
-  .in1(mem_to_reg_result), 
+  .in1(mem_to_reg_result1), 
   .in2(ex_mem_alu_result1), 
   .in3(),
   .sel(forward_b), 
@@ -523,11 +524,17 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  mux2x1 #(`DATA_WIDTH) mem_to_reg_mux(
+  mux2x1 #(`DATA_WIDTH) mem_to_reg_mux0(
   .in0(mem_wb_alu_result0), 
   .in1(mem_wb_ram_read_data0), 
   .sel(mem_wb_mem_to_reg0), 
-  .out(mem_to_reg_result));
+  .out(mem_to_reg_result0));
+
+  mux2x1 #(`DATA_WIDTH) mem_to_reg_mux1(
+  .in0(mem_wb_alu_result1), 
+  .in1(mem_wb_ram_read_data1), 
+  .sel(mem_wb_mem_to_reg1), 
+  .out(mem_to_reg_result1));
 
 endmodule
 
