@@ -104,17 +104,31 @@ module processor(
   wire [`MEM_OP_BITS-1:0] id_ex_mem_op1;
 
   // ex/mem
-  wire [`INST_WIDTH-1:0] ex_mem_instruction;
-  wire [`DATA_WIDTH-1:0] ex_mem_alu_result;
-  wire [`DATA_WIDTH-1:0] ex_mem_data_1, ex_mem_data_2;
-  wire [`ADDR_WIDTH-1:0] ex_mem_address;
-  wire [`ADDR_WIDTH-1:0] ex_mem_address_src_result;
-  wire ex_mem_mem_to_reg;
-  wire [`JUMP_BITS-1:0] ex_mem_jop;
-  wire [`MEM_OP_BITS-1:0] ex_mem_mem_op;
-  wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_reg_dst_result;
+  wire [`INST_WIDTH-1:0] ex_mem_instruction0;
+  wire [`DATA_WIDTH-1:0] ex_mem_alu_result0;
+  wire [`DATA_WIDTH-1:0] ex_mem_data_1_0, ex_mem_data_2_0;
+  wire [`ADDR_WIDTH-1:0] ex_mem_address0;
+  wire [`ADDR_WIDTH-1:0] ex_mem_address_src_result0;
+  wire ex_mem_mem_to_reg0;
+  wire ex_mem_reg_write0;
+  wire [`JUMP_BITS-1:0] ex_mem_jop0;
+  wire [`MEM_OP_BITS-1:0] ex_mem_mem_op0;
+  wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_reg_dst_result0;
+
   wire ex_mem_jump_address;
   wire [`ADDR_WIDTH-1:0] jump_address_result;
+
+  wire [`INST_WIDTH-1:0] ex_mem_instruction1;
+  wire [`DATA_WIDTH-1:0] ex_mem_alu_result1;
+  wire [`DATA_WIDTH-1:0] ex_mem_data_1_1, ex_mem_data_2_1;
+  wire [`ADDR_WIDTH-1:0] ex_mem_address1;
+  wire [`ADDR_WIDTH-1:0] ex_mem_address_src_result1;
+  wire ex_mem_mem_to_reg1;
+  wire ex_mem_reg_write1;
+  wire [`JUMP_BITS-1:0] ex_mem_jop1;
+  wire [`MEM_OP_BITS-1:0] ex_mem_mem_op1;
+  wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_reg_dst_result1;
+
   // mem/wb
   wire [`INST_WIDTH-1:0] mem_wb_instruction;
   wire [`DATA_WIDTH-1:0] mem_wb_ram_read_data, mem_wb_alu_result;
@@ -146,8 +160,8 @@ module processor(
   ///////////////////////////////////////////////////////////////////////////////////////////
 
   mux2x1 #(`ADDR_WIDTH) jump_address_mux(
-  .in0(ex_mem_data_1[`ADDR_WIDTH-1:0]), 
-  .in1(ex_mem_address), 
+  .in0(ex_mem_data_1_0[`ADDR_WIDTH-1:0]), 
+  .in1(ex_mem_address0), 
   .sel(ex_mem_jump_address), 
   .out(jump_address_result));
 
@@ -304,9 +318,9 @@ module processor(
   forwarding_unit fu(
   .id_ex_rs(id_ex_rs0), 
   .id_ex_rt(id_ex_rt0), 
-  .ex_mem_rd(ex_mem_reg_dst_result), 
+  .ex_mem_rd(ex_mem_reg_dst_result0), 
   .mem_wb_rd(mem_wb_reg_dst_result), 
-  .ex_mem_reg_write(ex_mem_reg_write), 
+  .ex_mem_reg_write(ex_mem_reg_write0), 
   .mem_wb_reg_write(mem_wb_reg_write),
   .forward_a(forward_a), 
   .forward_b(forward_b));
@@ -315,7 +329,7 @@ module processor(
   mux4x2 #(`DATA_WIDTH) alu_input_mux_1_0(
   .in0(id_ex_reg_read_data_1_0), 
   .in1(mem_to_reg_result), 
-  .in2(ex_mem_alu_result), 
+  .in2(ex_mem_alu_result0), 
   .in3(),
   .sel(forward_a), 
   .out(alu_input_mux_1_result0));
@@ -323,7 +337,7 @@ module processor(
   mux4x2 #(`DATA_WIDTH) alu_input_mux_2_0(
   .in0(id_ex_reg_read_data_2_0), 
   .in1(mem_to_reg_result), 
-  .in2(ex_mem_alu_result), 
+  .in2(ex_mem_alu_result0), 
   .in3(),
   .sel(forward_b), 
   .out(alu_input_mux_2_result0));
@@ -388,14 +402,6 @@ module processor(
   .sel(id_ex_reg_dst1), 
   .out(reg_dst_result1));
 
-  // ex_mem_data_1: register result
-  // ex_mem_address: address in instruction
-  // la, sa = ex_mem_address
-  // lw, sw = ex_mem_data_1
-
-  // address is always rs or imm
-  // write data is always rt
-  // desintation of load is always rt 
   mux2x1 #(`ADDR_WIDTH) address_src_mux0(
   .in0(alu_result0[`ADDR_WIDTH-1:0]), 
   .in1(id_ex_address0), 
@@ -412,55 +418,80 @@ module processor(
   .clk(clk), 
   .flush(flush), 
 
-  .alu_result_in(alu_result0), 
-  .data_1_in(alu_input_mux_1_result0),
-  .data_2_in(alu_input_mux_2_result0), 
-  .reg_dst_result_in(reg_dst_result0), 
-  .jop_in(id_ex_jop0), 
-  .mem_op_in(id_ex_mem_op0), 
-  .mem_to_reg_in(id_ex_mem_to_reg0), 
-  .reg_write_in(id_ex_reg_write0), 
-  .address_in(id_ex_address0), 
-  .address_src_result_in(address_src_result0),
-  .instruction_in(id_ex_instruction0),
+  .alu_result_in0(alu_result0), 
+  .data_1_in0(alu_input_mux_1_result0),
+  .data_2_in0(alu_input_mux_2_result0), 
+  .reg_dst_result_in0(reg_dst_result0), 
+  .jop_in0(id_ex_jop0), 
+  .mem_op_in0(id_ex_mem_op0), 
+  .mem_to_reg_in0(id_ex_mem_to_reg0), 
+  .reg_write_in0(id_ex_reg_write0), 
+  .address_in0(id_ex_address0), 
+  .address_src_result_in0(address_src_result0),
+  .instruction_in0(id_ex_instruction0),
 
-  .alu_result_out(ex_mem_alu_result), 
-  .data_1_out(ex_mem_data_1), 
-  .data_2_out(ex_mem_data_2),
-  .reg_dst_result_out(ex_mem_reg_dst_result), 
-  .jop_out(ex_mem_jop), 
-  .mem_op_out(ex_mem_mem_op),
-  .mem_to_reg_out(ex_mem_mem_to_reg), 
-  .reg_write_out(ex_mem_reg_write), 
-  .address_out(ex_mem_address),
-  .address_src_result_out(ex_mem_address_src_result),
-  .instruction_out(ex_mem_instruction)
+  .alu_result_in1(alu_result1), 
+  .data_1_in1(alu_input_mux_1_result1),
+  .data_2_in1(alu_input_mux_2_result1), 
+  .reg_dst_result_in1(reg_dst_result1), 
+  .jop_in1(id_ex_jop1), 
+  .mem_op_in1(id_ex_mem_op1), 
+  .mem_to_reg_in1(id_ex_mem_to_reg1), 
+  .reg_write_in1(id_ex_reg_write1), 
+  .address_in1(id_ex_address1), 
+  .address_src_result_in1(address_src_result1),
+  .instruction_in1(id_ex_instruction1),
+
+  .alu_result_out0(ex_mem_alu_result0), 
+  .data_1_out0(ex_mem_data_1_0), 
+  .data_2_out0(ex_mem_data_2_0),
+  .reg_dst_result_out0(ex_mem_reg_dst_result0), 
+  .jop_out0(ex_mem_jop0), 
+  .mem_op_out0(ex_mem_mem_op0),
+  .mem_to_reg_out0(ex_mem_mem_to_reg0), 
+  .reg_write_out0(ex_mem_reg_write0), 
+  .address_out0(ex_mem_address0),
+  .address_src_result_out0(ex_mem_address_src_result0),
+  .instruction_out0(ex_mem_instruction0),
+
+  .alu_result_out1(ex_mem_alu_result1), 
+  .data_1_out1(ex_mem_data_1_1), 
+  .data_2_out1(ex_mem_data_2_1),
+  .reg_dst_result_out1(ex_mem_reg_dst_result1), 
+  .jop_out1(ex_mem_jop1), 
+  .mem_op_out1(ex_mem_mem_op1),
+  .mem_to_reg_out1(ex_mem_mem_to_reg1), 
+  .reg_write_out1(ex_mem_reg_write1), 
+  .address_out1(ex_mem_address1),
+  .address_src_result_out1(ex_mem_address_src_result1),
+  .instruction_out1(ex_mem_instruction1)
+
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   ram data_memory(
-  .address(ex_mem_address_src_result), 
-  .write_data(ex_mem_data_2), 
+  .address(ex_mem_address_src_result0), 
+  .write_data(ex_mem_data_2_0), 
   .read_data(ram_read_data), 
-  .mem_op(ex_mem_mem_op));
+  .mem_op(ex_mem_mem_op0));
 
   branch_unit bu(
   .zero(zero0),
   .less(less0),
   .greater(greater0),
-  .jop(ex_mem_jop), 
+  .jop(ex_mem_jop0), 
   .flush(flush),
   .jump_address(ex_mem_jump_address));
 
   mem_wb_register mem_wb_reg(
   .clk(clk), 
-  .mem_to_reg_in(ex_mem_mem_to_reg), 
+  .mem_to_reg_in(ex_mem_mem_to_reg0), 
   .ram_read_data_in(ram_read_data), 
-  .alu_result_in(ex_mem_alu_result), 
-  .reg_dst_result_in(ex_mem_reg_dst_result), 
-  .reg_write_in(ex_mem_reg_write), 
-  .instruction_in(ex_mem_instruction),
+  .alu_result_in(ex_mem_alu_result0), 
+  .reg_dst_result_in(ex_mem_reg_dst_result0), 
+  .reg_write_in(ex_mem_reg_write0), 
+  .instruction_in(ex_mem_instruction0),
 
   .mem_to_reg_out(mem_wb_mem_to_reg), 
   .ram_read_data_out(mem_wb_ram_read_data), 
