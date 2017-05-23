@@ -155,6 +155,9 @@ module id_ex_register(
   output reg [`INST_WIDTH-1:0] instruction_out1;
 
   initial begin
+    rs_out0 <= 0;
+    rt_out0 <= 0;
+    rd_out0 <= 0;
     reg_read_data_1_out0 <= 0;
     reg_read_data_2_out0 <= 0;
     immediate_out0 <= 0;
@@ -169,6 +172,24 @@ module id_ex_register(
     jop_out0 <= 0;
     address_src_out0 <= 0;
     instruction_out0 <= 0;
+
+    rs_out1 <= 0;
+    rt_out1 <= 0;
+    rd_out1 <= 0;
+    reg_read_data_1_out1 <= 0;
+    reg_read_data_2_out1 <= 0;
+    immediate_out1 <= 0;
+    address_out1 <= 0;
+    shamt_out1 <= 0;
+    reg_dst_out1 <= 0;
+    mem_to_reg_out1 <= 0;
+    alu_op_out1 <= 0;
+    mem_op_out1 <= 0;
+    alu_src_out1 <= 0;
+    reg_write_out1 <= 0;
+    jop_out1 <= 0;
+    address_src_out1 <= 0;
+    instruction_out1 <= 0;
   end
 
   always @(posedge clk) begin
@@ -191,6 +212,24 @@ module id_ex_register(
       jop_out0 <= 0;
       address_src_out0 <= 0;
       instruction_out0 <= 0;
+
+      rs_out1 <= 0;
+      rt_out1 <= 0;
+      rd_out1 <= 0;
+      reg_read_data_1_out1 <= 0;
+      reg_read_data_2_out1 <= 0;
+      immediate_out1 <= 0;
+      address_out1 <= 0;
+      shamt_out1 <= 0;
+      reg_dst_out1 <= 0;
+      mem_to_reg_out1 <= 0;
+      alu_op_out1 <= 0;
+      mem_op_out1 <= 0;
+      alu_src_out1 <= 0;
+      reg_write_out1 <= 0;
+      jop_out1 <= 0;
+      address_src_out1 <= 0;
+      instruction_out1 <= 0;
     end else begin	
       rs_out0 <= rs_in0;
       rt_out0 <= rt_in0;
@@ -209,6 +248,24 @@ module id_ex_register(
       jop_out0 <= jop_in0;
       address_src_out0 <= address_src_in0;
       instruction_out0 <=instruction_in0;
+
+      rs_out1 <= rs_in1;
+      rt_out1 <= rt_in1;
+      rd_out1 <= rd_in1;
+      reg_read_data_1_out1 <= reg_read_data_1_in1;
+      reg_read_data_2_out1 <= reg_read_data_2_in1;
+      immediate_out1 <= immediate_in1;
+      address_out1 <= address_in1;
+      shamt_out1 <= shamt_in1;
+      reg_dst_out1 <= reg_dst_in1;
+      mem_to_reg_out1 <= mem_to_reg_in1;
+      alu_op_out1 <= alu_op_in1;
+      mem_op_out1 <= mem_op_in1;
+      alu_src_out1 <= alu_src_in1;
+      reg_write_out1 <= reg_write_in1;
+      jop_out1 <= jop_in1;
+      address_src_out1 <= address_src_in1;
+      instruction_out1 <=instruction_in1;
     end
 
   end

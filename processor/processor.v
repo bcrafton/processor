@@ -30,9 +30,13 @@ module processor(
   wire [`JUMP_BITS-1:0] jop1;
   wire address_src1;
 
-  wire zero;
-  wire less;
-  wire greater;
+  wire zero0;
+  wire less0;
+  wire greater0;
+
+  wire zero1;
+  wire less1;
+  wire greater1;
 
   wire [`DATA_WIDTH-1:0] ram_read_data;
 
@@ -42,13 +46,18 @@ module processor(
   wire [`DATA_WIDTH-1:0] reg_read_data_1_1;
   wire [`DATA_WIDTH-1:0] reg_read_data_2_1;
 
-  wire [`DATA_WIDTH-1:0] alu_result;
+  wire [`DATA_WIDTH-1:0] alu_result0;
+  wire [`DATA_WIDTH-1:0] alu_result1;
 
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result;
-  wire [`DATA_WIDTH-1:0] alu_src_result;
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result0;
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result1;
+
+  wire [`DATA_WIDTH-1:0] alu_src_result0;
+  wire [`DATA_WIDTH-1:0] alu_src_result1;
   wire [`DATA_WIDTH-1:0] mem_to_reg_result;
 
-  wire [`ADDR_WIDTH-1:0] address_src_result;
+  wire [`ADDR_WIDTH-1:0] address_src_result0;
+  wire [`ADDR_WIDTH-1:0] address_src_result1;
 
   // if/id
   wire [`INST_WIDTH-1:0] instruction0;
@@ -115,7 +124,8 @@ module processor(
   wire [`FORWARD_BITS-1:0] forward_a, forward_b;
   wire stall;
   wire flush;
-  wire [`DATA_WIDTH-1:0] alu_input_mux_1_result, alu_input_mux_2_result;
+  wire [`DATA_WIDTH-1:0] alu_input_mux_1_result0, alu_input_mux_2_result0;
+  wire [`DATA_WIDTH-1:0] alu_input_mux_1_result1, alu_input_mux_2_result1;
 
   assign opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 = instruction0[`REG_RS_MSB:`REG_RS_LSB];
@@ -301,53 +311,82 @@ module processor(
   .forward_a(forward_a), 
   .forward_b(forward_b));
 
-// this takes 2 forwards and the normal 1, not 3 forwards.
-  mux4x2 #(`DATA_WIDTH) alu_input_mux_1(
+  // pipe 1
+  mux4x2 #(`DATA_WIDTH) alu_input_mux_1_0(
   .in0(id_ex_reg_read_data_1_0), 
-  .in1(mem_to_reg_result), // so is this out of mem/wb pipeline reg, the power point slides says mem/wb register
+  .in1(mem_to_reg_result), 
   .in2(ex_mem_alu_result), 
   .in3(),
   .sel(forward_a), 
-  .out(alu_input_mux_1_result));
+  .out(alu_input_mux_1_result0));
 
-// this takes 2 forwards and the normal 1, not 3 forwards.
-  mux4x2 #(`DATA_WIDTH) alu_input_mux_2(
+  mux4x2 #(`DATA_WIDTH) alu_input_mux_2_0(
   .in0(id_ex_reg_read_data_2_0), 
   .in1(mem_to_reg_result), 
   .in2(ex_mem_alu_result), 
   .in3(),
   .sel(forward_b), 
-  .out(alu_input_mux_2_result));
+  .out(alu_input_mux_2_result0));
 
-  mux2x1 #(`DATA_WIDTH) alu_src_mux(
-  .in0(alu_input_mux_2_result), 
+  // pipe 2
+  mux4x2 #(`DATA_WIDTH) alu_input_mux_1_1(
+  .in0(id_ex_reg_read_data_1_1), 
+  .in1(), 
+  .in2(), 
+  .in3(),
+  .sel(), 
+  .out(alu_input_mux_1_result1));
+
+  mux4x2 #(`DATA_WIDTH) alu_input_mux_2_1(
+  .in0(id_ex_reg_read_data_2_1), 
+  .in1(), 
+  .in2(), 
+  .in3(),
+  .sel(), 
+  .out(alu_input_mux_2_result1));
+  //
+
+  mux2x1 #(`DATA_WIDTH) alu_src_mux0(
+  .in0(alu_input_mux_2_result0), 
   .in1({16'h0000, id_ex_immediate0}), 
   .sel(id_ex_alu_src0), 
-  .out(alu_src_result));
+  .out(alu_src_result0));
+
+  mux2x1 #(`DATA_WIDTH) alu_src_mux1(
+  .in0(alu_input_mux_2_result1), 
+  .in1({16'h0000, id_ex_immediate1}), 
+  .sel(id_ex_alu_src1), 
+  .out(alu_src_result1));
 
   alu alu0(
   .alu_op(id_ex_alu_op0), 
-  .data1(alu_input_mux_1_result), 
-  .data2(alu_src_result), 
-  .zero(zero),
-  .less(less),
-  .greater(greater),
-  .alu_result(alu_result));
+  .data1(alu_input_mux_1_result0), 
+  .data2(alu_src_result0), 
+  .zero(zero0),
+  .less(less0),
+  .greater(greater0),
+  .alu_result(alu_result0));
 
   alu alu1(
-  .alu_op(), 
-  .data1(), 
-  .data2(), 
-  .zero(),
-  .less(),
-  .greater(),
-  .alu_result());
+  .alu_op(id_ex_alu_op1), 
+  .data1(alu_input_mux_1_result1), 
+  .data2(alu_src_result1), 
+  .zero(zero1),
+  .less(less1),
+  .greater(greater1),
+  .alu_result(alu_result1));
 
-  mux2x1 #(`NUM_REGISTERS_LOG2) reg_dst_mux(
+  mux2x1 #(`NUM_REGISTERS_LOG2) reg_dst_mux0(
   .in0(id_ex_rt0), 
   .in1(id_ex_rd0), 
   .sel(id_ex_reg_dst0), 
-  .out(reg_dst_result));
+  .out(reg_dst_result0));
+
+  mux2x1 #(`NUM_REGISTERS_LOG2) reg_dst_mux1(
+  .in0(id_ex_rt1), 
+  .in1(id_ex_rd1), 
+  .sel(id_ex_reg_dst1), 
+  .out(reg_dst_result1));
 
   // ex_mem_data_1: register result
   // ex_mem_address: address in instruction
@@ -357,26 +396,32 @@ module processor(
   // address is always rs or imm
   // write data is always rt
   // desintation of load is always rt 
-  mux2x1 #(`ADDR_WIDTH) address_src_mux(
-  .in0(alu_result[`ADDR_WIDTH-1:0]), 
+  mux2x1 #(`ADDR_WIDTH) address_src_mux0(
+  .in0(alu_result0[`ADDR_WIDTH-1:0]), 
   .in1(id_ex_address0), 
   .sel(id_ex_address_src0), 
-  .out(address_src_result));
+  .out(address_src_result0));
+
+  mux2x1 #(`ADDR_WIDTH) address_src_mux1(
+  .in0(alu_result1[`ADDR_WIDTH-1:0]), 
+  .in1(id_ex_address1), 
+  .sel(id_ex_address_src1), 
+  .out(address_src_result1));
 
   ex_mem_register ex_mem_reg(
   .clk(clk), 
   .flush(flush), 
 
-  .alu_result_in(alu_result), 
-  .data_1_in(alu_input_mux_1_result),
-  .data_2_in(alu_input_mux_2_result), 
-  .reg_dst_result_in(reg_dst_result), 
+  .alu_result_in(alu_result0), 
+  .data_1_in(alu_input_mux_1_result0),
+  .data_2_in(alu_input_mux_2_result0), 
+  .reg_dst_result_in(reg_dst_result0), 
   .jop_in(id_ex_jop0), 
   .mem_op_in(id_ex_mem_op0), 
   .mem_to_reg_in(id_ex_mem_to_reg0), 
   .reg_write_in(id_ex_reg_write0), 
   .address_in(id_ex_address0), 
-  .address_src_result_in(address_src_result),
+  .address_src_result_in(address_src_result0),
   .instruction_in(id_ex_instruction0),
 
   .alu_result_out(ex_mem_alu_result), 
@@ -401,9 +446,9 @@ module processor(
   .mem_op(ex_mem_mem_op));
 
   branch_unit bu(
-  .zero(zero),
-  .less(less),
-  .greater(greater),
+  .zero(zero0),
+  .less(less0),
+  .greater(greater0),
   .jop(ex_mem_jop), 
   .flush(flush),
   .jump_address(ex_mem_jump_address));
