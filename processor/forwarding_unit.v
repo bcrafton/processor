@@ -43,17 +43,17 @@ module forwarding_unit(
   always @(*) begin
 
     if(ex_mem_reg_write0 && (id_ex_rs == ex_mem_rd0)) begin
-      forward_a <= `FORWARD_EX_MEM;
+      forward_a <= `FORWARD_EX_MEM0;
     end else if(mem_wb_reg_write0 && (id_ex_rs == mem_wb_rd0)) begin
-      forward_a <= `FORWARD_MEM_WB;
+      forward_a <= `FORWARD_MEM_WB0;
     end else begin
       forward_a <= `NO_FORWARD;
     end
 
     if(ex_mem_reg_write0 && (id_ex_rt == ex_mem_rd0)) begin
-      forward_b <= `FORWARD_EX_MEM;
+      forward_b <= `FORWARD_EX_MEM0;
     end else if(mem_wb_reg_write0 && (id_ex_rt == mem_wb_rd0)) begin
-      forward_b <= `FORWARD_MEM_WB;
+      forward_b <= `FORWARD_MEM_WB0;
     end else begin
       forward_b <= `NO_FORWARD;
     end

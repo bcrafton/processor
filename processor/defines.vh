@@ -31,10 +31,12 @@
 `define JMP_OP_JR         4'b1011 // jump to a register
 `define JUMP_BITS         4 // $bits(JMP_OP_NOP)
 
-`define FORWARD_EX_MEM    2'b10
-`define FORWARD_MEM_WB    2'b01
-`define NO_FORWARD        2'b00
-`define FORWARD_BITS      2 // $bits(FORWARD_EX_MEM)
+`define NO_FORWARD         3'b000
+`define FORWARD_MEM_WB0    3'b001
+`define FORWARD_EX_MEM0    3'b010
+`define FORWARD_MEM_WB1    3'b011
+`define FORWARD_EX_MEM1    3'b100
+`define FORWARD_BITS       3 // $bits(FORWARD_EX_MEM0)
 
 `define DATA_WIDTH 32
 `define INST_WIDTH 32
