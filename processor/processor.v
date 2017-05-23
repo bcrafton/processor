@@ -326,7 +326,7 @@ module processor(
   .ex_mem_rd(ex_mem_reg_dst_result0), 
   .mem_wb_rd(mem_wb_reg_dst_result0), 
   .ex_mem_reg_write(ex_mem_reg_write0), 
-  .mem_wb_reg_write(mem_wb_reg_write),
+  .mem_wb_reg_write(mem_wb_reg_write0),
   .forward_a(forward_a), 
   .forward_b(forward_b));
 
@@ -349,19 +349,19 @@ module processor(
 
   // pipe 2
   mux4x2 #(`DATA_WIDTH) alu_input_mux_1_1(
-  .in0(id_ex_reg_read_data_1_1), 
-  .in1(), 
-  .in2(), 
+  .in0(id_ex_reg_read_data_2_1), 
+  .in1(mem_to_reg_result), 
+  .in2(ex_mem_alu_result1), 
   .in3(),
-  .sel(), 
+  .sel(forward_b), 
   .out(alu_input_mux_1_result1));
 
   mux4x2 #(`DATA_WIDTH) alu_input_mux_2_1(
   .in0(id_ex_reg_read_data_2_1), 
-  .in1(), 
-  .in2(), 
+  .in1(mem_to_reg_result), 
+  .in2(ex_mem_alu_result1), 
   .in3(),
-  .sel(), 
+  .sel(forward_b), 
   .out(alu_input_mux_2_result1));
   //
 

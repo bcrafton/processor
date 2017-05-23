@@ -125,14 +125,30 @@ PLI_INT32 mem_write(char* user_data)
     switch(memory_id)
     {
       case DMEM_ID:
-        dmemory[wr_address] = wr_data;
+        if (wr_address >= DMEMORY_SIZE || wr_address < 0)
+        {
+          fprintf(stderr, "dmemory write out of bounds %d\n", wr_address);
+          assert(0);
+        }
+        else
+        {
+          dmemory[wr_address] = wr_data;
+        }
         break;
       case IMEM_ID:
-        imemory[wr_address] = wr_data;
+        fprintf(stderr, "cannot write to i memory\n");
+        assert(0);
         break;
       case REGFILE_ID:
-        //printf("%x %x\n", wr_address, wr_data);
-        regfile[wr_address] = wr_data;
+        if (wr_address >= REGFILE_SIZE || wr_address < 0)
+        {
+          fprintf(stderr, "reg file write out of bounds %d\n", wr_address);
+          assert(0);
+        }
+        else
+        {
+          regfile[wr_address] = wr_data;
+        }
         break;
     }
     
