@@ -28,8 +28,8 @@ module steer(
 
   // A, B, X
   // pipe a, b, dont care.
-  reg [1:0] instruction0_type;
-  reg [1:0] instruction1_type;
+  reg [`PIPE_BITS-1:0] instruction0_pipe;
+  reg [`PIPE_BITS-1:0] instruction1_pipe;
 
   assign opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign opcode1 = instruction1[`OPCODE_MSB:`OPCODE_LSB];
@@ -38,42 +38,58 @@ module steer(
 
     casex(opcode0)
       6'b000000: begin
-        instruction0_type = 2;
+        instruction0_pipe = `PIPE_DONT_CARE;
       end
       6'b00????: begin // add, sub...
-        instruction0_type = 2;
+        if (opcode0 == `OP_CODE_CMP || opcode0 == `OP_CODE_TEST) begin
+          instruction0_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction0_pipe = `PIPE_DONT_CARE;
+        end
       end
       6'b01????: begin // addi, subi...
-        instruction0_type = 2;
+        if (opcode0 == `OP_CODE_CMPI || opcode0 == `OP_CODE_TESTI) begin
+          instruction0_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction0_pipe = `PIPE_DONT_CARE;
+        end        
       end
       6'b10????: begin // lw, sw, la, sa
-        instruction0_type = 1;
+        instruction0_pipe = `PIPE_MEMORY;
       end
       6'b11????: begin // jmp, jo, je ...
-        instruction0_type = 0;
+        instruction0_pipe = `PIPE_BRANCH;
       end
     endcase
 
     casex(opcode1)
       6'b000000: begin
-        instruction1_type = 2;
+        instruction1_pipe = `PIPE_DONT_CARE;
       end
       6'b00????: begin // add, sub...
-        instruction1_type = 2;
+        if (opcode1 == `OP_CODE_CMP || opcode1 == `OP_CODE_TEST) begin
+          instruction0_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction0_pipe = `PIPE_DONT_CARE;
+        end
       end
       6'b01????: begin // addi, subi...
-        instruction1_type = 2;
+        if (opcode1 == `OP_CODE_CMPI || opcode1 == `OP_CODE_TESTI) begin
+          instruction0_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction0_pipe = `PIPE_DONT_CARE;
+        end        
       end
       6'b10????: begin // lw, sw, la, sa
-        instruction1_type = 1;
+        instruction1_pipe = `PIPE_MEMORY;
       end
       6'b11????: begin // jmp, jo, je ...
-        instruction1_type = 0;
+        instruction1_pipe = `PIPE_BRANCH;
       end
     endcase
 
-    case( {instruction0_type, instruction1_type} )
-      {2'b00, 2'b00}: begin
+    case( {instruction0_pipe, instruction1_pipe} )
+      {`PIPE_BRANCH, `PIPE_BRANCH}: begin
         if (fetch_stall == 0) begin
           instruction0_out = instruction0_in;
           instruction1_out = `NOP_INSTRUCTION;
@@ -86,13 +102,13 @@ module steer(
           first = 0;
         end
       end
-      {2'b01, 2'b00}: begin
+      {`PIPE_MEMORY, `PIPE_BRANCH}: begin
         instruction0_out = instruction1_in;
         instruction1_out = instruction0_in;
         stall = 0;
         first = 1;
       end
-      {2'b01, 2'b01}: begin
+      {`PIPE_MEMORY, `PIPE_MEMORY}: begin
         if (fetch_stall == 0) begin
           instruction0_out = `NOP_INSTRUCTION;
           instruction1_out = instruction0_in;
@@ -105,13 +121,13 @@ module steer(
           first = 1;
         end
       end
-      {2'b01, 2'b10}: begin
+      {`PIPE_MEMORY, `PIPE_DONT_CARE}: begin
         instruction0_out = instruction1_in;
         instruction1_out = instruction0_in;
         stall = 0;
         first = 1;
       end
-      {2'b10, 2'b00}: begin
+      {`PIPE_DONT_CARE, `PIPE_BRANCH}: begin
         instruction0_out = instruction1_in;
         instruction1_out = instruction0_in;
         stall = 0;

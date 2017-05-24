@@ -38,6 +38,11 @@
 `define FORWARD_EX_MEM1    3'b100
 `define FORWARD_BITS       3 // $bits(FORWARD_EX_MEM0)
 
+`define PIPE_BRANCH        2'b00
+`define PIPE_MEMORY        2'b01
+`define PIPE_DONT_CARE     2'b10
+`define PIPE_BITS          2 // $bits(PIPE_BRANCH)
+
 `define DATA_WIDTH 32
 `define INST_WIDTH 32
 `define ADDR_WIDTH 16 
