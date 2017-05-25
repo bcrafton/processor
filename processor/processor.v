@@ -454,6 +454,7 @@ module processor(
 
   ex_mem_register ex_mem_reg0(
   .clk(clk), 
+  .stall(1'b0),
   .flush(flush), 
 
   .alu_result_in(alu_result0), 
@@ -483,6 +484,7 @@ module processor(
 
   ex_mem_register ex_mem_reg1(
   .clk(clk), 
+  .stall(1'b0),
   .flush(flush), 
 
   .alu_result_in(alu_result1), 
@@ -528,6 +530,8 @@ module processor(
 
   mem_wb_register mem_wb_reg0(
   .clk(clk), 
+  .stall(1'b0),
+  .flush(1'b0), 
 
   .mem_to_reg_in(ex_mem_mem_to_reg0), 
   .ram_read_data_in(ram_read_data), 
@@ -546,6 +550,8 @@ module processor(
 
   mem_wb_register mem_wb_reg1(
   .clk(clk), 
+  .stall(1'b0),
+  .flush(1'b0), 
 
   .mem_to_reg_in(ex_mem_mem_to_reg1), 
   .ram_read_data_in(ram_read_data), 
