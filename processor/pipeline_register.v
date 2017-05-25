@@ -4,6 +4,7 @@ module if_id_register(
   clk,
   stall,
   flush,
+  nop,
 
   instruction_in, 
 
@@ -13,30 +14,33 @@ module if_id_register(
   input wire clk;
   input wire stall;
   input wire flush;
+  input wire nop;
 
   input wire [`INST_WIDTH-1:0] instruction_in;
 
   reg stall_latch;
   reg flush_latch;
+  reg nop_latch;
 
   reg [`INST_WIDTH-1:0] instruction;
 
   output wire [`INST_WIDTH-1:0] instruction_out;
 
-  wire nop;
-  //assign nop = flush_latch || stall_latch;
-  assign nop = 0;
-
-  assign instruction_out = nop ? 0 : instruction;
+  assign instruction_out = nop_latch ? 0 : instruction;
 
   initial begin
     instruction <= 0;
+
+    stall_latch <= 0;
+    flush_latch <= 0;
+    nop_latch <= 0;
   end
 
   always @(posedge clk) begin
 
     stall_latch <= stall;
     flush_latch <= flush;
+    nop_latch <= nop;
 
     if(!stall) begin
       if(flush) begin
@@ -53,6 +57,7 @@ module id_ex_register(
   clk,
   stall,
   flush,
+  nop,
 
   rs_in,
   rt_in,
@@ -94,6 +99,7 @@ module id_ex_register(
   input wire clk;
   input wire flush;
   input wire stall;
+  input wire nop;
 
   input wire [`NUM_REGISTERS_LOG2-1:0] rs_in;
   input wire [`NUM_REGISTERS_LOG2-1:0] rt_in;
@@ -115,6 +121,7 @@ module id_ex_register(
 
   reg stall_latch;
   reg flush_latch;
+  reg nop_latch;
 
   reg [`NUM_REGISTERS_LOG2-1:0] rs;
   reg [`NUM_REGISTERS_LOG2-1:0] rt;
@@ -152,30 +159,28 @@ module id_ex_register(
   output wire address_src_out;
   output wire [`INST_WIDTH-1:0] instruction_out;
 
-  wire nop;
-  assign nop = flush_latch || stall_latch;
-
-  assign rs_out =              nop ? 0 : rs;
-  assign rt_out =              nop ? 0 : rt;
-  assign rd_out =              nop ? 0 : rd;
-  assign reg_read_data_1_out = nop ? 0 : reg_read_data_1;
-  assign reg_read_data_2_out = nop ? 0 : reg_read_data_2;
-  assign immediate_out =       nop ? 0 : immediate;
-  assign address_out =         nop ? 0 : address;
-  assign shamt_out =           nop ? 0 : shamt;
-  assign reg_dst_out =         nop ? 0 : reg_dst;
-  assign mem_to_reg_out =      nop ? 0 : mem_to_reg;
-  assign alu_op_out =          nop ? 0 : alu_op;
-  assign mem_op_out =          nop ? 0 : mem_op;
-  assign alu_src_out =         nop ? 0 : alu_src;
-  assign reg_write_out =       nop ? 0 : reg_write;
-  assign jop_out =             nop ? 0 : jop;
-  assign address_src_out =     nop ? 0 : address_src;
-  assign instruction_out =     nop ? 0 : instruction;
+  assign rs_out =              nop_latch ? 0 : rs;
+  assign rt_out =              nop_latch ? 0 : rt;
+  assign rd_out =              nop_latch ? 0 : rd;
+  assign reg_read_data_1_out = nop_latch ? 0 : reg_read_data_1;
+  assign reg_read_data_2_out = nop_latch ? 0 : reg_read_data_2;
+  assign immediate_out =       nop_latch ? 0 : immediate;
+  assign address_out =         nop_latch ? 0 : address;
+  assign shamt_out =           nop_latch ? 0 : shamt;
+  assign reg_dst_out =         nop_latch ? 0 : reg_dst;
+  assign mem_to_reg_out =      nop_latch ? 0 : mem_to_reg;
+  assign alu_op_out =          nop_latch ? 0 : alu_op;
+  assign mem_op_out =          nop_latch ? 0 : mem_op;
+  assign alu_src_out =         nop_latch ? 0 : alu_src;
+  assign reg_write_out =       nop_latch ? 0 : reg_write;
+  assign jop_out =             nop_latch ? 0 : jop;
+  assign address_src_out =     nop_latch ? 0 : address_src;
+  assign instruction_out =     nop_latch ? 0 : instruction;
 
   initial begin
     stall_latch <= 0;
     flush_latch <= 0;
+    nop_latch <= 0;
 
     rs <= 0;
     rt <= 0;
@@ -200,6 +205,7 @@ module id_ex_register(
 
     stall_latch <= stall;
     flush_latch <= flush;
+    nop_latch <= nop;
 
     if(!stall) begin
       if(flush) begin

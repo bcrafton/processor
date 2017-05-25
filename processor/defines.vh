@@ -11,6 +11,19 @@
 `define GARBAGE           32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 `define NOP_INSTRUCTION   32'b00000000000000000000000000000000
 
+`define PIPE_REG_PC       5'b00001
+`define PIPE_REG_IF_ID    5'b00010
+`define PIPE_REG_ID_EX    5'b00100
+`define PIPE_REG_EX_MEM   5'b01000
+`define PIPE_REG_MEM_WB   5'b10000
+`define NUM_PIPE_MASKS    5 //$bits(MEM_OP_READ)
+
+`define PC_MASK_INDEX     0
+`define IF_ID_MASK_INDEX  1
+`define ID_EX_MASK_INDEX  2
+`define EX_MEM_MASK_INDEX 3
+`define MEM_WB_MASK_INDEX 4
+
 `define MEM_OP_NOP        2'b00
 `define MEM_OP_READ       2'b01
 `define MEM_OP_WRITE      2'b10

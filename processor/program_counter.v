@@ -12,7 +12,8 @@ module program_counter(
   branch_address,
   pc,
   stall,
-  flush
+  flush,
+  nop,
   );
 
   input wire clk;
@@ -30,6 +31,7 @@ module program_counter(
 
   input wire flush;
   input wire stall;
+  input wire nop;
   
   wire jump;
   assign jump = prev_opcode == `OP_CODE_JMP;

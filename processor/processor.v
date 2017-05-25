@@ -151,8 +151,11 @@ module processor(
   wire [`FORWARD_BITS-1:0] forward_b0;
   wire [`FORWARD_BITS-1:0] forward_b1;
 
-  wire stall;
+  wire [`NUM_PIPE_MASKS-1:0] nop;
+  wire [`NUM_PIPE_MASKS-1:0] stall;
   wire flush;
+  //wire [`NUM_PIPE_MASKS-1:0] flush;
+
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result0, alu_input_mux_2_result0;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result1, alu_input_mux_2_result1;
 
@@ -190,7 +193,9 @@ module processor(
   .branch_address(jump_address_result), 
   .pc(pc), 
   .flush(flush), 
-  .stall(stall));
+  .stall(stall[`PC_MASK_INDEX]),
+  .nop(nop[`PC_MASK_INDEX])
+  );
   
   instruction_memory im(
   .pc(pc), 
@@ -200,7 +205,8 @@ module processor(
   if_id_register if_id_reg0(
   .clk(clk), 
   .flush(flush), 
-  .stall(stall), 
+  .stall(stall[`IF_ID_MASK_INDEX]), 
+  .nop(nop[`IF_ID_MASK_INDEX]), 
 
   .instruction_in(instruction0),
   .instruction_out(if_id_instruction0)
@@ -209,7 +215,8 @@ module processor(
   if_id_register if_id_reg1(
   .clk(clk), 
   .flush(flush), 
-  .stall(stall), 
+  .stall(stall[`IF_ID_MASK_INDEX]), 
+  .nop(nop[`IF_ID_MASK_INDEX]), 
 
   .instruction_in(instruction1),
   .instruction_out(if_id_instruction1)
@@ -222,7 +229,8 @@ module processor(
   .id_ex_rt(id_ex_rt0), 
   .if_id_rs(rs0), 
   .if_id_rt(rt0), 
-  .stall(stall));
+  .stall(stall),
+  .nop(nop));
 
   control_unit cu0(
   .opcode(opcode0), 
@@ -267,7 +275,8 @@ module processor(
   id_ex_register id_ex_reg0(
   .clk(clk), 
   .flush(flush), 
-  .stall(stall), 
+  .stall(stall[`ID_EX_MASK_INDEX]), 
+  .nop(nop[`ID_EX_MASK_INDEX]), 
 
   .rs_in(rs0), 
   .rt_in(rt0), 
@@ -309,7 +318,8 @@ module processor(
   id_ex_register id_ex_reg1(
   .clk(clk), 
   .flush(flush), 
-  .stall(stall), 
+  .stall(stall[`ID_EX_MASK_INDEX]), 
+  .nop(nop[`ID_EX_MASK_INDEX]), 
 
   .rs_in(rs1), 
   .rt_in(rt1), 
