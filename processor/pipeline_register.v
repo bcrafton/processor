@@ -1,5 +1,53 @@
 `timescale 1ns / 1ps
 
+module if_id_register(
+  clk,
+  stall,
+  flush,
+
+  instruction_in, 
+
+  instruction_out
+  );
+
+  input wire clk;
+  input wire stall;
+  input wire flush;
+
+  input wire [`INST_WIDTH-1:0] instruction_in;
+
+  reg stall_latch;
+  reg flush_latch;
+
+  reg [`INST_WIDTH-1:0] instruction;
+
+  output wire [`INST_WIDTH-1:0] instruction_out;
+
+  wire nop;
+  assign nop = flush_latch || stall_latch;
+
+  assign instruction_out = nop ? 0 : instruction;
+
+  initial begin
+    instruction <= 0;
+  end
+
+  always @(posedge clk) begin
+
+    stall_latch <= stall;
+    flush_latch <= flush;
+
+    if(!stall) begin
+      if(flush) begin
+        instruction <= 0;
+      end else begin
+        instruction <= instruction_in;
+      end
+    end
+  end
+
+endmodule
+
 module id_ex_register(
   clk,
   stall,

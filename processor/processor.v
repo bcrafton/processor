@@ -60,10 +60,15 @@ module processor(
   wire [`ADDR_WIDTH-1:0] address_src_result0;
   wire [`ADDR_WIDTH-1:0] address_src_result1;
 
-  // if/id
+  wire [`ADDR_WIDTH-1:0] pc;
   wire [`INST_WIDTH-1:0] instruction0;
   wire [`INST_WIDTH-1:0] instruction1;
-  wire [`ADDR_WIDTH-1:0] pc;
+  
+  // if/id
+  wire [`INST_WIDTH-1:0] if_id_instruction0;
+  wire [`INST_WIDTH-1:0] if_id_instruction1;
+
+  
 
   wire [`OP_CODE_BITS-1:0] opcode0;
   wire [`NUM_REGISTERS_LOG2-1:0] rs0;
@@ -151,21 +156,21 @@ module processor(
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result0, alu_input_mux_2_result0;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result1, alu_input_mux_2_result1;
 
-  assign opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
-  assign rs0 = instruction0[`REG_RS_MSB:`REG_RS_LSB];
-  assign rt0 = instruction0[`REG_RT_MSB:`REG_RT_LSB];
-  assign rd0 = instruction0[`REG_RD_MSB:`REG_RD_LSB];
-  assign immediate0 = instruction0[`IMM_MSB:`IMM_LSB];
-  assign address0 = instruction0[`IMM_MSB:`IMM_LSB];
-  assign shamt0 = instruction0[`SHAMT_MSB:`SHAMT_LSB];
+  assign opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
+  assign rs0 = if_id_instruction0[`REG_RS_MSB:`REG_RS_LSB];
+  assign rt0 = if_id_instruction0[`REG_RT_MSB:`REG_RT_LSB];
+  assign rd0 = if_id_instruction0[`REG_RD_MSB:`REG_RD_LSB];
+  assign immediate0 = if_id_instruction0[`IMM_MSB:`IMM_LSB];
+  assign address0 = if_id_instruction0[`IMM_MSB:`IMM_LSB];
+  assign shamt0 = if_id_instruction0[`SHAMT_MSB:`SHAMT_LSB];
 
-  assign opcode1 = instruction1[`OPCODE_MSB:`OPCODE_LSB];
-  assign rs1 = instruction1[`REG_RS_MSB:`REG_RS_LSB];
-  assign rt1 = instruction1[`REG_RT_MSB:`REG_RT_LSB];
-  assign rd1 = instruction1[`REG_RD_MSB:`REG_RD_LSB];
-  assign immediate1 = instruction1[`IMM_MSB:`IMM_LSB];
-  assign address1 = instruction1[`IMM_MSB:`IMM_LSB];
-  assign shamt1 = instruction1[`SHAMT_MSB:`SHAMT_LSB];
+  assign opcode1 = if_id_instruction1[`OPCODE_MSB:`OPCODE_LSB];
+  assign rs1 = if_id_instruction1[`REG_RS_MSB:`REG_RS_LSB];
+  assign rt1 = if_id_instruction1[`REG_RT_MSB:`REG_RT_LSB];
+  assign rd1 = if_id_instruction1[`REG_RD_MSB:`REG_RD_LSB];
+  assign immediate1 = if_id_instruction1[`IMM_MSB:`IMM_LSB];
+  assign address1 = if_id_instruction1[`IMM_MSB:`IMM_LSB];
+  assign shamt1 = if_id_instruction1[`SHAMT_MSB:`SHAMT_LSB];
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -178,10 +183,10 @@ module processor(
   program_counter pc_unit(
   .clk(clk), 
   .reset(reset),
-  .prev_opcode0(opcode0),
-  .prev_address0(address0),
-  .prev_opcode1(opcode1),
-  .prev_address1(address1),
+  .prev_opcode0(instruction0[`OPCODE_MSB:`OPCODE_LSB]),
+  .prev_address0(instruction0[`IMM_MSB:`IMM_LSB]),
+  .prev_opcode1(instruction1[`OPCODE_MSB:`OPCODE_LSB]),
+  .prev_address1(instruction1[`IMM_MSB:`IMM_LSB]),
   .branch_address(jump_address_result), 
   .pc(pc), 
   .flush(flush), 
@@ -191,6 +196,24 @@ module processor(
   .pc(pc), 
   .instruction0(instruction0),
   .instruction1(instruction1));
+
+  if_id_register if_id_reg0(
+  .clk(clk), 
+  .flush(flush), 
+  .stall(stall), 
+
+  .instruction_in(instruction0),
+  .instruction_out(if_id_instruction0)
+  );
+
+  if_id_register if_id_reg1(
+  .clk(clk), 
+  .flush(flush), 
+  .stall(stall), 
+
+  .instruction_in(instruction1),
+  .instruction_out(if_id_instruction1)
+  );
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   
