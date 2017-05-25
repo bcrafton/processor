@@ -24,7 +24,8 @@ module if_id_register(
   output wire [`INST_WIDTH-1:0] instruction_out;
 
   wire nop;
-  assign nop = flush_latch || stall_latch;
+  //assign nop = flush_latch || stall_latch;
+  assign nop = 0;
 
   assign instruction_out = nop ? 0 : instruction;
 

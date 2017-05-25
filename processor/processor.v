@@ -285,7 +285,7 @@ module processor(
   .reg_write_in(reg_write0), 
   .jop_in(jop0), 
   .address_src_in(address_src0),
-  .instruction_in(instruction0),
+  .instruction_in(if_id_instruction0),
 
   .rs_out(id_ex_rs0), 
   .rt_out(id_ex_rt0), 
@@ -327,7 +327,7 @@ module processor(
   .reg_write_in(reg_write1), 
   .jop_in(jop1), 
   .address_src_in(address_src1),
-  .instruction_in(instruction1),
+  .instruction_in(if_id_instruction1),
 
   .rs_out(id_ex_rs1), 
   .rt_out(id_ex_rt1), 
