@@ -227,8 +227,17 @@ module processor(
   hazard_detection_unit hdu(
   .id_ex_mem_op(id_ex_mem_op0), 
   .id_ex_rt(id_ex_rt0), 
-  .if_id_rs(rs0), 
-  .if_id_rt(rt0), 
+
+  .first(1'b0),
+
+  .if_id_rs0(rs0), 
+  .if_id_rt0(rt0), 
+  .if_id_rd0(rd0),
+
+  .if_id_rs1(rs1), 
+  .if_id_rt1(rt1), 
+  .if_id_rd1(rd1),
+
   .stall(stall),
   .nop(nop));
 
