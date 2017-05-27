@@ -7,10 +7,6 @@ extern INSTRUCTION imemory[IMEMORY_SIZE];
 
 static test_t tests[] = {
 
-{"fn_add", BINARY_TEST, 0, 1000},
-
-{"if_true", BINARY_TEST, 0, 1000},
-{"if_false", BINARY_TEST, 0, 1000},
 {"addi", BINARY_TEST, 0, 1000},
 {"subi", BINARY_TEST, 0, 1000},
 {"andi", BINARY_TEST, 0, 1000},
@@ -55,6 +51,10 @@ static test_t tests[] = {
 {"jz", BINARY_TEST, 0, 1000},
 {"jnz", BINARY_TEST, 0, 1000},
 {"jr", BINARY_TEST, 0, 1000},
+
+{"fn_add", BINARY_TEST, 0, 1000},
+{"if_true", BINARY_TEST, 0, 1000},
+{"if_false", BINARY_TEST, 0, 1000},
 
 {"a", CODE_TEST, 60, 10000},
 {"b", CODE_TEST, 60, 10000},
