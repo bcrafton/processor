@@ -29,8 +29,8 @@ module steer(
   reg [`PIPE_BITS-1:0] instruction0_pipe;
   reg [`PIPE_BITS-1:0] instruction1_pipe;
 
-  assign opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
-  assign opcode1 = instruction1[`OPCODE_MSB:`OPCODE_LSB];
+  assign opcode0 = instruction0_in[`OPCODE_MSB:`OPCODE_LSB];
+  assign opcode1 = instruction1_in[`OPCODE_MSB:`OPCODE_LSB];
 
   always @(*) begin
 
