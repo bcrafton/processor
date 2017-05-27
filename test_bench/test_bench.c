@@ -8,6 +8,7 @@ extern INSTRUCTION imemory[IMEMORY_SIZE];
 static test_t tests[] = {
 
 {"addi", BINARY_TEST, 0, 1000},
+/*
 {"subi", BINARY_TEST, 0, 1000},
 {"andi", BINARY_TEST, 0, 1000},
 
@@ -76,7 +77,7 @@ static test_t tests[] = {
 {"push", ASM_TEST, 100, 1000},
 {"pop", ASM_TEST, 100, 1000},
 {"push1", ASM_TEST, 100, 1000},
-
+*/
 };
 
 static TIME test_start_time;

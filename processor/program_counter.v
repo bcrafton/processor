@@ -52,7 +52,7 @@ module program_counter(
       end else if(prev_opcode1 == `OP_CODE_JMP) begin
         pc <= prev_address1;
       end else begin
-        pc <= pc + 1;
+        pc <= pc + 2;
       end
     end
 

@@ -245,6 +245,9 @@ module processor(
 
   .first(first),
 
+  .if_id_opcode0(opcode0),
+  .if_id_opcode1(opcode1),
+
   .if_id_rs0(rs0), 
   .if_id_rt0(rt0), 
   .if_id_rd0(rd0),
