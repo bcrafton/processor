@@ -576,10 +576,10 @@ module processor(
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   ram data_memory(
-  .address(ex_mem_address_src_result0), 
-  .write_data(ex_mem_data_2_0), 
+  .address(ex_mem_address_src_result1), 
+  .write_data(ex_mem_data_2_1), 
   .read_data(ram_read_data), 
-  .mem_op(ex_mem_mem_op0));
+  .mem_op(ex_mem_mem_op1));
 
   branch_unit bu(
   .zero(zero0),
