@@ -4,7 +4,7 @@
 
 module hazard_detection_unit(
   id_ex_mem_op,
-  id_ex_rt, // the place we are loading to.
+  id_ex_rt,
 
   first,
 
@@ -19,8 +19,11 @@ module hazard_detection_unit(
   if_id_rt1,
   if_id_rd1,
 
-  stall,
-  nop
+  stall0,
+  nop0,
+
+  stall1,
+  nop1
   );
 
   input wire [`MEM_OP_BITS-1:0] id_ex_mem_op;
@@ -39,8 +42,11 @@ module hazard_detection_unit(
   input wire [`NUM_REGISTERS_LOG2-1:0] if_id_rt1;
   input wire [`NUM_REGISTERS_LOG2-1:0] if_id_rd1;
 
-  output reg [`NUM_PIPE_MASKS-1:0] stall;
-  output reg [`NUM_PIPE_MASKS-1:0] nop;
+  output reg [`NUM_PIPE_MASKS-1:0] stall0;
+  output reg [`NUM_PIPE_MASKS-1:0] nop0;
+
+  output reg [`NUM_PIPE_MASKS-1:0] stall1;
+  output reg [`NUM_PIPE_MASKS-1:0] nop1;
 
   reg [2:0] src_mask0;
   reg [2:0] dst_mask0;
@@ -128,8 +134,11 @@ module hazard_detection_unit(
 
     if((if_id_rs0 == id_ex_rt || if_id_rt0 == id_ex_rt) && (id_ex_mem_op == `MEM_OP_READ)) begin
       
-      stall <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
-      nop <= `PIPE_REG_ID_EX;
+      stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
+      nop0 <= `PIPE_REG_ID_EX;
+
+      stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
+      nop1 <= `PIPE_REG_ID_EX;
 
     end else begin
 
@@ -138,31 +147,46 @@ module hazard_detection_unit(
         casex( {src_mask0, dst_mask1} )
           {3'b1??, 3'b?1?}: begin
             if (if_id_rs0 == if_id_rt1 && first) begin
-              stall <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
-              nop <= `PIPE_REG_ID_EX;
+              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
+              nop0 <= `PIPE_REG_ID_EX;
+
+              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+              nop1 <= `PIPE_REG_IF_ID;
             end
           end
           {3'b1??, 3'b??1}: begin
             if (if_id_rs0 == if_id_rd1 && first) begin
-              stall <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
-              nop <= `PIPE_REG_ID_EX;
+              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
+              nop0 <= `PIPE_REG_ID_EX;
+
+              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+              nop1 <= `PIPE_REG_IF_ID;
             end
           end
           {3'b?1?, 3'b?1?}: begin
             if (if_id_rt0 == if_id_rt1 && first) begin
-              stall <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
-              nop <= `PIPE_REG_ID_EX;
+              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
+              nop0 <= `PIPE_REG_ID_EX;
+
+              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+              nop1 <= `PIPE_REG_IF_ID;
             end
           end
           {3'b?1?, 3'b??1}: begin
             if (if_id_rt0 == if_id_rd1 && first) begin
-              stall <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
-              nop <= `PIPE_REG_ID_EX;
+              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
+              nop0 <= `PIPE_REG_ID_EX;
+
+              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+              nop1 <= `PIPE_REG_IF_ID;
             end
           end
           default: begin
-            stall <= 0;
-            nop <= 0;
+            stall0 <= 0;
+            nop0 <= 0;
+
+            stall1 <= 0;
+            nop1 <= 0;
           end
         endcase
 
@@ -171,31 +195,46 @@ module hazard_detection_unit(
         casex( {src_mask1, dst_mask0} )
           {3'b1??, 3'b?1?}: begin
             if (if_id_rs1 == if_id_rt0 && !first) begin
-              stall <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              nop <= `PIPE_REG_IF_ID;
+              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
+              nop1 <= `PIPE_REG_ID_EX;
+
+              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+              nop0 <= `PIPE_REG_IF_ID;
             end
           end
           {3'b1??, 3'b??1}: begin
             if (if_id_rs1 == if_id_rd0 && !first) begin
-              stall <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              nop <= `PIPE_REG_IF_ID;
+              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
+              nop1 <= `PIPE_REG_ID_EX;
+
+              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+              nop0 <= `PIPE_REG_IF_ID;
             end
           end
           {3'b?1?, 3'b?1?}: begin
             if (if_id_rt1 == if_id_rt0 && !first) begin
-              stall <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              nop <= `PIPE_REG_IF_ID;
+              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
+              nop1 <= `PIPE_REG_ID_EX;
+
+              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+              nop0 <= `PIPE_REG_IF_ID;
             end
           end
           {3'b?1?, 3'b??1}: begin
             if (if_id_rt1 == if_id_rd0 && !first) begin
-              stall <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              nop <= `PIPE_REG_IF_ID;
+              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
+              nop1 <= `PIPE_REG_ID_EX;
+
+              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+              nop1 <= `PIPE_REG_IF_ID;
             end
           end
           default: begin
-            stall <= 0;
-            nop <= 0;
+            stall0 <= 0;
+            nop0 <= 0;
+
+            stall1 <= 0;
+            nop1 <= 0;
           end
         endcase
 
