@@ -68,7 +68,7 @@ static test_t tests[] = {
 {"fib3", CODE_TEST, 4, 100000},
 {"fib4", CODE_TEST, 6, 100000},
 {"fib5", CODE_TEST, 10, 100000},
-{"fib10", CODE_TEST, 110, 500000},
+//{"fib10", CODE_TEST, 110, 500000},
 
 {"to_10", CODE_TEST, 20, 10000},
 
