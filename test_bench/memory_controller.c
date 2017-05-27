@@ -38,6 +38,7 @@ PLI_INT32 mem_read(char* user_data)
       case DMEM_ID:
         if (rd_address >= DMEMORY_SIZE || rd_address < 0)
         {
+          fprintf(stderr, "dmemory read out of bounds %d\n", rd_address);
           assert(0);
         }
         else
@@ -58,6 +59,7 @@ PLI_INT32 mem_read(char* user_data)
       case REGFILE_ID:
         if (rd_address >= REGFILE_SIZE || rd_address < 0)
         {
+          fprintf(stderr, "reg read out of bounds %d\n", rd_address);
           assert(0);
         }
         else

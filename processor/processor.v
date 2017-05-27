@@ -223,7 +223,7 @@ module processor(
   .stall(stall[`IF_ID_MASK_INDEX]), 
   .nop(nop[`IF_ID_MASK_INDEX]), 
 
-  .instruction_in(instruction0),
+  .instruction_in(steer_instruction0),
   .instruction_out(if_id_instruction0)
   );
 
@@ -233,7 +233,7 @@ module processor(
   .stall(stall[`IF_ID_MASK_INDEX]), 
   .nop(nop[`IF_ID_MASK_INDEX]), 
 
-  .instruction_in(instruction1),
+  .instruction_in(steer_instruction1),
   .instruction_out(if_id_instruction1)
   );
 
@@ -243,7 +243,7 @@ module processor(
   .id_ex_mem_op(id_ex_mem_op0), 
   .id_ex_rt(id_ex_rt0), 
 
-  .first(1'b0),
+  .first(first),
 
   .if_id_rs0(rs0), 
   .if_id_rt0(rt0), 
@@ -390,6 +390,8 @@ module processor(
   .id_ex_rs(id_ex_rs0), 
   .id_ex_rt(id_ex_rt0), 
 
+  .first(first),
+
   .ex_mem_rd0(ex_mem_reg_dst_result0), 
   .mem_wb_rd0(mem_wb_reg_dst_result0), 
   .ex_mem_reg_write0(ex_mem_reg_write0), 
@@ -406,6 +408,8 @@ module processor(
   forwarding_unit fu1(
   .id_ex_rs(id_ex_rs1), 
   .id_ex_rt(id_ex_rt1), 
+
+  .first(first),
 
   .ex_mem_rd0(ex_mem_reg_dst_result0), 
   .mem_wb_rd0(mem_wb_reg_dst_result0), 

@@ -8,6 +8,8 @@ module forwarding_unit(
   id_ex_rs,
   id_ex_rt,
 
+  first,
+
   ex_mem_rd0,
   mem_wb_rd0,
   ex_mem_reg_write0,
@@ -27,6 +29,8 @@ module forwarding_unit(
   input wire [`NUM_REGISTERS_LOG2-1:0] id_ex_rs;
   input wire [`NUM_REGISTERS_LOG2-1:0] id_ex_rt;
 
+  input wire first;
+
   input wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_rd0;
   input wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_rd0;
   input wire ex_mem_reg_write0;
@@ -39,9 +43,6 @@ module forwarding_unit(
 
   output reg [`FORWARD_BITS-1:0] forward_a;
   output reg [`FORWARD_BITS-1:0] forward_b;
-
-  wire first;
-  assign first = 0;
 
   always @(*) begin
 
