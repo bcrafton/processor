@@ -64,11 +64,12 @@ module processor(
   wire [`INST_WIDTH-1:0] instruction0;
   wire [`INST_WIDTH-1:0] instruction1;
   
+  wire [`INST_WIDTH-1:0] steer_instruction0;
+  wire [`INST_WIDTH-1:0] steer_instruction1;
+
   // if/id
   wire [`INST_WIDTH-1:0] if_id_instruction0;
   wire [`INST_WIDTH-1:0] if_id_instruction1;
-
-  
 
   wire [`OP_CODE_BITS-1:0] opcode0;
   wire [`NUM_REGISTERS_LOG2-1:0] rs0;
@@ -156,6 +157,9 @@ module processor(
   wire flush;
   //wire [`NUM_PIPE_MASKS-1:0] flush;
 
+  wire first;
+  wire steer_stall;
+
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result0, alu_input_mux_2_result0;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result1, alu_input_mux_2_result1;
 
@@ -193,7 +197,7 @@ module processor(
   .branch_address(jump_address_result), 
   .pc(pc), 
   .flush(flush), 
-  .stall(stall[`PC_MASK_INDEX]),
+  .stall(stall[`PC_MASK_INDEX] | steer_stall),
   .nop(nop[`PC_MASK_INDEX])
   );
   
@@ -201,6 +205,17 @@ module processor(
   .pc(pc), 
   .instruction0(instruction0),
   .instruction1(instruction1));
+
+  steer str(
+  .instruction0_in(instruction0),
+  .instruction1_in(instruction1),
+
+  .instruction0_out(steer_instruction0),
+  .instruction1_out(steer_instruction1),
+
+  .stall(steer_stall),
+  .first(first)
+  );
 
   if_id_register if_id_reg0(
   .clk(clk), 

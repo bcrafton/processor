@@ -2,25 +2,6 @@
 
 `include "defines.vh"
 
-/*
-thinking about the stalling must be abstracted away
-
-if something is at the output
-it is going to flop
-
-u can change the value inside if u flush but at the rising clock edge its value is the output
-also ur using the value of the wire
-and the wire only switches after a flop
-
-so basically
-if we read from the output of if id 
-and we see our match
-we shud stall if id and id ex
-that will stall read nad thing after write
-
-*/
-
-
 module hazard_detection_unit(
   id_ex_mem_op,
   id_ex_rt, // the place we are loading to.

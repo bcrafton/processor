@@ -6,7 +6,6 @@ module steer(
 
   instruction0_out,
   instruction1_out,
-  fetch_stall,
 
   stall,
   first,
@@ -15,7 +14,6 @@ module steer(
 
   input wire [`INST_WIDTH-1:0] instruction0_in;
   input wire [`INST_WIDTH-1:0] instruction1_in;
-  input wire fetch_stall;
 
   output reg [`INST_WIDTH-1:0] instruction0_out;
   output reg [`INST_WIDTH-1:0] instruction1_out;
@@ -90,7 +88,7 @@ module steer(
 
     case( {instruction0_pipe, instruction1_pipe} )
       {`PIPE_BRANCH, `PIPE_BRANCH}: begin
-        if (fetch_stall == 0) begin
+        if (stall == 0) begin
           instruction0_out = instruction0_in;
           instruction1_out = `NOP_INSTRUCTION;
           stall = 1;
@@ -109,7 +107,7 @@ module steer(
         first = 1;
       end
       {`PIPE_MEMORY, `PIPE_MEMORY}: begin
-        if (fetch_stall == 0) begin
+        if (stall == 0) begin
           instruction0_out = `NOP_INSTRUCTION;
           instruction1_out = instruction0_in;
           stall = 1;
