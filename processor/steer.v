@@ -1,6 +1,8 @@
 `timescale 1ns / 1ps
 
 module steer(
+  clk,
+
   instruction0_in,
   instruction1_in,
 
@@ -11,6 +13,7 @@ module steer(
   first,
   );
 
+  input wire clk;
 
   input wire [`INST_WIDTH-1:0] instruction0_in;
   input wire [`INST_WIDTH-1:0] instruction1_in;
@@ -29,8 +32,14 @@ module steer(
   reg [`PIPE_BITS-1:0] instruction0_pipe;
   reg [`PIPE_BITS-1:0] instruction1_pipe;
 
+  reg prev_stall;
+
   assign opcode0 = instruction0_in[`OPCODE_MSB:`OPCODE_LSB];
   assign opcode1 = instruction1_in[`OPCODE_MSB:`OPCODE_LSB];
+
+  always @(posedge clk) begin
+    prev_stall <= stall;  
+  end
 
   always @(*) begin
 
@@ -88,7 +97,7 @@ module steer(
 
     case( {instruction0_pipe, instruction1_pipe} )
       {`PIPE_BRANCH, `PIPE_BRANCH}: begin
-        if (stall == 0) begin
+        if (prev_stall == 0) begin
           instruction0_out = instruction0_in;
           instruction1_out = `NOP_INSTRUCTION;
           stall = 1;
@@ -107,7 +116,7 @@ module steer(
         first = 1;
       end
       {`PIPE_MEMORY, `PIPE_MEMORY}: begin
-        if (stall == 0) begin
+        if (prev_stall == 0) begin
           instruction0_out = `NOP_INSTRUCTION;
           instruction1_out = instruction0_in;
           stall = 1;

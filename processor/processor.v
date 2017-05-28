@@ -211,6 +211,8 @@ module processor(
   .instruction1(instruction1));
 
   steer str(
+  .clk(clk),
+
   .instruction0_in(instruction0),
   .instruction1_in(instruction1),
 
