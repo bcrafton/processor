@@ -71,6 +71,8 @@ module processor(
   wire [`INST_WIDTH-1:0] if_id_instruction0;
   wire [`INST_WIDTH-1:0] if_id_instruction1;
 
+  wire if_id_first;
+
   wire [`OP_CODE_BITS-1:0] opcode0;
   wire [`NUM_REGISTERS_LOG2-1:0] rs0;
   wire [`NUM_REGISTERS_LOG2-1:0] rt0;
@@ -110,6 +112,8 @@ module processor(
   wire [`ALU_OP_BITS-1:0] id_ex_alu_op1;
   wire [`MEM_OP_BITS-1:0] id_ex_mem_op1;
 
+  wire id_ex_first;
+
   // ex/mem
   wire [`INST_WIDTH-1:0] ex_mem_instruction0;
   wire [`DATA_WIDTH-1:0] ex_mem_alu_result0;
@@ -135,6 +139,8 @@ module processor(
   wire [`JUMP_BITS-1:0] ex_mem_jop1;
   wire [`MEM_OP_BITS-1:0] ex_mem_mem_op1;
   wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_reg_dst_result1;
+
+  wire ex_mem_first;
 
   // mem/wb
   wire [`INST_WIDTH-1:0] mem_wb_instruction0;
@@ -230,7 +236,10 @@ module processor(
   .nop(nop0[`IF_ID_MASK_INDEX]), 
 
   .instruction_in(steer_instruction0),
-  .instruction_out(if_id_instruction0)
+  .first_in(first),
+
+  .instruction_out(if_id_instruction0),
+  .first_out(if_id_first)
   );
 
   if_id_register if_id_reg1(
@@ -240,7 +249,10 @@ module processor(
   .nop(nop1[`IF_ID_MASK_INDEX]), 
 
   .instruction_in(steer_instruction1),
-  .instruction_out(if_id_instruction1)
+  .first_in(),
+
+  .instruction_out(if_id_instruction1),
+  .first_out()
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -249,7 +261,7 @@ module processor(
   .id_ex_mem_op(id_ex_mem_op0), 
   .id_ex_rt(id_ex_rt0), 
 
-  .first(first),
+  .first(first), // is this correct?
 
   .if_id_opcode0(opcode0),
   .if_id_opcode1(opcode1),
@@ -331,6 +343,7 @@ module processor(
   .jop_in(jop0), 
   .address_src_in(address_src0),
   .instruction_in(if_id_instruction0),
+  .first_in(if_id_first),
 
   .rs_out(id_ex_rs0), 
   .rt_out(id_ex_rt0), 
@@ -348,7 +361,8 @@ module processor(
   .reg_write_out(id_ex_reg_write0), 
   .jop_out(id_ex_jop0), 
   .address_src_out(id_ex_address_src0),
-  .instruction_out(id_ex_instruction0)
+  .instruction_out(id_ex_instruction0),
+  .first_out(id_ex_first)
   );
 
   id_ex_register id_ex_reg1(
@@ -374,6 +388,7 @@ module processor(
   .jop_in(jop1), 
   .address_src_in(address_src1),
   .instruction_in(if_id_instruction1),
+  .first_in(),
 
   .rs_out(id_ex_rs1), 
   .rt_out(id_ex_rt1), 
@@ -391,7 +406,8 @@ module processor(
   .reg_write_out(id_ex_reg_write1), 
   .jop_out(id_ex_jop1), 
   .address_src_out(id_ex_address_src1),
-  .instruction_out(id_ex_instruction1)
+  .instruction_out(id_ex_instruction1),
+  .first_out()
   );
 
 
@@ -545,6 +561,7 @@ module processor(
   .clk(clk), 
   .stall(1'b0),
   .flush(flush), 
+  .nop(1'b0),
 
   .alu_result_in(alu_result0), 
   .data_1_in(alu_input_mux_1_result0),
@@ -557,6 +574,7 @@ module processor(
   .address_in(id_ex_address0), 
   .address_src_result_in(address_src_result0),
   .instruction_in(id_ex_instruction0),
+  .first_in(id_ex_first),
 
   .alu_result_out(ex_mem_alu_result0), 
   .data_1_out(ex_mem_data_1_0), 
@@ -568,13 +586,15 @@ module processor(
   .reg_write_out(ex_mem_reg_write0), 
   .address_out(ex_mem_address0),
   .address_src_result_out(ex_mem_address_src_result0),
-  .instruction_out(ex_mem_instruction0)
+  .instruction_out(ex_mem_instruction0),
+  .first_out(ex_mem_first)
   );
 
   ex_mem_register ex_mem_reg1(
   .clk(clk), 
   .stall(1'b0),
   .flush(flush), 
+  .nop(1'b0),
 
   .alu_result_in(alu_result1), 
   .data_1_in(alu_input_mux_1_result1),
@@ -587,6 +607,7 @@ module processor(
   .address_in(id_ex_address1), 
   .address_src_result_in(address_src_result1),
   .instruction_in(id_ex_instruction1),
+  .first_in(),
 
   .alu_result_out(ex_mem_alu_result1), 
   .data_1_out(ex_mem_data_1_1), 
@@ -598,7 +619,8 @@ module processor(
   .reg_write_out(ex_mem_reg_write1), 
   .address_out(ex_mem_address1),
   .address_src_result_out(ex_mem_address_src_result1),
-  .instruction_out(ex_mem_instruction1)
+  .instruction_out(ex_mem_instruction1),
+  .first_out()
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -615,12 +637,14 @@ module processor(
   .greater(greater0),
   .jop(ex_mem_jop0), 
   .flush(flush),
-  .jump_address(ex_mem_jump_address));
+  .jump_address(ex_mem_jump_address)
+  );
 
   mem_wb_register mem_wb_reg0(
   .clk(clk), 
   .stall(1'b0),
   .flush(1'b0), 
+  .nop(1'b0),
 
   .mem_to_reg_in(ex_mem_mem_to_reg0), 
   .ram_read_data_in(ram_read_data), 
@@ -641,6 +665,7 @@ module processor(
   .clk(clk), 
   .stall(1'b0),
   .flush(1'b0), 
+  .nop(1'b0),
 
   .mem_to_reg_in(ex_mem_mem_to_reg1), 
   .ram_read_data_in(ram_read_data), 

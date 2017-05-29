@@ -7,8 +7,10 @@ module if_id_register(
   nop,
 
   instruction_in, 
+  first_in,
 
-  instruction_out
+  instruction_out,
+  first_out,
   );
 
   input wire clk;
@@ -17,23 +19,28 @@ module if_id_register(
   input wire nop;
 
   input wire [`INST_WIDTH-1:0] instruction_in;
+  input wire first_in;
 
   reg stall_latch;
   reg flush_latch;
   reg nop_latch;
 
   reg [`INST_WIDTH-1:0] instruction;
+  reg first;
 
   output wire [`INST_WIDTH-1:0] instruction_out;
+  output wire first_out;
 
   assign instruction_out = nop_latch ? 0 : instruction;
+  assign first_out =       nop_latch ? 0 : first;
 
   initial begin
-    instruction <= 0;
-
     stall_latch <= 0;
     flush_latch <= 0;
     nop_latch <= 0;
+
+    instruction <= 0;
+    first <= 0;
   end
 
   always @(posedge clk) begin
@@ -45,8 +52,10 @@ module if_id_register(
     if(!stall) begin
       if(flush) begin
         instruction <= 0;
+        first <= 0;
       end else begin
         instruction <= instruction_in;
+        first <= first_in;
       end
     end
   end
@@ -76,6 +85,7 @@ module id_ex_register(
   jop_in,
   address_src_in,
   instruction_in,
+  first_in,
 
   rs_out,
   rt_out,
@@ -94,6 +104,7 @@ module id_ex_register(
   jop_out,
   address_src_out,
   instruction_out,
+  first_out,
   );
 
   input wire clk;
@@ -118,6 +129,7 @@ module id_ex_register(
   input wire [`JUMP_BITS-1:0] jop_in;
   input wire address_src_in;
   input wire [`INST_WIDTH-1:0] instruction_in;
+  input wire first_in;
 
   reg stall_latch;
   reg flush_latch;
@@ -140,6 +152,7 @@ module id_ex_register(
   reg [`JUMP_BITS-1:0] jop;
   reg address_src;
   reg [`INST_WIDTH-1:0] instruction;
+  reg first;
 
   output wire [`NUM_REGISTERS_LOG2-1:0] rs_out;
   output wire [`NUM_REGISTERS_LOG2-1:0] rt_out;
@@ -158,6 +171,7 @@ module id_ex_register(
   output wire [`JUMP_BITS-1:0] jop_out;
   output wire address_src_out;
   output wire [`INST_WIDTH-1:0] instruction_out;
+  output wire first_out;
 
   assign rs_out =              nop_latch ? 0 : rs;
   assign rt_out =              nop_latch ? 0 : rt;
@@ -176,6 +190,7 @@ module id_ex_register(
   assign jop_out =             nop_latch ? 0 : jop;
   assign address_src_out =     nop_latch ? 0 : address_src;
   assign instruction_out =     nop_latch ? 0 : instruction;
+  assign first_out =           nop_latch ? 0 : first;
 
   initial begin
     stall_latch <= 0;
@@ -199,6 +214,7 @@ module id_ex_register(
     jop <= 0;
     address_src <= 0;
     instruction <= 0;
+    first <= 0;
   end
 
   always @(posedge clk) begin
@@ -226,6 +242,7 @@ module id_ex_register(
         jop <= 0;
         address_src <= 0;
         instruction <= 0;
+        first <= 0;
       end else begin	
         rs <= rs_in;
         rt <= rt_in;
@@ -244,6 +261,7 @@ module id_ex_register(
         jop <= jop_in;
         address_src <= address_src_in;
         instruction <=instruction_in;
+        first <= first_in;
       end
     end
   end
@@ -254,6 +272,7 @@ module ex_mem_register(
   clk,
   stall,
   flush,
+  nop,
 
   alu_result_in,
   data_1_in,
@@ -266,6 +285,7 @@ module ex_mem_register(
   address_in,
   address_src_result_in,
   instruction_in,
+  first_in,
 
   alu_result_out,
   data_1_out,
@@ -278,11 +298,13 @@ module ex_mem_register(
   address_out,
   address_src_result_out,
   instruction_out,
+  first_out,
   );
 
   input wire clk;
   input wire stall;
   input wire flush;
+  input wire nop;
 
   input wire [`DATA_WIDTH-1:0] alu_result_in;
   input wire [`DATA_WIDTH-1:0] data_1_in;
@@ -295,9 +317,11 @@ module ex_mem_register(
   input wire [`ADDR_WIDTH-1:0] address_in;
   input wire [`ADDR_WIDTH-1:0] address_src_result_in;
   input wire [`INST_WIDTH-1:0] instruction_in;
+  input wire first_in;
 
   reg stall_latch;
   reg flush_latch;
+  reg nop_latch;
 
   reg [`DATA_WIDTH-1:0] alu_result;
   reg [`DATA_WIDTH-1:0] data_1;
@@ -310,6 +334,7 @@ module ex_mem_register(
   reg [`ADDR_WIDTH-1:0] address;
   reg [`ADDR_WIDTH-1:0] address_src_result;
   reg [`INST_WIDTH-1:0] instruction;
+  reg first;
 
   output wire [`DATA_WIDTH-1:0] alu_result_out;
   output wire [`DATA_WIDTH-1:0] data_1_out;
@@ -322,23 +347,25 @@ module ex_mem_register(
   output wire [`ADDR_WIDTH-1:0] address_out;
   output wire [`ADDR_WIDTH-1:0] address_src_result_out;
   output wire [`INST_WIDTH-1:0] instruction_out;
+  output wire first_out;
 
-  wire nop;
-  assign nop = flush_latch || stall_latch;
-
-  assign alu_result_out =         nop ? 0 : alu_result;
-  assign data_1_out =             nop ? 0 : data_1;
-  assign data_2_out =             nop ? 0 : data_2;
-  assign reg_dst_result_out =     nop ? 0 : reg_dst_result;
-  assign jop_out =                nop ? 0 : jop;
-  assign mem_op_out =             nop ? 0 : mem_op;
-  assign mem_to_reg_out =         nop ? 0 : mem_to_reg;
-  assign reg_write_out =          nop ? 0 : reg_write;
-  assign address_out =            nop ? 0 : address;
-  assign address_src_result_out = nop ? 0 : address_src_result;
-  assign instruction_out =        nop ? 0 : instruction;
+  assign alu_result_out =         nop_latch ? 0 : alu_result;
+  assign data_1_out =             nop_latch ? 0 : data_1;
+  assign data_2_out =             nop_latch ? 0 : data_2;
+  assign reg_dst_result_out =     nop_latch ? 0 : reg_dst_result;
+  assign jop_out =                nop_latch ? 0 : jop;
+  assign mem_op_out =             nop_latch ? 0 : mem_op;
+  assign mem_to_reg_out =         nop_latch ? 0 : mem_to_reg;
+  assign reg_write_out =          nop_latch ? 0 : reg_write;
+  assign address_out =            nop_latch ? 0 : address;
+  assign address_src_result_out = nop_latch ? 0 : address_src_result;
+  assign instruction_out =        nop_latch ? 0 : instruction;
 
   initial begin
+    stall_latch <= 0;
+    flush_latch <= 0;
+    nop_latch <= 0;
+
     alu_result <= 0;
     data_1 <= 0;
     data_2 <= 0;
@@ -350,12 +377,14 @@ module ex_mem_register(
     address <= 0;
     address_src_result <= 0;
     instruction <= 0;
+    first <= 0;
   end
 
   always @(posedge clk) begin
     
     stall_latch <= stall;
     flush_latch <= flush;
+    nop_latch <= nop;
 
     if(!stall) begin
       if(flush) begin
@@ -370,6 +399,7 @@ module ex_mem_register(
         address <= 0;
         address_src_result <= 0;
         instruction <= 0;
+        first <= 0;
       end else begin
         alu_result <= alu_result_in;
         data_1 <= data_1_in;
@@ -382,6 +412,7 @@ module ex_mem_register(
         address <= address_in;
         address_src_result <= address_src_result_in;
         instruction <= instruction_in;
+        first <= first_in;
       end
     end
   end
@@ -392,6 +423,7 @@ module mem_wb_register(
   clk,
   stall,
   flush,
+  nop,
 
   mem_to_reg_in,
   ram_read_data_in,
@@ -399,6 +431,7 @@ module mem_wb_register(
   reg_dst_result_in,
   reg_write_in,
   instruction_in,
+  first_in,
 
   mem_to_reg_out,
   ram_read_data_out,
@@ -406,11 +439,13 @@ module mem_wb_register(
   reg_dst_result_out,
   reg_write_out,
   instruction_out,
+  first_out,
   );
 
   input wire clk;
   input wire stall;
   input wire flush;
+  input wire nop;
 
   input wire mem_to_reg_in;
   input wire [`DATA_WIDTH-1:0] ram_read_data_in;
@@ -418,9 +453,11 @@ module mem_wb_register(
   input wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_in;
   input wire reg_write_in;
   input wire [`INST_WIDTH-1:0] instruction_in;
+  input wire first_in;
 
   reg stall_latch;
   reg flush_latch;
+  reg nop_latch;
 
   reg mem_to_reg;
   reg [`DATA_WIDTH-1:0] ram_read_data;
@@ -428,6 +465,7 @@ module mem_wb_register(
   reg [`NUM_REGISTERS_LOG2-1:0] reg_dst_result;
   reg reg_write;
   reg [`INST_WIDTH-1:0] instruction;
+  reg first;
 
   output wire mem_to_reg_out;
   output wire [`DATA_WIDTH-1:0] ram_read_data_out;
@@ -435,30 +473,34 @@ module mem_wb_register(
   output wire [`NUM_REGISTERS_LOG2-1:0] reg_dst_result_out;
   output wire reg_write_out;
   output wire [`INST_WIDTH-1:0] instruction_out;
+  output wire first_out;
 
-  wire nop;
-  assign nop = flush_latch || stall_latch;
-
-  assign mem_to_reg_out =     nop ? 0 : mem_to_reg;
-  assign ram_read_data_out =  nop ? 0 : ram_read_data;
-  assign alu_result_out =     nop ? 0 : alu_result;
-  assign reg_dst_result_out = nop ? 0 : reg_dst_result;
-  assign reg_write_out =      nop ? 0 : reg_write;
-  assign instruction_out =    nop ? 0 : instruction;
+  assign mem_to_reg_out =     nop_latch ? 0 : mem_to_reg;
+  assign ram_read_data_out =  nop_latch ? 0 : ram_read_data;
+  assign alu_result_out =     nop_latch ? 0 : alu_result;
+  assign reg_dst_result_out = nop_latch ? 0 : reg_dst_result;
+  assign reg_write_out =      nop_latch ? 0 : reg_write;
+  assign instruction_out =    nop_latch ? 0 : instruction;
 
   initial begin
+    stall_latch <= 0;
+    flush_latch <= 0;
+    nop_latch <= 0;
+
     mem_to_reg <= 0;
     ram_read_data <= 0;
     alu_result <= 0;
     reg_dst_result <= 0;
     reg_write <= 0;
     instruction <= 0;
+    first <= 0;
   end
 
   always @(posedge clk) begin
 
     stall_latch <= stall;
     flush_latch <= flush;
+    nop_latch <= nop;
 
     if(!stall) begin
       if(flush) begin
@@ -468,6 +510,7 @@ module mem_wb_register(
         reg_dst_result <= 0;
         reg_write <= 0;
         instruction <= 0;
+        first <= 0;
       end else begin
         mem_to_reg <= mem_to_reg_in;
         ram_read_data <= ram_read_data_in;
@@ -475,6 +518,7 @@ module mem_wb_register(
         reg_dst_result <= reg_dst_result_in;
         reg_write <= reg_write_in;
         instruction <= instruction_in;
+        first <= first_in;
       end
     end
   end
