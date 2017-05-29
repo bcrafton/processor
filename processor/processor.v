@@ -261,7 +261,7 @@ module processor(
   .id_ex_mem_op(id_ex_mem_op0), 
   .id_ex_rt(id_ex_rt0), 
 
-  .first(first), // is this correct?
+  .first(if_id_first),
 
   .if_id_opcode0(opcode0),
   .if_id_opcode1(opcode1),
@@ -418,7 +418,7 @@ module processor(
   .id_ex_rs(id_ex_rs0), 
   .id_ex_rt(id_ex_rt0), 
 
-  .first(first),
+  .first(id_ex_first),
 
   .ex_mem_rd0(ex_mem_reg_dst_result0), 
   .mem_wb_rd0(mem_wb_reg_dst_result0), 
@@ -437,7 +437,7 @@ module processor(
   .id_ex_rs(id_ex_rs1), 
   .id_ex_rt(id_ex_rt1), 
 
-  .first(first),
+  .first(id_ex_first),
 
   .ex_mem_rd0(ex_mem_reg_dst_result0), 
   .mem_wb_rd0(mem_wb_reg_dst_result0), 
@@ -664,7 +664,7 @@ module processor(
   mem_wb_register mem_wb_reg1(
   .clk(clk), 
   .stall(1'b0),
-  .flush(1'b0), 
+  .flush(flush && !first), 
   .nop(1'b0),
 
   .mem_to_reg_in(ex_mem_mem_to_reg1), 

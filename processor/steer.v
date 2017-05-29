@@ -75,16 +75,16 @@ module steer(
       end
       6'b00????: begin // add, sub...
         if (opcode1 == `OP_CODE_CMP || opcode1 == `OP_CODE_TEST) begin
-          instruction0_pipe = `PIPE_BRANCH;
+          instruction1_pipe = `PIPE_BRANCH;
         end else begin
-          instruction0_pipe = `PIPE_DONT_CARE;
+          instruction1_pipe = `PIPE_DONT_CARE;
         end
       end
       6'b01????: begin // addi, subi...
         if (opcode1 == `OP_CODE_CMPI || opcode1 == `OP_CODE_TESTI) begin
-          instruction0_pipe = `PIPE_BRANCH;
+          instruction1_pipe = `PIPE_BRANCH;
         end else begin
-          instruction0_pipe = `PIPE_DONT_CARE;
+          instruction1_pipe = `PIPE_DONT_CARE;
         end        
       end
       6'b10????: begin // lw, sw, la, sa

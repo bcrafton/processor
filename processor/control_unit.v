@@ -38,20 +38,32 @@ module control_unit(
         alu_op <= `ALU_OP_NOP; 
       end
       6'b00????: begin // add, sub...
+
+        if (opcode == `OP_CODE_CMPI || opcode == `OP_CODE_TESTI) begin
+          reg_write <= 0;
+        end else begin
+          reg_write <= 1;
+        end
+
         reg_dst <= 1;
         mem_op <= `MEM_OP_NOP;
         alu_src <= 0;
         mem_to_reg <= 0;
-        reg_write <= 1;
         address_src <= 0;
         jop <= `JMP_OP_NOP;
       end
       6'b01????: begin // addi, subi...
+
+        if (opcode == `OP_CODE_CMPI || opcode == `OP_CODE_TESTI) begin
+          reg_write <= 0;
+        end else begin
+          reg_write <= 1;
+        end
         reg_dst <= 0;
         mem_op <= `MEM_OP_NOP;
         alu_src <= 1;
         mem_to_reg <= 0;
-        reg_write <= 1;
+        
         address_src <= 0;
         jop <= `JMP_OP_NOP;
       end
