@@ -664,7 +664,7 @@ module processor(
   mem_wb_register mem_wb_reg1(
   .clk(clk), 
   .stall(1'b0),
-  .flush(flush[`MEM_WB_MASK_INDEX] && !first), 
+  .flush(flush[`MEM_WB_MASK_INDEX] && !ex_mem_first), 
   .nop(1'b0),
 
   .mem_to_reg_in(ex_mem_mem_to_reg1), 

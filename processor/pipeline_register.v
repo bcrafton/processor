@@ -360,6 +360,7 @@ module ex_mem_register(
   assign address_out =            nop_latch ? 0 : address;
   assign address_src_result_out = nop_latch ? 0 : address_src_result;
   assign instruction_out =        nop_latch ? 0 : instruction;
+  assign first_out =              nop_latch ? 0 : first;
 
   initial begin
     stall_latch <= 0;
