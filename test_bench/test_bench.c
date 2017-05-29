@@ -78,7 +78,7 @@ static test_t tests[] = {
 {"pop", ASM_TEST, 100, 1000},
 {"push1", ASM_TEST, 100, 1000},
 */
-{"push", ASM_TEST, 100, 1000},
+{"mov", BINARY_TEST, 0, 1000},
 };
 
 static TIME test_start_time;

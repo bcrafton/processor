@@ -258,8 +258,8 @@ module processor(
   ///////////////////////////////////////////////////////////////////////////////////////////
   
   hazard_detection_unit hdu(
-  .id_ex_mem_op(id_ex_mem_op0), 
-  .id_ex_rt(id_ex_rt0), 
+  .id_ex_mem_op(id_ex_mem_op1), 
+  .id_ex_rt(id_ex_rt1), 
 
   .first(if_id_first),
 

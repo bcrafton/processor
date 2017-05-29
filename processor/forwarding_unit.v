@@ -31,11 +31,13 @@ module forwarding_unit(
 
   input wire first;
 
+  // this isnt actually rd reg, its reg dst result.
   input wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_rd0;
   input wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_rd0;
   input wire ex_mem_reg_write0;
   input wire mem_wb_reg_write0;
 
+  // this isnt actually rd reg, its reg dst result.
   input wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_rd1;
   input wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_rd1;
   input wire ex_mem_reg_write1;
