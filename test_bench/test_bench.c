@@ -6,7 +6,7 @@ extern REGISTER regfile[REGFILE_SIZE];
 extern INSTRUCTION imemory[IMEMORY_SIZE];
 
 static test_t tests[] = {
-
+/*
 {"addi", BINARY_TEST, 0, 1000},
 
 {"subi", BINARY_TEST, 0, 1000},
@@ -53,9 +53,10 @@ static test_t tests[] = {
 {"jnz", BINARY_TEST, 0, 1000},
 {"jr", BINARY_TEST, 0, 1000},
 
-{"fn_add", BINARY_TEST, 0, 1000},
-{"if_true", BINARY_TEST, 0, 1000},
-{"if_false", BINARY_TEST, 0, 1000},
+{"mov", ASM_TEST, 0, 1000},
+{"push", ASM_TEST, 100, 1000},
+{"pop", ASM_TEST, 100, 1000},
+{"push1", ASM_TEST, 100, 1000},
 
 {"a", CODE_TEST, 60, 10000},
 {"b", CODE_TEST, 60, 10000},
@@ -72,11 +73,11 @@ static test_t tests[] = {
 //{"fib10", CODE_TEST, 110, 500000},
 
 {"to_10", CODE_TEST, 20, 10000},
+*/
 
-{"mov", ASM_TEST, 0, 1000},
-{"push", ASM_TEST, 100, 1000},
-{"pop", ASM_TEST, 100, 1000},
-{"push1", ASM_TEST, 100, 1000},
+{"fn_add", CODE_TEST, 6, 10000},
+{"if_false", CODE_TEST, 10, 10000},
+{"if_true", CODE_TEST, 20, 10000},
 
 };
 
