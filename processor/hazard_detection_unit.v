@@ -146,7 +146,7 @@ module hazard_detection_unit(
 
         casex( {src_mask0, dst_mask1} )
           {3'b1??, 3'b?1?}: begin
-            if (if_id_rs0 == if_id_rt1 && first) begin
+            if (if_id_rs0 == if_id_rt1) begin
               stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
               nop0 <= `PIPE_REG_ID_EX;
 
@@ -155,7 +155,7 @@ module hazard_detection_unit(
             end
           end
           {3'b1??, 3'b??1}: begin
-            if (if_id_rs0 == if_id_rd1 && first) begin
+            if (if_id_rs0 == if_id_rd1) begin
               stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
               nop0 <= `PIPE_REG_ID_EX;
 
@@ -164,7 +164,7 @@ module hazard_detection_unit(
             end
           end
           {3'b?1?, 3'b?1?}: begin
-            if (if_id_rt0 == if_id_rt1 && first) begin
+            if (if_id_rt0 == if_id_rt1) begin
               stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
               nop0 <= `PIPE_REG_ID_EX;
 
@@ -173,7 +173,7 @@ module hazard_detection_unit(
             end
           end
           {3'b?1?, 3'b??1}: begin
-            if (if_id_rt0 == if_id_rd1 && first) begin
+            if (if_id_rt0 == if_id_rd1) begin
               stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
               nop0 <= `PIPE_REG_ID_EX;
 
@@ -194,7 +194,7 @@ module hazard_detection_unit(
 
         casex( {src_mask1, dst_mask0} )
           {3'b1??, 3'b?1?}: begin
-            if (if_id_rs1 == if_id_rt0 && !first) begin
+            if (if_id_rs1 == if_id_rt0) begin
               stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
               nop1 <= `PIPE_REG_ID_EX;
 
@@ -203,7 +203,7 @@ module hazard_detection_unit(
             end
           end
           {3'b1??, 3'b??1}: begin
-            if (if_id_rs1 == if_id_rd0 && !first) begin
+            if (if_id_rs1 == if_id_rd0) begin
               stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
               nop1 <= `PIPE_REG_ID_EX;
 
@@ -212,7 +212,7 @@ module hazard_detection_unit(
             end
           end
           {3'b?1?, 3'b?1?}: begin
-            if (if_id_rt1 == if_id_rt0 && !first) begin
+            if (if_id_rt1 == if_id_rt0) begin
               stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
               nop1 <= `PIPE_REG_ID_EX;
 
@@ -221,12 +221,12 @@ module hazard_detection_unit(
             end
           end
           {3'b?1?, 3'b??1}: begin
-            if (if_id_rt1 == if_id_rd0 && !first) begin
-              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
+            if (if_id_rt1 == if_id_rd0) begin
+              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
               nop1 <= `PIPE_REG_ID_EX;
 
               stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              nop1 <= `PIPE_REG_IF_ID;
+              nop0 <= `PIPE_REG_IF_ID;
             end
           end
           default: begin
