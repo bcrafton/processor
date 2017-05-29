@@ -164,8 +164,8 @@ module processor(
   wire [`NUM_PIPE_MASKS-1:0] nop1;
   wire [`NUM_PIPE_MASKS-1:0] stall1;
 
-  wire flush;
-  //wire [`NUM_PIPE_MASKS-1:0] flush;
+  //wire flush;
+  wire [`NUM_PIPE_MASKS-1:0] flush;
 
   wire first;
   wire steer_stall;
@@ -206,7 +206,7 @@ module processor(
   .prev_address1(instruction1[`IMM_MSB:`IMM_LSB]),
   .branch_address(jump_address_result), 
   .pc(pc), 
-  .flush(flush), 
+  .flush(flush[`PC_MASK_INDEX]), 
   .stall(stall0[`PC_MASK_INDEX] | steer_stall),
   .nop(nop0[`PC_MASK_INDEX])
   );
@@ -231,7 +231,7 @@ module processor(
 
   if_id_register if_id_reg0(
   .clk(clk), 
-  .flush(flush), 
+  .flush(flush[`IF_ID_MASK_INDEX]), 
   .stall(stall0[`IF_ID_MASK_INDEX]), 
   .nop(nop0[`IF_ID_MASK_INDEX]), 
 
@@ -244,7 +244,7 @@ module processor(
 
   if_id_register if_id_reg1(
   .clk(clk), 
-  .flush(flush), 
+  .flush(flush[`IF_ID_MASK_INDEX]), 
   .stall(stall1[`IF_ID_MASK_INDEX]), 
   .nop(nop1[`IF_ID_MASK_INDEX]), 
 
@@ -322,7 +322,7 @@ module processor(
 
   id_ex_register id_ex_reg0(
   .clk(clk), 
-  .flush(flush), 
+  .flush(flush[`ID_EX_MASK_INDEX]), 
   .stall(stall0[`ID_EX_MASK_INDEX]), 
   .nop(nop0[`ID_EX_MASK_INDEX]), 
 
@@ -367,7 +367,7 @@ module processor(
 
   id_ex_register id_ex_reg1(
   .clk(clk), 
-  .flush(flush), 
+  .flush(flush[`ID_EX_MASK_INDEX]), 
   .stall(stall1[`ID_EX_MASK_INDEX]), 
   .nop(nop1[`ID_EX_MASK_INDEX]), 
 
@@ -560,7 +560,7 @@ module processor(
   ex_mem_register ex_mem_reg0(
   .clk(clk), 
   .stall(1'b0),
-  .flush(flush), 
+  .flush(flush[`EX_MEM_MASK_INDEX]), 
   .nop(1'b0),
 
   .alu_result_in(alu_result0), 
@@ -593,7 +593,7 @@ module processor(
   ex_mem_register ex_mem_reg1(
   .clk(clk), 
   .stall(1'b0),
-  .flush(flush), 
+  .flush(flush[`EX_MEM_MASK_INDEX]), 
   .nop(1'b0),
 
   .alu_result_in(alu_result1), 
@@ -664,7 +664,7 @@ module processor(
   mem_wb_register mem_wb_reg1(
   .clk(clk), 
   .stall(1'b0),
-  .flush(flush && !first), 
+  .flush(flush[`MEM_WB_MASK_INDEX] && !first), 
   .nop(1'b0),
 
   .mem_to_reg_in(ex_mem_mem_to_reg1), 

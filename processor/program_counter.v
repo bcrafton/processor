@@ -32,9 +32,6 @@ module program_counter(
   input wire flush;
   input wire stall;
   input wire nop;
-  
-  wire jump;
-  assign jump = prev_opcode == `OP_CODE_JMP;
 
   initial begin
     pc = 0;
