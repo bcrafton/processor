@@ -169,6 +169,8 @@ module processor(
 
   wire first;
   wire steer_stall;
+  wire clear0;
+  wire clear1;
 
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result0, alu_input_mux_2_result0;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result1, alu_input_mux_2_result1;
@@ -231,7 +233,7 @@ module processor(
 
   if_id_register if_id_reg0(
   .clk(clk), 
-  .flush(flush[`IF_ID_MASK_INDEX]), 
+  .flush(flush[`IF_ID_MASK_INDEX] | clear0), 
   .stall(stall0[`IF_ID_MASK_INDEX]), 
   .nop(nop0[`IF_ID_MASK_INDEX]), 
 
@@ -244,7 +246,7 @@ module processor(
 
   if_id_register if_id_reg1(
   .clk(clk), 
-  .flush(flush[`IF_ID_MASK_INDEX]), 
+  .flush(flush[`IF_ID_MASK_INDEX] | clear1), 
   .stall(stall1[`IF_ID_MASK_INDEX]), 
   .nop(nop1[`IF_ID_MASK_INDEX]), 
 
@@ -278,7 +280,11 @@ module processor(
   .nop0(nop0),
 
   .stall1(stall1),
-  .nop1(nop1));
+  .nop1(nop1),
+
+  .clear0(clear0),
+  .clear1(clear1)
+  );
 
   control_unit cu0(
   .opcode(opcode0), 

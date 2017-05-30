@@ -75,9 +75,7 @@ static test_t tests[] = {
 {"to_10", CODE_TEST, 20, 10000},
 */
 
-{"fn_add", CODE_TEST, 6, 10000},
-{"if_false", CODE_TEST, 10, 10000},
-{"if_true", CODE_TEST, 20, 10000},
+{"stall_bug1", BINARY_TEST, 0, 10000},
 
 };
 
