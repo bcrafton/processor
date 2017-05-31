@@ -72,7 +72,7 @@ static test_t tests[] = {
 
 {"to_10", CODE_TEST, 20, 10000},
 */
-{"plus1", CODE_TEST, 4, 10000},
+{"plus1_asm", ASM_TEST, 4, 10000},
 };
 
 static TIME test_start_time;
