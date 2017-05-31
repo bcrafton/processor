@@ -151,17 +151,21 @@ module hazard_detection_unit(
       
       stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
       nop0 <= `PIPE_REG_ID_EX;
+      clear0 <= 0;
 
       stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
       nop1 <= `PIPE_REG_ID_EX;
+      clear1 <= 0;
 
     end else if((if_id_rs1 == id_ex_rt || if_id_rt1 == id_ex_rt) && (id_ex_mem_op == `MEM_OP_READ)) begin
       
       stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
       nop0 <= `PIPE_REG_ID_EX;
+      clear0 <= 0;
 
       stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID | `PIPE_REG_ID_EX;
       nop1 <= `PIPE_REG_ID_EX;
+      clear1 <= 0;
 
     end else begin
 
