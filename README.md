@@ -22,9 +22,11 @@ There is a dependency script that may or may not work for getting the dependenci
 Once these are acquired, the makefile can be run which will compile all four modules and run the test bench.
 ### Future Features
 1. Super scalar
-2. Branch predictor
-3. Out of order
-4. Compiler - Tuples and Forever loop
-5. OS
-6. SIMD 
-7. Basic terminal output
+2. Performance metrics (branch misses, IPC, instruction histograms, stalls)
+3. Branch predictor
+4. Out of order
+5. Compiler - Tuples and Forever loop
+6. OS
+7. SIMD 
+8. Basic terminal output
+9. Memory simulator (cache / memory heirarchy with random latency)
