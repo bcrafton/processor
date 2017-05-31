@@ -182,6 +182,14 @@ module hazard_detection_unit(
               stall1 <= `PIPE_REG_PC;
               clear1 <= 1;
               nop1 <= 0;
+            end else begin
+              stall0 <= 0;
+              nop0 <= 0;
+              clear0 <= 0;
+
+              stall1 <= 0;
+              nop1 <= 0;
+              clear1 <= 0;
             end
           end
           {3'b11?, 3'b??1}: begin
@@ -193,6 +201,14 @@ module hazard_detection_unit(
               stall1 <= `PIPE_REG_PC;
               clear1 <= 1;
               nop1 <= 0;
+            end else begin
+              stall0 <= 0;
+              nop0 <= 0;
+              clear0 <= 0;
+
+              stall1 <= 0;
+              nop1 <= 0;
+              clear1 <= 0;
             end
           end
 
@@ -205,6 +221,14 @@ module hazard_detection_unit(
               stall1 <= `PIPE_REG_PC;
               clear1 <= 1;
               nop1 <= 0;
+            end else begin
+              stall0 <= 0;
+              nop0 <= 0;
+              clear0 <= 0;
+
+              stall1 <= 0;
+              nop1 <= 0;
+              clear1 <= 0;
             end
           end
           {3'b1??, 3'b??1}: begin
@@ -216,6 +240,14 @@ module hazard_detection_unit(
               stall1 <= `PIPE_REG_PC;
               clear1 <= 1;
               nop1 <= 0;
+            end else begin
+              stall0 <= 0;
+              nop0 <= 0;
+              clear0 <= 0;
+
+              stall1 <= 0;
+              nop1 <= 0;
+              clear1 <= 0;
             end
           end
           {3'b?1?, 3'b?1?}: begin
@@ -227,6 +259,14 @@ module hazard_detection_unit(
               stall1 <= `PIPE_REG_PC;
               clear1 <= 1;
               nop1 <= 0;
+            end else begin
+              stall0 <= 0;
+              nop0 <= 0;
+              clear0 <= 0;
+
+              stall1 <= 0;
+              nop1 <= 0;
+              clear1 <= 0;
             end
           end
           {3'b?1?, 3'b??1}: begin
@@ -238,14 +278,24 @@ module hazard_detection_unit(
               stall1 <= `PIPE_REG_PC;
               clear1 <= 1;
               nop1 <= 0;
+            end else begin
+              stall0 <= 0;
+              nop0 <= 0;
+              clear0 <= 0;
+
+              stall1 <= 0;
+              nop1 <= 0;
+              clear1 <= 0;
             end
           end
           default: begin
             stall0 <= 0;
             nop0 <= 0;
+            clear0 <= 0;
 
             stall1 <= 0;
             nop1 <= 0;
+            clear1 <= 0;
           end
         endcase
 
@@ -262,6 +312,14 @@ module hazard_detection_unit(
               stall0 <= `PIPE_REG_PC;
               clear0 <= 1;
               nop0 <= 0;
+            end else begin
+              stall0 <= 0;
+              nop0 <= 0;
+              clear0 <= 0;
+
+              stall1 <= 0;
+              nop1 <= 0;
+              clear1 <= 0;
             end
           end
           {3'b11?, 3'b??1}: begin
@@ -273,6 +331,14 @@ module hazard_detection_unit(
               stall0 <= `PIPE_REG_PC;
               clear0 <= 1;
               nop0 <= 0;
+            end else begin
+              stall0 <= 0;
+              nop0 <= 0;
+              clear0 <= 0;
+
+              stall1 <= 0;
+              nop1 <= 0;
+              clear1 <= 0;
             end
           end
 
@@ -285,6 +351,14 @@ module hazard_detection_unit(
               stall0 <= `PIPE_REG_PC;
               clear0 <= 1;
               nop0 <= 0;
+            end else begin
+              stall0 <= 0;
+              nop0 <= 0;
+              clear0 <= 0;
+
+              stall1 <= 0;
+              nop1 <= 0;
+              clear1 <= 0;
             end
           end
           {3'b1??, 3'b??1}: begin
@@ -296,6 +370,14 @@ module hazard_detection_unit(
               stall0 <= `PIPE_REG_PC;
               clear0 <= 1;
               nop0 <= 0;
+            end else begin
+              stall0 <= 0;
+              nop0 <= 0;
+              clear0 <= 0;
+
+              stall1 <= 0;
+              nop1 <= 0;
+              clear1 <= 0;
             end
           end
           {3'b?1?, 3'b?1?}: begin
@@ -307,6 +389,14 @@ module hazard_detection_unit(
               stall0 <= `PIPE_REG_PC;
               clear0 <= 1;
               nop0 <= 0;
+            end else begin
+              stall0 <= 0;
+              nop0 <= 0;
+              clear0 <= 0;
+
+              stall1 <= 0;
+              nop1 <= 0;
+              clear1 <= 0;
             end
           end
           {3'b?1?, 3'b??1}: begin
@@ -318,6 +408,14 @@ module hazard_detection_unit(
               stall0 <= `PIPE_REG_PC;
               clear0 <= 1;
               nop0 <= 0;
+            end else begin
+              stall0 <= 0;
+              nop0 <= 0;
+              clear0 <= 0;
+
+              stall1 <= 0;
+              nop1 <= 0;
+              clear1 <= 0;
             end
           end
           default: begin

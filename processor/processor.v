@@ -227,7 +227,9 @@ module processor(
   .instruction0_out(steer_instruction0),
   .instruction1_out(steer_instruction1),
 
-  .stall(steer_stall),
+  .stall(stall0[`PC_MASK_INDEX]),
+
+  .steer_stall(steer_stall),
   .first(first)
   );
 

@@ -10,6 +10,8 @@ module steer(
   instruction1_out,
 
   stall,
+
+  steer_stall,
   first,
   );
 
@@ -18,10 +20,12 @@ module steer(
   input wire [`INST_WIDTH-1:0] instruction0_in;
   input wire [`INST_WIDTH-1:0] instruction1_in;
 
+  input wire stall;
+
   output reg [`INST_WIDTH-1:0] instruction0_out;
   output reg [`INST_WIDTH-1:0] instruction1_out;
 
-  output reg stall;
+  output reg steer_stall;
   output reg first;
 
   wire [`OP_CODE_BITS-1:0] opcode0;
@@ -38,7 +42,9 @@ module steer(
   assign opcode1 = instruction1_in[`OPCODE_MSB:`OPCODE_LSB];
 
   always @(posedge clk) begin
-    prev_stall <= stall;  
+    if(stall == 0) begin
+      prev_stall <= steer_stall;  
+    end
   end
 
   always @(*) begin
@@ -100,50 +106,50 @@ module steer(
         if (prev_stall == 0) begin
           instruction0_out = instruction0_in;
           instruction1_out = `NOP_INSTRUCTION;
-          stall = 1;
+          steer_stall = 1;
           first = 0;
         end else begin
           instruction0_out = instruction1_in;
           instruction1_out = `NOP_INSTRUCTION;
-          stall = 0;
+          steer_stall = 0;
           first = 0;
         end
       end
       {`PIPE_MEMORY, `PIPE_BRANCH}: begin
         instruction0_out = instruction1_in;
         instruction1_out = instruction0_in;
-        stall = 0;
+        steer_stall = 0;
         first = 1;
       end
       {`PIPE_MEMORY, `PIPE_MEMORY}: begin
         if (prev_stall == 0) begin
           instruction0_out = `NOP_INSTRUCTION;
           instruction1_out = instruction0_in;
-          stall = 1;
+          steer_stall = 1;
           first = 1;
         end else begin
           instruction0_out = `NOP_INSTRUCTION;
           instruction1_out = instruction1_in;
-          stall = 0;
+          steer_stall = 0;
           first = 1;
         end
       end
       {`PIPE_MEMORY, `PIPE_DONT_CARE}: begin
         instruction0_out = instruction1_in;
         instruction1_out = instruction0_in;
-        stall = 0;
+        steer_stall = 0;
         first = 1;
       end
       {`PIPE_DONT_CARE, `PIPE_BRANCH}: begin
         instruction0_out = instruction1_in;
         instruction1_out = instruction0_in;
-        stall = 0;
+        steer_stall = 0;
         first = 1;
       end
       default: begin
         instruction0_out = instruction0_in;
         instruction1_out = instruction1_in;
-        stall = 0;
+        steer_stall = 0;
         first = 0;
       end
     endcase
