@@ -39,11 +39,11 @@ module program_counter(
 
   always @(posedge clk) begin
 
-    if(!stall) begin
+    if(flush) begin
+      pc <= branch_address;
+    end else if(!stall) begin
       if(reset) begin
         pc <= 0;
-      end else if(flush) begin
-        pc <= branch_address;
       end else if(prev_opcode0 == `OP_CODE_JMP) begin
         pc <= prev_address0;
       end else if(prev_opcode1 == `OP_CODE_JMP) begin
