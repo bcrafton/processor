@@ -487,7 +487,7 @@ module processor(
 
   // pipe 2
   mux8x3 #(`DATA_WIDTH) alu_input_mux_1_1(
-  .in0(id_ex_reg_read_data_2_1), 
+  .in0(id_ex_reg_read_data_1_1), 
   .in1(mem_to_reg_result0), 
   .in2(ex_mem_alu_result0), 
   .in3(mem_to_reg_result1), 
