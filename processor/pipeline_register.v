@@ -49,15 +49,14 @@ module if_id_register(
     flush_latch <= flush;
     nop_latch <= nop;
 
-    if(!stall) begin
-      if(flush) begin
-        instruction <= 0;
-        first <= 0;
-      end else begin
-        instruction <= instruction_in;
-        first <= first_in;
-      end
+    if(flush) begin
+      instruction <= 0;
+      first <= 0;
+    end else if(!stall) begin
+      instruction <= instruction_in;
+      first <= first_in;
     end
+
   end
 
 endmodule
@@ -222,48 +221,47 @@ module id_ex_register(
     stall_latch <= stall;
     flush_latch <= flush;
     nop_latch <= nop;
-
-    if(!stall) begin
-      if(flush) begin
-        rs <= 0;
-        rt <= 0;
-        rd <= 0;
-        reg_read_data_1 <= 0;
-        reg_read_data_2 <= 0;
-        immediate <= 0;
-        address <= 0;
-        shamt <= 0;
-        reg_dst <= 0;
-        mem_to_reg <= 0;
-        alu_op <= 0;
-        mem_op <= 0;
-        alu_src <= 0;
-        reg_write <= 0;
-        jop <= 0;
-        address_src <= 0;
-        instruction <= 0;
-        first <= 0;
-      end else begin	
-        rs <= rs_in;
-        rt <= rt_in;
-        rd <= rd_in;
-        reg_read_data_1 <= reg_read_data_1_in;
-        reg_read_data_2 <= reg_read_data_2_in;
-        immediate <= immediate_in;
-        address <= address_in;
-        shamt <= shamt_in;
-        reg_dst <= reg_dst_in;
-        mem_to_reg <= mem_to_reg_in;
-        alu_op <= alu_op_in;
-        mem_op <= mem_op_in;
-        alu_src <= alu_src_in;
-        reg_write <= reg_write_in;
-        jop <= jop_in;
-        address_src <= address_src_in;
-        instruction <=instruction_in;
-        first <= first_in;
-      end
+    
+    if(flush) begin
+      rs <= 0;
+      rt <= 0;
+      rd <= 0;
+      reg_read_data_1 <= 0;
+      reg_read_data_2 <= 0;
+      immediate <= 0;
+      address <= 0;
+      shamt <= 0;
+      reg_dst <= 0;
+      mem_to_reg <= 0;
+      alu_op <= 0;
+      mem_op <= 0;
+      alu_src <= 0;
+      reg_write <= 0;
+      jop <= 0;
+      address_src <= 0;
+      instruction <= 0;
+      first <= 0;
+    end else if(!stall) begin
+      rs <= rs_in;
+      rt <= rt_in;
+      rd <= rd_in;
+      reg_read_data_1 <= reg_read_data_1_in;
+      reg_read_data_2 <= reg_read_data_2_in;
+      immediate <= immediate_in;
+      address <= address_in;
+      shamt <= shamt_in;
+      reg_dst <= reg_dst_in;
+      mem_to_reg <= mem_to_reg_in;
+      alu_op <= alu_op_in;
+      mem_op <= mem_op_in;
+      alu_src <= alu_src_in;
+      reg_write <= reg_write_in;
+      jop <= jop_in;
+      address_src <= address_src_in;
+      instruction <=instruction_in;
+      first <= first_in;
     end
+
   end
 
 endmodule
@@ -387,35 +385,34 @@ module ex_mem_register(
     flush_latch <= flush;
     nop_latch <= nop;
 
-    if(!stall) begin
-      if(flush) begin
-        alu_result <= 0;
-        data_1 <= 0;
-        data_2 <= 0;
-        reg_dst_result <= 0;
-        jop <= 0;
-        mem_op <= 0;
-        mem_to_reg <= 0;
-        reg_write <= 0;
-        address <= 0;
-        address_src_result <= 0;
-        instruction <= 0;
-        first <= 0;
-      end else begin
-        alu_result <= alu_result_in;
-        data_1 <= data_1_in;
-        data_2 <= data_2_in;
-        reg_dst_result <= reg_dst_result_in;
-        jop <= jop_in;
-        mem_op <= mem_op_in;
-        mem_to_reg <= mem_to_reg_in;
-        reg_write <= reg_write_in;
-        address <= address_in;
-        address_src_result <= address_src_result_in;
-        instruction <= instruction_in;
-        first <= first_in;
-      end
+    if(flush) begin
+      alu_result <= 0;
+      data_1 <= 0;
+      data_2 <= 0;
+      reg_dst_result <= 0;
+      jop <= 0;
+      mem_op <= 0;
+      mem_to_reg <= 0;
+      reg_write <= 0;
+      address <= 0;
+      address_src_result <= 0;
+      instruction <= 0;
+      first <= 0;
+    end else if(!stall) begin
+      alu_result <= alu_result_in;
+      data_1 <= data_1_in;
+      data_2 <= data_2_in;
+      reg_dst_result <= reg_dst_result_in;
+      jop <= jop_in;
+      mem_op <= mem_op_in;
+      mem_to_reg <= mem_to_reg_in;
+      reg_write <= reg_write_in;
+      address <= address_in;
+      address_src_result <= address_src_result_in;
+      instruction <= instruction_in;
+      first <= first_in;
     end
+
   end
 
 endmodule
@@ -503,25 +500,24 @@ module mem_wb_register(
     flush_latch <= flush;
     nop_latch <= nop;
 
-    if(!stall) begin
-      if(flush) begin
-        mem_to_reg <= 0;
-        ram_read_data <= 0;
-        alu_result <= 0;
-        reg_dst_result <= 0;
-        reg_write <= 0;
-        instruction <= 0;
-        first <= 0;
-      end else begin
-        mem_to_reg <= mem_to_reg_in;
-        ram_read_data <= ram_read_data_in;
-        alu_result <= alu_result_in;
-        reg_dst_result <= reg_dst_result_in;
-        reg_write <= reg_write_in;
-        instruction <= instruction_in;
-        first <= first_in;
-      end
+    if(flush) begin
+      mem_to_reg <= 0;
+      ram_read_data <= 0;
+      alu_result <= 0;
+      reg_dst_result <= 0;
+      reg_write <= 0;
+      instruction <= 0;
+      first <= 0;
+    end else if(!stall) begin
+      mem_to_reg <= mem_to_reg_in;
+      ram_read_data <= ram_read_data_in;
+      alu_result <= alu_result_in;
+      reg_dst_result <= reg_dst_result_in;
+      reg_write <= reg_write_in;
+      instruction <= instruction_in;
+      first <= first_in;
     end
+
   end
 
 endmodule
