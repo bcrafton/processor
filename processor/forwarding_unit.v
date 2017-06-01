@@ -81,10 +81,10 @@ module forwarding_unit(
           forward_a <= `FORWARD_EX_MEM0;
         end else if(ex_mem_reg_write1 && (id_ex_rs == ex_mem_rd1)) begin
           forward_a <= `FORWARD_EX_MEM1;
-        end else if(mem_wb_reg_write0 && (id_ex_rs == mem_wb_rd0)) begin
-          forward_a <= `FORWARD_MEM_WB0;
         end else if(mem_wb_reg_write1 && (id_ex_rs == mem_wb_rd1)) begin
           forward_a <= `FORWARD_MEM_WB1;
+        end else if(mem_wb_reg_write0 && (id_ex_rs == mem_wb_rd0)) begin
+          forward_a <= `FORWARD_MEM_WB0;
         end else begin
           forward_a <= `NO_FORWARD;
         end
@@ -93,10 +93,10 @@ module forwarding_unit(
           forward_b <= `FORWARD_EX_MEM0;
         end else if(ex_mem_reg_write1 && (id_ex_rt == ex_mem_rd1)) begin
           forward_b <= `FORWARD_EX_MEM1;
-        end else if(mem_wb_reg_write0 && (id_ex_rt == mem_wb_rd0)) begin
-          forward_b <= `FORWARD_MEM_WB0;
         end else if(mem_wb_reg_write1 && (id_ex_rt == mem_wb_rd1)) begin
           forward_b <= `FORWARD_MEM_WB1;
+        end else if(mem_wb_reg_write0 && (id_ex_rt == mem_wb_rd0)) begin
+          forward_b <= `FORWARD_MEM_WB0;
         end else begin
           forward_b <= `NO_FORWARD;
         end
@@ -109,10 +109,10 @@ module forwarding_unit(
           forward_a <= `FORWARD_EX_MEM1;
         end else if(ex_mem_reg_write0 && (id_ex_rs == ex_mem_rd0)) begin
           forward_a <= `FORWARD_EX_MEM0;
-        end else if(mem_wb_reg_write1 && (id_ex_rs == mem_wb_rd1)) begin
-          forward_a <= `FORWARD_MEM_WB1;
         end else if(mem_wb_reg_write0 && (id_ex_rs == mem_wb_rd0)) begin
           forward_a <= `FORWARD_MEM_WB0;
+        end else if(mem_wb_reg_write1 && (id_ex_rs == mem_wb_rd1)) begin
+          forward_a <= `FORWARD_MEM_WB1;
         end else begin
           forward_a <= `NO_FORWARD;
         end
@@ -121,10 +121,10 @@ module forwarding_unit(
           forward_b <= `FORWARD_EX_MEM1;
         end else if(ex_mem_reg_write0 && (id_ex_rt == ex_mem_rd0)) begin
           forward_b <= `FORWARD_EX_MEM0;
-        end else if(mem_wb_reg_write1 && (id_ex_rt == mem_wb_rd1)) begin
-          forward_b <= `FORWARD_MEM_WB1;
         end else if(mem_wb_reg_write0 && (id_ex_rt == mem_wb_rd0)) begin
           forward_b <= `FORWARD_MEM_WB0;
+        end else if(mem_wb_reg_write1 && (id_ex_rt == mem_wb_rd1)) begin
+          forward_b <= `FORWARD_MEM_WB1;
         end else begin
           forward_b <= `NO_FORWARD;
         end
