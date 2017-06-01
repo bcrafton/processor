@@ -25,20 +25,20 @@ module branch_unit(
   
     case(jop)
       `JMP_OP_NOP: flush <= 0;
-      `JMP_OP_J:   flush <= 5'b10000;
-      `JMP_OP_JR:  flush <= 5'b11111;
+      `JMP_OP_J:   flush <= 5'b01000;
+      `JMP_OP_JR:  flush <= 5'b01111;
 
-      `JMP_OP_JEQ: flush <= zero == 1'b1 ? 5'b11111 : 0;
-      `JMP_OP_JNE: flush <= zero == 1'b0 ? 5'b11111 : 0;
+      `JMP_OP_JEQ: flush <= zero == 1'b1 ? 5'b01111 : 0;
+      `JMP_OP_JNE: flush <= zero == 1'b0 ? 5'b01111 : 0;
 
-      `JMP_OP_JL:  flush <= less == 1'b1 ? 5'b11111 : 0;
-      `JMP_OP_JLE: flush <= less == 1'b1 ? 5'b11111 : 0;
+      `JMP_OP_JL:  flush <= less == 1'b1 ? 5'b01111 : 0;
+      `JMP_OP_JLE: flush <= less == 1'b1 ? 5'b01111 : 0;
 
-      `JMP_OP_JG:  flush <= greater == 1'b1 ? 5'b11111 : 0;
-      `JMP_OP_JGE: flush <= greater == 1'b1 ? 5'b11111 : 0;
+      `JMP_OP_JG:  flush <= greater == 1'b1 ? 5'b01111 : 0;
+      `JMP_OP_JGE: flush <= greater == 1'b1 ? 5'b01111 : 0;
 
-      `JMP_OP_JZ:  flush <= zero == 1'b1 ? 5'b11111 : 0;
-      `JMP_OP_JNZ: flush <= zero == 1'b0 ? 5'b11111 : 0;
+      `JMP_OP_JZ:  flush <= zero == 1'b1 ? 5'b01111 : 0;
+      `JMP_OP_JNZ: flush <= zero == 1'b0 ? 5'b01111 : 0;
 
       //`JMP_OP_JO:  flush <= (zero == 1'b1);
     endcase

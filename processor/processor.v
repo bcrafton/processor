@@ -196,8 +196,8 @@ module processor(
   ///////////////////////////////////////////////////////////////////////////////////////////
 
   mux2x1 #(`ADDR_WIDTH) jump_address_mux(
-  .in0(ex_mem_data_1_0[`ADDR_WIDTH-1:0]), 
-  .in1(ex_mem_address0), 
+  .in0(alu_input_mux_1_result0[`ADDR_WIDTH-1:0]), 
+  .in1(id_ex_address0), 
   .sel(ex_mem_jump_address), 
   .out(jump_address_result));
 
@@ -605,7 +605,7 @@ module processor(
   ex_mem_register ex_mem_reg1(
   .clk(clk), 
   .stall(1'b0),
-  .flush(flush[`EX_MEM_MASK_INDEX]), 
+  .flush(flush[`EX_MEM_MASK_INDEX] && !id_ex_first), 
   .nop(1'b0),
 
   .alu_result_in(alu_result1), 
@@ -647,7 +647,7 @@ module processor(
   .zero(zero0),
   .less(less0),
   .greater(greater0),
-  .jop(ex_mem_jop0), 
+  .jop(id_ex_jop0), 
   .flush(flush),
   .jump_address(ex_mem_jump_address)
   );
@@ -678,7 +678,7 @@ module processor(
   mem_wb_register mem_wb_reg1(
   .clk(clk), 
   .stall(1'b0),
-  .flush(flush[`MEM_WB_MASK_INDEX] && !ex_mem_first), 
+  .flush(flush[`MEM_WB_MASK_INDEX]), 
   .nop(1'b0),
 
   .mem_to_reg_in(ex_mem_mem_to_reg1), 
