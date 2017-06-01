@@ -44,10 +44,10 @@ module program_counter(
     end else if(!stall) begin
       if(reset) begin
         pc <= 0;
-      end else if(prev_opcode0 == `OP_CODE_JMP) begin
-        pc <= prev_address0;
       end else if(prev_opcode1 == `OP_CODE_JMP) begin
         pc <= prev_address1;
+      end else if(prev_opcode0 == `OP_CODE_JMP) begin
+        pc <= prev_address0;
       end else begin
         pc <= pc + 2;
       end
