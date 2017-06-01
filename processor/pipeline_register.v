@@ -479,6 +479,7 @@ module mem_wb_register(
   assign reg_dst_result_out = nop_latch ? 0 : reg_dst_result;
   assign reg_write_out =      nop_latch ? 0 : reg_write;
   assign instruction_out =    nop_latch ? 0 : instruction;
+  assign first_out =          nop_latch ? 0 : first;
 
   initial begin
     stall_latch <= 0;

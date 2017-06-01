@@ -164,6 +164,8 @@ module processor(
   wire [`NUM_PIPE_MASKS-1:0] nop1;
   wire [`NUM_PIPE_MASKS-1:0] stall1;
 
+  wire mem_wb_first;
+
   //wire flush;
   wire [`NUM_PIPE_MASKS-1:0] flush;
 
@@ -426,7 +428,8 @@ module processor(
   .id_ex_rs(id_ex_rs0), 
   .id_ex_rt(id_ex_rt0), 
 
-  .first(id_ex_first),
+  .ex_mem_first(ex_mem_first),
+  .mem_wb_first(mem_wb_first),
 
   .ex_mem_rd0(ex_mem_reg_dst_result0), 
   .mem_wb_rd0(mem_wb_reg_dst_result0), 
@@ -445,7 +448,8 @@ module processor(
   .id_ex_rs(id_ex_rs1), 
   .id_ex_rt(id_ex_rt1), 
 
-  .first(id_ex_first),
+  .ex_mem_first(ex_mem_first),
+  .mem_wb_first(mem_wb_first),
 
   .ex_mem_rd0(ex_mem_reg_dst_result0), 
   .mem_wb_rd0(mem_wb_reg_dst_result0), 
@@ -660,13 +664,15 @@ module processor(
   .reg_dst_result_in(ex_mem_reg_dst_result0), 
   .reg_write_in(ex_mem_reg_write0), 
   .instruction_in(ex_mem_instruction0),
+  .first_in(ex_mem_first),
 
   .mem_to_reg_out(mem_wb_mem_to_reg0), 
   .ram_read_data_out(mem_wb_ram_read_data0), 
   .alu_result_out(mem_wb_alu_result0),
   .reg_dst_result_out(mem_wb_reg_dst_result0), 
   .reg_write_out(mem_wb_reg_write0),
-  .instruction_out(mem_wb_instruction0)
+  .instruction_out(mem_wb_instruction0),
+  .first_out(mem_wb_first)
   );
 
   mem_wb_register mem_wb_reg1(
@@ -681,13 +687,15 @@ module processor(
   .reg_dst_result_in(ex_mem_reg_dst_result1), 
   .reg_write_in(ex_mem_reg_write1), 
   .instruction_in(ex_mem_instruction1),
+  .first_in(),
 
   .mem_to_reg_out(mem_wb_mem_to_reg1), 
   .ram_read_data_out(mem_wb_ram_read_data1), 
   .alu_result_out(mem_wb_alu_result1),
   .reg_dst_result_out(mem_wb_reg_dst_result1), 
   .reg_write_out(mem_wb_reg_write1),
-  .instruction_out(mem_wb_instruction1)
+  .instruction_out(mem_wb_instruction1),
+  .first_out()
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
