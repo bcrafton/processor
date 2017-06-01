@@ -77,29 +77,29 @@ module hazard_detection_unit(
         dst_mask0 <= 0;
       end
       `OP_CODE_JR: begin
-        src_mask0 <= 3'b100;
+        src_mask0 <= `REG_MASK_RS;
         dst_mask0 <= 0;
       end
       6'b00????: begin // add, sub...
-        src_mask0 <= 3'b110;
-        dst_mask0 <= 3'b001;
+        src_mask0 <= `REG_MASK_RS | `REG_MASK_RT;
+        dst_mask0 <= `REG_MASK_RD;
       end
       6'b01????: begin // addi, subi...
-        src_mask0 <= 3'b100;
-        dst_mask0 <= 3'b010;
+        src_mask0 <= `REG_MASK_RS;
+        dst_mask0 <= `REG_MASK_RT;
       end
       6'b10????: begin // lw, sw, la, sa
         if(if_id_opcode0 == `OP_CODE_LW) begin
-          src_mask0 <= 3'b100;
-          dst_mask0 <= 3'b010;
+          src_mask0 <= `REG_MASK_RS;
+          dst_mask0 <= `REG_MASK_RT;
         end else if(if_id_opcode0 == `OP_CODE_SW) begin
-          src_mask0 <= 3'b110;
+          src_mask0 <= `REG_MASK_RS | `REG_MASK_RT;
           dst_mask0 <= 0;
         end else if(if_id_opcode0 == `OP_CODE_LA) begin
           src_mask0 <= 0;
-          dst_mask0 <= 3'b010;
+          dst_mask0 <= `REG_MASK_RT;
         end else if(if_id_opcode0 == `OP_CODE_SA) begin
-          src_mask0 <= 3'b010;
+          src_mask0 <= `REG_MASK_RT;
           dst_mask0 <= 0;
         end
       end
@@ -115,29 +115,29 @@ module hazard_detection_unit(
         dst_mask1 <= 0;
       end
       `OP_CODE_JR: begin
-        src_mask1 <= 3'b100;
+        src_mask1 <= `REG_MASK_RS;
         dst_mask1 <= 0;
       end
       6'b00????: begin // add, sub...
-        src_mask1 <= 3'b110;
-        dst_mask1 <= 3'b001;
+        src_mask1 <= `REG_MASK_RS | `REG_MASK_RT;
+        dst_mask1 <= `REG_MASK_RD;
       end
       6'b01????: begin // addi, subi...
-        src_mask1 <= 3'b100;
-        dst_mask1 <= 3'b010;
+        src_mask1 <= `REG_MASK_RS;
+        dst_mask1 <= `REG_MASK_RT;
       end
       6'b10????: begin // lw, sw, la, sa
         if(if_id_opcode1 == `OP_CODE_LW) begin
-          src_mask1 <= 3'b100;
-          dst_mask1 <= 3'b010;
+          src_mask1 <= `REG_MASK_RS;
+          dst_mask1 <= `REG_MASK_RT;
         end else if(if_id_opcode1 == `OP_CODE_SW) begin
-          src_mask1 <= 3'b110;
+          src_mask1 <= `REG_MASK_RS | `REG_MASK_RT;
           dst_mask1 <= 0;
         end else if(if_id_opcode1 == `OP_CODE_LA) begin
           src_mask1 <= 0;
-          dst_mask1 <= 3'b010;
+          dst_mask1 <= `REG_MASK_RT;
         end else if(if_id_opcode1 == `OP_CODE_SA) begin
-          src_mask1 <= 3'b010;
+          src_mask1 <= `REG_MASK_RT;
           dst_mask1 <= 0;
         end
       end
