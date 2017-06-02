@@ -166,13 +166,12 @@ module processor(
 
   wire mem_wb_first;
 
-  //wire flush;
-  wire [`NUM_PIPE_MASKS-1:0] flush;
+  wire [`NUM_PIPE_MASKS-1:0] branch_flush;
+  wire hazard_flush0;
+  wire hazard_flush1;
 
   wire first;
   wire steer_stall;
-  wire clear0;
-  wire clear1;
 
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result0, alu_input_mux_2_result0;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result1, alu_input_mux_2_result1;
@@ -210,7 +209,7 @@ module processor(
   .address1(instruction1[`IMM_MSB:`IMM_LSB]),
   .branch_address(jump_address_result), 
   .pc(pc), 
-  .flush(flush[`PC_MASK_INDEX]), 
+  .flush(branch_flush[`PC_MASK_INDEX]), 
   .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX] | steer_stall),
   .nop(nop0[`PC_MASK_INDEX] | nop1[`PC_MASK_INDEX])
   );
@@ -237,7 +236,7 @@ module processor(
 
   if_id_register if_id_reg0(
   .clk(clk), 
-  .flush(flush[`IF_ID_MASK_INDEX] | clear0), 
+  .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush0), 
   .stall(stall0[`IF_ID_MASK_INDEX]), 
   .nop(nop0[`IF_ID_MASK_INDEX]), 
 
@@ -250,7 +249,7 @@ module processor(
 
   if_id_register if_id_reg1(
   .clk(clk), 
-  .flush(flush[`IF_ID_MASK_INDEX] | clear1), 
+  .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush1), 
   .stall(stall1[`IF_ID_MASK_INDEX]), 
   .nop(nop1[`IF_ID_MASK_INDEX]), 
 
@@ -286,8 +285,8 @@ module processor(
   .stall1(stall1),
   .nop1(nop1),
 
-  .clear0(clear0),
-  .clear1(clear1)
+  .flush0(hazard_flush0),
+  .flush1(hazard_flush1)
   );
 
   control_unit cu0(
@@ -332,7 +331,7 @@ module processor(
 
   id_ex_register id_ex_reg0(
   .clk(clk), 
-  .flush(flush[`ID_EX_MASK_INDEX]), 
+  .flush(branch_flush[`ID_EX_MASK_INDEX]), 
   .stall(stall0[`ID_EX_MASK_INDEX]), 
   .nop(nop0[`ID_EX_MASK_INDEX]), 
 
@@ -377,7 +376,7 @@ module processor(
 
   id_ex_register id_ex_reg1(
   .clk(clk), 
-  .flush(flush[`ID_EX_MASK_INDEX]), 
+  .flush(branch_flush[`ID_EX_MASK_INDEX]), 
   .stall(stall1[`ID_EX_MASK_INDEX]), 
   .nop(nop1[`ID_EX_MASK_INDEX]), 
 
@@ -572,7 +571,7 @@ module processor(
   ex_mem_register ex_mem_reg0(
   .clk(clk), 
   .stall(1'b0),
-  .flush(flush[`EX_MEM_MASK_INDEX]), 
+  .flush(1'b0), 
   .nop(1'b0),
 
   .alu_result_in(alu_result0), 
@@ -605,7 +604,7 @@ module processor(
   ex_mem_register ex_mem_reg1(
   .clk(clk), 
   .stall(1'b0),
-  .flush(flush[`EX_MEM_MASK_INDEX] && !id_ex_first), 
+  .flush(branch_flush[`EX_MEM_MASK_INDEX] && !id_ex_first), // need a better method for this.
   .nop(1'b0),
 
   .alu_result_in(alu_result1), 
@@ -648,7 +647,7 @@ module processor(
   .less(less0),
   .greater(greater0),
   .jop(id_ex_jop0), 
-  .flush(flush),
+  .flush(branch_flush),
   .jump_address(ex_mem_jump_address)
   );
 
@@ -678,7 +677,7 @@ module processor(
   mem_wb_register mem_wb_reg1(
   .clk(clk), 
   .stall(1'b0),
-  .flush(flush[`MEM_WB_MASK_INDEX]), 
+  .flush(1'b0), 
   .nop(1'b0),
 
   .mem_to_reg_in(ex_mem_mem_to_reg1), 
