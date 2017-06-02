@@ -20,5 +20,13 @@ Runs through different types of tests:
 ### Running the code
 There is a dependency script that may or may not work for getting the dependencies.</br>
 Once these are acquired, the makefile can be run which will compile all four modules and run the test bench.
-
-
+### Future Features
+1. Super scalar
+2. Performance metrics (branch misses, IPC, instruction histograms, stalls)
+3. Branch predictor
+4. Out of order
+5. Compiler - Tuples and Forever loop
+6. OS
+7. SIMD 
+8. Basic terminal output
+9. Memory simulator (cache / memory heirarchy with random latency)

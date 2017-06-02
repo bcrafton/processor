@@ -1,15 +1,24 @@
 sudo apt-get install gcc;
 sudo apt-get install ocaml;
 sudo apt-get install iverilog;
+sudo apt-get install cppo;
 
 mkdir tmp;
 cd tmp;
 
-git clone https://github.com/mlin/ounit;
-cd ounit;
+wget http://forge.ocamlcore.org/frs/download.php/1258/ounit-2.0.0.tar.gz
+tar -xvzf ounit-2.0.0.tar.gz
+cd ounit-2.0.0;
 sudo make;
 sudo make install;
 cd ..;
+
+# wget http://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/ocaml-extlib/extlib-1.6.1.tar.gz;
+# tar -xvzf extlib-1.6.1.tar.gz
+# cd extlib-1.6.1
+# sudo make
+# sudo make install
+# cd ..
 
 git clone https://github.com/ygrek/ocaml-extlib;
 cd ocaml-extlib;
@@ -17,4 +26,5 @@ sudo make;
 sudo make install;
 cd ..;
 
+cd ..;
 sudo rm -rf tmp;
