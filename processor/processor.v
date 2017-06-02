@@ -211,8 +211,8 @@ module processor(
   .branch_address(jump_address_result), 
   .pc(pc), 
   .flush(flush[`PC_MASK_INDEX]), 
-  .stall(stall0[`PC_MASK_INDEX] | steer_stall),
-  .nop(nop0[`PC_MASK_INDEX])
+  .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX] | steer_stall),
+  .nop(nop0[`PC_MASK_INDEX] | nop1[`PC_MASK_INDEX])
   );
   
   instruction_memory im(
