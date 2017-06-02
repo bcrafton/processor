@@ -194,6 +194,11 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
+  reg perf_metrics_bit;
+  always @(posedge clk) begin
+    perf_metrics_bit = $perf_metrics($time, stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX] | steer_stall, branch_flush[`PC_MASK_INDEX], instruction0, instruction1);
+  end
+
   mux2x1 #(`ADDR_WIDTH) jump_address_mux(
   .in0(alu_input_mux_1_result0[`ADDR_WIDTH-1:0]), 
   .in1(id_ex_address0), 

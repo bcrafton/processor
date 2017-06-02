@@ -61,6 +61,8 @@ PLI_INT32 mem_write(char* user_data);
 PLI_INT32 init(char* user_data);
 PLI_INT32 update(char* user_data);
 
+PLI_INT32 perf_metrics(char* user_data);
+
 ///////////////////////////////////////////
 
 void dump_memory(int memory_id);

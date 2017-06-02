@@ -478,11 +478,25 @@ void update_register(void)
     vpi_register_systf(&tf_data);
 }
 
+void perf_metrics_register(void)
+{
+    s_vpi_systf_data tf_data;
+    tf_data.type        = vpiSysFunc;
+    tf_data.sysfunctype = vpiIntFunc;
+    tf_data.tfname    = "$perf_metrics";
+    tf_data.calltf    = perf_metrics;
+    tf_data.compiletf = 0;
+    tf_data.sizetf    = 0;
+    tf_data.user_data = 0;
+    vpi_register_systf(&tf_data);
+}
+
 void (*vlog_startup_routines[])() = {
     mem_read_register,
     mem_write_register,
     init_register,
     update_register,
+    perf_metrics_register,
     0
 };
 
