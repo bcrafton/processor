@@ -228,7 +228,7 @@ module processor(
   .instruction0_out(steer_instruction0),
   .instruction1_out(steer_instruction1),
 
-  .stall(stall0[`PC_MASK_INDEX]),
+  .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX]),
 
   .steer_stall(steer_stall),
   .first(first)
