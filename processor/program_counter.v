@@ -5,19 +5,25 @@
 module program_counter(
   clk,
   reset, 
-  if_id_opcode,
-  if_id_address,
+  opcode0,
+  address0,
+  opcode1,
+  address1,
   branch_address,
   pc,
   stall,
-  flush
+  flush,
+  nop,
   );
 
   input wire clk;
   input wire reset;
 
-  input wire [`OP_CODE_BITS-1:0] if_id_opcode;
-  input wire [`ADDR_WIDTH-1:0] if_id_address;
+  input wire [`OP_CODE_BITS-1:0] opcode0;
+  input wire [`ADDR_WIDTH-1:0] address0;
+
+  input wire [`OP_CODE_BITS-1:0] opcode1;
+  input wire [`ADDR_WIDTH-1:0] address1;
 
   input wire [`ADDR_WIDTH-1:0] branch_address; // instruction memory address
 
@@ -25,9 +31,7 @@ module program_counter(
 
   input wire flush;
   input wire stall;
-  
-  wire jump;
-  assign jump = if_id_opcode == `OP_CODE_JMP;
+  input wire nop;
 
   initial begin
     pc = 0;
@@ -35,15 +39,17 @@ module program_counter(
 
   always @(posedge clk) begin
 
-    if(!stall) begin
+    if(flush) begin
+      pc <= branch_address;
+    end else if(!stall) begin
       if(reset) begin
         pc <= 0;
-      end else if(flush) begin
-        pc <= branch_address;
-      end else if(jump) begin
-        pc <= if_id_address;
+      end else if(opcode1 == `OP_CODE_JMP) begin
+        pc <= address1;
+      end else if(opcode0 == `OP_CODE_JMP) begin
+        pc <= address0;
       end else begin
-        pc <= pc + 1'b1;
+        pc <= pc + 2;
       end
     end
 

@@ -36,7 +36,15 @@ PLI_INT32 mem_read(char* user_data)
     switch(memory_id)
     {
       case DMEM_ID:
-        rd_data = dmemory[rd_address];
+        if (rd_address >= DMEMORY_SIZE || rd_address < 0)
+        {
+          fprintf(stderr, "dmemory read out of bounds %d\n", rd_address);
+          assert(0);
+        }
+        else
+        {
+          rd_data = dmemory[rd_address];
+        }
         break;
       case IMEM_ID:
         if (rd_address >= IMEMORY_SIZE) 
@@ -49,7 +57,15 @@ PLI_INT32 mem_read(char* user_data)
         }
         break;
       case REGFILE_ID:
-        rd_data = regfile[rd_address];
+        if (rd_address >= REGFILE_SIZE || rd_address < 0)
+        {
+          fprintf(stderr, "reg read out of bounds %d\n", rd_address);
+          assert(0);
+        }
+        else
+        {
+          rd_data = regfile[rd_address];
+        }
         break;
       default:
         assert(0);
@@ -111,14 +127,30 @@ PLI_INT32 mem_write(char* user_data)
     switch(memory_id)
     {
       case DMEM_ID:
-        dmemory[wr_address] = wr_data;
+        if (wr_address >= DMEMORY_SIZE || wr_address < 0)
+        {
+          fprintf(stderr, "dmemory write out of bounds %d\n", wr_address);
+          assert(0);
+        }
+        else
+        {
+          dmemory[wr_address] = wr_data;
+        }
         break;
       case IMEM_ID:
-        imemory[wr_address] = wr_data;
+        fprintf(stderr, "cannot write to i memory\n");
+        assert(0);
         break;
       case REGFILE_ID:
-        //printf("%x %x\n", wr_address, wr_data);
-        regfile[wr_address] = wr_data;
+        if (wr_address >= REGFILE_SIZE || wr_address < 0)
+        {
+          fprintf(stderr, "reg file write out of bounds %d\n", wr_address);
+          assert(0);
+        }
+        else
+        {
+          regfile[wr_address] = wr_data;
+        }
         break;
     }
     

@@ -24,6 +24,8 @@ let () =
     "fib10.bc.s";
 
     "to_10.bc.s";
+
+    "plus1.bc.s";
  
   ] in
 
@@ -32,6 +34,7 @@ let () =
     "push.s";
     "pop.s";
     "push1.s";
+    "plus1_asm.s";
     
   ] in
 

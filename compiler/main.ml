@@ -24,6 +24,8 @@ let () =
     "fib10.bc";
 
     "to_10.bc";
+
+    "plus1.bc";
     
   ] in
 

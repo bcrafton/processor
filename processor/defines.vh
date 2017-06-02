@@ -8,7 +8,26 @@
 `define IMEM_ID 1
 `define REGFILE_ID 2
 
-`define GARBAGE 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+`define GARBAGE           32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+`define NOP_INSTRUCTION   32'b00000000000000000000000000000000
+
+`define PIPE_REG_PC       5'b00001
+`define PIPE_REG_IF_ID    5'b00010
+`define PIPE_REG_ID_EX    5'b00100
+`define PIPE_REG_EX_MEM   5'b01000
+`define PIPE_REG_MEM_WB   5'b10000
+`define NUM_PIPE_MASKS    5 //$bits(MEM_OP_READ)
+
+`define PC_MASK_INDEX     0
+`define IF_ID_MASK_INDEX  1
+`define ID_EX_MASK_INDEX  2
+`define EX_MEM_MASK_INDEX 3
+`define MEM_WB_MASK_INDEX 4
+
+`define REG_MASK_RS       3'b100
+`define REG_MASK_RT       3'b010
+`define REG_MASK_RD       3'b001
+`define NUM_REG_MASKS     3 // //$bits(REG_MASK_RS)
 
 `define MEM_OP_NOP        2'b00
 `define MEM_OP_READ       2'b01
@@ -30,10 +49,17 @@
 `define JMP_OP_JR         4'b1011 // jump to a register
 `define JUMP_BITS         4 // $bits(JMP_OP_NOP)
 
-`define FORWARD_EX_MEM    2'b10
-`define FORWARD_MEM_WB    2'b01
-`define NO_FORWARD        2'b00
-`define FORWARD_BITS      2 // $bits(FORWARD_EX_MEM)
+`define NO_FORWARD         3'b000
+`define FORWARD_MEM_WB0    3'b001
+`define FORWARD_EX_MEM0    3'b010
+`define FORWARD_MEM_WB1    3'b011
+`define FORWARD_EX_MEM1    3'b100
+`define FORWARD_BITS       3 // $bits(FORWARD_EX_MEM0)
+
+`define PIPE_BRANCH        2'b00
+`define PIPE_MEMORY        2'b01
+`define PIPE_DONT_CARE     2'b10
+`define PIPE_BITS          2 // $bits(PIPE_BRANCH)
 
 `define DATA_WIDTH 32
 `define INST_WIDTH 32

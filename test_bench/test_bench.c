@@ -7,11 +7,8 @@ extern INSTRUCTION imemory[IMEMORY_SIZE];
 
 static test_t tests[] = {
 
-{"fn_add", BINARY_TEST, 0, 1000},
-
-{"if_true", BINARY_TEST, 0, 1000},
-{"if_false", BINARY_TEST, 0, 1000},
 {"addi", BINARY_TEST, 0, 1000},
+
 {"subi", BINARY_TEST, 0, 1000},
 {"andi", BINARY_TEST, 0, 1000},
 
@@ -37,27 +34,30 @@ static test_t tests[] = {
 {"shr", BINARY_TEST, 0, 1000},
 {"shl", BINARY_TEST, 0, 1000},
 {"xor", BINARY_TEST, 0, 1000},
+
 {"lw", BINARY_TEST, 0, 1000},
 
 {"sw", BINARY_TEST, 0, 1000},
 {"la", BINARY_TEST, 0, 1000},
 {"sa", BINARY_TEST, 0, 1000},
+
 {"jmp", BINARY_TEST, 0, 1000},
 {"jo", BINARY_TEST, 0, 1000},
-
 {"je", BINARY_TEST, 0, 1000},
 {"jne", BINARY_TEST, 0, 1000},
 {"jl", BINARY_TEST, 0, 1000},
 {"jle", BINARY_TEST, 0, 1000},
 {"jg", BINARY_TEST, 0, 1000},
-
 {"jge", BINARY_TEST, 0, 1000},
 {"jz", BINARY_TEST, 0, 1000},
 {"jnz", BINARY_TEST, 0, 1000},
 {"jr", BINARY_TEST, 0, 1000},
 
-{"a", CODE_TEST, 60, 10000},
-{"b", CODE_TEST, 60, 10000},
+{"mov", ASM_TEST, 0, 1000},
+{"push", ASM_TEST, 100, 1000},
+{"pop", ASM_TEST, 100, 1000},
+{"push1", ASM_TEST, 100, 1000},
+
 {"fn_add", CODE_TEST, 6, 10000},
 {"if_false", CODE_TEST, 10, 10000},
 {"if_true", CODE_TEST, 20, 10000},
@@ -68,15 +68,11 @@ static test_t tests[] = {
 {"fib3", CODE_TEST, 4, 100000},
 {"fib4", CODE_TEST, 6, 100000},
 {"fib5", CODE_TEST, 10, 100000},
-{"fib10", CODE_TEST, 110, 500000},
+//{"fib10", CODE_TEST, 110, 500000},
 
 {"to_10", CODE_TEST, 20, 10000},
 
-{"mov", ASM_TEST, 0, 1000},
-{"push", ASM_TEST, 100, 1000},
-{"pop", ASM_TEST, 100, 1000},
-{"push1", ASM_TEST, 100, 1000},
-
+{"plus1", CODE_TEST, 4, 10000},
 };
 
 static TIME test_start_time;
