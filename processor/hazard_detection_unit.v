@@ -54,11 +54,11 @@ module hazard_detection_unit(
   output reg clear0;
   output reg clear1;
 
-  reg [2:0] src_mask0;
-  reg [2:0] dst_mask0;
+  reg [`NUM_REG_MASKS-1:0] src_mask0;
+  reg [`NUM_REG_MASKS-1:0] dst_mask0;
 
-  reg [2:0] src_mask1;
-  reg [2:0] dst_mask1;
+  reg [`NUM_REG_MASKS-1:0] src_mask1;
+  reg [`NUM_REG_MASKS-1:0] dst_mask1;
 
   initial begin
     stall0 <= 0;
