@@ -4,8 +4,11 @@
 static unsigned long start_time = 0;
 static unsigned long last_vld_time = 0;
 
+static unsigned int instruction_counter;
 static unsigned int flush_counter = 0;
 static unsigned int stall_counter = 0;
+
+static perf_metrics_t p;
 
 PLI_INT32 perf_metrics(char* user_data)
 {    
@@ -56,6 +59,7 @@ PLI_INT32 perf_metrics(char* user_data)
   if((inval.value.vector[0].aval > 0) && (inval.value.vector[0].bval == 0))
   {
     last_vld_time = current_time;
+    instruction_counter++;
   }
 
   arg = vpi_scan(iterator);
@@ -64,6 +68,7 @@ PLI_INT32 perf_metrics(char* user_data)
   if((inval.value.vector[0].aval > 0) && (inval.value.vector[0].bval == 0))
   {
     last_vld_time = current_time;
+    instruction_counter++;
   }
 
   if(start_time == 0)
@@ -71,11 +76,31 @@ PLI_INT32 perf_metrics(char* user_data)
     start_time = current_time;
   }
 
-  printf("time: %lu flush: %u stall: %u\n", start_time - last_vld_time, flush_counter, stall_counter);
+  //printf("time: %lu flush: %u stall: %u\n", start_time - last_vld_time, flush_counter, stall_counter);
 
   return 0;
 
 }
+
+perf_metrics_t* get_perf_metrics()
+{
+  p.ipc =  ((float)instruction_counter / (last_vld_time - start_time)) * 10;
+  p.stall_count = stall_counter;
+  p.flush_count = flush_counter;
+  return &p;
+}
+
+void clear_perf_metrics()
+{
+  start_time = 0;
+  last_vld_time = 0;
+  instruction_counter = 0;
+  stall_counter = 0;
+  flush_counter = 0;
+}
+
+
+
 
 
 

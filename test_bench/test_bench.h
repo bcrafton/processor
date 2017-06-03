@@ -54,6 +54,12 @@ typedef struct test{
   unsigned int sim_time;
 } test_t;
 
+typedef struct perf_metrics_t{
+  float ipc;
+  unsigned int stall_count;
+  unsigned int flush_count;
+} perf_metrics_t;
+
 ///////////////////////////////////////////
 
 PLI_INT32 mem_read(char* user_data);
@@ -68,6 +74,8 @@ PLI_INT32 perf_metrics(char* user_data);
 void dump_memory(int memory_id);
 void load_program();
 void clear_memory(int memory_id);
+perf_metrics_t* get_perf_metrics();
+void clear_perf_metrics();
 
 ///////////////////////////////////////////
 

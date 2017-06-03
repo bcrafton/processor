@@ -157,6 +157,9 @@ PLI_INT32 update(char* user_data)
         printf("Test %s: Failed\n", current_test->name);
       }
 
+      perf_metrics_t* p = get_perf_metrics();
+      printf("ipc = %f; stalls = %u; flushes = %u\n", p->ipc, p->stall_count, p->flush_count);
+
       // dump memory
       dump_memory(DMEM_ID);
       dump_memory(REGFILE_ID);
