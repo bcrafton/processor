@@ -73,6 +73,8 @@ static test_t tests[] = {
 {"to_10", CODE_TEST, 20, 10000},
 
 {"plus1", CODE_TEST, 4, 10000},
+
+{"fib5", CODE_TEST, 10, 100000},
 };
 
 static TIME test_start_time;
@@ -158,7 +160,9 @@ PLI_INT32 update(char* user_data)
       }
 
       perf_metrics_t* p = get_perf_metrics();
-      printf("ipc = %f; stalls = %u; flushes = %u; run time = %lu; inst count = %lu\n", p->ipc, p->stall_count, p->flush_count, p->run_time, p->instruction_count);
+      //printf("ipc = %f; stalls = %u; flushes = %u; run time = %lu; inst count = %lu; double = %lu; single = %lu; none = %lu\n", p->ipc, p->stall_count, p->flush_count, p->run_time, p->instruction_count, p->double_instruction, p->single_instruction, p->no_instruction);
+
+      printf("ipc = %f; stalls = %u; flushes = %u; run time = %lu; inst count = %lu;\n", p->ipc, p->stall_count, p->flush_count, p->run_time, p->instruction_count);
 
       clear_perf_metrics();
 

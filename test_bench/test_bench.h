@@ -60,6 +60,9 @@ typedef struct perf_metrics_t{
   unsigned int flush_count;
   unsigned long int instruction_count;
   unsigned long int run_time;
+  unsigned long int double_instruction;
+  unsigned long int single_instruction;
+  unsigned long int no_instruction;
 } perf_metrics_t;
 
 ///////////////////////////////////////////

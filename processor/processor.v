@@ -197,7 +197,7 @@ module processor(
   reg perf_metrics_bit;
   always @(posedge clk) begin
     perf_metrics_bit = $perf_metrics($time, 
-                                     stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX] | steer_stall, 
+                                     (stall0 & stall1), 
                                      branch_flush[`PC_MASK_INDEX], 
                                      instruction0, 
                                      instruction1,
