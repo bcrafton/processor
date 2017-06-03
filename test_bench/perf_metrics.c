@@ -46,7 +46,8 @@ PLI_INT32 perf_metrics(char* user_data)
   arg = vpi_scan(iterator);
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
-  if(( (inval.value.vector[0].aval & 0x7) == 0x7))
+  pc_stall = inval.value.vector[0].aval;
+  if(( (pc_stall & 0x7) == 0x7))
   {
     stall_counter++;
   }
@@ -54,7 +55,8 @@ PLI_INT32 perf_metrics(char* user_data)
   arg = vpi_scan(iterator);
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
-  if((inval.value.vector[0].aval == 1) && (inval.value.vector[0].bval == 0))
+  branch_flush = inval.value.vector[0].aval;
+  if((branch_flush == 1) && (inval.value.vector[0].bval == 0))
   {
     flush_counter++;
   }
@@ -62,22 +64,24 @@ PLI_INT32 perf_metrics(char* user_data)
   arg = vpi_scan(iterator);
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
-  if((inval.value.vector[0].aval > 0) && (inval.value.vector[0].bval == 0))
+  instruction0 = inval.value.vector[0].aval;
+  if((instruction0 > 0) && (inval.value.vector[0].bval == 0))
   {
   }
 
   arg = vpi_scan(iterator);
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
-  if((inval.value.vector[0].aval > 0) && (inval.value.vector[0].bval == 0))
+  instruction1 = inval.value.vector[0].aval;
+  if((instruction1 > 0) && (inval.value.vector[0].bval == 0))
   {
   }
 
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
   // inval.value.vector[0].aval will be considered signed for instructions with bit in 1
   // so that means just need to check to make sure its not 0.
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
   mem_wb_instruction0 = inval.value.vector[0].aval;
   if(mem_wb_instruction0 != 0)
   {
@@ -120,6 +124,7 @@ perf_metrics_t* get_perf_metrics()
 {
   p.run_time = (last_vld_time - start_time) / 10;
   p.instruction_count = instruction_counter;
+
   p.double_instruction = double_instruction_counter;
   p.single_instruction = single_instruction_counter;
   p.no_instruction = no_instruction_counter;
@@ -139,6 +144,7 @@ void clear_perf_metrics()
   instruction_counter = 0;
   stall_counter = 0;
   flush_counter = 0;
+
   double_instruction_counter = 0;
   single_instruction_counter = 0;
   no_instruction_counter = 0;
