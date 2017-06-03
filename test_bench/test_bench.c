@@ -73,8 +73,6 @@ static test_t tests[] = {
 {"to_10", CODE_TEST, 20, 10000},
 
 {"plus1", CODE_TEST, 4, 10000},
-
-{"fib5", CODE_TEST, 10, 100000},
 };
 
 static TIME test_start_time;

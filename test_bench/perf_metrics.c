@@ -65,7 +65,7 @@ PLI_INT32 perf_metrics(char* user_data)
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
   instruction0 = inval.value.vector[0].aval;
-  if((instruction0 > 0) && (inval.value.vector[0].bval == 0))
+  if((instruction0 != 0) && (inval.value.vector[0].bval == 0))
   {
   }
 
@@ -73,7 +73,7 @@ PLI_INT32 perf_metrics(char* user_data)
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
   instruction1 = inval.value.vector[0].aval;
-  if((instruction1 > 0) && (inval.value.vector[0].bval == 0))
+  if((instruction1 != 0) && (inval.value.vector[0].bval == 0))
   {
   }
 
