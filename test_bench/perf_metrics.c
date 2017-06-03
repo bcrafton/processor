@@ -58,6 +58,20 @@ PLI_INT32 perf_metrics(char* user_data)
   vpi_get_value(arg, &inval);
   if((inval.value.vector[0].aval > 0) && (inval.value.vector[0].bval == 0))
   {
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if((inval.value.vector[0].aval > 0) && (inval.value.vector[0].bval == 0))
+  {
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if((inval.value.vector[0].aval > 0) && (inval.value.vector[0].bval == 0))
+  {
     last_vld_time = current_time;
     instruction_counter++;
   }
@@ -76,17 +90,19 @@ PLI_INT32 perf_metrics(char* user_data)
     start_time = current_time;
   }
 
-  //printf("time: %lu flush: %u stall: %u\n", start_time - last_vld_time, flush_counter, stall_counter);
-
   return 0;
-
 }
 
 perf_metrics_t* get_perf_metrics()
 {
-  p.ipc =  ((float)instruction_counter / (last_vld_time - start_time)) * 10;
+  p.run_time = (last_vld_time - start_time) / 10;
+  p.instruction_count = instruction_counter;
+
   p.stall_count = stall_counter;
   p.flush_count = flush_counter;
+
+  p.ipc =  (float)p.instruction_count / p.run_time;
+  
   return &p;
 }
 

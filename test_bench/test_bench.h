@@ -58,6 +58,8 @@ typedef struct perf_metrics_t{
   float ipc;
   unsigned int stall_count;
   unsigned int flush_count;
+  unsigned long int instruction_count;
+  unsigned long int run_time;
 } perf_metrics_t;
 
 ///////////////////////////////////////////

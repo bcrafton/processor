@@ -158,7 +158,9 @@ PLI_INT32 update(char* user_data)
       }
 
       perf_metrics_t* p = get_perf_metrics();
-      printf("ipc = %f; stalls = %u; flushes = %u\n", p->ipc, p->stall_count, p->flush_count);
+      printf("ipc = %f; stalls = %u; flushes = %u; run time = %lu; inst count = %lu\n", p->ipc, p->stall_count, p->flush_count, p->run_time, p->instruction_count);
+
+      clear_perf_metrics();
 
       // dump memory
       dump_memory(DMEM_ID);
