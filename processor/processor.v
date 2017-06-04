@@ -167,8 +167,8 @@ module processor(
   wire mem_wb_first;
 
   wire [`NUM_PIPE_MASKS-1:0] branch_flush;
-  wire hazard_flush0;
-  wire hazard_flush1;
+  wire [`NUM_PIPE_MASKS-1:0] hazard_flush0;
+  wire [`NUM_PIPE_MASKS-1:0] hazard_flush1;
 
   wire first;
   wire steer_stall;
@@ -247,7 +247,7 @@ module processor(
 
   if_id_register if_id_reg0(
   .clk(clk), 
-  .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush0), 
+  .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush0[`IF_ID_MASK_INDEX]), 
   .stall(stall0[`IF_ID_MASK_INDEX]), 
   .nop(nop0[`IF_ID_MASK_INDEX]), 
 
@@ -260,7 +260,7 @@ module processor(
 
   if_id_register if_id_reg1(
   .clk(clk), 
-  .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush1), 
+  .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush1[`IF_ID_MASK_INDEX]), 
   .stall(stall1[`IF_ID_MASK_INDEX]), 
   .nop(nop1[`IF_ID_MASK_INDEX]), 
 

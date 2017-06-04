@@ -51,8 +51,8 @@ module hazard_detection_unit(
   output reg [`NUM_PIPE_MASKS-1:0] stall1;
   output reg [`NUM_PIPE_MASKS-1:0] nop1;
 
-  output reg flush0;
-  output reg flush1;
+  output reg [`NUM_PIPE_MASKS-1:0] flush0;
+  output reg [`NUM_PIPE_MASKS-1:0] flush1;
 
   reg [`NUM_REG_MASKS-1:0] src_mask0;
   reg [`NUM_REG_MASKS-1:0] dst_mask0;
@@ -180,7 +180,7 @@ module hazard_detection_unit(
               flush0 <= 0;
 
               stall1 <= `PIPE_REG_PC;
-              flush1 <= 1;
+              flush1 <= `PIPE_REG_IF_ID;
               nop1 <= 0;
             end else begin
               stall0 <= 0;
@@ -199,7 +199,7 @@ module hazard_detection_unit(
               flush0 <= 0;
 
               stall1 <= `PIPE_REG_PC;
-              flush1 <= 1;
+              flush1 <= `PIPE_REG_IF_ID;
               nop1 <= 0;
             end else begin
               stall0 <= 0;
@@ -219,7 +219,7 @@ module hazard_detection_unit(
               flush0 <= 0;
 
               stall1 <= `PIPE_REG_PC;
-              flush1 <= 1;
+              flush1 <= `PIPE_REG_IF_ID;
               nop1 <= 0;
             end else begin
               stall0 <= 0;
@@ -238,7 +238,7 @@ module hazard_detection_unit(
               flush0 <= 0;
 
               stall1 <= `PIPE_REG_PC;
-              flush1 <= 1;
+              flush1 <= `PIPE_REG_IF_ID;
               nop1 <= 0;
             end else begin
               stall0 <= 0;
@@ -257,7 +257,7 @@ module hazard_detection_unit(
               flush0 <= 0;
 
               stall1 <= `PIPE_REG_PC;
-              flush1 <= 1;
+              flush1 <= `PIPE_REG_IF_ID;
               nop1 <= 0;
             end else begin
               stall0 <= 0;
@@ -276,7 +276,7 @@ module hazard_detection_unit(
               flush0 <= 0;
 
               stall1 <= `PIPE_REG_PC;
-              flush1 <= 1;
+              flush1 <= `PIPE_REG_IF_ID;
               nop1 <= 0;
             end else begin
               stall0 <= 0;
@@ -310,7 +310,7 @@ module hazard_detection_unit(
               flush1 <= 0;
 
               stall0 <= `PIPE_REG_PC;
-              flush0 <= 1;
+              flush0 <= `PIPE_REG_IF_ID;
               nop0 <= 0;
             end else begin
               stall0 <= 0;
@@ -329,7 +329,7 @@ module hazard_detection_unit(
               flush1 <= 0;
 
               stall0 <= `PIPE_REG_PC;
-              flush0 <= 1;
+              flush0 <= `PIPE_REG_IF_ID;
               nop0 <= 0;
             end else begin
               stall0 <= 0;
@@ -349,7 +349,7 @@ module hazard_detection_unit(
               flush1 <= 0;
 
               stall0 <= `PIPE_REG_PC;
-              flush0 <= 1;
+              flush0 <= `PIPE_REG_IF_ID;
               nop0 <= 0;
             end else begin
               stall0 <= 0;
@@ -368,7 +368,7 @@ module hazard_detection_unit(
               flush1 <= 0;
 
               stall0 <= `PIPE_REG_PC;
-              flush0 <= 1;
+              flush0 <= `PIPE_REG_IF_ID;
               nop0 <= 0;
             end else begin
               stall0 <= 0;
@@ -387,7 +387,7 @@ module hazard_detection_unit(
               flush1 <= 0;
 
               stall0 <= `PIPE_REG_PC;
-              flush0 <= 1;
+              flush0 <= `PIPE_REG_IF_ID;
               nop0 <= 0;
             end else begin
               stall0 <= 0;
@@ -406,7 +406,7 @@ module hazard_detection_unit(
               flush1 <= 0;
 
               stall0 <= `PIPE_REG_PC;
-              flush0 <= 1;
+              flush0 <= `PIPE_REG_IF_ID;
               nop0 <= 0;
             end else begin
               stall0 <= 0;
