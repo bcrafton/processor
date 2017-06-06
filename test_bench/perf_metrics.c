@@ -47,34 +47,64 @@ PLI_INT32 perf_metrics(char* user_data)
   arg = vpi_scan(iterator);
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
-  stall0 = inval.value.vector[0].aval;
+  if (inval.value.vector[0].bval == 0) {
+    stall0 = inval.value.vector[0].aval;
+  }
+  else {
+    stall0 = 0;
+  }
 
   arg = vpi_scan(iterator);
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
-  stall1 = inval.value.vector[0].aval;
+  if (inval.value.vector[0].bval == 0) {
+    stall1 = inval.value.vector[0].aval;
+  }
+  else {
+    stall1 = 0;
+  }
 
   arg = vpi_scan(iterator);
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
-  steer_stall = inval.value.vector[0].aval;
+  if (inval.value.vector[0].bval == 0) {
+    steer_stall = inval.value.vector[0].aval;
+  }
+  else {
+    steer_stall = 0;
+  }
 
   arg = vpi_scan(iterator);
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
-  flush = inval.value.vector[0].aval;
+  if (inval.value.vector[0].bval == 0) {
+    flush = inval.value.vector[0].aval;
+  }
+  else {
+    flush = 0;
+  }
 
   // inval.value.vector[0].aval will be considered signed for instructions with bit in 1
   // so that means just need to check to make sure its not 0.
   arg = vpi_scan(iterator);
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
-  mem_wb_instruction0 = inval.value.vector[0].aval;
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_instruction0 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_instruction0 = 0;
+  }
 
   arg = vpi_scan(iterator);
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
-  mem_wb_instruction1 = inval.value.vector[0].aval;
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_instruction1 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_instruction1 = 0;
+  }
 
   /////////////////////////////////////////////////////////
 
