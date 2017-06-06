@@ -98,7 +98,8 @@ PLI_INT32 perf_metrics(char* user_data)
   {
     load_stall_counter++;
   }
-  else if ( ((stall0 & 0x3) == 0x3) || ((stall1 & 0x3) == 0x3) )
+  else if ( (((stall0 & 0x3) == 0x3) && ((stall1 & 0x1) == 0x1)) || 
+            (((stall1 & 0x3) == 0x3) && ((stall0 & 0x1) == 0x1)) )
   {
     split_stall_counter++;
   }
