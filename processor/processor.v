@@ -203,9 +203,6 @@ module processor(
       stall1,
       steer_stall,
       branch_flush,
-
-      instruction0, 
-      instruction1,
       mem_wb_instruction0,
       mem_wb_instruction1);
   end
@@ -227,7 +224,7 @@ module processor(
   .pc(pc), 
   .flush(branch_flush[`PC_MASK_INDEX]), 
   .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX] | steer_stall),
-  .nop(nop0[`PC_MASK_INDEX] | nop1[`PC_MASK_INDEX])
+  .nop(1'b0)
   );
   
   instruction_memory im(
@@ -254,7 +251,7 @@ module processor(
   .clk(clk), 
   .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush0[`IF_ID_MASK_INDEX]), 
   .stall(stall0[`IF_ID_MASK_INDEX]), 
-  .nop(nop0[`IF_ID_MASK_INDEX]), 
+  .nop(1'b0), 
 
   .instruction_in(steer_instruction0),
   .first_in(first),
@@ -267,7 +264,7 @@ module processor(
   .clk(clk), 
   .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush1[`IF_ID_MASK_INDEX]), 
   .stall(stall1[`IF_ID_MASK_INDEX]), 
-  .nop(nop1[`IF_ID_MASK_INDEX]), 
+  .nop(1'b0), 
 
   .instruction_in(steer_instruction1),
   .first_in(),
@@ -349,7 +346,7 @@ module processor(
   .clk(clk), 
   .flush(branch_flush[`ID_EX_MASK_INDEX] | hazard_flush0[`ID_EX_MASK_INDEX]), 
   .stall(stall0[`ID_EX_MASK_INDEX]), 
-  .nop(nop0[`ID_EX_MASK_INDEX]), 
+  .nop(1'b0), 
 
   .rs_in(rs0), 
   .rt_in(rt0), 
@@ -394,7 +391,7 @@ module processor(
   .clk(clk), 
   .flush(branch_flush[`ID_EX_MASK_INDEX] | hazard_flush1[`ID_EX_MASK_INDEX]), 
   .stall(stall1[`ID_EX_MASK_INDEX]), 
-  .nop(nop1[`ID_EX_MASK_INDEX]), 
+  .nop(1'b0), 
 
   .rs_in(rs1), 
   .rt_in(rt1), 

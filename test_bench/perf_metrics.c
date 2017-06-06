@@ -30,8 +30,6 @@ PLI_INT32 perf_metrics(char* user_data)
   unsigned int steer_stall;
 
   unsigned int flush;
-  unsigned int instruction0;
-  unsigned int instruction1;
 
   unsigned int mem_wb_instruction0;
   unsigned int mem_wb_instruction1;
@@ -65,16 +63,6 @@ PLI_INT32 perf_metrics(char* user_data)
   inval.format = vpiVectorVal;
   vpi_get_value(arg, &inval);
   flush = inval.value.vector[0].aval;
-
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
-  instruction0 = inval.value.vector[0].aval;
-
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
-  instruction1 = inval.value.vector[0].aval;
 
   // inval.value.vector[0].aval will be considered signed for instructions with bit in 1
   // so that means just need to check to make sure its not 0.
