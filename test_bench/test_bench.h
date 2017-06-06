@@ -96,6 +96,7 @@ void load_program();
 void clear_memory(int memory_id);
 perf_metrics_t* get_perf_metrics();
 void clear_perf_metrics();
+void dump_perf_metrics();
 
 ///////////////////////////////////////////
 
@@ -113,6 +114,8 @@ bool next_test();
 
 #define ACTUAL_PATH           "../test_bench/actual/"
 #define EXPECTED_PATH         "../test_bench/expected/"
+
+#define PERF_PATH             "../test_bench/performance/"
 
 ///////////////////////////////////////////
 

@@ -6,7 +6,7 @@ extern REGISTER regfile[REGFILE_SIZE];
 extern INSTRUCTION imemory[IMEMORY_SIZE];
 
 static test_t tests[] = {
-/*
+
 {"addi", BINARY_TEST, 0, 1000},
 
 {"subi", BINARY_TEST, 0, 1000},
@@ -73,8 +73,6 @@ static test_t tests[] = {
 {"to_10", CODE_TEST, 20, 10000},
 
 {"plus1", CODE_TEST, 4, 10000},
-*/
-{"fn_add", CODE_TEST, 6, 10000},
 };
 
 static TIME test_start_time;
@@ -150,24 +148,17 @@ PLI_INT32 update(char* user_data)
     {
 
       bool pass = check();
+      perf_metrics_t* p = get_perf_metrics();
+      
       if(pass)
       {
-        printf("Test %s: Passed\n", current_test->name);
+        printf("Test %s: Passed. IPC = %f.\n", current_test->name, p->ipc);
+        dump_perf_metrics();
       }
       else
       {
         printf("Test %s: Failed\n", current_test->name);
       }
-
-      perf_metrics_t* p = get_perf_metrics();
-
-      printf("ipc = %f\n", p->ipc);
-      printf("instructions = %lu\n", p->instruction_count);
-      printf("run time = %lu\n", p->run_time);
-      printf("flushes = %u\n", p->flush_count);
-      printf("load stalls = %u\n", p->load_stall_count);
-      printf("split stalls = %u\n", p->split_stall_count);
-      printf("steer stalls = %u\n", p->steer_stall_count);
 
       clear_perf_metrics();
 
@@ -422,6 +413,32 @@ bool check_binary()
 
   return true;
 
+}
+
+void dump_perf_metrics()
+{
+  perf_metrics_t* p = get_perf_metrics();
+  
+  char buffer[100];
+  sprintf(buffer, "%s%s.perf", PERF_PATH, current_test->name);
+  
+  FILE *file;
+  file = fopen(buffer, "w");
+  if(file == NULL)
+  {
+    fprintf(stderr, "could not find %s\n", buffer);
+    assert(0);
+  }
+
+  fprintf(file, "ipc = %f\n", p->ipc);
+  fprintf(file, "instructions = %lu\n", p->instruction_count);
+  fprintf(file, "run time = %lu\n", p->run_time);
+  fprintf(file, "flushes = %u\n", p->flush_count);
+  fprintf(file, "load stalls = %u\n", p->load_stall_count);
+  fprintf(file, "split stalls = %u\n", p->split_stall_count);
+  fprintf(file, "steer stalls = %u\n", p->steer_stall_count);
+
+  fclose(file);
 }
 
 bool next_test()
