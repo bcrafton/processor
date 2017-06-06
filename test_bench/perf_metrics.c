@@ -8,8 +8,8 @@ static unsigned int instruction_counter;
 static unsigned int flush_counter;
 
 static unsigned int load_stall_counter;
-static unsigned int steer_stall_counter;
 static unsigned int split_stall_counter;
+static unsigned int steer_stall_counter;
 
 static perf_metrics_t p;
 
@@ -128,8 +128,8 @@ PLI_INT32 perf_metrics(char* user_data)
   {
     load_stall_counter++;
   }
-  else if ( (((stall0 & 0x3) == 0x3) && ((stall1 & 0x1) == 0x1)) || 
-            (((stall1 & 0x3) == 0x3) && ((stall0 & 0x1) == 0x1)) )
+  else if ( ( ((stall0 & 0x3) == 0x3) && ((stall1 & 0x1) == 0x1) ) || 
+            ( ((stall1 & 0x3) == 0x3) && ((stall0 & 0x1) == 0x1) ) )
   {
     split_stall_counter++;
   }
@@ -154,8 +154,8 @@ perf_metrics_t* get_perf_metrics()
   p.instruction_count = instruction_counter;
 
   p.load_stall_count = load_stall_counter;
-  p.steer_stall_count = steer_stall_counter;
   p.split_stall_count = split_stall_counter;
+  p.steer_stall_count = steer_stall_counter;
 
   p.flush_count = flush_counter;
 
@@ -172,8 +172,8 @@ void clear_perf_metrics()
   instruction_counter = 0;
 
   load_stall_counter = 0;
-  steer_stall_counter = 0;
   split_stall_counter = 0;
+  steer_stall_counter = 0;
 
   flush_counter = 0;
 }

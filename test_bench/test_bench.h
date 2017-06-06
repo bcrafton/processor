@@ -62,8 +62,8 @@ typedef struct perf_metrics_t{
   unsigned long int run_time;
 
   unsigned int load_stall_count;
-  unsigned int steer_stall_count;
   unsigned int split_stall_count;
+  unsigned int steer_stall_count;
 
 } perf_metrics_t;
 
