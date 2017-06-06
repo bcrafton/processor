@@ -22,7 +22,7 @@ There is a dependency script that may or may not work for getting the dependenci
 Once these are acquired, the makefile can be run which will compile all four modules and run the test bench.
 ### Future Features
 1. Super scalar :+1:
-2. Performance metrics (branch misses, IPC, instruction histograms, stalls)
+2. Performance metrics (branch misses, IPC, instruction histograms, stalls) :+1:
 3. Robust Tests
 4. Branch predictor
 5. Out of order
