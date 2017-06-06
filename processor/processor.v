@@ -342,7 +342,7 @@ module processor(
 
   id_ex_register id_ex_reg0(
   .clk(clk), 
-  .flush(branch_flush[`ID_EX_MASK_INDEX]), 
+  .flush(branch_flush[`ID_EX_MASK_INDEX] | hazard_flush0[`ID_EX_MASK_INDEX]), 
   .stall(stall0[`ID_EX_MASK_INDEX]), 
   .nop(nop0[`ID_EX_MASK_INDEX]), 
 
@@ -387,7 +387,7 @@ module processor(
 
   id_ex_register id_ex_reg1(
   .clk(clk), 
-  .flush(branch_flush[`ID_EX_MASK_INDEX]), 
+  .flush(branch_flush[`ID_EX_MASK_INDEX] | hazard_flush1[`ID_EX_MASK_INDEX]), 
   .stall(stall1[`ID_EX_MASK_INDEX]), 
   .nop(nop1[`ID_EX_MASK_INDEX]), 
 
