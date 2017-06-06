@@ -56,13 +56,15 @@ typedef struct test{
 
 typedef struct perf_metrics_t{
   float ipc;
-  unsigned int stall_count;
+
   unsigned int flush_count;
   unsigned long int instruction_count;
   unsigned long int run_time;
-  unsigned long int double_instruction;
-  unsigned long int single_instruction;
-  unsigned long int no_instruction;
+
+  unsigned int load_stall_count;
+  unsigned int steer_stall_count;
+  unsigned int split_stall_count;
+
 } perf_metrics_t;
 
 ///////////////////////////////////////////

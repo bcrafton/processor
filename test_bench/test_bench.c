@@ -6,7 +6,7 @@ extern REGISTER regfile[REGFILE_SIZE];
 extern INSTRUCTION imemory[IMEMORY_SIZE];
 
 static test_t tests[] = {
-
+/*
 {"addi", BINARY_TEST, 0, 1000},
 
 {"subi", BINARY_TEST, 0, 1000},
@@ -73,6 +73,8 @@ static test_t tests[] = {
 {"to_10", CODE_TEST, 20, 10000},
 
 {"plus1", CODE_TEST, 4, 10000},
+*/
+{"fib5", CODE_TEST, 10, 100000},
 };
 
 static TIME test_start_time;
@@ -158,9 +160,14 @@ PLI_INT32 update(char* user_data)
       }
 
       perf_metrics_t* p = get_perf_metrics();
-      //printf("ipc = %f; stalls = %u; flushes = %u; run time = %lu; inst count = %lu; double = %lu; single = %lu; none = %lu\n", p->ipc, p->stall_count, p->flush_count, p->run_time, p->instruction_count, p->double_instruction, p->single_instruction, p->no_instruction);
 
-      printf("ipc = %f; stalls = %u; flushes = %u; run time = %lu; inst count = %lu;\n", p->ipc, p->stall_count, p->flush_count, p->run_time, p->instruction_count);
+      printf("ipc = %f\n", p->ipc);
+      printf("instructions = %lu\n", p->instruction_count);
+      printf("run time = %lu\n", p->run_time);
+      printf("flushes = %u\n", p->flush_count);
+      printf("load stalls = %u\n", p->load_stall_count);
+      printf("split stalls = %u\n", p->steer_stall_count);
+      printf("steer stalls = %u\n", p->split_stall_count);
 
       clear_perf_metrics();
 

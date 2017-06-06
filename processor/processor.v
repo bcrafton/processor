@@ -194,15 +194,20 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
+  // log perf metrics.
   reg perf_metrics_bit;
   always @(posedge clk) begin
-    perf_metrics_bit = $perf_metrics($time, 
-                                     (stall0 & stall1), 
-                                     branch_flush[`PC_MASK_INDEX], 
-                                     instruction0, 
-                                     instruction1,
-                                     mem_wb_instruction0,
-                                     mem_wb_instruction1);
+    perf_metrics_bit = $perf_metrics(
+      $time, 
+      stall0,
+      stall1,
+      steer_stall,
+      branch_flush,
+
+      instruction0, 
+      instruction1,
+      mem_wb_instruction0,
+      mem_wb_instruction1);
   end
 
   mux2x1 #(`ADDR_WIDTH) jump_address_mux(
