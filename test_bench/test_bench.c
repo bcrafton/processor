@@ -148,14 +148,19 @@ PLI_INT32 update(char* user_data)
     {
 
       bool pass = check();
+      perf_metrics_t* p = get_perf_metrics();
+      
       if(pass)
       {
-        printf("Test %s: Passed\n", current_test->name);
+        printf("Test %s: Passed. IPC = %f.\n", current_test->name, p->ipc);
+        dump_perf_metrics();
       }
       else
       {
         printf("Test %s: Failed\n", current_test->name);
       }
+
+      clear_perf_metrics();
 
       // dump memory
       dump_memory(DMEM_ID);
@@ -410,6 +415,32 @@ bool check_binary()
 
 }
 
+void dump_perf_metrics()
+{
+  perf_metrics_t* p = get_perf_metrics();
+  
+  char buffer[100];
+  sprintf(buffer, "%s%s.perf", PERF_PATH, current_test->name);
+  
+  FILE *file;
+  file = fopen(buffer, "w");
+  if(file == NULL)
+  {
+    fprintf(stderr, "could not find %s\n", buffer);
+    assert(0);
+  }
+
+  fprintf(file, "ipc = %f\n", p->ipc);
+  fprintf(file, "instructions = %lu\n", p->instruction_count);
+  fprintf(file, "run time = %lu\n", p->run_time);
+  fprintf(file, "flushes = %u\n", p->flush_count);
+  fprintf(file, "load stalls = %u\n", p->load_stall_count);
+  fprintf(file, "split stalls = %u\n", p->split_stall_count);
+  fprintf(file, "steer stalls = %u\n", p->steer_stall_count);
+
+  fclose(file);
+}
+
 bool next_test()
 {
   if(test_counter == 0 && current_test == NULL)
@@ -478,11 +509,25 @@ void update_register(void)
     vpi_register_systf(&tf_data);
 }
 
+void perf_metrics_register(void)
+{
+    s_vpi_systf_data tf_data;
+    tf_data.type        = vpiSysFunc;
+    tf_data.sysfunctype = vpiIntFunc;
+    tf_data.tfname    = "$perf_metrics";
+    tf_data.calltf    = perf_metrics;
+    tf_data.compiletf = 0;
+    tf_data.sizetf    = 0;
+    tf_data.user_data = 0;
+    vpi_register_systf(&tf_data);
+}
+
 void (*vlog_startup_routines[])() = {
     mem_read_register,
     mem_write_register,
     init_register,
     update_register,
+    perf_metrics_register,
     0
 };
 

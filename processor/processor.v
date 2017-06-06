@@ -167,8 +167,8 @@ module processor(
   wire mem_wb_first;
 
   wire [`NUM_PIPE_MASKS-1:0] branch_flush;
-  wire hazard_flush0;
-  wire hazard_flush1;
+  wire [`NUM_PIPE_MASKS-1:0] hazard_flush0;
+  wire [`NUM_PIPE_MASKS-1:0] hazard_flush1;
 
   wire first;
   wire steer_stall;
@@ -194,6 +194,19 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
+  // log perf metrics.
+  reg perf_metrics_bit;
+  always @(posedge clk) begin
+    perf_metrics_bit = $perf_metrics(
+      $time, 
+      stall0,
+      stall1,
+      steer_stall,
+      branch_flush,
+      mem_wb_instruction0,
+      mem_wb_instruction1);
+  end
+
   mux2x1 #(`ADDR_WIDTH) jump_address_mux(
   .in0(alu_input_mux_1_result0[`ADDR_WIDTH-1:0]), 
   .in1(id_ex_address0), 
@@ -211,7 +224,7 @@ module processor(
   .pc(pc), 
   .flush(branch_flush[`PC_MASK_INDEX]), 
   .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX] | steer_stall),
-  .nop(nop0[`PC_MASK_INDEX] | nop1[`PC_MASK_INDEX])
+  .nop(1'b0)
   );
   
   instruction_memory im(
@@ -236,9 +249,9 @@ module processor(
 
   if_id_register if_id_reg0(
   .clk(clk), 
-  .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush0), 
+  .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush0[`IF_ID_MASK_INDEX]), 
   .stall(stall0[`IF_ID_MASK_INDEX]), 
-  .nop(nop0[`IF_ID_MASK_INDEX]), 
+  .nop(1'b0), 
 
   .instruction_in(steer_instruction0),
   .first_in(first),
@@ -249,9 +262,9 @@ module processor(
 
   if_id_register if_id_reg1(
   .clk(clk), 
-  .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush1), 
+  .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush1[`IF_ID_MASK_INDEX]), 
   .stall(stall1[`IF_ID_MASK_INDEX]), 
-  .nop(nop1[`IF_ID_MASK_INDEX]), 
+  .nop(1'b0), 
 
   .instruction_in(steer_instruction1),
   .first_in(),
@@ -331,9 +344,9 @@ module processor(
 
   id_ex_register id_ex_reg0(
   .clk(clk), 
-  .flush(branch_flush[`ID_EX_MASK_INDEX]), 
+  .flush(branch_flush[`ID_EX_MASK_INDEX] | hazard_flush0[`ID_EX_MASK_INDEX]), 
   .stall(stall0[`ID_EX_MASK_INDEX]), 
-  .nop(nop0[`ID_EX_MASK_INDEX]), 
+  .nop(1'b0), 
 
   .rs_in(rs0), 
   .rt_in(rt0), 
@@ -376,9 +389,9 @@ module processor(
 
   id_ex_register id_ex_reg1(
   .clk(clk), 
-  .flush(branch_flush[`ID_EX_MASK_INDEX]), 
+  .flush(branch_flush[`ID_EX_MASK_INDEX] | hazard_flush1[`ID_EX_MASK_INDEX]), 
   .stall(stall1[`ID_EX_MASK_INDEX]), 
-  .nop(nop1[`ID_EX_MASK_INDEX]), 
+  .nop(1'b0), 
 
   .rs_in(rs1), 
   .rt_in(rt1), 

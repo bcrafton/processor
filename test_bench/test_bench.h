@@ -41,6 +41,19 @@ typedef unsigned char BOOL;
 
 ///////////////////////////////////////////
 
+#define PC_MASK     0x01
+#define IF_ID_MASK  0x02
+#define ID_EX_MASK  0x04
+#define EX_MEM_MASK 0x08
+#define MEM_WB_MASK 0x10
+
+#define FLUSH_MASK        (EX_MEM_MASK | ID_EX_MASK | IF_ID_MASK | PC_MASK)
+#define STALL_LOAD_MASK   (IF_ID_MASK | PC_MASK)
+#define STALL_FIRST_MASK  PC_MASK
+#define STALL_SECOND_MASK (IF_ID_MASK | PC_MASK)
+
+///////////////////////////////////////////
+
 typedef enum test_type{
   BINARY_TEST,
   CODE_TEST,
@@ -54,6 +67,19 @@ typedef struct test{
   unsigned int sim_time;
 } test_t;
 
+typedef struct perf_metrics_t{
+  float ipc;
+
+  unsigned int flush_count;
+  unsigned long int instruction_count;
+  unsigned long int run_time;
+
+  unsigned int load_stall_count;
+  unsigned int split_stall_count;
+  unsigned int steer_stall_count;
+
+} perf_metrics_t;
+
 ///////////////////////////////////////////
 
 PLI_INT32 mem_read(char* user_data);
@@ -61,11 +87,16 @@ PLI_INT32 mem_write(char* user_data);
 PLI_INT32 init(char* user_data);
 PLI_INT32 update(char* user_data);
 
+PLI_INT32 perf_metrics(char* user_data);
+
 ///////////////////////////////////////////
 
 void dump_memory(int memory_id);
 void load_program();
 void clear_memory(int memory_id);
+perf_metrics_t* get_perf_metrics();
+void clear_perf_metrics();
+void dump_perf_metrics();
 
 ///////////////////////////////////////////
 
@@ -83,6 +114,8 @@ bool next_test();
 
 #define ACTUAL_PATH           "../test_bench/actual/"
 #define EXPECTED_PATH         "../test_bench/expected/"
+
+#define PERF_PATH             "../test_bench/performance/"
 
 ///////////////////////////////////////////
 

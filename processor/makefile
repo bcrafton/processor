@@ -3,7 +3,7 @@ all: vpi compile run
 
 .PHONY: vpi
 vpi:
-	iverilog-vpi ../test_bench/memory_controller.c ../test_bench/test_bench.c
+	iverilog-vpi ../test_bench/memory_controller.c ../test_bench/test_bench.c ../test_bench/perf_metrics.c
 
 .PHONY: compile
 compile:
