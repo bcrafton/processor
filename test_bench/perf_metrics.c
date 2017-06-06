@@ -119,17 +119,17 @@ PLI_INT32 perf_metrics(char* user_data)
     last_vld_time = current_time;
   }
 
-  if ((flush & 0xf) == 0xf)
+  if ((flush & FLUSH_MASK) == FLUSH_MASK)
   {
     flush_counter++;
   }
 
-  if ( ((stall0 & 0x3) == 0x3) && ((stall1 & 0x3) == 0x3) )
+  if ( ((stall0 & STALL_LOAD_MASK) == STALL_LOAD_MASK) && ((stall1 & STALL_LOAD_MASK) == STALL_LOAD_MASK) )
   {
     load_stall_counter++;
   }
-  else if ( ( ((stall0 & 0x3) == 0x3) && ((stall1 & 0x1) == 0x1) ) || 
-            ( ((stall1 & 0x3) == 0x3) && ((stall0 & 0x1) == 0x1) ) )
+  else if ( ( ((stall0 & STALL_SECOND_MASK) == STALL_SECOND_MASK) && ((stall1 & STALL_FIRST_MASK) == STALL_FIRST_MASK) ) || 
+            ( ((stall1 & STALL_SECOND_MASK) == STALL_SECOND_MASK) && ((stall0 & STALL_FIRST_MASK) == STALL_FIRST_MASK) ) )
   {
     split_stall_counter++;
   }

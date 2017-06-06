@@ -41,6 +41,19 @@ typedef unsigned char BOOL;
 
 ///////////////////////////////////////////
 
+#define PC_MASK     0x01
+#define IF_ID_MASK  0x02
+#define ID_EX_MASK  0x04
+#define EX_MEM_MASK 0x08
+#define MEM_WB_MASK 0x10
+
+#define FLUSH_MASK        (EX_MEM_MASK | ID_EX_MASK | IF_ID_MASK | PC_MASK)
+#define STALL_LOAD_MASK   (IF_ID_MASK | PC_MASK)
+#define STALL_FIRST_MASK  PC_MASK
+#define STALL_SECOND_MASK (IF_ID_MASK | PC_MASK)
+
+///////////////////////////////////////////
+
 typedef enum test_type{
   BINARY_TEST,
   CODE_TEST,
