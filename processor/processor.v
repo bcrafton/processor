@@ -126,8 +126,7 @@ module processor(
   wire [`MEM_OP_BITS-1:0] ex_mem_mem_op0;
   wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_reg_dst_result0;
 
-  wire ex_mem_jump_address;
-  wire [`ADDR_WIDTH-1:0] jump_address_result;
+  wire [`ADDR_WIDTH-1:0] jump_address;
 
   wire [`INST_WIDTH-1:0] ex_mem_instruction1;
   wire [`DATA_WIDTH-1:0] ex_mem_alu_result1;
@@ -207,12 +206,6 @@ module processor(
       mem_wb_instruction1);
   end
 
-  mux2x1 #(`ADDR_WIDTH) jump_address_mux(
-  .in0(alu_input_mux_1_result0[`ADDR_WIDTH-1:0]), 
-  .in1(id_ex_address0), 
-  .sel(ex_mem_jump_address), 
-  .out(jump_address_result));
-
   program_counter pc_unit(
   .clk(clk), 
   .reset(reset),
@@ -220,7 +213,7 @@ module processor(
   .address0(instruction0[`IMM_MSB:`IMM_LSB]),
   .opcode1(instruction1[`OPCODE_MSB:`OPCODE_LSB]),
   .address1(instruction1[`IMM_MSB:`IMM_LSB]),
-  .branch_address(jump_address_result), 
+  .branch_address(jump_address), 
   .pc(pc), 
   .flush(branch_flush[`PC_MASK_INDEX]), 
   .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX] | steer_stall),
@@ -656,12 +649,19 @@ module processor(
   .mem_op(ex_mem_mem_op1));
 
   branch_unit bu(
+  .clk(clk),
+
   .zero(zero0),
   .less(less0),
   .greater(greater0),
+
+  .pc(),
+  .reg_address(alu_input_mux_1_result0[`ADDR_WIDTH-1:0]),
+  .imm_address(id_ex_address0),
+
   .jop(id_ex_jop0), 
   .flush(branch_flush),
-  .jump_address(ex_mem_jump_address)
+  .jump_address(jump_address)
   );
 
   mem_wb_register mem_wb_reg0(
