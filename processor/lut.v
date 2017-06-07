@@ -3,15 +3,15 @@
 `include "defines.vh"
 
 module lut(
-clk,
-write,
+  clk,
+  write,
 
-write_key,
-write_val,
+  write_key,
+  write_val,
 
-read_key,
-read_val,
-read_valid
+  read_key,
+  read_val,
+  read_valid
 );
 
 // input = pc.
@@ -113,45 +113,5 @@ end
 
 endmodule
 
-/*static BYTE evict_lru()
-{
-    int i;
-    for(i=0; i<NUM_CACHE_LINES;i++)
-    {
-        //vpi_printf("%d NEXT: %d %d %d\n", i, cache.lines[i].next, cache.lru, cache.mru);
-    }
-    BYTE evicted = cache.lru;
-
-    cache.lru = cache.lines[cache.lru].next;
-    cache.lines[cache.lru].prev = -1;
-
-    cache.lines[cache.mru].next = evicted;
-    cache.lines[evicted].prev = cache.mru;
-
-    cache.mru = evicted;
-    cache.lines[cache.mru].next = -1;
-
-    return evicted;
-    // this actually works
-    // return cache.lru++;
-}
-
-static void set_mru(BYTE target)
-{
-    BYTE target_next;
-    BYTE target_prev;
-
-    target_next = cache.lines[target].next;
-    target_prev = cache.lines[target].prev;
-
-    cache.lines[target_prev].next = target_next;
-    cache.lines[target_next].prev = target_prev;
-    
-    cache.lines[cache.mru].next = target;
-    cache.lines[target].prev = cache.mru;
-    cache.lines[target].next = -1;
-
-    cache.mru = target;
-}*/
 
 
