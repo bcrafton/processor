@@ -7,7 +7,7 @@ vpi:
 
 .PHONY: compile
 compile:
-	iverilog -o memory_controller.vvp test.v processor.v branch_unit.v control_unit.v forwarding_unit.v hazard_detection_unit.v mux.v ram.v register_file.v pipeline_register.v alu.v program_counter.v instruction_memory.v steer.v
+	iverilog -o memory_controller.vvp test.v processor.v branch_unit.v control_unit.v forwarding_unit.v hazard_detection_unit.v mux.v ram.v register_file.v pipeline_register.v alu.v program_counter.v instruction_memory.v steer.v lut.v
 
 .PHONY: run
 run:

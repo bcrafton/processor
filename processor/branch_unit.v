@@ -34,20 +34,18 @@ module branch_unit(
   output reg [`NUM_PIPE_MASKS-1:0] flush;
   output reg [`ADDR_WIDTH-1:0] jump_address;
 
-/*
   lut l(
     .clk(clk),
     .write(lut_write),
     
     .write_key(pc),
-    .write_val(address),
+    .write_val(jump_address),
     
     // we are gonna need to add wires here.
     .read_key(),
     .read_val(),
     .read_valid()
   );
-*/
 
   initial begin
     flush <= 0;
