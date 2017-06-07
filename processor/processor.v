@@ -175,6 +175,11 @@ module processor(
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result0, alu_input_mux_2_result0;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result1, alu_input_mux_2_result1;
 
+  wire [`ADDR_WIDTH-1:0] if_id_pc;
+  wire [`ADDR_WIDTH-1:0] id_ex_pc;
+  wire [`ADDR_WIDTH-1:0] ex_mem_pc;
+  wire [`ADDR_WIDTH-1:0] mem_wb_pc;
+
   assign opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 = if_id_instruction0[`REG_RS_MSB:`REG_RS_LSB];
   assign rt0 = if_id_instruction0[`REG_RT_MSB:`REG_RT_LSB];
@@ -248,9 +253,11 @@ module processor(
 
   .instruction_in(steer_instruction0),
   .first_in(first),
+  .pc_in(pc),
 
   .instruction_out(if_id_instruction0),
-  .first_out(if_id_first)
+  .first_out(if_id_first),
+  .pc_out(if_id_pc)
   );
 
   if_id_register if_id_reg1(
@@ -261,9 +268,11 @@ module processor(
 
   .instruction_in(steer_instruction1),
   .first_in(),
+  .pc_in(),
 
   .instruction_out(if_id_instruction1),
-  .first_out()
+  .first_out(),
+  .pc_out()
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -359,6 +368,7 @@ module processor(
   .address_src_in(address_src0),
   .instruction_in(if_id_instruction0),
   .first_in(if_id_first),
+  .pc_in(if_id_pc),
 
   .rs_out(id_ex_rs0), 
   .rt_out(id_ex_rt0), 
@@ -377,7 +387,8 @@ module processor(
   .jop_out(id_ex_jop0), 
   .address_src_out(id_ex_address_src0),
   .instruction_out(id_ex_instruction0),
-  .first_out(id_ex_first)
+  .first_out(id_ex_first),
+  .pc_out(id_ex_pc)
   );
 
   id_ex_register id_ex_reg1(
@@ -404,6 +415,7 @@ module processor(
   .address_src_in(address_src1),
   .instruction_in(if_id_instruction1),
   .first_in(),
+  .pc_in(),
 
   .rs_out(id_ex_rs1), 
   .rt_out(id_ex_rt1), 
@@ -422,7 +434,8 @@ module processor(
   .jop_out(id_ex_jop1), 
   .address_src_out(id_ex_address_src1),
   .instruction_out(id_ex_instruction1),
-  .first_out()
+  .first_out(),
+  .pc_out()
   );
 
 
@@ -592,6 +605,7 @@ module processor(
   .address_src_result_in(address_src_result0),
   .instruction_in(id_ex_instruction0),
   .first_in(id_ex_first),
+  .pc_in(id_ex_pc),
 
   .alu_result_out(ex_mem_alu_result0), 
   .data_1_out(ex_mem_data_1_0), 
@@ -604,7 +618,8 @@ module processor(
   .address_out(ex_mem_address0),
   .address_src_result_out(ex_mem_address_src_result0),
   .instruction_out(ex_mem_instruction0),
-  .first_out(ex_mem_first)
+  .first_out(ex_mem_first),
+  .pc_out(ex_mem_pc)
   );
 
   ex_mem_register ex_mem_reg1(
@@ -625,6 +640,7 @@ module processor(
   .address_src_result_in(address_src_result1),
   .instruction_in(id_ex_instruction1),
   .first_in(),
+  .pc_in(),
 
   .alu_result_out(ex_mem_alu_result1), 
   .data_1_out(ex_mem_data_1_1), 
@@ -637,7 +653,8 @@ module processor(
   .address_out(ex_mem_address1),
   .address_src_result_out(ex_mem_address_src_result1),
   .instruction_out(ex_mem_instruction1),
-  .first_out()
+  .first_out(),
+  .pc_out()
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -655,7 +672,7 @@ module processor(
   .less(less0),
   .greater(greater0),
 
-  .pc(),
+  .pc(id_ex_pc),
   .reg_address(alu_input_mux_1_result0[`ADDR_WIDTH-1:0]),
   .imm_address(id_ex_address0),
 
@@ -677,6 +694,7 @@ module processor(
   .reg_write_in(ex_mem_reg_write0), 
   .instruction_in(ex_mem_instruction0),
   .first_in(ex_mem_first),
+  .pc_in(ex_mem_pc),
 
   .mem_to_reg_out(mem_wb_mem_to_reg0), 
   .ram_read_data_out(mem_wb_ram_read_data0), 
@@ -684,7 +702,8 @@ module processor(
   .reg_dst_result_out(mem_wb_reg_dst_result0), 
   .reg_write_out(mem_wb_reg_write0),
   .instruction_out(mem_wb_instruction0),
-  .first_out(mem_wb_first)
+  .first_out(mem_wb_first),
+  .pc_out(mem_wb_pc)
   );
 
   mem_wb_register mem_wb_reg1(
@@ -700,6 +719,7 @@ module processor(
   .reg_write_in(ex_mem_reg_write1), 
   .instruction_in(ex_mem_instruction1),
   .first_in(),
+  .pc_in(),
 
   .mem_to_reg_out(mem_wb_mem_to_reg1), 
   .ram_read_data_out(mem_wb_ram_read_data1), 
@@ -707,7 +727,8 @@ module processor(
   .reg_dst_result_out(mem_wb_reg_dst_result1), 
   .reg_write_out(mem_wb_reg_write1),
   .instruction_out(mem_wb_instruction1),
-  .first_out()
+  .first_out(),
+  .pc_out()
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
