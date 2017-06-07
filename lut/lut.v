@@ -2,7 +2,7 @@
 
 `include "defines.vh"
 
-module lru_lut(
+module lut(
 clk,
 write,
 
@@ -34,7 +34,23 @@ reg [`ADDR_WIDTH-1:0] keys [0:7];
 reg [`ADDR_WIDTH-1:0] vals [0:7];
 
 reg [2:0] current;
-wire next = current == 7 ? 0 : current + 1;
+wire [2:0] next = (current == 7) ? 0 : (current + 1);
+
+integer i;
+
+initial begin
+
+  read_val = 0;
+  read_valid = 0;
+
+  for(i=0; i<8; i=i+1) begin
+    keys[i] = 0;
+    vals[i] = 0;  
+  end
+
+  current = 0;
+
+end
 
 always @(*) begin
 
@@ -89,6 +105,7 @@ always @(posedge clk) begin
 		end else begin
 			current <= next;
 			vals[current] = write_val;
+      keys[current] = write_key;
 		end
 	end
 
