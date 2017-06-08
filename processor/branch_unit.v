@@ -18,6 +18,7 @@ module branch_unit(
   branch_predict,
   
   jop,
+  branch_taken,
 
   flush,
   jump_address,
@@ -34,6 +35,8 @@ module branch_unit(
   input wire [`ADDR_WIDTH-1:0] id_ex_imm_address;
 
   input wire [`JUMP_BITS-1:0] jop;
+
+  input wire branch_taken;
 
   output reg [`NUM_PIPE_MASKS-1:0] flush;
   output reg [`ADDR_WIDTH-1:0] jump_address;

@@ -183,6 +183,10 @@ module processor(
   wire [`ADDR_WIDTH-1:0] branch_predict;
   wire take_branch;
 
+  wire branch_taken;
+  wire if_id_branch_taken;
+  wire id_ex_branch_taken;
+
   assign opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 = if_id_instruction0[`REG_RS_MSB:`REG_RS_LSB];
   assign rt0 = if_id_instruction0[`REG_RT_MSB:`REG_RT_LSB];
@@ -226,7 +230,8 @@ module processor(
   .nop(1'b0),
 
   .take_branch(take_branch),
-  .branch_predict(branch_predict)
+  .branch_predict(branch_predict),
+  .branch_taken(branch_taken)
   );
   
   instruction_memory im(
@@ -258,10 +263,12 @@ module processor(
   .instruction_in(steer_instruction0),
   .first_in(first),
   .pc_in(pc),
+  .branch_taken_in(branch_taken),
 
   .instruction_out(if_id_instruction0),
   .first_out(if_id_first),
-  .pc_out(if_id_pc)
+  .pc_out(if_id_pc),
+  .branch_taken_out(if_id_branch_taken)
   );
 
   if_id_register if_id_reg1(
@@ -273,10 +280,12 @@ module processor(
   .instruction_in(steer_instruction1),
   .first_in(),
   .pc_in(),
+  .branch_taken_in(),
 
   .instruction_out(if_id_instruction1),
   .first_out(),
-  .pc_out()
+  .pc_out(),
+  .branch_taken_out()
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -373,6 +382,7 @@ module processor(
   .instruction_in(if_id_instruction0),
   .first_in(if_id_first),
   .pc_in(if_id_pc),
+  .branch_taken_in(if_id_branch_taken),
 
   .rs_out(id_ex_rs0), 
   .rt_out(id_ex_rt0), 
@@ -392,7 +402,8 @@ module processor(
   .address_src_out(id_ex_address_src0),
   .instruction_out(id_ex_instruction0),
   .first_out(id_ex_first),
-  .pc_out(id_ex_pc)
+  .pc_out(id_ex_pc),
+  .branch_taken_out(id_ex_branch_taken)
   );
 
   id_ex_register id_ex_reg1(
@@ -420,6 +431,7 @@ module processor(
   .instruction_in(if_id_instruction1),
   .first_in(),
   .pc_in(),
+  .branch_taken_in(),
 
   .rs_out(id_ex_rs1), 
   .rt_out(id_ex_rt1), 
@@ -439,7 +451,8 @@ module processor(
   .address_src_out(id_ex_address_src1),
   .instruction_out(id_ex_instruction1),
   .first_out(),
-  .pc_out()
+  .pc_out(),
+  .branch_taken_out()
   );
 
 
@@ -684,6 +697,7 @@ module processor(
   .branch_predict(branch_predict),
   .take_branch(take_branch),
 
+  .branch_taken(id_ex_branch_taken),
   .jop(id_ex_jop0), 
   .flush(branch_flush),
   .jump_address(jump_address)
