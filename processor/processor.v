@@ -214,10 +214,8 @@ module processor(
   program_counter pc_unit(
   .clk(clk), 
   .reset(reset),
-  .opcode0(instruction0[`OPCODE_MSB:`OPCODE_LSB]),
-  .address0(instruction0[`IMM_MSB:`IMM_LSB]),
-  .opcode1(instruction1[`OPCODE_MSB:`OPCODE_LSB]),
-  .address1(instruction1[`IMM_MSB:`IMM_LSB]),
+  .opcode(steer_instruction0[`OPCODE_MSB:`OPCODE_LSB]),
+  .address(steer_instruction0[`IMM_MSB:`IMM_LSB]),
   .branch_address(jump_address), 
   .pc(pc), 
   .flush(branch_flush[`PC_MASK_INDEX]), 

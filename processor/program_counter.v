@@ -5,10 +5,8 @@
 module program_counter(
   clk,
   reset, 
-  opcode0,
-  address0,
-  opcode1,
-  address1,
+  opcode,
+  address,
   branch_address,
   pc,
   stall,
@@ -19,11 +17,8 @@ module program_counter(
   input wire clk;
   input wire reset;
 
-  input wire [`OP_CODE_BITS-1:0] opcode0;
-  input wire [`ADDR_WIDTH-1:0] address0;
-
-  input wire [`OP_CODE_BITS-1:0] opcode1;
-  input wire [`ADDR_WIDTH-1:0] address1;
+  input wire [`OP_CODE_BITS-1:0] opcode;
+  input wire [`ADDR_WIDTH-1:0] address;
 
   input wire [`ADDR_WIDTH-1:0] branch_address; // instruction memory address
 
@@ -32,6 +27,8 @@ module program_counter(
   input wire flush;
   input wire stall;
   input wire nop;
+
+  wire branch = ((opcode & 6'b110000) == 6'b110000) && (opcode != OP_CODE_JMP);
 
   initial begin
     pc = 0;
@@ -44,10 +41,8 @@ module program_counter(
     end else if(!stall) begin
       if(reset) begin
         pc <= 0;
-      end else if(opcode1 == `OP_CODE_JMP) begin
-        pc <= address1;
-      end else if(opcode0 == `OP_CODE_JMP) begin
-        pc <= address0;
+      end else if(opcode == `OP_CODE_JMP) begin // double jump/branch can happen. not steered yet.
+        pc <= address;
       end else begin
         pc <= pc + 2;
       end
