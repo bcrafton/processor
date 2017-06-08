@@ -76,7 +76,7 @@ static test_t tests[] = {
 
 {"jne", BINARY_TEST, 0, 1000},
 */
-{"fib5", CODE_TEST, 10, 100000},
+{"branch_predict", ASM_TEST, 5, 10000},
 };
 
 static TIME test_start_time;

@@ -41,6 +41,7 @@ module program_counter(
 
   initial begin
     pc = 0;
+    branch_taken = 0;
   end
 
   always @(posedge clk) begin
