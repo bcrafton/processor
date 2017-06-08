@@ -180,6 +180,9 @@ module processor(
   wire [`ADDR_WIDTH-1:0] ex_mem_pc;
   wire [`ADDR_WIDTH-1:0] mem_wb_pc;
 
+  wire [`ADDR_WIDTH-1:0] branch_predict;
+  wire take_branch;
+
   assign opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 = if_id_instruction0[`REG_RS_MSB:`REG_RS_LSB];
   assign rt0 = if_id_instruction0[`REG_RT_MSB:`REG_RT_LSB];
@@ -220,7 +223,10 @@ module processor(
   .pc(pc), 
   .flush(branch_flush[`PC_MASK_INDEX]), 
   .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX] | steer_stall),
-  .nop(1'b0)
+  .nop(1'b0),
+
+  .take_branch(take_branch),
+  .branch_predict(branch_predict)
   );
   
   instruction_memory im(
@@ -670,9 +676,13 @@ module processor(
   .less(less0),
   .greater(greater0),
 
-  .pc(id_ex_pc),
-  .reg_address(alu_input_mux_1_result0[`ADDR_WIDTH-1:0]),
-  .imm_address(id_ex_address0),
+  .id_ex_pc(id_ex_pc),
+  .id_ex_reg_address(alu_input_mux_1_result0[`ADDR_WIDTH-1:0]),
+  .id_ex_imm_address(id_ex_address0),
+
+  .pc(pc),
+  .branch_predict(branch_predict),
+  .take_branch(take_branch),
 
   .jop(id_ex_jop0), 
   .flush(branch_flush),

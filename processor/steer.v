@@ -97,6 +97,10 @@ module steer(
         instruction1_pipe = `PIPE_MEMORY;
       end
       6'b11????: begin // jmp, jo, je ...
+        // actually want to include jmp here.
+        // actually ... it does cost you an instruction sometimes.
+        // yeah but then will add logic for getting the next address.
+        // yeah this and program counter is somewhere to look for a little perf boost.
         instruction1_pipe = `PIPE_BRANCH;
       end
     endcase

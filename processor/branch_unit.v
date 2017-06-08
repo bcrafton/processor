@@ -9,9 +9,13 @@ module branch_unit(
 
   // these are only for writing to lut on branch miss.
   // still need for reading.
+  id_ex_pc,
+  id_ex_reg_address,
+  id_ex_imm_address,
+
   pc,
-  reg_address,
-  imm_address,
+  take_branch,
+  branch_predict,
   
   jop,
 
@@ -25,14 +29,18 @@ module branch_unit(
   input wire less;
   input wire greater;
 
-  input wire [`ADDR_WIDTH-1:0] pc;
-  input wire [`ADDR_WIDTH-1:0] reg_address;
-  input wire [`ADDR_WIDTH-1:0] imm_address;
+  input wire [`ADDR_WIDTH-1:0] id_ex_pc;
+  input wire [`ADDR_WIDTH-1:0] id_ex_reg_address;
+  input wire [`ADDR_WIDTH-1:0] id_ex_imm_address;
 
   input wire [`JUMP_BITS-1:0] jop;
 
   output reg [`NUM_PIPE_MASKS-1:0] flush;
   output reg [`ADDR_WIDTH-1:0] jump_address;
+
+  input wire [`ADDR_WIDTH-1:0] pc;
+  output wire [`ADDR_WIDTH-1:0] branch_predict;
+  output wire take_branch;
 
   // how was this not more obvious.
   // went and started adding them to each one of jumps down there.
@@ -42,13 +50,12 @@ module branch_unit(
     .clk(clk),
     .write(lut_write),
     
-    .write_key(pc),
+    .write_key(id_ex_pc),
     .write_val(jump_address),
     
-    // we are gonna need to add wires here.
-    .read_key(),
-    .read_val(),
-    .read_valid()
+    .read_key(pc),
+    .read_val(branch_predict),
+    .read_valid(take_branch)
   );
 
   initial begin
@@ -79,9 +86,9 @@ module branch_unit(
     endcase
 
     if(jop == `JMP_OP_JR) begin
-      jump_address = reg_address;
+      jump_address = id_ex_reg_address;
     end else begin
-      jump_address = imm_address;
+      jump_address = id_ex_imm_address;
     end
 
   end

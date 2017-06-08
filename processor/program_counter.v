@@ -12,6 +12,9 @@ module program_counter(
   stall,
   flush,
   nop,
+
+  take_branch,
+  branch_predict,
   );
 
   input wire clk;
@@ -28,6 +31,9 @@ module program_counter(
   input wire stall;
   input wire nop;
 
+  input wire take_branch;
+  input wire [`ADDR_WIDTH-1:0] branch_predict;
+
   wire branch = ((opcode & 6'b110000) == 6'b110000) && (opcode != OP_CODE_JMP);
 
   initial begin
@@ -43,6 +49,8 @@ module program_counter(
         pc <= 0;
       end else if(opcode == `OP_CODE_JMP) begin // double jump/branch can happen. not steered yet.
         pc <= address;
+      end else if (branch && take_branch) begin
+        pc <= branch_predict;
       end else begin
         pc <= pc + 2;
       end
