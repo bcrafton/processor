@@ -273,7 +273,7 @@ module processor(
 
   .instruction_in(steer_instruction0),
   .first_in(first),
-  .pc_in(pc),
+  .pc_in(steer_pc0),
   .branch_taken_in(branch_taken),
 
   .instruction_out(if_id_instruction0),
@@ -704,7 +704,7 @@ module processor(
   .id_ex_reg_address(alu_input_mux_1_result0[`ADDR_WIDTH-1:0]),
   .id_ex_imm_address(id_ex_address0),
 
-  .pc(pc),
+  .pc(steer_pc0),
   .branch_predict(branch_predict),
   .take_branch(take_branch),
 
