@@ -175,6 +175,9 @@ module processor(
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result0, alu_input_mux_2_result0;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result1, alu_input_mux_2_result1;
 
+  wire [`ADDR_WIDTH-1:0] steer_pc0;
+  wire [`ADDR_WIDTH-1:0] steer_pc1;
+
   wire [`ADDR_WIDTH-1:0] if_id_pc;
   wire [`ADDR_WIDTH-1:0] id_ex_pc;
   wire [`ADDR_WIDTH-1:0] ex_mem_pc;
@@ -186,6 +189,8 @@ module processor(
   wire branch_taken;
   wire if_id_branch_taken;
   wire id_ex_branch_taken;
+
+  
 
   assign opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 = if_id_instruction0[`REG_RS_MSB:`REG_RS_LSB];
@@ -251,7 +256,13 @@ module processor(
   .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX]),
 
   .steer_stall(steer_stall),
-  .first(first)
+  .first(first),
+
+  .pc0_in(pc),
+  .pc1_in(pc+1),
+
+  .pc0_out(steer_pc0),
+  .pc1_out(steer_pc1)
   );
 
   if_id_register if_id_reg0(
