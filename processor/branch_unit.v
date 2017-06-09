@@ -90,6 +90,8 @@ module branch_unit(
 
     if(jop == `JMP_OP_JR) begin
       jump_address = id_ex_reg_address;
+    end else if (((zero == 1'b1) & branch_taken) == 1'b1) begin
+      jump_address = id_ex_pc+1;
     end else begin
       jump_address = id_ex_imm_address;
     end
