@@ -393,7 +393,7 @@ module processor(
   .instruction_in(if_id_instruction0),
   .first_in(if_id_first),
   .pc_in(if_id_pc),
-  .branch_taken_in(if_id_branch_taken),
+  .branch_taken_in(branch_taken),
 
   .rs_out(id_ex_rs0), 
   .rt_out(id_ex_rt0), 
