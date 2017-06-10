@@ -97,6 +97,9 @@ always @(posedge clk) begin
       vals[i] = 0;  
       valid[i] = 0;
     end
+    current = 0;
+    read_val = 0;
+    read_valid = 0;
 	end else if(write) begin
 		if(write_key == keys[0]) begin
 			vals[0] = write_val;

@@ -50,7 +50,7 @@ module branch_unit(
 
   // how was this not more obvious.
   // went and started adding them to each one of jumps down there.
-  wire lut_write = (flush == (`PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC)) ? 1 : 0;
+  wire lut_write = (flush == (`PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC))  && (opcode != OP_CODE_JR) ? 1 : 0;
 
   lut l(
     .clk(clk),

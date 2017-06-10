@@ -37,7 +37,7 @@ module program_counter(
 
   output reg branch_taken;
 
-  wire branch = ((opcode & 6'b110000) == 6'b110000) && (opcode != OP_CODE_JMP);
+  wire branch = ((opcode & 6'b110000) == 6'b110000) && (opcode != OP_CODE_JMP) && (opcode != OP_CODE_JR);
 
   initial begin
     pc = 0;
