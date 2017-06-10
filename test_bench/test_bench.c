@@ -6,7 +6,7 @@ extern REGISTER regfile[REGFILE_SIZE];
 extern INSTRUCTION imemory[IMEMORY_SIZE];
 
 static test_t tests[] = {
-/*
+
 {"addi", BINARY_TEST, 0, 1000},
 
 {"subi", BINARY_TEST, 0, 1000},
@@ -77,16 +77,7 @@ static test_t tests[] = {
 {"jne", BINARY_TEST, 0, 1000},
 
 {"branch_predict", ASM_TEST, 5, 10000},
-*/
 
-
-
-{"jle", BINARY_TEST, 0, 1000},
-{"jg", BINARY_TEST, 0, 1000},
-{"jge", BINARY_TEST, 0, 1000},
-{"jz", BINARY_TEST, 0, 1000},
-{"jnz", BINARY_TEST, 0, 1000},
-{"jr", BINARY_TEST, 0, 1000},
 };
 
 static TIME test_start_time;
