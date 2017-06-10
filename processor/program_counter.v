@@ -56,8 +56,8 @@ module program_counter(
       end else if(opcode == `OP_CODE_JMP) begin // double jump/branch can happen. not steered yet.
         pc <= address;
         branch_taken <= 0;
-      end else if (branch && take_branch) begin
-        pc <= branch_predict;
+      end else if (branch) begin
+        pc <= address;
         branch_taken <= 1;
       end else begin
         pc <= pc + 2;

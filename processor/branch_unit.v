@@ -52,6 +52,8 @@ module branch_unit(
   // went and started adding them to each one of jumps down there.
   wire lut_write = (flush == (`PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC)) && (jop != `JMP_OP_JR) ? 1 : 0;
 
+  reg branch_cond;
+
   lut l(
     .clk(clk),
     .write(lut_write),
@@ -66,30 +68,45 @@ module branch_unit(
   );
 
   initial begin
-    flush <= 0;
-    jump_address <= 0;
+    flush = 0;
+    jump_address = 0;
+    branch_cond = 0;
   end
 
   always@(*) begin
   
     case(jop)
+      `JMP_OP_JEQ: branch_cond = zero == 1'b1;
+      `JMP_OP_JNE: branch_cond = zero == 1'b0;
+
+      `JMP_OP_JL:  branch_cond = less == 1'b1;
+      `JMP_OP_JLE: branch_cond = less == 1'b1;
+
+      `JMP_OP_JG:  branch_cond = greater == 1'b1;
+      `JMP_OP_JGE: branch_cond = greater == 1'b1;
+
+      `JMP_OP_JZ:  branch_cond = zero == 1'b1;
+      `JMP_OP_JNZ: branch_cond = zero == 1'b0;
+    endcase
+
+    case(jop)
       `JMP_OP_NOP: flush = 0;
       `JMP_OP_J:   flush = `PIPE_REG_EX_MEM;
       `JMP_OP_JR:  flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
 
-      `JMP_OP_JEQ: flush = ((zero == 1'b1) ^ branch_taken) == 1'b1 ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
-      `JMP_OP_JNE: flush = ((zero == 1'b0) ^ branch_taken) == 1'b1 ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
+      `JMP_OP_JEQ: flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
+      `JMP_OP_JNE: flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
 
-      `JMP_OP_JL:  flush = ((less == 1'b1) ^ branch_taken) == 1'b1 ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
-      `JMP_OP_JLE: flush = ((less == 1'b1) ^ branch_taken) == 1'b1 ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
+      `JMP_OP_JL:  flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
+      `JMP_OP_JLE: flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
 
-      `JMP_OP_JG:  flush = ((greater == 1'b1) ^ branch_taken) == 1'b1 ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
-      `JMP_OP_JGE: flush = ((greater == 1'b1) ^ branch_taken) == 1'b1 ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
+      `JMP_OP_JG:  flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
+      `JMP_OP_JGE: flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
 
-      `JMP_OP_JZ:  flush = ((zero == 1'b1) ^ branch_taken) == 1'b1 ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
-      `JMP_OP_JNZ: flush = ((zero == 1'b0) ^ branch_taken) == 1'b1 ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
+      `JMP_OP_JZ:  flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
+      `JMP_OP_JNZ: flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
 
-      //`JMP_OP_JO:  flush <= (zero == 1'b1);
+      default: flush = 0;
     endcase
 
     if(jop == `JMP_OP_JR) begin
