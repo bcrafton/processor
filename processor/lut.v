@@ -11,7 +11,9 @@ module lut(
 
   read_key,
   read_val,
-  read_valid
+  read_valid,
+
+  reset,
 );
 
 // input = pc.
@@ -22,6 +24,7 @@ module lut(
 
 input wire clk;
 input wire write;
+input wire reset;
 
 input wire [`ADDR_WIDTH-1:0] write_key;
 input wire [`ADDR_WIDTH-1:0] write_val;
@@ -85,7 +88,17 @@ end
 
 always @(posedge clk) begin
 	// going to just do round robin for now.
-	if(write) begin
+ 
+  if(reset) begin
+    vals[0] = 0;
+    vals[1] = 0;
+    vals[2] = 0;
+    vals[3] = 0;
+    vals[4] = 0;
+    vals[5] = 0;
+    vals[6] = 0;
+    vals[7] = 0;
+	end else if(write) begin
 		if(write_key == keys[0]) begin
 			vals[0] = write_val;
 		end else if(write_key == keys[1]) begin

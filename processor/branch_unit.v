@@ -22,9 +22,12 @@ module branch_unit(
 
   flush,
   jump_address,
+
+  reset,
   );
 
   input wire clk;
+  input wire reset;
 
   input wire zero;
   input wire less;
@@ -58,7 +61,8 @@ module branch_unit(
     
     .read_key(pc),
     .read_val(branch_predict),
-    .read_valid(take_branch)
+    .read_valid(take_branch),
+    .reset(reset)
   );
 
   initial begin

@@ -695,6 +695,7 @@ module processor(
 
   branch_unit bu(
   .clk(clk),
+  .reset(reset),
 
   .zero(zero0),
   .less(less0),
