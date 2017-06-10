@@ -73,10 +73,10 @@ static test_t tests[] = {
 {"to_10", CODE_TEST, 20, 10000},
 
 {"plus1", CODE_TEST, 4, 10000},
-
-{"branch_predict", ASM_TEST, 5, 10000},
 */
-{"to_10", CODE_TEST, 20, 10000},
+{"jne", BINARY_TEST, 0, 1000},
+{"branch_predict", ASM_TEST, 5, 10000},
+
 };
 
 static TIME test_start_time;

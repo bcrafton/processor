@@ -37,7 +37,7 @@ module program_counter(
 
   output reg branch_taken;
 
-  wire branch = ((opcode & 6'b110000) == 6'b110000) && (opcode != OP_CODE_JMP) && (opcode != OP_CODE_JR);
+  wire branch = ((opcode & 6'b110000) == 6'b110000) && (opcode != `OP_CODE_JMP) && (opcode != `OP_CODE_JR);
 
   initial begin
     pc = 0;
@@ -59,7 +59,6 @@ module program_counter(
       end else if (branch && take_branch) begin
         pc <= branch_predict;
         branch_taken <= 1;
-        //$display("hit this case\n");
       end else begin
         pc <= pc + 2;
         branch_taken <= 0;
