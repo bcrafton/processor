@@ -94,24 +94,92 @@ module branch_unit(
       `JMP_OP_J:   flush = `PIPE_REG_EX_MEM;
       `JMP_OP_JR:  flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
 
-      `JMP_OP_JEQ: flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
-      `JMP_OP_JNE: flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
+      `JMP_OP_JEQ: begin
+        if (branch_cond ^ branch_taken) begin
+          flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        end else if (branch_cond & branch_taken) begin
+          flush = `PIPE_REG_EX_MEM;
+        end else begin
+          flush = 0;
+        end
+      end
 
-      `JMP_OP_JL:  flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
-      `JMP_OP_JLE: flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
+      `JMP_OP_JNE: begin
+        if (branch_cond ^ branch_taken) begin
+          flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        end else if (branch_cond & branch_taken) begin
+          flush = `PIPE_REG_EX_MEM;
+        end else begin
+          flush = 0;
+        end
+      end
 
-      `JMP_OP_JG:  flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
-      `JMP_OP_JGE: flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
+      `JMP_OP_JL: begin
+        if (branch_cond ^ branch_taken) begin
+          flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        end else if (branch_cond & branch_taken) begin
+          flush = `PIPE_REG_EX_MEM;
+        end else begin
+          flush = 0;
+        end
+      end
 
-      `JMP_OP_JZ:  flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
-      `JMP_OP_JNZ: flush = (branch_cond ^ branch_taken) ? `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC : 0;
+      `JMP_OP_JLE: begin
+        if (branch_cond ^ branch_taken) begin
+          flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        end else if (branch_cond & branch_taken) begin
+          flush = `PIPE_REG_EX_MEM;
+        end else begin
+          flush = 0;
+        end
+      end
+
+      `JMP_OP_JG: begin
+        if (branch_cond ^ branch_taken) begin
+          flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        end else if (branch_cond & branch_taken) begin
+          flush = `PIPE_REG_EX_MEM;
+        end else begin
+          flush = 0;
+        end
+      end
+
+      `JMP_OP_JGE: begin
+        if (branch_cond ^ branch_taken) begin
+          flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        end else if (branch_cond & branch_taken) begin
+          flush = `PIPE_REG_EX_MEM;
+        end else begin
+          flush = 0;
+        end
+      end
+
+      `JMP_OP_JZ: begin
+        if (branch_cond ^ branch_taken) begin
+          flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        end else if (branch_cond & branch_taken) begin
+          flush = `PIPE_REG_EX_MEM;
+        end else begin
+          flush = 0;
+        end
+      end
+
+      `JMP_OP_JNZ: begin
+        if (branch_cond ^ branch_taken) begin
+          flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        end else if (branch_cond & branch_taken) begin
+          flush = `PIPE_REG_EX_MEM;
+        end else begin
+          flush = 0;
+        end
+      end
 
       default: flush = 0;
     endcase
 
     if(jop == `JMP_OP_JR) begin
       jump_address = id_ex_reg_address;
-    end else if (flush & branch_taken) begin
+    end else if (!branch_cond & branch_taken) begin
       jump_address = id_ex_pc+1;
     end else begin
       jump_address = id_ex_imm_address;

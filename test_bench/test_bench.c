@@ -6,7 +6,7 @@ extern REGISTER regfile[REGFILE_SIZE];
 extern INSTRUCTION imemory[IMEMORY_SIZE];
 
 static test_t tests[] = {
-/*
+
 {"addi", BINARY_TEST, 0, 1000},
 
 {"subi", BINARY_TEST, 0, 1000},
@@ -77,7 +77,7 @@ static test_t tests[] = {
 
 {"jne", BINARY_TEST, 0, 1000},
 {"branch_predict", ASM_TEST, 5, 10000},
-*/
+
 {"fib5", CODE_TEST, 10, 100000},
 };
 
