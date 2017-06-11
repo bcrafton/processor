@@ -50,15 +50,15 @@ module branch_unit(
 
   // how was this not more obvious.
   // went and started adding them to each one of jumps down there.
-  wire lut_write = (branch_cond ^ branch_taken);
+  wire blt_write = (branch_cond ^ branch_taken);
   wire hit = (branch_cond & !branch_taken);
 
   reg branch_cond;
 
-  lut l(
+  blt l(
     .clk(clk),
 
-    .write(lut_write),
+    .write(blt_write),
     .write_key(id_ex_pc),
     .write_val(jump_address),
     .hit(hit),

@@ -2,7 +2,7 @@
 
 `include "defines.vh"
 
-module lut(
+module blt(
   clk,
   reset,
 
