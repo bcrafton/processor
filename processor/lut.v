@@ -36,7 +36,7 @@ output reg read_valid;
 
 reg [`ADDR_WIDTH-1:0] keys [0:7];
 reg [`ADDR_WIDTH-1:0] vals [0:7];
-reg [3:0] valid [0:7];
+reg valid [0:7];
 
 reg [2:0] current;
 wire [2:0] next = (current == 7) ? 0 : (current + 1);
@@ -97,8 +97,6 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-	// going to just do round robin for now.
- 
   if(reset) begin
     for(i=0; i<8; i=i+1) begin
       keys[i] <= 0;
@@ -109,30 +107,9 @@ always @(posedge clk) begin
     read_val <= 0;
     read_valid <= 0;
 	end else if(write) begin
-    if(write_key == keys[0]) begin
-      vals[0] <= write_val;
-      valid[0] <= hit;
-    end else if(write_key == keys[1]) begin
-      vals[1] <= write_val;
-      valid[1] <= hit;
-    end else if(write_key == keys[2]) begin
-      vals[2] <= write_val;
-      valid[2] <= hit;
-    end else if(write_key == keys[3]) begin
-      vals[3] <= write_val;
-      valid[3] <= hit;
-    end else if(write_key == keys[4]) begin
-      vals[4] <= write_val;
-      valid[4] <= hit;
-    end else if(write_key == keys[5]) begin
-      vals[5] <= write_val;
-      valid[5] <= hit;
-    end else if(write_key == keys[6]) begin
-      vals[6] <= write_val;
-      valid[6] <= hit;
-    end else if(write_key == keys[7]) begin
-      vals[7] <= write_val;
-      valid[7] <= hit;
+    if (write_match != 0) begin
+      vals[write_address] <= write_val;
+      valid[write_address] <= hit;
     end else begin
       current <= next;
       vals[current] <= write_val;
