@@ -88,6 +88,9 @@ always @(*) begin
   end
 end
 
+function write_blt;
+  input write_key, write_val, 
+
 always @(posedge clk) begin
 	// going to just do round robin for now.
  
@@ -103,33 +106,33 @@ always @(posedge clk) begin
 	end else if(write) begin
     if(write_key == keys[0]) begin
       vals[0] <= write_val;
-      valid[0] <= 1;
+      valid[0] <= hit;
     end else if(write_key == keys[1]) begin
       vals[1] <= write_val;
-      valid[1] <= 1;
+      valid[1] <= hit;
     end else if(write_key == keys[2]) begin
       vals[2] <= write_val;
-      valid[2] <= 1;
+      valid[2] <= hit;
     end else if(write_key == keys[3]) begin
       vals[3] <= write_val;
-      valid[3] <= 1;
+      valid[3] <= hit;
     end else if(write_key == keys[4]) begin
       vals[4] <= write_val;
-      valid[4] <= 1;
+      valid[4] <= hit;
     end else if(write_key == keys[5]) begin
       vals[5] <= write_val;
-      valid[5] <= 1;
+      valid[5] <= hit;
     end else if(write_key == keys[6]) begin
       vals[6] <= write_val;
-      valid[6] <= 1;
+      valid[6] <= hit;
     end else if(write_key == keys[7]) begin
       vals[7] <= write_val;
-      valid[7] <= 1;
+      valid[7] <= hit;
     end else begin
       current <= next;
       vals[current] <= write_val;
       keys[current] <= write_key;
-      valid[current] <= 1;
+      valid[current] <= hit;
     end
   end
 
