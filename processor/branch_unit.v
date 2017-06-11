@@ -52,8 +52,8 @@ module branch_unit(
 
   // how was this not more obvious.
   // went and started adding them to each one of jumps down there.
-  wire blt_write = (branch_cond ^ branch_taken);
-  wire hit = (branch_cond & !branch_taken);
+  wire blt_write = (branch_cond ^ branch_taken) | (jop == `JMP_OP_JR);
+  wire hit = (branch_cond & !branch_taken) | (jop == `JMP_OP_JR);
 
   reg branch_cond;
 
@@ -98,10 +98,25 @@ module branch_unit(
       `JMP_OP_NOP: flush = 0;
       `JMP_OP_J:   flush = `PIPE_REG_EX_MEM;
       `JMP_OP_JR:  begin
-        $display("%x %x\n", branch_taken_address, id_ex_reg_address);
-        flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        //$display("%x %x\n", branch_taken_address, id_ex_reg_address);
+
+        if (branch_taken) begin
+          if(branch_taken_address == id_ex_reg_address) begin
+            flush = `PIPE_REG_EX_MEM;
+          end else begin
+            flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+          end
+        end else begin
+          flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        end
+
       end
       `JMP_OP_JEQ: begin
+
+        if (branch_taken) begin
+          //$display("%x %x\n", branch_taken_address, id_ex_imm_address);
+        end
+
         if (branch_cond ^ branch_taken) begin
           flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
         end else if (branch_cond & branch_taken) begin

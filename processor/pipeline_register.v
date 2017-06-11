@@ -313,7 +313,7 @@ module id_ex_register(
       first <= first_in;
       pc <= pc_in;
       branch_taken <= branch_taken_in;
-      branch_taken <= branch_taken_address_in;
+      branch_taken_address <= branch_taken_address_in;
     end
 
   end
