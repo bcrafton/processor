@@ -43,6 +43,17 @@ wire [2:0] next = (current == 7) ? 0 : (current + 1);
 
 integer i;
 
+/*
+genvar j;
+wire a [0:3];
+
+generate
+  for (j=0; j<4; j=j+1) begin
+    assign a[j] = 1;  
+  end
+endgenerate
+*/
+
 initial begin
 
   read_val = 0;
@@ -57,6 +68,8 @@ initial begin
   current = 0;
 
 end
+
+
 
 always @(*) begin
   if(read_key == keys[0]) begin
@@ -87,9 +100,6 @@ always @(*) begin
     read_valid = 0;
   end
 end
-
-function write_blt;
-  input write_key, write_val, 
 
 always @(posedge clk) begin
 	// going to just do round robin for now.
