@@ -56,14 +56,15 @@ module branch_unit(
 
   lut l(
     .clk(clk),
+
     .write(lut_write),
-    
     .write_key(id_ex_pc),
     .write_val(jump_address),
     
     .read_key(pc),
     .read_val(branch_predict),
     .read_valid(take_branch),
+
     .reset(reset)
   );
 
