@@ -14,8 +14,7 @@ module steer(
   steer_stall,
   first,
 
-  pc0_in,
-  pc1_in,
+  pc_in,
 
   pc0_out,
   pc1_out
@@ -37,8 +36,10 @@ module steer(
   wire [`OP_CODE_BITS-1:0] opcode0;
   wire [`OP_CODE_BITS-1:0] opcode1;
 
-  input wire [`ADDR_WIDTH-1:0] pc0_in;
-  input wire [`ADDR_WIDTH-1:0] pc1_in;
+  input wire [`ADDR_WIDTH-1:0] pc_in;
+
+  wire [`ADDR_WIDTH-1:0] pc0_in = pc_in;
+  wire [`ADDR_WIDTH-1:0] pc1_in = pc_in + 1;
 
   output reg [`ADDR_WIDTH-1:0] pc0_out;
   output reg [`ADDR_WIDTH-1:0] pc1_out;

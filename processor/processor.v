@@ -261,8 +261,7 @@ module processor(
   .steer_stall(steer_stall),
   .first(first),
 
-  .pc0_in(pc),
-  .pc1_in(pc+1),
+  .pc_in(pc),
 
   .pc0_out(steer_pc0),
   .pc1_out(steer_pc1)
