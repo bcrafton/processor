@@ -43,16 +43,34 @@ wire [2:0] next = (current == 7) ? 0 : (current + 1);
 
 integer i;
 
-/*
 genvar j;
-wire a [0:3];
+wire [7:0] read_match;
+wire [2:0] read_address;
+
+wire [7:0] write_match;
+wire [2:0] write_address;
 
 generate
-  for (j=0; j<4; j=j+1) begin
-    assign a[j] = 1;  
+  for (j=0; j<8; j=j+1) begin
+    assign read_match[j] = (read_key == keys[j]) & valid[j];
   end
 endgenerate
-*/
+
+generate
+  for (j=0; j<8; j=j+1) begin
+    assign write_match[j] = write_key == keys[j];
+  end
+endgenerate
+
+encoder read_encoder(
+  .in(read_match),
+  .out(read_address)
+);
+
+encoder write_encoder(
+  .in(write_match),
+  .out(write_address)
+);
 
 initial begin
 
@@ -69,33 +87,10 @@ initial begin
 
 end
 
-
-
 always @(*) begin
-  if(read_key == keys[0]) begin
-    read_val = vals[0];
-    read_valid = valid[0];
-  end else if(read_key == keys[1]) begin
-    read_val = vals[1];
-    read_valid = valid[1];
-  end else if(read_key == keys[2]) begin
-    read_val = vals[2];
-    read_valid = valid[2];
-  end else if(read_key == keys[3]) begin
-    read_val = vals[3];
-    read_valid = valid[3];
-  end else if(read_key == keys[4]) begin
-    read_val = vals[4];
-    read_valid = valid[4];
-  end else if(read_key == keys[5]) begin
-    read_val = vals[5];
-    read_valid = valid[5];
-  end else if(read_key == keys[6]) begin
-    read_val = vals[6];
-    read_valid = valid[6];
-  end else if(read_key == keys[7]) begin
-    read_val = vals[7];
-    read_valid = valid[7];
+  if (read_match != 0) begin
+    read_val = vals[read_address];
+    read_valid = valid[read_address];
   end else begin
     read_valid = 0;
   end
