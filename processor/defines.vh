@@ -20,6 +20,12 @@
 `define PIPE_REG_MEM_WB   5'b10000
 `define NUM_PIPE_MASKS    5 //$bits(MEM_OP_READ)
 
+`define TAKE_BRANCH2      4'b0001
+`define TAKE_BRANCH1      4'b0010
+`define DONT_TAKE_BRANCH1 4'b0100
+`define DONT_TAKE_BRANCH2 4'b1000
+`define NUM_BRANCH_MASKS  4 //$bits(TAKE_BRANCH2)
+
 `define PC_MASK_INDEX     0
 `define IF_ID_MASK_INDEX  1
 `define ID_EX_MASK_INDEX  2

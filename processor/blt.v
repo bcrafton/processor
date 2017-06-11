@@ -62,22 +62,24 @@ module blt(
     end
   endgenerate
 
-  function [3:0] set_branch_predict;
-    input [3:0] current_predict;
+  function [`NUM_BRANCH_MASKS-1:0] set_branch_predict;
+    input [`NUM_BRANCH_MASKS-1:0] current_predict;
     input hit;
     begin
       case( {current_predict, hit} )
-        {4'b0001, 1'b1}: set_branch_predict = 4'b0001;
-        {4'b0001, 1'b0}: set_branch_predict = 4'b0010;
 
-        {4'b0010, 1'b1}: set_branch_predict = 4'b0001;
-        {4'b0010, 1'b0}: set_branch_predict = 4'b0100;
+        {`TAKE_BRANCH2, 1'b1}: set_branch_predict = `TAKE_BRANCH2;
+        {`TAKE_BRANCH2, 1'b0}: set_branch_predict = `TAKE_BRANCH1;
 
-        {4'b0100, 1'b1}: set_branch_predict = 4'b0010;
-        {4'b0100, 1'b0}: set_branch_predict = 4'b1000;
+        {`TAKE_BRANCH1, 1'b1}: set_branch_predict = `TAKE_BRANCH2;
+        {`TAKE_BRANCH1, 1'b0}: set_branch_predict = `DONT_TAKE_BRANCH1;
 
-        {4'b1000, 1'b1}: set_branch_predict = 4'b0100;
-        {4'b1000, 1'b0}: set_branch_predict = 4'b1000;
+        {`DONT_TAKE_BRANCH1, 1'b1}: set_branch_predict = `TAKE_BRANCH1;
+        {`DONT_TAKE_BRANCH1, 1'b0}: set_branch_predict = `DONT_TAKE_BRANCH2;
+
+        {`DONT_TAKE_BRANCH2, 1'b1}: set_branch_predict = `DONT_TAKE_BRANCH1;
+        {`DONT_TAKE_BRANCH2, 1'b0}: set_branch_predict = `DONT_TAKE_BRANCH2;
+
         default: $display("set_branch_predict error: %x %x\n", current_predict, hit);
       endcase
     end
@@ -134,9 +136,9 @@ module blt(
         vals[current] <= write_val;
         keys[current] <= write_key;
         if (hit) begin
-          valid[current] <= 4'b0001;
+          valid[current] <= `TAKE_BRANCH2;
         end else begin
-          valid[current] <= 4'b1000;
+          valid[current] <= `DONT_TAKE_BRANCH2;
         end
       end
 
