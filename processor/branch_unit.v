@@ -19,6 +19,7 @@ module branch_unit(
   
   jop,
   branch_taken,
+  branch_taken_address,
 
   flush,
   jump_address,
@@ -40,6 +41,7 @@ module branch_unit(
   input wire [`JUMP_BITS-1:0] jop;
 
   input wire branch_taken;
+  input wire [`ADDR_WIDTH-1:0] branch_taken_address;
 
   output reg [`NUM_PIPE_MASKS-1:0] flush;
   output reg [`ADDR_WIDTH-1:0] jump_address;
@@ -95,8 +97,10 @@ module branch_unit(
     case(jop)
       `JMP_OP_NOP: flush = 0;
       `JMP_OP_J:   flush = `PIPE_REG_EX_MEM;
-      `JMP_OP_JR:  flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
-
+      `JMP_OP_JR:  begin
+        $display("%x %x\n", branch_taken_address, id_ex_reg_address);
+        flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+      end
       `JMP_OP_JEQ: begin
         if (branch_cond ^ branch_taken) begin
           flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;

@@ -16,6 +16,7 @@ module program_counter(
   take_branch,
   branch_predict,
   branch_taken,
+  branch_taken_address,
   );
 
   input wire clk;
@@ -36,12 +37,14 @@ module program_counter(
   input wire [`ADDR_WIDTH-1:0] branch_predict;
 
   output reg branch_taken;
+  output reg [`ADDR_WIDTH-1:0] branch_taken_address;
 
   wire branch = ((opcode & 6'b110000) == 6'b110000) && (opcode != `OP_CODE_JMP) && (opcode != `OP_CODE_JR);
 
   initial begin
     pc = 0;
     branch_taken = 0;
+    branch_taken_address = 0;
   end
 
   always @(posedge clk) begin
@@ -60,6 +63,7 @@ module program_counter(
         //$display("%x %x\n", branch_predict, address);
         pc <= branch_predict;
         branch_taken <= 1;
+        branch_taken_address <= branch_predict;
       end else begin
         pc <= pc + 2;
         branch_taken <= 0;

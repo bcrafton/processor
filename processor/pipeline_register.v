@@ -10,11 +10,13 @@ module if_id_register(
   first_in,
   pc_in,
   branch_taken_in,
+  branch_taken_address_in,
 
   instruction_out,
   first_out,
   pc_out,
   branch_taken_out,
+  branch_taken_address_out,
   );
 
   input wire clk;
@@ -26,6 +28,7 @@ module if_id_register(
   input wire first_in;
   input wire [`ADDR_WIDTH-1:0] pc_in;
   input wire branch_taken_in;
+  input wire [`ADDR_WIDTH-1:0] branch_taken_address_in;
 
   reg stall_latch;
   reg flush_latch;
@@ -35,16 +38,19 @@ module if_id_register(
   reg first;
   reg [`ADDR_WIDTH-1:0] pc;
   reg branch_taken;
+  reg [`ADDR_WIDTH-1:0] branch_taken_address;
 
   output wire [`INST_WIDTH-1:0] instruction_out;
   output wire first_out;
   output wire [`ADDR_WIDTH-1:0] pc_out;
   output wire branch_taken_out;
+  output wire [`ADDR_WIDTH-1:0] branch_taken_address_out;
 
-  assign instruction_out =  nop_latch ? 0 : instruction;
-  assign first_out =        nop_latch ? 0 : first;
-  assign pc_out =           nop_latch ? 0 : pc;
-  assign branch_taken_out = nop_latch ? 0 : branch_taken;
+  assign instruction_out =          nop_latch ? 0 : instruction;
+  assign first_out =                nop_latch ? 0 : first;
+  assign pc_out =                   nop_latch ? 0 : pc;
+  assign branch_taken_out =         nop_latch ? 0 : branch_taken;
+  assign branch_taken_address_out = nop_latch ? 0 : branch_taken_address;
 
   initial begin
     stall_latch <= 0;
@@ -55,6 +61,7 @@ module if_id_register(
     first <= 0;
     pc <= 0;
     branch_taken <= 0;
+    branch_taken_address <= 0;
   end
 
   always @(posedge clk) begin
@@ -68,11 +75,13 @@ module if_id_register(
       first <= 0;
       pc <= 0;
       branch_taken <= 0;
+      branch_taken_address <= 0;
     end else if(!stall) begin
       instruction <= instruction_in;
       first <= first_in;
       pc <= pc_in;
       branch_taken <= branch_taken_in;
+      branch_taken_address <= branch_taken_address_in;
     end
 
   end
@@ -105,6 +114,7 @@ module id_ex_register(
   first_in,
   pc_in,
   branch_taken_in,
+  branch_taken_address_in,
 
   rs_out,
   rt_out,
@@ -126,6 +136,7 @@ module id_ex_register(
   first_out,
   pc_out,
   branch_taken_out,
+  branch_taken_address_out,
   );
 
   input wire clk;
@@ -153,6 +164,7 @@ module id_ex_register(
   input wire first_in;
   input wire [`ADDR_WIDTH-1:0] pc_in;
   input wire branch_taken_in;
+  input wire [`ADDR_WIDTH-1:0] branch_taken_address_in;
 
   reg stall_latch;
   reg flush_latch;
@@ -178,6 +190,7 @@ module id_ex_register(
   reg first;
   reg [`ADDR_WIDTH-1:0] pc;
   reg branch_taken;
+  reg [`ADDR_WIDTH-1:0] branch_taken_address;
 
   output wire [`NUM_REGISTERS_LOG2-1:0] rs_out;
   output wire [`NUM_REGISTERS_LOG2-1:0] rt_out;
@@ -199,27 +212,29 @@ module id_ex_register(
   output wire first_out;
   output wire [`ADDR_WIDTH-1:0] pc_out;
   output wire branch_taken_out;
+  output wire [`ADDR_WIDTH-1:0] branch_taken_address_out;
 
-  assign rs_out =              nop_latch ? 0 : rs;
-  assign rt_out =              nop_latch ? 0 : rt;
-  assign rd_out =              nop_latch ? 0 : rd;
-  assign reg_read_data_1_out = nop_latch ? 0 : reg_read_data_1;
-  assign reg_read_data_2_out = nop_latch ? 0 : reg_read_data_2;
-  assign immediate_out =       nop_latch ? 0 : immediate;
-  assign address_out =         nop_latch ? 0 : address;
-  assign shamt_out =           nop_latch ? 0 : shamt;
-  assign reg_dst_out =         nop_latch ? 0 : reg_dst;
-  assign mem_to_reg_out =      nop_latch ? 0 : mem_to_reg;
-  assign alu_op_out =          nop_latch ? 0 : alu_op;
-  assign mem_op_out =          nop_latch ? 0 : mem_op;
-  assign alu_src_out =         nop_latch ? 0 : alu_src;
-  assign reg_write_out =       nop_latch ? 0 : reg_write;
-  assign jop_out =             nop_latch ? 0 : jop;
-  assign address_src_out =     nop_latch ? 0 : address_src;
-  assign instruction_out =     nop_latch ? 0 : instruction;
-  assign first_out =           nop_latch ? 0 : first;
-  assign pc_out =              nop_latch ? 0 : pc;
-  assign branch_taken_out =    nop_latch ? 0 : branch_taken;
+  assign rs_out =                   nop_latch ? 0 : rs;
+  assign rt_out =                   nop_latch ? 0 : rt;
+  assign rd_out =                   nop_latch ? 0 : rd;
+  assign reg_read_data_1_out =      nop_latch ? 0 : reg_read_data_1;
+  assign reg_read_data_2_out =      nop_latch ? 0 : reg_read_data_2;
+  assign immediate_out =            nop_latch ? 0 : immediate;
+  assign address_out =              nop_latch ? 0 : address;
+  assign shamt_out =                nop_latch ? 0 : shamt;
+  assign reg_dst_out =              nop_latch ? 0 : reg_dst;
+  assign mem_to_reg_out =           nop_latch ? 0 : mem_to_reg;
+  assign alu_op_out =               nop_latch ? 0 : alu_op;
+  assign mem_op_out =               nop_latch ? 0 : mem_op;
+  assign alu_src_out =              nop_latch ? 0 : alu_src;
+  assign reg_write_out =            nop_latch ? 0 : reg_write;
+  assign jop_out =                  nop_latch ? 0 : jop;
+  assign address_src_out =          nop_latch ? 0 : address_src;
+  assign instruction_out =          nop_latch ? 0 : instruction;
+  assign first_out =                nop_latch ? 0 : first;
+  assign pc_out =                   nop_latch ? 0 : pc;
+  assign branch_taken_out =         nop_latch ? 0 : branch_taken;
+  assign branch_taken_address_out = nop_latch ? 0 : branch_taken_address;
 
   initial begin
     stall_latch <= 0;
@@ -246,6 +261,7 @@ module id_ex_register(
     first <= 0;
     pc <= 0;
     branch_taken <= 0;
+    branch_taken_address <= 0;
   end
 
   always @(posedge clk) begin
@@ -275,6 +291,7 @@ module id_ex_register(
       first <= 0;
       pc <= 0;
       branch_taken <= 0;
+      branch_taken_address <= 0;
     end else if(!stall) begin
       rs <= rs_in;
       rt <= rt_in;
@@ -296,6 +313,7 @@ module id_ex_register(
       first <= first_in;
       pc <= pc_in;
       branch_taken <= branch_taken_in;
+      branch_taken <= branch_taken_address_in;
     end
 
   end
