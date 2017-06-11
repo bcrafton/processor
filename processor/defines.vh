@@ -3,6 +3,8 @@
 
 `define IMEMORY_SIZE 256
 `define DMEMORY_SIZE 1024
+`define BLT_SIZE 32
+`define BLT_SIZE_LOG2 5
 
 `define DMEM_ID 0
 `define IMEM_ID 1
