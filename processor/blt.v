@@ -52,13 +52,13 @@ module blt(
 
   generate
     for (j=0; j<`BLT_SIZE; j=j+1) begin : generate_read_match
-      assign read_match[j] = (read_key == keys[j]) & ((valid[j] & 4'b0011) != 0);
+      assign read_match[j] = (read_key == keys[j]) & ((valid[j] & (`TAKE_BRANCH1 | `TAKE_BRANCH2)) != 0);
     end
   endgenerate
 
   generate
     for (j=0; j<`BLT_SIZE; j=j+1) begin : generate_write_match
-      assign write_match[j] = (write_key == keys[j]) & ((valid[j] & 4'b0011) != 0);
+      assign write_match[j] = (write_key == keys[j]) & ((valid[j] & (`TAKE_BRANCH1 | `TAKE_BRANCH2)) != 0);
     end
   endgenerate
 
