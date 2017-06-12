@@ -11,6 +11,8 @@ static unsigned int load_stall_counter;
 static unsigned int split_stall_counter;
 static unsigned int steer_stall_counter;
 
+static unsigned int jump_counter;
+
 static perf_metrics_t p;
 
 PLI_INT32 perf_metrics(char* user_data)
@@ -107,8 +109,10 @@ PLI_INT32 perf_metrics(char* user_data)
     id_ex_pc = 0;
   }
 
-  if (id_ex_jop != 0)
+/*
+  if (id_ex_jop != 0 && ((flush & FLUSH_MASK) == FLUSH_MASK) )
     printf("%d %d\n", id_ex_pc, id_ex_jop);
+*/
 
   // inval.value.vector[0].aval will be considered signed for instructions with bit in 1
   // so that means just need to check to make sure its not 0.
@@ -164,6 +168,11 @@ PLI_INT32 perf_metrics(char* user_data)
     steer_stall_counter++;
   }
 
+  if(id_ex_jop != 0 && id_ex_jop != 1)
+  {
+    jump_counter++;
+  }
+
   /////////////////////////////////////////////////////////
 
   if(start_time == 0)
@@ -185,7 +194,16 @@ perf_metrics_t* get_perf_metrics()
 
   p.flush_count = flush_counter;
 
+  p.jump_count = jump_counter;
+
   p.ipc =  (float)p.instruction_count / p.run_time;
+
+  if(p.jump_count > 0) {
+    p.branch_predict_percent = 1.0 - ((float)p.flush_count / p.jump_count);
+  }
+  else {
+    p.branch_predict_percent = 0;
+  }
 
   return &p;
 }
@@ -202,6 +220,7 @@ void clear_perf_metrics()
   steer_stall_counter = 0;
 
   flush_counter = 0;
+  jump_counter = 0;
 }
 
 
