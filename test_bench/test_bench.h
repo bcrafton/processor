@@ -80,6 +80,7 @@ typedef struct perf_metrics_t{
   unsigned int steer_stall_count;
 
   unsigned int jump_count;
+  unsigned int unique_jump_count;
 
 } perf_metrics_t;
 

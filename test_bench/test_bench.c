@@ -438,6 +438,7 @@ void dump_perf_metrics()
   fprintf(file, "split stalls = %u\n", p->split_stall_count);
   fprintf(file, "steer stalls = %u\n", p->steer_stall_count);
   fprintf(file, "branch count = %u\n", p->jump_count);
+  fprintf(file, "unique branch count = %u\n", p->unique_jump_count);
   fprintf(file, "branch predict percent = %f\n", p->branch_predict_percent);
 
   fclose(file);

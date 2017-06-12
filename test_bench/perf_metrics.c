@@ -13,7 +13,21 @@ static unsigned int steer_stall_counter;
 
 static unsigned int jump_counter;
 
+static unsigned int jumps[100];
+static unsigned int next_jump_idx;
+
 static perf_metrics_t p;
+
+bool contains(unsigned int pc)
+{
+  int i;
+  for(i=0; i<100; i++) {
+    if(jumps[i] == pc){
+      return true;
+    }
+  }
+  return false;
+}
 
 PLI_INT32 perf_metrics(char* user_data)
 {    
@@ -171,6 +185,12 @@ PLI_INT32 perf_metrics(char* user_data)
   if(id_ex_jop != 0 && id_ex_jop != 1)
   {
     jump_counter++;
+
+    if(!contains(id_ex_pc))
+    {
+      jumps[next_jump_idx] = id_ex_pc;
+      next_jump_idx++;
+    }
   }
 
   /////////////////////////////////////////////////////////
@@ -195,6 +215,7 @@ perf_metrics_t* get_perf_metrics()
   p.flush_count = flush_counter;
 
   p.jump_count = jump_counter;
+  p.unique_jump_count = next_jump_idx;
 
   p.ipc =  (float)p.instruction_count / p.run_time;
 
@@ -221,6 +242,13 @@ void clear_perf_metrics()
 
   flush_counter = 0;
   jump_counter = 0;
+
+  int i;
+  for(i=0; i<100; i++) {
+    jumps[i] = 0;
+  }
+
+  next_jump_idx = 0;
 }
 
 
