@@ -52,10 +52,11 @@ module branch_unit(
 
   // how was this not more obvious.
   // went and started adding them to each one of jumps down there.
-  wire blt_write = (branch_cond ^ branch_taken) | (jop == `JMP_OP_JR);
-  wire hit = (branch_cond & !branch_taken) | (jop == `JMP_OP_JR);
+  wire blt_write = is_branch;
+  wire hit = branch_cond | (jop == `JMP_OP_JR);
 
   reg branch_cond;
+  reg is_branch;
 
   blt l(
     .clk(clk),
@@ -76,6 +77,7 @@ module branch_unit(
     flush = 0;
     jump_address = 0;
     branch_cond = 0;
+    is_branch = 0;
   end
 
   always@(*) begin
@@ -92,6 +94,26 @@ module branch_unit(
 
       `JMP_OP_JZ:  branch_cond = zero == 1'b1;
       `JMP_OP_JNZ: branch_cond = zero == 1'b0;
+
+      default: branch_cond = 1'b0;
+    endcase
+
+    case(jop)
+      `JMP_OP_JEQ: is_branch = 1;
+      `JMP_OP_JNE: is_branch = 1;
+
+      `JMP_OP_JL:  is_branch = 1;
+      `JMP_OP_JLE: is_branch = 1;
+
+      `JMP_OP_JG:  is_branch = 1;
+      `JMP_OP_JGE: is_branch = 1;
+
+      `JMP_OP_JZ:  is_branch = 1;
+      `JMP_OP_JNZ: is_branch = 1;
+
+      `JMP_OP_JR:  is_branch = 1;
+
+      default: is_branch = 0;
     endcase
 
     case(jop)

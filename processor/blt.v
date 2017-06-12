@@ -52,13 +52,13 @@ module blt(
 
   generate
     for (j=0; j<`BLT_SIZE; j=j+1) begin : generate_read_match
-      assign read_match[j] = (read_key == keys[j]) & (valid[j] == `TAKE_BRANCH1 || valid[j] == `TAKE_BRANCH2);
+      assign read_match[j] = (read_key == keys[j]) & ((valid[j] == `TAKE_BRANCH1) || (valid[j] == `TAKE_BRANCH2));
     end
   endgenerate
 
   generate
     for (j=0; j<`BLT_SIZE; j=j+1) begin : generate_write_match
-      assign write_match[j] = (write_key == keys[j]) & (valid[j] == `TAKE_BRANCH1 || valid[j] == `TAKE_BRANCH2);
+      assign write_match[j] = (write_key == keys[j]);
     end
   endgenerate
 
@@ -129,10 +129,17 @@ module blt(
 
 	  end else if(write) begin
       if (write_match != 0) begin
+
+        if (valid[write_address] != set_branch_predict(valid[write_address], hit)) begin
+          //$display("%x %x\n", valid[write_address], set_branch_predict(valid[write_address], hit));
+        end
+
         vals[write_address] <= write_val;
-        //$display("%x %x\n", valid[write_address], set_branch_predict(valid[write_address], hit));
         valid[write_address] <= set_branch_predict(valid[write_address], hit);
       end else begin
+
+        //$display("current: %d", current);
+
         current <= next;
         vals[current] <= write_val;
         keys[current] <= write_key;
