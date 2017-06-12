@@ -221,6 +221,8 @@ module processor(
       stall1,
       steer_stall,
       branch_flush,
+      id_ex_jop0,
+      id_ex_pc,
       mem_wb_instruction0,
       mem_wb_instruction1);
   end

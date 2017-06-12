@@ -34,6 +34,9 @@ PLI_INT32 perf_metrics(char* user_data)
   unsigned int mem_wb_instruction0;
   unsigned int mem_wb_instruction1;
 
+  unsigned int id_ex_jop;
+  unsigned int id_ex_pc;
+
   iterator = vpi_iterate(vpiArgument, vhandle);
 
   arg = vpi_scan(iterator);
@@ -83,6 +86,29 @@ PLI_INT32 perf_metrics(char* user_data)
   else {
     flush = 0;
   }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    id_ex_jop = inval.value.vector[0].aval;
+  }
+  else {
+    id_ex_jop = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    id_ex_pc = inval.value.vector[0].aval;
+  }
+  else {
+    id_ex_pc = 0;
+  }
+
+  if (id_ex_jop != 0)
+    printf("%d %d\n", id_ex_pc, id_ex_jop);
 
   // inval.value.vector[0].aval will be considered signed for instructions with bit in 1
   // so that means just need to check to make sure its not 0.
