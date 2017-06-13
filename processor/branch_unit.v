@@ -68,11 +68,7 @@ module branch_unit(
     .read_val(branch_predict),
     .read_valid(take_branch),
 
-    .reset(reset),
-
-    .branch_cond(branch_cond),
-    .branch_taken(branch_taken),
-    .jop(jop)
+    .reset(reset)
   );
 
   initial begin

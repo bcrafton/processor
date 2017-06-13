@@ -13,11 +13,7 @@ module blt(
 
   read_key,
   read_val,
-  read_valid,
-
-  branch_cond,
-  branch_taken,
-  jop
+  read_valid
   );
 
   // input = pc.
@@ -53,10 +49,6 @@ module blt(
 
   wire [`BLT_SIZE-1:0] write_match;
   wire [`BLT_SIZE_LOG2-1:0] write_address;
-
-  input wire branch_taken;
-  input wire branch_cond;
-  input wire [`JUMP_BITS-1:0] jop;
 
   generate
     for (j=0; j<`BLT_SIZE; j=j+1) begin : generate_read_match
