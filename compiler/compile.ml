@@ -28,11 +28,15 @@ let const_false = HexConst(0x7FFFFFFF)
 let bool_mask = HexConst(0x80000000)
 let tag_as_bool = HexConst(0x00000001)
 
-let err_COMP_NOT_NUM   = 0
-let err_ARITH_NOT_NUM  = 1
-let err_LOGIC_NOT_BOOL = 2
-let err_IF_NOT_BOOL    = 3
-let err_OVERFLOW       = 4
+let err_COMP_NOT_NUM   = 1
+let err_ARITH_NOT_NUM  = 2
+let err_LOGIC_NOT_BOOL = 3
+let err_IF_NOT_BOOL    = 4
+let err_OVERFLOW       = 5
+let err_INDEX_NOT_NUM  = 6
+let err_NOT_TUPLE      = 7
+let err_INDEX_TOO_SMALL= 8
+let err_INDEX_TOO_LARGE= 9
 
 (*
 so starting with just function definitions
