@@ -50,9 +50,7 @@ module branch_unit(
   output wire [`ADDR_WIDTH-1:0] branch_predict;
   output wire take_branch;
 
-  // how was this not more obvious.
-  // went and started adding them to each one of jumps down there.
-  wire blt_write = is_branch; //(branch_cond ^ branch_taken);
+  wire blt_write = is_branch;
   wire hit = branch_cond | (jop == `JMP_OP_JR);
 
   reg branch_cond;
@@ -124,7 +122,6 @@ module branch_unit(
       `JMP_OP_NOP: flush = 0;
       `JMP_OP_J:   flush = `PIPE_REG_EX_MEM;
       `JMP_OP_JR:  begin
-        //$display("%x %x\n", branch_taken_address, id_ex_reg_address);
 
         if (branch_taken) begin
           if(branch_taken_address == id_ex_reg_address) begin
@@ -141,6 +138,9 @@ module branch_unit(
         if (branch_cond ^ branch_taken) begin
           flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
         end else if (branch_cond & branch_taken) begin
+          if (branch_taken_address != id_ex_imm_address) begin
+            $display("Addresses are not same, FAIL");
+          end
           flush = `PIPE_REG_EX_MEM;
         end else begin
           flush = 0;
@@ -151,6 +151,9 @@ module branch_unit(
         if (branch_cond ^ branch_taken) begin
           flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
         end else if (branch_cond & branch_taken) begin
+          if (branch_taken_address != id_ex_imm_address) begin
+            $display("Addresses are not same, FAIL");
+          end
           flush = `PIPE_REG_EX_MEM;
         end else begin
           flush = 0;
@@ -161,6 +164,9 @@ module branch_unit(
         if (branch_cond ^ branch_taken) begin
           flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
         end else if (branch_cond & branch_taken) begin
+          if (branch_taken_address != id_ex_imm_address) begin
+            $display("Addresses are not same, FAIL");
+          end
           flush = `PIPE_REG_EX_MEM;
         end else begin
           flush = 0;
@@ -171,6 +177,9 @@ module branch_unit(
         if (branch_cond ^ branch_taken) begin
           flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
         end else if (branch_cond & branch_taken) begin
+          if (branch_taken_address != id_ex_imm_address) begin
+            $display("Addresses are not same, FAIL");
+          end
           flush = `PIPE_REG_EX_MEM;
         end else begin
           flush = 0;
@@ -181,6 +190,9 @@ module branch_unit(
         if (branch_cond ^ branch_taken) begin
           flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
         end else if (branch_cond & branch_taken) begin
+          if (branch_taken_address != id_ex_imm_address) begin
+            $display("Addresses are not same, FAIL");
+          end
           flush = `PIPE_REG_EX_MEM;
         end else begin
           flush = 0;
@@ -191,6 +203,9 @@ module branch_unit(
         if (branch_cond ^ branch_taken) begin
           flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
         end else if (branch_cond & branch_taken) begin
+          if (branch_taken_address != id_ex_imm_address) begin
+            $display("Addresses are not same, FAIL");
+          end
           flush = `PIPE_REG_EX_MEM;
         end else begin
           flush = 0;
@@ -201,6 +216,9 @@ module branch_unit(
         if (branch_cond ^ branch_taken) begin
           flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
         end else if (branch_cond & branch_taken) begin
+          if (branch_taken_address != id_ex_imm_address) begin
+            $display("Addresses are not same, FAIL");
+          end
           flush = `PIPE_REG_EX_MEM;
         end else begin
           flush = 0;
@@ -211,6 +229,9 @@ module branch_unit(
         if (branch_cond ^ branch_taken) begin
           flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
         end else if (branch_cond & branch_taken) begin
+          if (branch_taken_address != id_ex_imm_address) begin
+            $display("Addresses are not same, FAIL");
+          end
           flush = `PIPE_REG_EX_MEM;
         end else begin
           flush = 0;
