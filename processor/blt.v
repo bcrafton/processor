@@ -145,7 +145,7 @@ module blt(
       if (write_match != 0) begin
 
         if (valid[write_address] != set_branch_predict(valid[write_address], hit)) begin
-          $display("curr: %x next: %x cond: %x taken: %x jop: %x\n", valid[write_address], set_branch_predict(valid[write_address], hit), branch_cond, branch_taken, jop);
+          //$display("curr: %x next: %x cond: %x taken: %x jop: %x\n", valid[write_address], set_branch_predict(valid[write_address], hit), branch_cond, branch_taken, jop);
         end
         if (hit) begin
           vals[write_address] <= write_val;
