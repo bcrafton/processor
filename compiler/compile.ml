@@ -311,17 +311,17 @@ let r_to_asm (r : reg) : string =
 let rec arg_to_asm (a : arg) : string =
   match a with
   | Const(n) -> sprintf "%d" n
-  | HexConst(n) -> sprintf "0x%X" n
+  | HexConst(n) -> sprintf "0x%lx" (Int32.of_int n)
   | Reg(r) -> r_to_asm r
   | RegOffset(n, r) ->
      if n >= 0 then
-       sprintf "[%s+%d]" (r_to_asm r) n
+       sprintf "[%s + %d]" (r_to_asm r) n
      else
-       sprintf "[%s-%d]" (r_to_asm r) (-1 * n)
+       sprintf "[%s - %d]" (r_to_asm r) (-1 * n)
+  | Sized(size, a) -> (arg_to_asm a)
   | RegOffsetReg(r1, r2, mul, off) ->
      sprintf "[%s + %s * %d + %d]"
              (r_to_asm r1) (r_to_asm r2) mul off
-  | Sized(size, a) -> (arg_to_asm a)
 ;;
 
 let rec i_to_asm (i : instruction) : string =
