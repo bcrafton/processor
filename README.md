@@ -24,7 +24,7 @@ Once these are acquired, the makefile can be run which will compile all four mod
 1. Super scalar :+1:
 2. Performance metrics (branch misses, IPC, instruction histograms, stalls) :+1:
 3. Robust Tests
-4. Branch predictor
+4. Branch predictor :+1:
 5. Out of order
 6. Compiler - Tuples and Forever loop
 7. OS
