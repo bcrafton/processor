@@ -26,6 +26,7 @@ type reg =
   | EDX
   | ESP
   | EBP
+  | ESI
 
 type size =
   | DWORD_PTR
@@ -36,7 +37,8 @@ type arg =
   | Const of int
   | HexConst of int
   | Reg of reg
-  | RegOffset of int * reg (* int is # words of offset *)
+  | RegOffset of int * reg
+  | RegOffsetReg of reg * reg * int * int
   | Sized of size * arg
 
 type instruction =
@@ -73,11 +75,13 @@ type instruction =
 type prim1 =
   | Add1
   | Sub1
-  | Print
-  | IsBool
-  | IsNum
   | Not
+  | Print
+  | Input
   | PrintStack
+  | IsNum
+  | IsBool
+  | IsTuple
 
 type prim2 =
   | Plus
@@ -98,6 +102,8 @@ and 'a expr =
   | EPrim1 of prim1 * 'a expr * 'a
   | EPrim2 of prim2 * 'a expr * 'a expr * 'a
   | EIf of 'a expr * 'a expr * 'a expr * 'a
+  | ETuple of 'a expr list * 'a
+  | EGetItem of 'a expr * 'a expr * 'a
   | ENumber of int * 'a
   | EBool of bool * 'a
   | EId of string * 'a
@@ -118,6 +124,8 @@ and 'a cexpr = (* compound expressions *)
   | CPrim1 of prim1 * 'a immexpr * 'a
   | CPrim2 of prim2 * 'a immexpr * 'a immexpr * 'a
   | CApp of string * 'a immexpr list * 'a
+  | CTuple of 'a immexpr list * 'a
+  | CGetItem of 'a immexpr * 'a immexpr * 'a
   | CImmExpr of 'a immexpr (* for when you just need an immediate value *)
 and 'a aexpr = (* anf expressions *)
   | ALet of string * 'a cexpr * 'a aexpr * 'a
