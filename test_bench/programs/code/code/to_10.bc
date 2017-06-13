@@ -2,6 +2,9 @@ def f(n):
   if n == 10:
     10
   else:
-    f(n+1)
+    if n == 2:
+      f(n+1)
+    else:
+      f(n+1)
 
 f(0)

@@ -14,6 +14,10 @@ module blt(
   read_key,
   read_val,
   read_valid,
+
+  branch_cond,
+  branch_taken,
+  jop
   );
 
   // input = pc.
@@ -50,9 +54,13 @@ module blt(
   wire [`BLT_SIZE-1:0] write_match;
   wire [`BLT_SIZE_LOG2-1:0] write_address;
 
+  input wire branch_taken;
+  input wire branch_cond;
+  input wire [`JUMP_BITS-1:0] jop;
+
   generate
     for (j=0; j<`BLT_SIZE; j=j+1) begin : generate_read_match
-      assign read_match[j] = (read_key == keys[j]) & ((valid[j] == `TAKE_BRANCH1) || (valid[j] == `TAKE_BRANCH2));
+      assign read_match[j] = (read_key == keys[j]) & ((valid[j] == `TAKE_BRANCH1) | (valid[j] == `TAKE_BRANCH2));
     end
   endgenerate
 
@@ -109,8 +117,12 @@ module blt(
   always @(*) begin
     if (read_match != 0) begin
       read_val = vals[read_address];
-      read_valid = valid[read_address];
+      read_valid = (valid[read_address] == `TAKE_BRANCH1) | (valid[read_address] == `TAKE_BRANCH2);
+      if (read_valid != ((valid[read_address] == `TAKE_BRANCH1) | (valid[read_address] == `TAKE_BRANCH2))) begin
+        $display("%x %x %x\n", valid[read_address], ((valid[read_address] == `TAKE_BRANCH1) | (valid[read_address] == `TAKE_BRANCH2)), read_key);
+      end
     end else begin
+      //$display("%t %x\n", $time, valid[read_address]);
       read_valid = 0;
     end
   end
@@ -131,7 +143,7 @@ module blt(
       if (write_match != 0) begin
 
         if (valid[write_address] != set_branch_predict(valid[write_address], hit)) begin
-          //$display("%x %x\n", valid[write_address], set_branch_predict(valid[write_address], hit));
+          //$display("curr: %x next: %x cond: %x taken: %x jop: %x\n", valid[write_address], set_branch_predict(valid[write_address], hit), branch_cond, branch_taken, jop);
         end
 
         vals[write_address] <= write_val;

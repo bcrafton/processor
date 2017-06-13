@@ -52,7 +52,7 @@ module branch_unit(
 
   // how was this not more obvious.
   // went and started adding them to each one of jumps down there.
-  wire blt_write = is_branch;
+  wire blt_write = is_branch; //(branch_cond ^ branch_taken);
   wire hit = branch_cond | (jop == `JMP_OP_JR);
 
   reg branch_cond;
@@ -70,7 +70,11 @@ module branch_unit(
     .read_val(branch_predict),
     .read_valid(take_branch),
 
-    .reset(reset)
+    .reset(reset),
+
+    .branch_cond(branch_cond),
+    .branch_taken(branch_taken),
+    .jop(jop)
   );
 
   initial begin
@@ -134,11 +138,6 @@ module branch_unit(
 
       end
       `JMP_OP_JEQ: begin
-
-        if (branch_taken) begin
-          //$display("%x %x\n", branch_taken_address, id_ex_imm_address);
-        end
-
         if (branch_cond ^ branch_taken) begin
           flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
         end else if (branch_cond & branch_taken) begin
