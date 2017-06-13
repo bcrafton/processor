@@ -119,7 +119,7 @@ module blt(
       read_val = vals[read_address];
       read_valid = (valid[read_address] == `TAKE_BRANCH1) | (valid[read_address] == `TAKE_BRANCH2);
       if (read_valid != ((valid[read_address] == `TAKE_BRANCH1) | (valid[read_address] == `TAKE_BRANCH2))) begin
-        $display("%x %x %x\n", valid[read_address], ((valid[read_address] == `TAKE_BRANCH1) | (valid[read_address] == `TAKE_BRANCH2)), read_key);
+        //$display("%x %x %x\n", read_valid, ((valid[read_address] == `TAKE_BRANCH1) | (valid[read_address] == `TAKE_BRANCH2)), read_key);
       end
     end else begin
       //$display("%t %x\n", $time, valid[read_address]);
@@ -131,6 +131,7 @@ module blt(
 
     if(reset) begin
       for(i=0; i<`BLT_SIZE; i=i+1) begin
+        //$display("%x %x %x", keys[i], vals[i], valid[i]);
         keys[i] <= 0;
         vals[i] <= 0;  
         valid[i] <= 0;
@@ -145,8 +146,9 @@ module blt(
         if (valid[write_address] != set_branch_predict(valid[write_address], hit)) begin
           //$display("curr: %x next: %x cond: %x taken: %x jop: %x\n", valid[write_address], set_branch_predict(valid[write_address], hit), branch_cond, branch_taken, jop);
         end
-
-        vals[write_address] <= write_val;
+        if (hit) begin
+          vals[write_address] <= write_val;
+        end
         valid[write_address] <= set_branch_predict(valid[write_address], hit);
       end else begin
 

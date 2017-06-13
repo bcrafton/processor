@@ -73,7 +73,6 @@ static test_t tests[] = {
 {"to_10", CODE_TEST, 20, 100000},
 
 {"plus1", CODE_TEST, 4, 10000},
-{"to_10", CODE_TEST, 20, 100000},
 */
 {"fib5", CODE_TEST, 10, 100000},
 };
