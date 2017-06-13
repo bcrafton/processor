@@ -11,7 +11,23 @@ static unsigned int load_stall_counter;
 static unsigned int split_stall_counter;
 static unsigned int steer_stall_counter;
 
+static unsigned int jump_counter;
+
+static unsigned int jumps[100];
+static unsigned int next_jump_idx;
+
 static perf_metrics_t p;
+
+bool contains(unsigned int pc)
+{
+  int i;
+  for(i=0; i<100; i++) {
+    if(jumps[i] == pc){
+      return true;
+    }
+  }
+  return false;
+}
 
 PLI_INT32 perf_metrics(char* user_data)
 {    
@@ -33,6 +49,9 @@ PLI_INT32 perf_metrics(char* user_data)
 
   unsigned int mem_wb_instruction0;
   unsigned int mem_wb_instruction1;
+
+  unsigned int id_ex_jop;
+  unsigned int id_ex_pc;
 
   iterator = vpi_iterate(vpiArgument, vhandle);
 
@@ -83,6 +102,31 @@ PLI_INT32 perf_metrics(char* user_data)
   else {
     flush = 0;
   }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    id_ex_jop = inval.value.vector[0].aval;
+  }
+  else {
+    id_ex_jop = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    id_ex_pc = inval.value.vector[0].aval;
+  }
+  else {
+    id_ex_pc = 0;
+  }
+
+/*
+  if (id_ex_jop != 0 && ((flush & FLUSH_MASK) == FLUSH_MASK) )
+    printf("%d %d\n", id_ex_pc, id_ex_jop);
+*/
 
   // inval.value.vector[0].aval will be considered signed for instructions with bit in 1
   // so that means just need to check to make sure its not 0.
@@ -138,6 +182,17 @@ PLI_INT32 perf_metrics(char* user_data)
     steer_stall_counter++;
   }
 
+  if(id_ex_jop != 0 && id_ex_jop != 1)
+  {
+    jump_counter++;
+
+    if(!contains(id_ex_pc))
+    {
+      jumps[next_jump_idx] = id_ex_pc;
+      next_jump_idx++;
+    }
+  }
+
   /////////////////////////////////////////////////////////
 
   if(start_time == 0)
@@ -159,7 +214,17 @@ perf_metrics_t* get_perf_metrics()
 
   p.flush_count = flush_counter;
 
+  p.jump_count = jump_counter;
+  p.unique_jump_count = next_jump_idx;
+
   p.ipc =  (float)p.instruction_count / p.run_time;
+
+  if(p.jump_count > 0) {
+    p.branch_predict_percent = 1.0 - ((float)p.flush_count / p.jump_count);
+  }
+  else {
+    p.branch_predict_percent = 0;
+  }
 
   return &p;
 }
@@ -176,6 +241,14 @@ void clear_perf_metrics()
   steer_stall_counter = 0;
 
   flush_counter = 0;
+  jump_counter = 0;
+
+  int i;
+  for(i=0; i<100; i++) {
+    jumps[i] = 0;
+  }
+
+  next_jump_idx = 0;
 }
 
 

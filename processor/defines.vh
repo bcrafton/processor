@@ -3,6 +3,8 @@
 
 `define IMEMORY_SIZE 256
 `define DMEMORY_SIZE 1024
+`define BLT_SIZE 32
+`define BLT_SIZE_LOG2 5
 
 `define DMEM_ID 0
 `define IMEM_ID 1
@@ -17,6 +19,12 @@
 `define PIPE_REG_EX_MEM   5'b01000
 `define PIPE_REG_MEM_WB   5'b10000
 `define NUM_PIPE_MASKS    5 //$bits(MEM_OP_READ)
+
+`define TAKE_BRANCH2      4'b0001
+`define TAKE_BRANCH1      4'b0010
+`define DONT_TAKE_BRANCH1 4'b0100
+`define DONT_TAKE_BRANCH2 4'b1000
+`define NUM_BRANCH_MASKS  4 //$bits(TAKE_BRANCH2)
 
 `define PC_MASK_INDEX     0
 `define IF_ID_MASK_INDEX  1

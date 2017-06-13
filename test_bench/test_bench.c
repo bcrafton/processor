@@ -70,9 +70,10 @@ static test_t tests[] = {
 {"fib5", CODE_TEST, 10, 100000},
 //{"fib10", CODE_TEST, 110, 500000},
 
-{"to_10", CODE_TEST, 20, 10000},
+{"to_10", CODE_TEST, 20, 100000},
 
 {"plus1", CODE_TEST, 4, 10000},
+
 };
 
 static TIME test_start_time;
@@ -437,6 +438,9 @@ void dump_perf_metrics()
   fprintf(file, "load stalls = %u\n", p->load_stall_count);
   fprintf(file, "split stalls = %u\n", p->split_stall_count);
   fprintf(file, "steer stalls = %u\n", p->steer_stall_count);
+  fprintf(file, "branch count = %u\n", p->jump_count);
+  fprintf(file, "unique branch count = %u\n", p->unique_jump_count);
+  fprintf(file, "branch predict percent = %f\n", p->branch_predict_percent);
 
   fclose(file);
 }

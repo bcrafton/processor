@@ -13,6 +13,11 @@ module steer(
 
   steer_stall,
   first,
+
+  pc_in,
+
+  pc0_out,
+  pc1_out
   );
 
   input wire clk;
@@ -30,6 +35,14 @@ module steer(
 
   wire [`OP_CODE_BITS-1:0] opcode0;
   wire [`OP_CODE_BITS-1:0] opcode1;
+
+  input wire [`ADDR_WIDTH-1:0] pc_in;
+
+  wire [`ADDR_WIDTH-1:0] pc0_in = pc_in;
+  wire [`ADDR_WIDTH-1:0] pc1_in = pc_in + 1;
+
+  output reg [`ADDR_WIDTH-1:0] pc0_out;
+  output reg [`ADDR_WIDTH-1:0] pc1_out;
 
   // A, B, X
   // pipe a, b, dont care.
@@ -97,6 +110,10 @@ module steer(
         instruction1_pipe = `PIPE_MEMORY;
       end
       6'b11????: begin // jmp, jo, je ...
+        // actually want to include jmp here.
+        // actually ... it does cost you an instruction sometimes.
+        // yeah but then will add logic for getting the next address.
+        // yeah this and program counter is somewhere to look for a little perf boost.
         instruction1_pipe = `PIPE_BRANCH;
       end
     endcase
@@ -106,11 +123,15 @@ module steer(
         if (prev_stall == 0) begin
           instruction0_out = instruction0_in;
           instruction1_out = `NOP_INSTRUCTION;
+          pc0_out = pc0_in;
+          pc1_out = 0;
           steer_stall = 1;
           first = 0;
         end else begin
           instruction0_out = instruction1_in;
           instruction1_out = `NOP_INSTRUCTION;
+          pc0_out = pc1_in;
+          pc1_out = 0;
           steer_stall = 0;
           first = 0;
         end
@@ -118,6 +139,8 @@ module steer(
       {`PIPE_MEMORY, `PIPE_BRANCH}: begin
         instruction0_out = instruction1_in;
         instruction1_out = instruction0_in;
+        pc0_out = pc1_in;
+        pc1_out = pc0_in;
         steer_stall = 0;
         first = 1;
       end
@@ -125,11 +148,15 @@ module steer(
         if (prev_stall == 0) begin
           instruction0_out = `NOP_INSTRUCTION;
           instruction1_out = instruction0_in;
+          pc0_out = 0;
+          pc1_out = pc0_in;
           steer_stall = 1;
           first = 1;
         end else begin
           instruction0_out = `NOP_INSTRUCTION;
           instruction1_out = instruction1_in;
+          pc0_out = 0;
+          pc1_out = pc1_in;
           steer_stall = 0;
           first = 1;
         end
@@ -137,18 +164,24 @@ module steer(
       {`PIPE_MEMORY, `PIPE_DONT_CARE}: begin
         instruction0_out = instruction1_in;
         instruction1_out = instruction0_in;
+        pc0_out = pc1_in;
+        pc1_out = pc0_in;
         steer_stall = 0;
         first = 1;
       end
       {`PIPE_DONT_CARE, `PIPE_BRANCH}: begin
         instruction0_out = instruction1_in;
         instruction1_out = instruction0_in;
+        pc0_out = pc1_in;
+        pc1_out = pc0_in;
         steer_stall = 0;
         first = 1;
       end
       default: begin
         instruction0_out = instruction0_in;
         instruction1_out = instruction1_in;
+        pc0_out = pc0_in;
+        pc1_out = pc1_in;
         steer_stall = 0;
         first = 0;
       end
