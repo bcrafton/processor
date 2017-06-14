@@ -1,0 +1,8 @@
+def search3(l):
+  if l[1] == 3: 
+    3
+  else:
+    search3(l[1])
+
+let mylist = (1, (2, 3)) in
+search3(mylist)

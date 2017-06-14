@@ -822,8 +822,10 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
       ]
 
     | Eq ->
+(*
       (check_num_comp compile_left) @
       (check_num_comp compile_right) @
+*)
       [
         IMov(Reg(EAX), compile_left);
         ICmp(Reg(EAX), compile_right);

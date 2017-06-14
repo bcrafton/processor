@@ -6,7 +6,7 @@ extern REGISTER regfile[REGFILE_SIZE];
 extern INSTRUCTION imemory[IMEMORY_SIZE];
 
 static test_t tests[] = {
-
+/*
 {"addi", BINARY_TEST, 0, 1000},
 
 {"subi", BINARY_TEST, 0, 1000},
@@ -77,7 +77,12 @@ static test_t tests[] = {
 {"tuple2", CODE_TEST, 6, 10000},
 {"nested_tuple", CODE_TEST, 202, 10000},
 {"list", CODE_TEST, 6, 500000},
-
+*/
+{"tuple1", CODE_TEST, 6, 10000},
+{"tuple2", CODE_TEST, 6, 10000},
+{"nested_tuple", CODE_TEST, 202, 10000},
+{"tuple3", CODE_TEST, 6, 10000},
+{"list", CODE_TEST, 6, 500000},
 };
 
 static TIME test_start_time;

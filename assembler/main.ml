@@ -30,6 +30,7 @@ let () =
     "tuple1.bc.s";
     "tuple2.bc.s";
     "nested_tuple.bc.s";
+    "tuple3.bc.s";
 
     "list.bc.s";
  
