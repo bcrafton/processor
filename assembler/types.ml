@@ -90,9 +90,16 @@ exception Arity of int * int * sourcespan (* intended arity, actual arity, where
 
 type reg =
   | EAX
+(* these belong to assembler *)
   | EBX (* adding this *)
   | ECX (* adding this *)
   | EDX
+(* can use these *)
+  | EEX
+  | EFX
+  | EGX
+  | EHX
+(* program registers *)
   | ESP
   | EBP
   | ESI
