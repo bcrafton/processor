@@ -305,9 +305,16 @@ let anf (p : tag program) : unit aprogram =
 let r_to_asm (r : reg) : string =
   match r with
   | EAX -> "eax"
+(* these belong to assembler *)
   | EBX -> "ebx"
   | ECX -> "ecx"
   | EDX -> "edx"
+(* can use these *)
+  | EEX -> "eex"
+  | EFX -> "efx"
+  | EGX -> "egx"
+  | EHX -> "ehx"
+(* program registers *)
   | ESP -> "esp"
   | EBP -> "ebp"
   | ESI -> "esi"
@@ -420,16 +427,16 @@ let check_index (a : arg) : instruction list =
 let check_tuple_size (tuple : arg) (index : arg) : instruction list = 
   [
     IMov(Reg(EAX), tuple);
-    IAnd(Reg(EAX), Const(0xFFFFFFF8));
+    IAnd(Reg(EAX), Const(0xFFF8));
     IMov(Reg(EAX), RegOffset(0, EAX));
     
-    IMov(Reg(ECX), index);
-    ISar(Reg(ECX), Const(1));
-    ICmp(Reg(ECX), Reg(EAX));
+    IMov(Reg(EEX), index);
+    ISar(Reg(EEX), Const(1));
+    ICmp(Reg(EEX), Reg(EAX));
 
     IJge("err_index_too_large");
 
-    ICmp(Reg(ECX), Const(0));
+    ICmp(Reg(EEX), Const(0));
     IJl("err_index_too_small");
   ]
 
@@ -869,8 +876,8 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
         let compile_val = (compile_imm first env) in 
         [
           (* 2 instructions in case it is a tuple ... cannot move memory to memory *)
-          IMov(Reg(ECX), Sized(DWORD_PTR, compile_val));
-          IMov(RegOffset(word_size * offset, ESI), Reg(ECX));
+          IMov(Reg(EEX), Sized(DWORD_PTR, compile_val));
+          IMov(RegOffset(word_size * offset, ESI), Reg(EEX));
         ] @
         (help rest env (offset + 1))
         (* we incremented ESI along the way so we need to set it back to the orignal pointer to put in EAX*)
@@ -878,7 +885,9 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
         let extra = (offset mod 2) in
         [
           IMov(Reg(EAX), Reg(ESI));
+(*
           IOr(Reg(EAX), Const(1));
+*)
           IAdd(Reg(ESI), Const(word_size * (offset + extra)));
         ]
     in 
@@ -894,18 +903,21 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
     let compile_coll = (compile_imm coll env) in
     let compile_index = (compile_imm index env) in
     
+(*
     (check_tuple compile_coll) @
     (check_index compile_index) @
-    (check_tuple_size compile_coll compile_index) @    
+    (check_tuple_size compile_coll compile_index) @ 
+*)   
     [
-      IMov(Reg(ECX), compile_index);
-      ISar(Reg(ECX), Const(1));
-      IAdd(Reg(ECX), Const(1));
+      IMov(Reg(EEX), compile_index);
+      ISar(Reg(EEX), Const(1));
+      IAdd(Reg(EEX), Const(1));
 
       IMov(Reg(EAX), compile_coll);
-      IAnd(Reg(EAX), Const(0xFFFFFFF8));
-      
-      IAdd(Reg(EAX), Reg(ECX));
+(*
+      IAnd(Reg(EAX), Const(0xFFF8));
+*)
+      IAdd(Reg(EAX), Reg(EEX));
       IMov(Reg(EAX), RegOffset(0, EAX));
     ]
 
