@@ -73,6 +73,7 @@ static test_t tests[] = {
 {"to_10", CODE_TEST, 20, 100000},
 
 {"plus1", CODE_TEST, 4, 10000},
+{"tuple1", CODE_TEST, 6, 10000},
 
 };
 

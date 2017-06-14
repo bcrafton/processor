@@ -26,6 +26,8 @@ let () =
     "to_10.bc.s";
 
     "plus1.bc.s";
+
+    "tuple1.bc.s";
  
   ] in
 
