@@ -11,37 +11,37 @@ let ident = ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']*
 
 let blank = [' ' '\t']+
 
-let space = [' ' '\t' '\n']+
-
 rule token = parse
   | '#' [^ '\n']+ { token lexbuf }
-  | blank "(" { LPARENSPACE }
-  | '\n' "(" { LPARENSPACE }
   | blank { token lexbuf }
   | '\n' { new_line lexbuf; token lexbuf }
   | signed_int as x { NUM (int_of_string x) }
   | "def" { DEF }
+  | "add1" { ADD1 }
+  | "sub1" { SUB1 }
   | "print" { PRINT }
+(*  | "input" { INPUT } *)
   | "printStack" { PRINTSTACK }
+  | "if" { IF }
   | "true" { TRUE }
   | "false" { FALSE }
   | "isbool" { ISBOOL }
   | "isnum" { ISNUM }
-  | "add1" { ADD1 }
-  | "sub1" { SUB1 }
-  | "if" { IF }
+  | "istuple" { ISTUPLE }
   | ":" { COLON }
   | "else:" { ELSECOLON }
   | "let" { LET }
   | "in" { IN }
+  | "==" { EQEQ }
   | "=" { EQUAL }
   | "," { COMMA }
-  | "(" { LPARENNOSPACE }
+  | "(" { LPAREN }
   | ")" { RPAREN }
+  | "[" { LBRACK }
+  | "]" { RBRACK }
   | "+" { PLUS }
   | "-" { MINUS }
   | "*" { TIMES }
-  | "==" { EQEQ }
   | "<" { LESS }
   | ">" { GREATER }
   | "<=" { LESSEQ }
@@ -52,4 +52,5 @@ rule token = parse
   | ident as x { ID x }
   | eof { EOF }
   | _ as c { failwith (sprintf "Unrecognized character: %c" c) }
+
 
