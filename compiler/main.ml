@@ -28,6 +28,8 @@ let () =
     "plus1.bc";
 
     "tuple1.bc";
+
+    "list.bc";
     
   ] in
 
