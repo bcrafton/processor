@@ -323,9 +323,6 @@ let rec arg_to_asm (a : arg) : string =
      else
        sprintf "[%s - %d]" (r_to_asm r) (-1 * n)
   | Sized(size, a) -> (arg_to_asm a)
-  | RegOffsetReg(r1, r2, mul, off) ->
-     sprintf "[%s + %s * %d + %d]"
-             (r_to_asm r1) (r_to_asm r2) mul off
 ;;
 
 let rec i_to_asm (i : instruction) : string =
@@ -570,13 +567,14 @@ let rec compile_fun (fun_name : string) (args : string list) (body : tag aexpr) 
   let compiled_body = (compile_aexpr body 1 env (List.length args) false) in
   prelude @ compiled_body @ postlude
 
-and compile_main (body : tag aexpr) (stack_start : int) : instruction list = 
+and compile_main (body : tag aexpr) (stack_start : int) (heap_start : int) : instruction list = 
   let offset = (count_vars body) in 
   let prelude = [
     ILabel("our_code_starts_here");
     IMov(Reg(EAX), Const(0)); (* First inst = NOP *)
     IMov(Reg(ESP), Const(stack_start));
-    IMov(Reg(EBP), Const(stack_start));    
+    IMov(Reg(EBP), Const(stack_start));
+    IMov(Reg(ESI), Const(heap_start)); 
     (* dont think pushing these is necessary but we need the offset *)
     IPush(Reg(EBP));
     IMov(Reg(EBP), Reg(ESP));
@@ -907,7 +905,8 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
       IMov(Reg(EAX), compile_coll);
       IAnd(Reg(EAX), Const(0xFFFFFFF8));
       
-      IMov(Reg(EAX), RegOffsetReg(EAX, ECX, word_size, 0));
+      IAdd(Reg(EAX), Reg(ECX));
+      IMov(Reg(EAX), RegOffset(0, EAX));
     ]
 
   | CImmExpr(ie) -> 
@@ -962,6 +961,18 @@ let compile_prog (prog : tag aprogram) : string =
     ILabel("err_logic_not_bool");
     IPush(Const(err_LOGIC_NOT_BOOL));
 
+    ILabel("err_index_not_num");
+    IPush(Const(err_INDEX_NOT_NUM));
+
+    ILabel("err_not_tuple");
+    IPush(Const(err_NOT_TUPLE));
+
+    ILabel("err_index_too_small");
+    IPush(Const(err_INDEX_TOO_SMALL));
+
+    ILabel("err_index_too_large");
+    IPush(Const(err_INDEX_TOO_LARGE));
+
     (* jump to the end of the program *)
     ILabel("end_of_program");
   ] in
@@ -980,7 +991,7 @@ let compile_prog (prog : tag aprogram) : string =
       IJmp("our_code_starts_here");
     ] in
     let compiled_fns = (compile_fns fns) in
-    let main = (compile_main body stack_start) in
+    let main = (compile_main body stack_start heap_start) in
     let il = (start @ compiled_fns @ main @ errors) in
     let as_assembly_string = (to_asm il) in
     sprintf "%s%s\n" prelude as_assembly_string

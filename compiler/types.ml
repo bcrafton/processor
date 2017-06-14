@@ -2,6 +2,7 @@
 let word_size = 1
 ;;
 let stack_start = 128
+let heap_start = 0
 
 type ('a, 'b) either =
   | Left of 'a
@@ -38,7 +39,6 @@ type arg =
   | HexConst of int
   | Reg of reg
   | RegOffset of int * reg
-  | RegOffsetReg of reg * reg * int * int
   | Sized of size * arg
 
 type instruction =
