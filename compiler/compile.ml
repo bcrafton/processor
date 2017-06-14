@@ -962,30 +962,48 @@ let compile_prog (prog : tag aprogram) : string =
     (* arith expected number *)
     ILabel("err_arith_not_num");
     IPush(Const(err_ARITH_NOT_NUM));
-    (* comp expected number *)
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
+
     ILabel("err_comp_not_num");
     IPush(Const(err_COMP_NOT_NUM));
-    (* overflow *)
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
+
     ILabel("err_overflow");
     IPush(Const(err_OVERFLOW));
-    (* if expects boolean *)
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
+
     ILabel("err_if_not_bool");
     IPush(Const(err_IF_NOT_BOOL));
-    (* logical operator expects boolean *)
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
+
     ILabel("err_logic_not_bool");
     IPush(Const(err_LOGIC_NOT_BOOL));
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
 
     ILabel("err_index_not_num");
     IPush(Const(err_INDEX_NOT_NUM));
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
 
     ILabel("err_not_tuple");
     IPush(Const(err_NOT_TUPLE));
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
 
     ILabel("err_index_too_small");
     IPush(Const(err_INDEX_TOO_SMALL));
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
 
     ILabel("err_index_too_large");
     IPush(Const(err_INDEX_TOO_LARGE));
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
 
     (* jump to the end of the program *)
     ILabel("end_of_program");
