@@ -95,6 +95,7 @@ type reg =
   | EDX
   | ESP
   | EBP
+  | ESI
 
 type size =
   | DWORD_PTR

@@ -57,6 +57,7 @@ rule token = parse
   | "edx" { REDX }
   | "esp" { RESP }
   | "ebp" { REBP }
+  | "esi" { RESI }
 
   | ":" { COLON }
   | "," { COMMA }

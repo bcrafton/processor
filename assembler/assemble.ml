@@ -453,6 +453,7 @@ and assemble_register (r : reg) : int =
   | EDX -> 3
   | ESP -> 4
   | EBP -> 5
+  | ESI -> 6
 
 and search_label (labels : (string * int) list) (label : string) : int =
   match labels with
@@ -539,6 +540,7 @@ and assemble_register_asm (r : reg) : string =
   | EDX -> "edx"
   | ESP -> "esp"
   | EBP -> "ebp"
+  | ESI -> "esi"
 
 
 
