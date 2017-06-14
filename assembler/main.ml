@@ -28,6 +28,8 @@ let () =
     "plus1.bc.s";
 
     "tuple1.bc.s";
+    "tuple2.bc.s";
+    "nested_tuple.bc.s";
 
     "list.bc.s";
  
