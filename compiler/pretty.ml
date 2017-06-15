@@ -14,20 +14,24 @@ let string_of_op1 op =
   | Add1 -> "add1"
   | Sub1 -> "sub1"
   | Print -> "print"
+  | Input -> "input"
   | PrintStack -> "printStack"
   | Not -> "!"
   | IsNum -> "isnum"
   | IsBool -> "isbool"
+  | IsTuple -> "istuple"
 
 let name_of_op1 op =
   match op with
   | Add1 -> "Add1"
   | Sub1 -> "Sub1"
   | Print -> "Print"
+  | Input -> "input"
   | PrintStack -> "PrintStack"
   | Not -> "Not"
   | IsNum -> "IsNum"
   | IsBool -> "IsBool"
+  | IsTuple -> "IsTuple"
 
 let string_of_op2 op =
   match op with
@@ -75,6 +79,10 @@ let rec string_of_expr (e : 'a expr) : string =
              (string_of_expr els)
   | EApp(funname, args, _) ->
      sprintf "(%s(%s))" funname (ExtString.String.join ", " (List.map string_of_expr args))
+  | ETuple(vals, _) ->
+     sprintf "(%s)" (ExtString.String.join ", " (List.map string_of_expr vals))
+  | EGetItem(tup, idx, _) ->
+     sprintf "%s[%s]" (string_of_expr tup) (string_of_expr idx)
 
 let string_of_pos ((pstart, pend) : (Lexing.position * Lexing.position)) : string =
   sprintf "%s, %d:%d-%d:%d" pstart.pos_fname pstart.pos_lnum (pstart.pos_cnum - pstart.pos_bol)
@@ -97,6 +105,10 @@ and string_of_cexpr c =
              (string_of_aexpr els)
   | CApp(funname, args, _) ->
      sprintf "(%s(%s))" funname (ExtString.String.join ", " (List.map string_of_immexpr args))
+  | CTuple(vals, _) ->
+     sprintf "(%s)" (ExtString.String.join ", " (List.map string_of_immexpr vals))
+  | CGetItem(tup, idx, _) ->
+     sprintf "%s[%s]" (string_of_immexpr tup) (string_of_immexpr idx)
   | CImmExpr i -> string_of_immexpr i
 and string_of_immexpr i =
   match i with
@@ -170,6 +182,18 @@ let format_expr (e : 'a expr) (print_a : 'a -> string) : string =
         | [] -> ()
         | [e] -> help e fmt
         | e1::rest -> help e1 fmt; List.iter (fun e -> print_comma_sep fmt; help e fmt) rest);
+       close_paren fmt
+    | ETuple(vals, a) ->
+       open_label fmt "ETuple" a;
+       (match vals with
+        | [] -> ()
+        | [e] -> help e fmt
+        | e1::rest -> help e1 fmt; List.iter (fun e -> print_comma_sep fmt; help e fmt) rest);
+       close_paren fmt
+    | EGetItem(tup, idx, a) ->
+       open_label fmt "EPrim1" a;
+       help tup fmt;
+       print_comma_sep fmt; help idx fmt; 
        close_paren fmt
     | ELet(binds, body, a) ->
        let print_item fmt (x, b, a) =

@@ -448,11 +448,19 @@ and assemble_imm (imm : int) : int =
 and assemble_register (r : reg) : int = 
   match r with
   | EAX -> 0
+(* these belong to assembler *)
   | EBX -> 1
   | ECX -> 2
   | EDX -> 3
-  | ESP -> 4
-  | EBP -> 5
+(* can use these *)
+  | EEX -> 4
+  | EFX -> 5
+  | EGX -> 6
+  | EHX -> 7
+(* program registers *)
+  | ESP -> 8
+  | EBP -> 9
+  | ESI -> 10
 
 and search_label (labels : (string * int) list) (label : string) : int =
   match labels with
@@ -534,11 +542,19 @@ and assemble_instruction_asm (i : mips_instruction) (labels : (string * int) lis
 and assemble_register_asm (r : reg) : string = 
   match r with
   | EAX -> "eax"
+(* these belong to assembler *)
   | EBX -> "ebx"
   | ECX -> "ecx"
   | EDX -> "edx"
+(* can use these *)
+  | EEX -> "eex"
+  | EFX -> "efx"
+  | EGX -> "egx"
+  | EHX -> "ehx"
+(* program registers *)
   | ESP -> "esp"
   | EBP -> "ebp"
+  | ESI -> "esi"
 
 
 

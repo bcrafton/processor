@@ -52,11 +52,19 @@ rule token = parse
   | "test" { TEST }
 
   | "eax" { REAX }
+
   | "ebx" { REBX }
   | "ecx" { RECX }
   | "edx" { REDX }
+
+  | "eex" { REEX }
+  | "efx" { REFX }
+  | "egx" { REGX }
+  | "ehx" { REHX }
+
   | "esp" { RESP }
   | "ebp" { REBP }
+  | "esi" { RESI }
 
   | ":" { COLON }
   | "," { COMMA }

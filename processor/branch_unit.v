@@ -85,10 +85,10 @@ module branch_unit(
       `JMP_OP_JNE: branch_cond = zero == 1'b0;
 
       `JMP_OP_JL:  branch_cond = less == 1'b1;
-      `JMP_OP_JLE: branch_cond = less == 1'b1;
+      `JMP_OP_JLE: branch_cond = (less == 1'b1) | (zero == 1'b1);
 
       `JMP_OP_JG:  branch_cond = greater == 1'b1;
-      `JMP_OP_JGE: branch_cond = greater == 1'b1;
+      `JMP_OP_JGE: branch_cond = (greater == 1'b1) | (zero == 1'b1);
 
       `JMP_OP_JZ:  branch_cond = zero == 1'b1;
       `JMP_OP_JNZ: branch_cond = zero == 1'b0;

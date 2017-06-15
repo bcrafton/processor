@@ -73,7 +73,12 @@ static test_t tests[] = {
 {"to_10", CODE_TEST, 20, 100000},
 
 {"plus1", CODE_TEST, 4, 10000},
-
+{"tuple1", CODE_TEST, 6, 10000},
+{"tuple2", CODE_TEST, 6, 10000},
+{"tuple3", CODE_TEST, 6, 10000},
+{"nested_tuple", CODE_TEST, 202, 10000},
+{"list", CODE_TEST, 6, 200000},
+{"linked_list", CODE_TEST, 6, 200000},
 };
 
 static TIME test_start_time;

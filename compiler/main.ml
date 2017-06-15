@@ -26,6 +26,14 @@ let () =
     "to_10.bc";
 
     "plus1.bc";
+
+    "tuple1.bc";
+    "tuple2.bc";
+    "nested_tuple.bc";
+    "tuple3.bc";
+
+    "list.bc";
+    "linked_list.bc";
     
   ] in
 

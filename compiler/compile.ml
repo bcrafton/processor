@@ -1,6 +1,7 @@
 open Printf
 open Types
 open Pretty
+open Expr
 
 type 'a envt = (string * 'a) list
 
@@ -27,11 +28,15 @@ let const_false = HexConst(0x7FFFFFFF)
 let bool_mask = HexConst(0x80000000)
 let tag_as_bool = HexConst(0x00000001)
 
-let err_COMP_NOT_NUM   = 0
-let err_ARITH_NOT_NUM  = 1
-let err_LOGIC_NOT_BOOL = 2
-let err_IF_NOT_BOOL    = 3
-let err_OVERFLOW       = 4
+let err_COMP_NOT_NUM   = 1
+let err_ARITH_NOT_NUM  = 2
+let err_LOGIC_NOT_BOOL = 3
+let err_IF_NOT_BOOL    = 4
+let err_OVERFLOW       = 5
+let err_INDEX_NOT_NUM  = 6
+let err_NOT_TUPLE      = 7
+let err_INDEX_TOO_SMALL= 8
+let err_INDEX_TOO_LARGE= 9
 
 (*
 so starting with just function definitions
@@ -83,200 +88,96 @@ let rec contains (l : string list) (s : string) : bool =
   | first::rest -> if(first=s) then true else (contains rest s)
   | [] -> false
 
-(* so not really sure how we can test this.
-also not really sure if we have done this right
-i think we are better off trying to make some of the other functions work
-coming back and testing this*)
 let well_formed (p : (Lexing.position * Lexing.position) program) : exn list =
-  let rec wf_E (e : 'a expr) (dl : 'a decl list) (env : string list) : exn list =
+  let rec wf_E e (env : sourcespan envt) (funenv : (sourcespan * int) envt) =
     match e with
-    | EApp(name, args, pos) ->
-      let d = (find_decl dl name) in
-      begin
-      match d with
-      | None -> [UnboundFun("", pos)]
-      | Some(found_decl) -> 
-        begin
-        match found_decl with
-        | DFun(fname, fargs, body, decl_pos) ->
-            if ((List.length args) != (List.length fargs)) then [Arity((List.length args), (List.length fargs), decl_pos)] else []
-        end
-      end
-    | ELet(binds, body, pos) ->
-      let rec help (binds : 'a bind list) (body : 'a expr) (env : string list) (local_env : string list) : exn list =
-        match binds with
-        | (name, e, pos) :: rest ->
-          if (contains env name) then [ShadowId(name, pos, pos)] @ (help rest body (name::env) (name::local_env))
-          else if (contains local_env name) then [DuplicateId(name, pos, pos)] @ (help rest body (name::env) (name::local_env))
-          else (wf_E e dl (name::env)) @ (help rest body (name::env) (name::local_env))
-        | [] -> (wf_E body dl env)
-      in
-      (help binds body env [])
-    | ENumber(n, pos) ->
-        if n > 1073741823 || n < -1073741824 then [Overflow(n, pos)] else []
-    | EId(name, pos) ->
-      begin
-      let id = (search env name) in
-      match id with
-      | None -> [UnboundId(name, pos)]
-      | Some(v) -> []
-      end
-    | EPrim1(_, e, _) -> (wf_E e dl env)
-    | EPrim2(_, e1, e2, _) -> (wf_E e1 dl env) @ (wf_E e2 dl env)
-    | EIf(cond, tru, fals, _) -> (wf_E cond dl env) @ (wf_E tru dl env) @ (wf_E fals dl env)
-    | EBool(_, _) -> []
-
-  and wf_D (d : 'a decl) (dl : 'a decl list) (env : string list) : exn list =
-    match d with
-    | DFun(name, args, body, pos) ->
-      let rec help (l : (string * (Lexing.position * Lexing.position)) list) (env : string list) : exn list = 
+    | EBool _ -> []
+    | ENumber(n, loc) ->
+       if n > 1073741823 || n < -1073741824 then [Overflow(n, loc)] else []
+    | EId (x, loc) ->
+       (try ignore (List.assoc x env); []
+        with Not_found -> [UnboundId(x, loc)])
+    | EPrim1(_, e, _) -> wf_E e env funenv
+    | EPrim2(_, l, r, _) -> wf_E l env funenv @ wf_E r env funenv
+    | EIf(c, t, f, _) -> wf_E c env funenv @ wf_E t env funenv @ wf_E f env funenv
+    | ELet(binds, body, _) ->
+       let rec dupe x binds =
+         match binds with
+         | [] -> None
+         | (y, _, loc)::_ when x = y -> Some loc
+         | _::rest -> dupe x rest in
+       let rec process_binds rem_binds env =
+         match rem_binds with
+         | [] -> (env, [])
+         | (x, e, loc)::rest ->
+            let shadow =
+              match dupe x rest with
+              | Some where -> [DuplicateId(x, where, loc)]
+              | None ->
+                 try
+                   let existing = List.assoc x env in [ShadowId(x, loc, existing)]
+                 with Not_found -> [] in
+            let errs_e = wf_E e env funenv in
+            let new_env = (x, loc)::env in
+            let (newer_env, errs) = process_binds rest new_env in
+            (newer_env, (shadow @ errs_e @ errs)) in              
+       let (env2, errs) = process_binds binds env in
+       errs @ wf_E body env2 funenv
+    | EApp(funname, args, loc) ->
+       (try let (_, arity) = (List.assoc funname funenv) in
+            let actual = List.length args in
+            if actual != arity then [Arity(arity, actual, loc)] else []
+        with Not_found ->
+          [UnboundFun(funname, loc)]) @ List.concat (List.map (fun e -> wf_E e env funenv) args)
+    | EGetItem(l, r, _) ->
+      (wf_E l env funenv) @ (wf_E r env funenv)
+    | ETuple(elts, _) ->
+      let rec help (l : 'a expr list) : exn list =
         match l with
-        | (s, p) :: rest ->
-          let dup = (find_dup l) in
-          begin
-          match dup with
-          | None -> (help rest (s :: env))
-          | Some(x) -> [DuplicateId("", p, p)] @ (help rest (s :: env))
-          end
-        | [] -> (wf_E body dl env)
-      in
-      let check = (help args []) in
-      check
+        | first::rest ->
+          (wf_E first env funenv) @ (help rest)
+        | [] -> []
+      in (help elts)
+
+  and wf_D d (env : sourcespan envt) (funenv : (sourcespan * int) envt) =
+    match d with
+    | DFun(_, args, body, _) ->
+       let rec dupe x args =
+         match args with
+         | [] -> None
+         | (y, loc)::_ when x = y -> Some loc
+         | _::rest -> dupe x rest in
+       let rec process_args rem_args =
+         match rem_args with
+         | [] -> []
+         | (x, loc)::rest ->
+            (match dupe x rest with
+             | None -> []
+             | Some where -> [DuplicateId(x, where, loc)]) @ process_args rest in
+       (process_args args) @ wf_E body (args @ env) funenv
   in
   match p with
   | Program(decls, body, _) ->
-    (* for each decl: 
-    check names
-    for each arg
-    check args
-    for each body
-    check stuff *)
-    let rec check_fn_names (d : (Lexing.position * Lexing.position) decl list) : exn list = 
-      begin
-      match d with
-      | DFun(name, args, body, pos) :: rest ->
-        let exn_list1 = (wf_D (DFun(name, args, body, pos)) d []) in
-        let dup = (find_dup args) in
-        begin
-        match dup with
-        | None -> exn_list1 @ (check_fn_names rest)
-        | Some(x) -> exn_list1 @ [DuplicateFun("", pos, pos)] @ (check_fn_names rest)
-        end
-      | [] -> []
-      end
-    in
-    let check_fn_name_exns = (check_fn_names decls) in
-    let check_body = (wf_E body decls []) in
-    check_fn_name_exns @ check_body
+     let rec find name decls =
+       match decls with
+       | [] -> None
+       | DFun(n, args, _, loc)::rest when n = name -> Some(loc)
+       | _::rest -> find name rest in
+     let rec dupe_funbinds decls =
+       match decls with
+       | [] -> []
+       | DFun(name, args, _, loc)::rest ->
+          (match find name rest with
+           | None -> []
+           | Some where -> [DuplicateFun(name, where, loc)]) @ dupe_funbinds rest in
+     let funbind d =
+       match d with
+       | DFun(name, args, _, loc) -> (name, (loc, List.length args)) in
+     let funbinds : (string * (sourcespan * int)) list = List.map funbind decls in
+     (dupe_funbinds decls)
+     @ (List.concat (List.map (fun d -> wf_D d [] funbinds) decls))
+     @ (wf_E body [] funbinds)
 ;;
-
-
-
-type tag = int
-let tag (p : 'a program) : tag program =
-  let next = ref 0 in
-  let tag () =
-    next := !next + 1;
-    !next in
-  let rec helpE (e : 'a expr) : tag expr =
-    match e with
-    | EId(x, _) -> EId(x, tag())
-    | ENumber(n, _) -> ENumber(n, tag())
-    | EBool(b, _) -> EBool(b, tag())
-    | EPrim1(op, e, _) ->
-       let prim_tag = tag() in
-       EPrim1(op, helpE e, prim_tag)
-    | EPrim2(op, e1, e2, _) ->
-       let prim_tag = tag() in
-       EPrim2(op, helpE e1, helpE e2, prim_tag)
-    | ELet(binds, body, _) ->
-       let let_tag = tag() in
-       ELet(List.map (fun (x, b, _) -> let t = tag() in (x, helpE b, t)) binds, helpE body, let_tag)
-    | EIf(cond, thn, els, _) ->
-       let if_tag = tag() in
-       EIf(helpE cond, helpE thn, helpE els, if_tag)
-    | EApp(name, args, _) ->
-       let app_tag = tag() in
-       EApp(name, List.map helpE args, app_tag)
-  and helpD d =
-    match d with
-    | DFun(name, args, body, _) ->
-       let fun_tag = tag() in
-       DFun(name, List.map (fun (a, _) -> (a, tag())) args, helpE body, fun_tag)
-  and helpP p =
-    match p with
-    | Program(decls, body, _) ->
-       Program(List.map helpD decls, helpE body, 0)
-  in helpP p
-
-let rec untag (p : 'a program) : unit program =
-  let rec helpE e =
-    match e with
-    | EId(x, _) -> EId(x, ())
-    | ENumber(n, _) -> ENumber(n, ())
-    | EBool(b, _) -> EBool(b, ())
-    | EPrim1(op, e, _) ->
-       EPrim1(op, helpE e, ())
-    | EPrim2(op, e1, e2, _) ->
-       EPrim2(op, helpE e1, helpE e2, ())
-    | ELet(binds, body, _) ->
-       ELet(List.map(fun (x, b, _) -> (x, helpE b, ())) binds, helpE body, ())
-    | EIf(cond, thn, els, _) ->
-       EIf(helpE cond, helpE thn, helpE els, ())
-    | EApp(name, args, _) ->
-       EApp(name, List.map helpE args, ())
-  and helpD d =
-    match d with
-    | DFun(name, args, body, _) ->
-       DFun(name, List.map (fun (a, _) -> (a, ())) args, helpE body, ())
-  and helpP p =
-    match p with
-    | Program(decls, body, _) ->
-       Program(List.map helpD decls, helpE body, ())
-  in helpP p
-
-let atag (p : 'a aprogram) : tag aprogram =
-  let next = ref 0 in
-  let tag () =
-    next := !next + 1;
-    !next in
-  let rec helpA (e : 'a aexpr) : tag aexpr =
-    match e with
-    | ALet(x, c, b, _) ->
-       let let_tag = tag() in
-       ALet(x, helpC c, helpA b, let_tag)
-    | ACExpr c -> ACExpr (helpC c)
-  and helpC (c : 'a cexpr) : tag cexpr =
-    match c with
-    | CPrim1(op, e, _) ->
-       let prim_tag = tag() in
-       CPrim1(op, helpI e, prim_tag)
-    | CPrim2(op, e1, e2, _) ->
-       let prim_tag = tag() in
-       CPrim2(op, helpI e1, helpI e2, prim_tag)
-    | CIf(cond, thn, els, _) ->
-       let if_tag = tag() in
-       CIf(helpI cond, helpA thn, helpA els, if_tag)
-    | CApp(name, args, _) ->
-       let app_tag = tag() in
-       CApp(name, List.map helpI args, app_tag)
-    | CImmExpr i -> CImmExpr (helpI i)
-  and helpI (i : 'a immexpr) : tag immexpr =
-    match i with
-    | ImmId(x, _) -> ImmId(x, tag())
-    | ImmNum(n, _) -> ImmNum(n, tag())
-    | ImmBool(b, _) -> ImmBool(b, tag())
-  and helpD d =
-    match d with
-    | ADFun(name, args, body, _) ->
-       let fun_tag = tag() in
-       ADFun(name, args, helpA body, fun_tag)
-  and helpP p =
-    match p with
-    | AProgram(decls, body, _) ->
-       AProgram(List.map helpD decls, helpA body, 0)
-  in helpP p
-
 
 let anf (p : tag program) : unit aprogram =
   let rec helpP (p : tag program) : unit aprogram =
@@ -315,6 +216,24 @@ let anf (p : tag program) : unit aprogram =
         let (anfd_args, bindings) = (anf_args args) in
         (CApp(funname, anfd_args, ()), bindings)
 
+    | ETuple(vals, _) ->
+      let rec anf_vals (vals : tag expr list) : (unit immexpr list * (string * unit cexpr) list) =  
+        match vals with
+        | first :: rest ->
+          let (immexp, bindings) = (helpI first) in
+          let (immexp_list, bindings_list) = (anf_vals rest) in
+          ([immexp] @ immexp_list, bindings @ bindings_list)
+        | [] ->
+          ([], [])
+      in
+      let (anfd_vals, bindings) = (anf_vals vals) in
+      (CTuple(anfd_vals, ()), bindings)
+    
+    | EGetItem(tup, idx, _) ->
+       let (tup_imm, tup_setup) = helpI tup in
+       let (idx_imm, idx_setup) = helpI idx in
+       (CGetItem(tup_imm, idx_imm, ()), tup_setup @ idx_setup)
+
     | _ -> let (imm, setup) = helpI e in (CImmExpr imm, setup)
 
   and helpI (e : tag expr) : (unit immexpr * (string * unit cexpr) list) =
@@ -351,6 +270,26 @@ let anf (p : tag program) : unit aprogram =
         let (anfd_args, bindings) = (anf_args args) in
         (ImmId(tmp, ()), bindings @ [(tmp, CApp(funname, anfd_args, ()))])
 
+    | ETuple(vals, tag) ->
+      let tmp = (sprintf "tuple_%d" tag) in
+      let rec anf_vals (vals : tag expr list) : (unit immexpr list * (string * unit cexpr) list) =  
+        match vals with
+        | first :: rest ->
+          let (immexp, bindings) = (helpI first) in
+          let (immexp_list, bindings_list) = (anf_vals rest) in
+          ([immexp] @ immexp_list, bindings @ bindings_list)
+        | [] ->
+          ([], [])
+      in
+      let (anfd_vals, bindings) = (anf_vals vals) in
+      (ImmId(tmp, ()), bindings @ [(tmp, CTuple(anfd_vals, ()))])
+
+    | EGetItem(tup, idx, tag) ->
+       let tmp = sprintf "get_item_%d" tag in
+       let (tup_imm, tup_setup) = helpI tup in
+       let (idx_imm, idx_setup) = helpI idx in
+       (ImmId(tmp, ()), tup_setup @ idx_setup @ [(tmp, CGetItem(tup_imm, idx_imm, ()))])
+
     | ELet([], body, _) -> helpI body
     | ELet((bind, exp, _)::rest, body, pos) ->
        let (exp_ans, exp_setup) = helpC exp in
@@ -363,16 +302,22 @@ let anf (p : tag program) : unit aprogram =
   helpP p
 ;;
 
-
-
 let r_to_asm (r : reg) : string =
   match r with
   | EAX -> "eax"
+(* these belong to assembler *)
   | EBX -> "ebx"
   | ECX -> "ecx"
   | EDX -> "edx"
+(* can use these *)
+  | EEX -> "eex"
+  | EFX -> "efx"
+  | EGX -> "egx"
+  | EHX -> "ehx"
+(* program registers *)
   | ESP -> "esp"
   | EBP -> "ebp"
+  | ESI -> "esi"
 
 let rec arg_to_asm (a : arg) : string =
   match a with
@@ -472,13 +417,37 @@ let rec replicate x i =
   if i = 0 then []
   else x :: (replicate x (i - 1))
 
-(*
-let err_COMP_NOT_NUM   = 0
-let err_ARITH_NOT_NUM  = 1
-let err_LOGIC_NOT_BOOL = 2
-let err_IF_NOT_BOOL    = 3
-let err_OVERFLOW       = 4
-*)
+let check_index (a : arg) : instruction list =
+  [
+    IMov(Reg(EAX), a);
+    ITest(Reg(EAX), Const(0x00000001));
+    IJnz("err_index_not_num");
+  ]
+
+let check_tuple_size (tuple : arg) (index : arg) : instruction list = 
+  [
+    IMov(Reg(EAX), tuple);
+    IAnd(Reg(EAX), Const(0xFFF8));
+    IMov(Reg(EAX), RegOffset(0, EAX));
+    
+    IMov(Reg(EEX), index);
+    ISar(Reg(EEX), Const(1));
+    ICmp(Reg(EEX), Reg(EAX));
+
+    IJge("err_index_too_large");
+
+    ICmp(Reg(EEX), Const(0));
+    IJl("err_index_too_small");
+  ]
+
+let check_tuple (a : arg) : instruction list = 
+  [
+    IMov(Reg(EAX), a);
+    IAnd(Reg(EAX), Const(0x00000007));
+    IXor(Reg(EAX), Const(0x00000006));
+    ICmp(Reg(EAX), Const(0x00000007));
+    IJne("err_not_tuple");
+  ]
 
 let check_num (err_label : string) (a : arg) : instruction list =
   [
@@ -605,13 +574,14 @@ let rec compile_fun (fun_name : string) (args : string list) (body : tag aexpr) 
   let compiled_body = (compile_aexpr body 1 env (List.length args) false) in
   prelude @ compiled_body @ postlude
 
-and compile_main (body : tag aexpr) (stack_start : int) : instruction list = 
+and compile_main (body : tag aexpr) (stack_start : int) (heap_start : int) : instruction list = 
   let offset = (count_vars body) in 
   let prelude = [
     ILabel("our_code_starts_here");
     IMov(Reg(EAX), Const(0)); (* First inst = NOP *)
     IMov(Reg(ESP), Const(stack_start));
-    IMov(Reg(EBP), Const(stack_start));    
+    IMov(Reg(EBP), Const(stack_start));
+    IMov(Reg(ESI), Const(heap_start)); 
     (* dont think pushing these is necessary but we need the offset *)
     IPush(Reg(EBP));
     IMov(Reg(EBP), Reg(ESP));
@@ -731,7 +701,9 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
         IXor(Reg(EAX), Sized(DWORD_PTR, HexConst(0x80000000)));
       ]
 
-    | PrintStack -> failwith "print stack not implemented"
+    | PrintStack -> failwith "Not yet implemented: PrintStack"
+    | IsTuple -> failwith "Not yet implemented: IsTuple"
+    | Input -> failwith "Not yet implemented: Input"
     end
 
   | CPrim2(op, left, right, t) -> 
@@ -850,8 +822,10 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
       ]
 
     | Eq ->
+(*
       (check_num_comp compile_left) @
       (check_num_comp compile_right) @
+*)
       [
         IMov(Reg(EAX), compile_left);
         ICmp(Reg(EAX), compile_right);
@@ -888,6 +862,66 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
       IAdd(Reg(ESP), Const(word_size * List.length(args)));
     ] in
     prelude @ [ICall(name);] @ postlude
+
+  | CTuple(elts, _) ->
+    (* cannot just move esi up and then reference it by subtracting ... it may change
+    then how can we ensure we are looking at right pointer value
+    wait no they are all immediates, meaning they shudnt put anything on esi
+    how do u return esi in eax
+    well can increment esi each time then put current esi - list length
+    or can just use offsets each time, and put esi in eax and then add to it
+
+    we need to do something about the tag on the tuple pointer*)
+    let rec help (vals : 'a immexpr list) (env : arg envt) (offset : int) : instruction list =
+      match vals with
+      | first :: rest ->
+        let compile_val = (compile_imm first env) in 
+        [
+          (* 2 instructions in case it is a tuple ... cannot move memory to memory *)
+          IMov(Reg(EEX), Sized(DWORD_PTR, compile_val));
+          IMov(RegOffset(word_size * offset, ESI), Reg(EEX));
+        ] @
+        (help rest env (offset + 1))
+        (* we incremented ESI along the way so we need to set it back to the orignal pointer to put in EAX*)
+      | [] -> 
+        let extra = (offset mod 2) in
+        [
+          IMov(Reg(EAX), Reg(ESI));
+(*
+          IOr(Reg(EAX), Const(1));
+*)
+          IAdd(Reg(ESI), Const(word_size * (offset + extra)));
+        ]
+    in 
+    [
+      IMov(RegOffset(0, ESI), Sized(DWORD_PTR, Const(List.length elts)));
+    ] @
+    (* first index to write is 1 *)
+    (help elts env 1)
+  | CGetItem(coll, index, _) ->
+    (* what are we suppose to lookup here
+       put whatever is in the tuple lookup index into eax
+       *)
+    let compile_coll = (compile_imm coll env) in
+    let compile_index = (compile_imm index env) in
+    
+(*
+    (check_tuple compile_coll) @
+    (check_index compile_index) @
+    (check_tuple_size compile_coll compile_index) @ 
+*)   
+    [
+      IMov(Reg(EEX), compile_index);
+      ISar(Reg(EEX), Const(1));
+      IAdd(Reg(EEX), Const(1));
+
+      IMov(Reg(EAX), compile_coll);
+(*
+      IAnd(Reg(EAX), Const(0xFFF8));
+*)
+      IAdd(Reg(EAX), Reg(EEX));
+      IMov(Reg(EAX), RegOffset(0, EAX));
+    ]
 
   | CImmExpr(ie) -> 
     [
@@ -928,18 +962,48 @@ let compile_prog (prog : tag aprogram) : string =
     (* arith expected number *)
     ILabel("err_arith_not_num");
     IPush(Const(err_ARITH_NOT_NUM));
-    (* comp expected number *)
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
+
     ILabel("err_comp_not_num");
     IPush(Const(err_COMP_NOT_NUM));
-    (* overflow *)
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
+
     ILabel("err_overflow");
     IPush(Const(err_OVERFLOW));
-    (* if expects boolean *)
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
+
     ILabel("err_if_not_bool");
     IPush(Const(err_IF_NOT_BOOL));
-    (* logical operator expects boolean *)
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
+
     ILabel("err_logic_not_bool");
     IPush(Const(err_LOGIC_NOT_BOOL));
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
+
+    ILabel("err_index_not_num");
+    IPush(Const(err_INDEX_NOT_NUM));
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
+
+    ILabel("err_not_tuple");
+    IPush(Const(err_NOT_TUPLE));
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
+
+    ILabel("err_index_too_small");
+    IPush(Const(err_INDEX_TOO_SMALL));
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
+
+    ILabel("err_index_too_large");
+    IPush(Const(err_INDEX_TOO_LARGE));
+    IMov(Reg(EAX), Const(0xa5a5));
+    IJmp("end_of_program");
 
     (* jump to the end of the program *)
     ILabel("end_of_program");
@@ -959,7 +1023,7 @@ let compile_prog (prog : tag aprogram) : string =
       IJmp("our_code_starts_here");
     ] in
     let compiled_fns = (compile_fns fns) in
-    let main = (compile_main body stack_start) in
+    let main = (compile_main body stack_start heap_start) in
     let il = (start @ compiled_fns @ main @ errors) in
     let as_assembly_string = (to_asm il) in
     sprintf "%s%s\n" prelude as_assembly_string
