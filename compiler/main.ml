@@ -33,6 +33,7 @@ let () =
     "tuple3.bc";
 
     "list.bc";
+    "linked_list.bc";
     
   ] in
 

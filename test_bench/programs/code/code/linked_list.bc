@@ -1,0 +1,11 @@
+def length(l):
+  if l == false: 
+    0
+  else:
+    1 + length(l[1])
+
+def link(first, rest):
+  (first, rest)
+
+let mylist = link(1, link(2, link(3, false))) in
+length(mylist)
