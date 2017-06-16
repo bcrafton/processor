@@ -1,0 +1,10 @@
+ipc = 0.934363
+instructions = 484
+run time = 518
+flushes = 13
+load stalls = 69
+split stalls = 149
+steer stalls = 29
+branch count = 44
+unique branch count = 13
+branch predict percent = 0.704545

@@ -95,11 +95,9 @@ PLI_INT32 perf_metrics(char* user_data);
 
 ///////////////////////////////////////////
 
-void dump_memory(int memory_id);
+void dump_memory();
 void load_program();
-void clear_memory(int memory_id);
 perf_metrics_t* get_perf_metrics();
-void clear_perf_metrics();
 void dump_perf_metrics();
 
 ///////////////////////////////////////////

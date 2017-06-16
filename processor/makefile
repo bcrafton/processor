@@ -11,7 +11,7 @@ compile:
 
 .PHONY: run
 run:
-	vvp -M. -m memory_controller memory_controller.vvp
+	vvp -M. -m memory_controller memory_controller.vvp +test_name="fib3.bc.s.hex" +run_time=10000 +program_dir="../test_bench/programs/code/bin/" +out_dir="../test_bench/out/"
 
 .PHONY: clean
 clean:

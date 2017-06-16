@@ -4,7 +4,7 @@
 extern WORD dmemory[DMEMORY_SIZE];
 extern REGISTER regfile[REGFILE_SIZE];
 extern INSTRUCTION imemory[IMEMORY_SIZE];
-
+/*
 static test_t tests[] = {
 
 {"addi", BINARY_TEST, 0, 1000},
@@ -80,11 +80,12 @@ static test_t tests[] = {
 {"list", CODE_TEST, 6, 200000},
 {"linked_list", CODE_TEST, 6, 200000},
 };
+*/
 
 static TIME test_start_time;
-static int test_counter = 0;
-static int num_programs = sizeof(tests)/sizeof(test_t);
-static test_t* current_test = NULL;
+static char test_name[100];
+static char program_dir[100];
+static char out_dir[100];
 
 PLI_INT32 init(char* user_data)
 {    
@@ -93,8 +94,7 @@ PLI_INT32 init(char* user_data)
     vhandle = vpi_handle(vpiSysTfCall, NULL);
 
     s_vpi_value inval;
-    
-    unsigned int memory_id;
+
     unsigned int time_h;
     unsigned int time_l;
     unsigned long current_time;
@@ -102,10 +102,22 @@ PLI_INT32 init(char* user_data)
     iterator = vpi_iterate(vpiArgument, vhandle);
 
     arg = vpi_scan(iterator);
-    inval.format = vpiIntVal;
+    inval.format = vpiStringVal;
     vpi_get_value(arg, &inval);
-    memory_id = inval.value.integer;
-    assert(memory_id == IMEM_ID);
+    strcpy(test_name, inval.value.str);
+    assert(test_name != NULL);
+
+    arg = vpi_scan(iterator);
+    inval.format = vpiStringVal;
+    vpi_get_value(arg, &inval);
+    strcpy(program_dir, inval.value.str);
+    assert(program_dir != NULL);
+
+    arg = vpi_scan(iterator);
+    inval.format = vpiStringVal;
+    vpi_get_value(arg, &inval);
+    strcpy(out_dir, inval.value.str);
+    assert(out_dir != NULL);
 
     arg = vpi_scan(iterator);
     inval.format = vpiTimeVal;
@@ -118,26 +130,22 @@ PLI_INT32 init(char* user_data)
 
     test_start_time = current_time;
 
-    next_test();
-    load_program();
+    load_program(program_dir, test_name);
 
     return 0; 
 }
 
-PLI_INT32 update(char* user_data)
+PLI_INT32 dump(char* user_data)
 {    
     assert(user_data == NULL);
     vpiHandle vhandle, iterator, arg;
     vhandle = vpi_handle(vpiSysTfCall, NULL);
 
     s_vpi_value inval;
-    
+
     unsigned int time_h;
     unsigned int time_l;
     unsigned long current_time;
-
-    int reset = 0;
-    int complete = 0;
 
     iterator = vpi_iterate(vpiArgument, vhandle);
 
@@ -147,134 +155,56 @@ PLI_INT32 update(char* user_data)
     time_h = inval.value.time->high;
     time_l = inval.value.time->low;
     
-    current_time = time_h;
-    current_time = (current_time << BITS_IN_INT) | time_l;
-
-    if(current_time - test_start_time > current_test->sim_time)
-    {
-
-      bool pass = check();
-      perf_metrics_t* p = get_perf_metrics();
-      
-      if(pass)
-      {
-        printf("Test %s: Passed. IPC = %f.\n", current_test->name, p->ipc);
-        dump_perf_metrics();
-      }
-      else
-      {
-        printf("Test %s: Failed\n", current_test->name);
-      }
-
-      clear_perf_metrics();
-
-      // dump memory
-      dump_memory(DMEM_ID);
-      dump_memory(REGFILE_ID);
-
-      // reset = 1
-      reset = 1;
-
-      // clear memory
-      clear_memory(DMEM_ID);
-      clear_memory(IMEM_ID);
-      clear_memory(REGFILE_ID);
-
-      // reset start time
-      test_start_time = current_time;
-
-      if(!next_test())
-      {
-        complete = 1;
-      }
-      else
-      {
-        load_program();
-      }
-    }
-
-    unsigned long bus_out;
-    bus_out = reset;
-    bus_out = (bus_out << 1) | complete;
-
-    s_vpi_value out;
-    out.format = vpiVectorVal;
-    out.value.vector = (s_vpi_vecval*) malloc(sizeof(s_vpi_vecval));
-    out.value.vector[0].aval = bus_out;
-    out.value.vector[0].bval = 0;
-
-    vpi_put_value(vhandle, &out, NULL, vpiNoDelay);
+    dump_memory();
+    dump_perf_metrics();
 
     return 0; 
 }
 
-void dump_memory(int memory_id)
+void dump_memory()
 {
+  int i;
   char buffer[100];
-  if(memory_id == DMEM_ID)
-  {
-    sprintf(buffer, "%s%s.mem", ACTUAL_PATH, current_test->name);
-    
-    FILE *file;
-    file = fopen(buffer, "w");
-    if(file == NULL)
-    {
-      fprintf(stderr, "could not find %s\n", buffer);
-      assert(0);
-    }
-    
-    int i;
-    for(i=0; i<DMEMORY_SIZE; i++)
-    {
-        fprintf(file, "%08x\n", dmemory[i]);
-    }
+  FILE *file;
 
-    fclose(file);
-  }
-  else if(memory_id == REGFILE_ID)
+  sprintf(buffer, "%s%s.mem", out_dir, test_name);
+  printf("%s\n", buffer);
+  file = fopen(buffer, "w");
+  if(file == NULL)
   {
-    sprintf(buffer, "%s%s.reg", ACTUAL_PATH, current_test->name);
-    
-    FILE *file;
-    file = fopen(buffer, "w");
-    if(file == NULL)
-    {
-      fprintf(stderr, "could not find %s\n", buffer);
-      assert(0);
-    }
-
-    int i;
-    for(i=0; i<REGFILE_SIZE; i++)
-    {
-        fprintf(file, "%08x\n", regfile[i]);
-    }
-
-    fclose(file);
-  }
-  else
-  {
+    fprintf(stderr, "could not find %s\n", buffer);
     assert(0);
   }
+  
+
+  for(i=0; i<DMEMORY_SIZE; i++)
+  {
+      fprintf(file, "%08x\n", dmemory[i]);
+  }
+
+  fclose(file);
+
+  sprintf(buffer, "%s%s.reg", out_dir, test_name);
+  
+  file = fopen(buffer, "w");
+  if(file == NULL)
+  {
+    fprintf(stderr, "could not find %s\n", buffer);
+    assert(0);
+  }
+
+  for(i=0; i<REGFILE_SIZE; i++)
+  {
+      fprintf(file, "%08x\n", regfile[i]);
+  }
+
+  fclose(file);
 }
 
 void load_program()
 {
   char buffer[100];
-  switch(current_test->test_type)
-  {
-    case BINARY_TEST:
-      sprintf(buffer, "%s%s.hex", BINARY_PROGRAM_PATH, current_test->name);
-      break;
-    case CODE_TEST:
-      sprintf(buffer, "%s%s.bc.s.hex", CODE_PROGRAM_PATH, current_test->name);
-      break;
-    case ASM_TEST:
-      sprintf(buffer, "%s%s.s.hex", ASM_PROGRAM_PATH, current_test->name);
-      break;
-    default:
-      fprintf(stderr, "invalid enum %s = %d\n", current_test->name, current_test->test_type);
-      assert(0);
-  }
+  sprintf(buffer, "%s%s", program_dir, test_name);
   
   FILE *file;
   file = fopen(buffer, "r");
@@ -293,140 +223,12 @@ void load_program()
   }
 }
 
-void clear_memory(int memory_id)
-{
-  switch(memory_id)
-  {
-    case DMEM_ID:
-      memset(&dmemory[0], 0, DMEMORY_SIZE * sizeof(WORD));
-      break;
-    case IMEM_ID:
-      memset(&imemory[0], 0, IMEMORY_SIZE * sizeof(INSTRUCTION));
-      break;
-    case REGFILE_ID:
-      memset(&regfile[0], 0, REGFILE_SIZE * sizeof(REGISTER));
-      break;
-    default:
-      assert(0);
-  }
-}
-
-bool check()
-{
-  switch(current_test->test_type)
-  {
-    case BINARY_TEST:
-      //printf("%d\n", check_binary());
-      return check_binary();
-      break;
-    case CODE_TEST:
-      return check_code();
-      break;
-    case ASM_TEST:
-      return check_asm();
-      break;
-    default:
-      fprintf(stderr, "invalid enum %d\n", current_test->test_type);
-      assert(0);
-  }
-  fprintf(stderr, "impossible");
-  assert(0);
-}
-
-bool check_code()
-{
-  REGISTER ans = current_test->ans;
-
-  if(regfile[0] != ans)
-  {
-    return false;
-  }
-
-  return true;
-}
-
-bool check_asm()
-{
-  REGISTER ans = current_test->ans;
-
-  if(regfile[0] != ans)
-  {
-    return false;
-  }
-
-  return true;
-}
-
-bool check_binary()
-{
-  WORD mem_val;
-  REGISTER reg_val;
-  int i;
-  FILE *file;
-  char buffer[100];
-  
-  /////////////////
-
-  sprintf(buffer, "%smem/%s.mem.expected", EXPECTED_PATH, current_test->name); 
-  //printf("%s\n", buffer);
-  file = fopen(buffer, "r");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
-  
-  for(i=0; i<DMEMORY_SIZE; i++)
-  {
-    if(!fscanf(file, "%x", &mem_val))
-    {
-      fprintf(stderr, "file does not contain enough words");
-      assert(0);
-    }
-    if(mem_val != dmemory[i])
-    {
-      return false;
-    }
-  }
-  fclose(file);
-
-  /////////////////
-  
-  sprintf(buffer, "%sreg/%s.reg.expected", EXPECTED_PATH, current_test->name);  
-  //printf("%s\n", buffer);
-  file = fopen(buffer, "r");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
-
-  for(i=0; i<REGFILE_SIZE; i++)
-  {
-    if(!fscanf(file, "%x", &reg_val))
-    {
-      fprintf(stderr, "file does not contain enough words");
-      assert(0);
-    }
-    if(reg_val != regfile[i])
-    {
-      return false;
-    }
-  }
-  fclose(file);
-
-  /////////////////
-
-  return true;
-
-}
-
 void dump_perf_metrics()
 {
   perf_metrics_t* p = get_perf_metrics();
   
   char buffer[100];
-  sprintf(buffer, "%s%s.perf", PERF_PATH, current_test->name);
+  sprintf(buffer, "%s%s.perf", out_dir, test_name);
   
   FILE *file;
   file = fopen(buffer, "w");
@@ -448,22 +250,6 @@ void dump_perf_metrics()
   fprintf(file, "branch predict percent = %f\n", p->branch_predict_percent);
 
   fclose(file);
-}
-
-bool next_test()
-{
-  if(test_counter == 0 && current_test == NULL)
-  {
-    current_test = &tests[test_counter];
-    return true;
-  }
-  test_counter++;
-  if(test_counter == num_programs)
-  {
-    return false;
-  }
-  current_test = &tests[test_counter];
-  return true;
 }
 
 void mem_read_register(void)
@@ -505,13 +291,13 @@ void init_register(void)
     vpi_register_systf(&tf_data);
 }
 
-void update_register(void)
+void dump_register(void)
 {
     s_vpi_systf_data tf_data;
     tf_data.type        = vpiSysFunc;
     tf_data.sysfunctype = vpiIntFunc;
-    tf_data.tfname    = "$update";
-    tf_data.calltf    = update;
+    tf_data.tfname    = "$dump";
+    tf_data.calltf    = dump;
     tf_data.compiletf = 0;
     tf_data.sizetf    = 0;
     tf_data.user_data = 0;
@@ -535,7 +321,7 @@ void (*vlog_startup_routines[])() = {
     mem_read_register,
     mem_write_register,
     init_register,
-    update_register,
+    dump_register,
     perf_metrics_register,
     0
 };
