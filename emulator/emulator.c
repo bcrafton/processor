@@ -209,51 +209,51 @@ void execute_instruction(INSTRUCTION i, program_state_t* p)
 
     // 6'b01xxxx
     case OP_CODE_ADDI:
-      regfile[rd] = regfile[rs] + imm;
+      regfile[rt] = regfile[rs] + imm;
       p->pc++;
       break;
     case OP_CODE_SUBI:
-      regfile[rd] = regfile[rs] - imm;
+      regfile[rt] = regfile[rs] - imm;
       p->pc++;
       break;
     case OP_CODE_NOTI:
       printf("not implemented yet: noti\n");
       break;
     case OP_CODE_ANDI:
-      regfile[rd] = regfile[rs] & imm;
+      regfile[rt] = regfile[rs] & imm;
       p->pc++;
       break;
     case OP_CODE_ORI:
-      regfile[rd] = regfile[rs] | imm;
+      regfile[rt] = regfile[rs] | imm;
       p->pc++;
       break;
     case OP_CODE_NANDI:
-      regfile[rd] = ~(regfile[rs] & imm);
+      regfile[rt] = ~(regfile[rs] & imm);
       p->pc++;
       break;
     case OP_CODE_NORI:
-      regfile[rd] = ~(regfile[rs] | imm);
+      regfile[rt] = ~(regfile[rs] | imm);
       p->pc++;
       break;
     case OP_CODE_MOVI:
-      regfile[rd] = imm;
+      regfile[rt] = imm;
       p->pc++;
       break;
     case OP_CODE_SARI:
       // there is no sar in c ...
-      regfile[rd] = regfile[rs] >> imm;
+      regfile[rt] = regfile[rs] >> imm;
       p->pc++;
       break;
     case OP_CODE_SHRI:
-      regfile[rd] = regfile[rs] >> imm;
+      regfile[rt] = regfile[rs] >> imm;
       p->pc++;
       break;
     case OP_CODE_SHLI:
-      regfile[rd] = regfile[rs] << imm;
+      regfile[rt] = regfile[rs] << imm;
       p->pc++;
       break;
     case OP_CODE_XORI:
-      regfile[rd] = regfile[rs] ^ imm;
+      regfile[rt] = regfile[rs] ^ imm;
       p->pc++;
       break;
     case OP_CODE_TESTI:
