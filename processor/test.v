@@ -1,7 +1,6 @@
 `timescale 1ns / 1ps
 
 `include "defines.vh"
-`define RUNTIME 1000
 
 module test;
 
@@ -45,12 +44,12 @@ module test;
       $finish;
     end
 
-    //$display("%s %d\n", test_name, run_time);
+    $display("%s %d\n", test_name, run_time);
 
     $dumpfile("test.vcd");
     $dumpvars(0,test);
 
-    init_bit <= $init(test_name, program_dir, out_dir, $time);
+    init_bit <= $init(test_name, program_dir, out_dir);
 
 		clk <= 0;
 	end

@@ -4,11 +4,13 @@
 extern WORD dmemory[DMEMORY_SIZE];
 extern REGISTER regfile[REGFILE_SIZE];
 extern INSTRUCTION imemory[IMEMORY_SIZE];
-/*
+
+#define RUN_SIM "vvp -M. -m ../processor/sim_vpi ../processor/sim_vpi.vvp"
+
 static test_t tests[] = {
 
 {"addi", BINARY_TEST, 0, 1000},
-
+/*
 {"subi", BINARY_TEST, 0, 1000},
 {"andi", BINARY_TEST, 0, 1000},
 
@@ -79,252 +81,53 @@ static test_t tests[] = {
 {"nested_tuple", CODE_TEST, 202, 10000},
 {"list", CODE_TEST, 6, 200000},
 {"linked_list", CODE_TEST, 6, 200000},
-};
 */
-
-static TIME test_start_time;
-static char test_name[100];
-static char program_dir[100];
-static char out_dir[100];
-
-PLI_INT32 init(char* user_data)
-{    
-    assert(user_data == NULL);
-    vpiHandle vhandle, iterator, arg;
-    vhandle = vpi_handle(vpiSysTfCall, NULL);
-
-    s_vpi_value inval;
-
-    unsigned int time_h;
-    unsigned int time_l;
-    unsigned long current_time;
-
-    iterator = vpi_iterate(vpiArgument, vhandle);
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiStringVal;
-    vpi_get_value(arg, &inval);
-    strcpy(test_name, inval.value.str);
-    assert(test_name != NULL);
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiStringVal;
-    vpi_get_value(arg, &inval);
-    strcpy(program_dir, inval.value.str);
-    assert(program_dir != NULL);
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiStringVal;
-    vpi_get_value(arg, &inval);
-    strcpy(out_dir, inval.value.str);
-    assert(out_dir != NULL);
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiTimeVal;
-    vpi_get_value(arg, &inval);
-    time_h = inval.value.time->high;
-    time_l = inval.value.time->low;
-    
-    current_time = time_h;
-    current_time = (current_time << BITS_IN_INT) | time_l;
-
-    test_start_time = current_time;
-
-    load_program(program_dir, test_name);
-
-    return 0; 
-}
-
-PLI_INT32 dump(char* user_data)
-{    
-    assert(user_data == NULL);
-    vpiHandle vhandle, iterator, arg;
-    vhandle = vpi_handle(vpiSysTfCall, NULL);
-
-    s_vpi_value inval;
-
-    unsigned int time_h;
-    unsigned int time_l;
-    unsigned long current_time;
-
-    iterator = vpi_iterate(vpiArgument, vhandle);
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiTimeVal;
-    vpi_get_value(arg, &inval);
-    time_h = inval.value.time->high;
-    time_l = inval.value.time->low;
-    
-    dump_memory();
-    dump_perf_metrics();
-
-    return 0; 
-}
-
-void dump_memory()
-{
-  int i;
-  char buffer[100];
-  FILE *file;
-
-  sprintf(buffer, "%s%s.mem", out_dir, test_name);
-  printf("%s\n", buffer);
-  file = fopen(buffer, "w");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
-  
-
-  for(i=0; i<DMEMORY_SIZE; i++)
-  {
-      fprintf(file, "%08x\n", dmemory[i]);
-  }
-
-  fclose(file);
-
-  sprintf(buffer, "%s%s.reg", out_dir, test_name);
-  
-  file = fopen(buffer, "w");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
-
-  for(i=0; i<REGFILE_SIZE; i++)
-  {
-      fprintf(file, "%08x\n", regfile[i]);
-  }
-
-  fclose(file);
-}
-
-void load_program()
-{
-  char buffer[100];
-  sprintf(buffer, "%s%s", program_dir, test_name);
-  
-  FILE *file;
-  file = fopen(buffer, "r");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
-
-  // assert if we are too big
-  int i;
-  for(i=0; i<IMEMORY_SIZE; i++)
-  {
-    if(!fscanf(file, "%x", &imemory[i]))
-      break;
-  }
-}
-
-void dump_perf_metrics()
-{
-  perf_metrics_t* p = get_perf_metrics();
-  
-  char buffer[100];
-  sprintf(buffer, "%s%s.perf", out_dir, test_name);
-  
-  FILE *file;
-  file = fopen(buffer, "w");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
-
-  fprintf(file, "ipc = %f\n", p->ipc);
-  fprintf(file, "instructions = %lu\n", p->instruction_count);
-  fprintf(file, "run time = %lu\n", p->run_time);
-  fprintf(file, "flushes = %u\n", p->flush_count);
-  fprintf(file, "load stalls = %u\n", p->load_stall_count);
-  fprintf(file, "split stalls = %u\n", p->split_stall_count);
-  fprintf(file, "steer stalls = %u\n", p->steer_stall_count);
-  fprintf(file, "branch count = %u\n", p->jump_count);
-  fprintf(file, "unique branch count = %u\n", p->unique_jump_count);
-  fprintf(file, "branch predict percent = %f\n", p->branch_predict_percent);
-
-  fclose(file);
-}
-
-void mem_read_register(void)
-{
-    s_vpi_systf_data tf_data;
-    tf_data.type        = vpiSysFunc;
-    tf_data.sysfunctype = vpiIntFunc;
-    tf_data.tfname    = "$mem_read";
-    tf_data.calltf    = mem_read;
-    tf_data.compiletf = 0;
-    tf_data.sizetf    = 0;
-    tf_data.user_data = 0;
-    vpi_register_systf(&tf_data);
-}
-
-void mem_write_register(void)
-{
-    s_vpi_systf_data tf_data;
-    tf_data.type        = vpiSysFunc;
-    tf_data.sysfunctype = vpiIntFunc;
-    tf_data.tfname    = "$mem_write";
-    tf_data.calltf    = mem_write;
-    tf_data.compiletf = 0;
-    tf_data.sizetf    = 0;
-    tf_data.user_data = 0;
-    vpi_register_systf(&tf_data);
-}
-
-void init_register(void)
-{
-    s_vpi_systf_data tf_data;
-    tf_data.type        = vpiSysFunc;
-    tf_data.sysfunctype = vpiIntFunc;
-    tf_data.tfname    = "$init";
-    tf_data.calltf    = init;
-    tf_data.compiletf = 0;
-    tf_data.sizetf    = 0;
-    tf_data.user_data = 0;
-    vpi_register_systf(&tf_data);
-}
-
-void dump_register(void)
-{
-    s_vpi_systf_data tf_data;
-    tf_data.type        = vpiSysFunc;
-    tf_data.sysfunctype = vpiIntFunc;
-    tf_data.tfname    = "$dump";
-    tf_data.calltf    = dump;
-    tf_data.compiletf = 0;
-    tf_data.sizetf    = 0;
-    tf_data.user_data = 0;
-    vpi_register_systf(&tf_data);
-}
-
-void perf_metrics_register(void)
-{
-    s_vpi_systf_data tf_data;
-    tf_data.type        = vpiSysFunc;
-    tf_data.sysfunctype = vpiIntFunc;
-    tf_data.tfname    = "$perf_metrics";
-    tf_data.calltf    = perf_metrics;
-    tf_data.compiletf = 0;
-    tf_data.sizetf    = 0;
-    tf_data.user_data = 0;
-    vpi_register_systf(&tf_data);
-}
-
-void (*vlog_startup_routines[])() = {
-    mem_read_register,
-    mem_write_register,
-    init_register,
-    dump_register,
-    perf_metrics_register,
-    0
 };
+
+static int num_programs = sizeof(tests)/sizeof(test_t);
+
+int main()
+{
+  int i;
+  char test_name[200];
+  char program_dir[200];
+  char command[200];
+  for(i=0; i<num_programs; i++)
+  {
+    switch(tests[i].test_type)
+    {
+      case CODE_TEST:
+        sprintf(test_name, "%s.bc.s.hex", tests[i].name);
+        sprintf(program_dir, "%s", "../test_bench/programs/code/bin/");
+        break;
+      case ASM_TEST:
+        sprintf(test_name, "%s.s.hex", tests[i].name);
+        sprintf(program_dir, "%s", "../test_bench/programs/asm/bin/");
+        break;
+      case BINARY_TEST:
+        sprintf(test_name, "%s.hex", tests[i].name);
+        sprintf(program_dir, "%s", "../test_bench/programs/bin/");
+        break;
+      default:
+        fprintf(stderr, "invalid test type: %d", tests[i].test_type);
+        assert(0);
+    }
+    
+    sprintf(command, "%s +test_name=%s +run_time=%d +program_dir=%s +out_dir=%s", 
+      RUN_SIM,
+      test_name,
+      tests[i].sim_time,
+      program_dir,
+      "../test_bench/out/"
+      );
+
+    int ret = system(command);
+  }
+}
+
+
+
+
 
 
 
