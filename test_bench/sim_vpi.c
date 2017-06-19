@@ -13,10 +13,6 @@ PLI_INT32 init(char* user_data)
 
     s_vpi_value inval;
 
-    unsigned int time_h;
-    unsigned int time_l;
-    unsigned long current_time;
-
     iterator = vpi_iterate(vpiArgument, vhandle);
 
     arg = vpi_scan(iterator);
@@ -50,17 +46,11 @@ PLI_INT32 dump(char* user_data)
 
     s_vpi_value inval;
 
-    unsigned int time_h;
-    unsigned int time_l;
-    unsigned long current_time;
-
     iterator = vpi_iterate(vpiArgument, vhandle);
 
     arg = vpi_scan(iterator);
     inval.format = vpiTimeVal;
     vpi_get_value(arg, &inval);
-    time_h = inval.value.time->high;
-    time_l = inval.value.time->low;
     
     dump_memory(out_dir, test_name);
     dump_perf_metrics(out_dir, test_name);
@@ -95,7 +85,6 @@ PLI_INT32 sim_mem_read(char* user_data)
     vpi_get_value(arg, &inval);
     memory_id = inval.value.integer;
 
-    printf("read : %d\n", rd_address);
     WORD rd_data = mem_read(rd_address, memory_id);
 
     unsigned long bus_out;
@@ -151,7 +140,6 @@ PLI_INT32 sim_mem_write(char* user_data)
     vpi_get_value(arg, &inval);
     memory_id = inval.value.integer;
 
-    printf("writing : %d\n", wr_data);
     mem_write(wr_address, wr_data, memory_id);
     
     return 0; 

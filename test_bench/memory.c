@@ -46,6 +46,7 @@ WORD mem_read(WORD address, uint8_t memory_id)
       fprintf(stderr, "invalid memory id: %d", memory_id);
       assert(0);
   }
+  return data;
 }
 
 WORD mem_write(WORD address, WORD data, uint8_t memory_id)
@@ -82,6 +83,7 @@ WORD mem_write(WORD address, WORD data, uint8_t memory_id)
       fprintf(stderr, "invalid memory id: %d", memory_id);
       assert(0);
   }
+  return 0;
 }
 
 void dump_memory(char* out_dir, char* test_name)

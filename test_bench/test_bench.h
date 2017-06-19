@@ -22,7 +22,7 @@ typedef struct test{
 ///////////////////////////////////////////
 
 bool check();
-bool check_code();
+bool check_code(test_t* test);
 bool check_asm();
 bool check_binary();
 bool next_test();
