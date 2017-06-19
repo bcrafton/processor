@@ -1,10 +1,6 @@
 
 #include "test_bench.h"
 
-extern WORD dmemory[DMEMORY_SIZE];
-extern REGISTER regfile[REGFILE_SIZE];
-extern INSTRUCTION imemory[IMEMORY_SIZE];
-
 #define RUN_SIM "vvp -M. -m ../processor/sim_vpi ../processor/sim_vpi.vvp +test_name=%s +run_time=%d +program_dir=%s +out_dir=%s"
 
 static test_t tests[] = {
@@ -124,14 +120,17 @@ int main()
       case CODE_TEST:
         result = check_code(&tests[i]);
         if (result) printf("Test: %s Passed.\n", tests[i].name);
-        else printf("Test: %s Failed\n.", tests[i].name);
+        else printf("Test: %s Failed.\n", tests[i].name);
         break;
       case ASM_TEST:
         result = check_asm(&tests[i]);
         if (result) printf("Test: %s Passed.\n", tests[i].name);
-        else printf("Test: %s Failed\n.", tests[i].name);
+        else printf("Test: %s Failed.\n", tests[i].name);
         break;
       case BINARY_TEST:
+        result = check_binary(&tests[i]);
+        if (result) printf("Test: %s Passed.\n", tests[i].name);
+        else printf("Test: %s Failed.\n", tests[i].name);
         break;
       default:
         fprintf(stderr, "invalid test type: %d", tests[i].test_type);
@@ -207,90 +206,22 @@ bool check_asm(test_t* test)
   return true;
 }
 
-/*
-bool check()
+bool check_binary(test_t* test)
 {
-  switch(current_test->test_type)
-  {
-    case BINARY_TEST:
-      //printf("%d\n", check_binary());
-      return check_binary();
-      break;
-    case CODE_TEST:
-      return check_code();
-      break;
-    case ASM_TEST:
-      return check_asm();
-      break;
-    default:
-      fprintf(stderr, "invalid enum %d\n", current_test->test_type);
-      assert(0);
-  }
-  fprintf(stderr, "impossible");
-  assert(0);
-}
 
-bool check_code()
-{
-  REGISTER ans = current_test->ans;
-
-  if(regfile[0] != ans)
-  {
-    return false;
-  }
-
-  return true;
-}
-
-bool check_asm()
-{
-  REGISTER ans = current_test->ans;
-
-  if(regfile[0] != ans)
-  {
-    return false;
-  }
-
-  return true;
-}
-
-bool check_binary()
-{
-  WORD mem_val;
-  REGISTER reg_val;
-  int i;
   FILE *file;
+  REGISTER result_regfile[REGFILE_SIZE];
+  WORD result_memory[DMEMORY_SIZE];
+
+  REGISTER expected_regfile[REGFILE_SIZE];
+  WORD expected_memory[DMEMORY_SIZE];
+
+  int i;
   char buffer[100];
-  
-  /////////////////
 
-  sprintf(buffer, "%smem/%s.mem.expected", EXPECTED_PATH, current_test->name); 
-  //printf("%s\n", buffer);
-  file = fopen(buffer, "r");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
-  
-  for(i=0; i<DMEMORY_SIZE; i++)
-  {
-    if(!fscanf(file, "%x", &mem_val))
-    {
-      fprintf(stderr, "file does not contain enough words");
-      assert(0);
-    }
-    if(mem_val != dmemory[i])
-    {
-      return false;
-    }
-  }
-  fclose(file);
+  /////////////////////////////////////////////////////////////////////
 
-  /////////////////
-  
-  sprintf(buffer, "%sreg/%s.reg.expected", EXPECTED_PATH, current_test->name);  
-  //printf("%s\n", buffer);
+  sprintf(buffer, "../test_bench/out/%s.hex.reg", test->name); 
   file = fopen(buffer, "r");
   if(file == NULL)
   {
@@ -300,25 +231,96 @@ bool check_binary()
 
   for(i=0; i<REGFILE_SIZE; i++)
   {
-    if(!fscanf(file, "%x", &reg_val))
+    if(!fscanf(file, "%x", &result_regfile[i]))
     {
       fprintf(stderr, "file does not contain enough words");
       assert(0);
     }
-    if(reg_val != regfile[i])
+  }
+  fclose(file);
+
+  /////////////////////////////////////////////////////////////////////
+
+  sprintf(buffer, "../test_bench/expected/reg/%s.reg.expected", test->name); 
+  file = fopen(buffer, "r");
+  if(file == NULL)
+  {
+    fprintf(stderr, "could not find %s\n", buffer);
+    assert(0);
+  }
+
+  for(i=0; i<DMEMORY_SIZE; i++)
+  {
+    if(!fscanf(file, "%x", &expected_regfile[i]))
     {
-      return false;
+      fprintf(stderr, "file does not contain enough words");
+      assert(0);
     }
   }
   fclose(file);
 
-  /////////////////
+  /////////////////////////////////////////////////////////////////////
+
+  sprintf(buffer, "../test_bench/out/%s.hex.mem", test->name); 
+  file = fopen(buffer, "r");
+  if(file == NULL)
+  {
+    fprintf(stderr, "could not find %s\n", buffer);
+    assert(0);
+  }
+
+  for(i=0; i<REGFILE_SIZE; i++)
+  {
+    if(!fscanf(file, "%x", &result_memory[i]))
+    {
+      fprintf(stderr, "file does not contain enough words");
+      assert(0);
+    }
+  }
+  fclose(file);
+
+  /////////////////////////////////////////////////////////////////////
+
+  sprintf(buffer, "../test_bench/expected/mem/%s.mem.expected", test->name); 
+  file = fopen(buffer, "r");
+  if(file == NULL)
+  {
+    fprintf(stderr, "could not find %s\n", buffer);
+    assert(0);
+  }
+
+  for(i=0; i<DMEMORY_SIZE; i++)
+  {
+    if(!fscanf(file, "%x", &expected_memory[i]))
+    {
+      fprintf(stderr, "file does not contain enough words");
+      assert(0);
+    }
+  }
+  fclose(file);
+
+  /////////////////////////////////////////////////////////////////////
+
+  for(i=0; i<REGFILE_SIZE; i++)
+  {
+    if(result_regfile[i] != expected_regfile[i])
+    {
+      return false;
+    }
+  }
+
+  for(i=0; i<DMEMORY_SIZE; i++)
+  {
+    if(result_memory[i] != expected_memory[i])
+    {
+      return false;
+    }
+  }
 
   return true;
 
 }
 
-*/
 
 
 

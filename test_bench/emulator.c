@@ -273,36 +273,4 @@ void execute_program(char* test_name, uint32_t run_time, char* program_dir, char
   dump_memory(out_dir, test_name);
 }
 
-/*
-int main()
-{
-  load_program();
-
-  program_state_t p;
-  p.pc = 0;
-
-  int i;
-  for(i=0; i<100; i++)
-  {
-    //printf("%d\n", imemory[i]);
-    printf("instruction: %x pc: %d\n", imemory[p.pc], p.pc);
-    if (p.pc > IMEMORY_SIZE)
-    {
-      printf("invalid instruction address %d\n", p.pc);
-      break;
-    }
-    execute_instruction(imemory[p.pc], &p);
-  }
-  for(i=0; i<REGFILE_SIZE; i++)
-  {
-    printf("%x\n", regfile[i]);
-  }
-}
-
-*/
-
-
-
-
-
 
