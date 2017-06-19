@@ -132,7 +132,7 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
       break;
     case OP_CODE_SUBI:
       data = rs_data - imm;
-      mem_write(rd, data, REGFILE_ID);
+      mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NOTI:
@@ -175,7 +175,7 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
       p->pc++;
       break;
     case OP_CODE_SHLI:
-      rt_data = rs_data << imm;
+      data = rs_data << imm;
       mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
@@ -224,27 +224,35 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
       break;
     case OP_CODE_JE:
       if (p->zero) p->pc = imm;
+      else p->pc++;
       break;
     case OP_CODE_JNE:
       if (!p->zero) p->pc = imm;
+      else p->pc++;
       break;
     case OP_CODE_JL:
       if (p->less) p->pc = imm;
+      else p->pc++;
       break;
     case OP_CODE_JLE:
       if (p->less || p->zero) p->pc = imm;
+      else p->pc++;
       break;
     case OP_CODE_JG:
       if (p->greater) p->pc = imm;
+      else p->pc++;
       break;
     case OP_CODE_JGE:
       if (p->greater || p->zero) p->pc = imm;
+      else p->pc++;
       break;
     case OP_CODE_JZ:
       if (p->zero) p->pc = imm;
+      else p->pc++;
       break;
     case OP_CODE_JNZ:
       if (!p->zero) p->pc = imm;
+      else p->pc++;
       break;
     case OP_CODE_JR:
       p->pc = rs_data;
@@ -261,12 +269,18 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
 void execute_program(char* test_name, uint32_t run_time, char* program_dir, char* out_dir)
 {
   memory_clear();
+  p.pc = 0;
+  p.zero = 0;
+  p.less = 0;
+  p.greater = 0; 
+
   load_program(program_dir, test_name);
   int i;
 
   for(i=0; i<run_time; i++) // dont know whether to do this or use while(<256)
   {
     INSTRUCTION i = mem_read(p.pc, IMEM_ID);
+    //printf("%d %x\n", p.pc, i);
     execute_instruction(i, &p);
   }
 
