@@ -44,8 +44,6 @@ module test;
       $finish;
     end
 
-    $display("%s %d\n", test_name, run_time);
-
     $dumpfile("test.vcd");
     $dumpvars(0,test);
 
