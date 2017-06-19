@@ -146,4 +146,11 @@ void load_program(char* program_dir, char* test_name)
   }
 }
 
+void memory_clear()
+{
+  memset(dmemory, 0, sizeof(WORD) * DMEMORY_SIZE);
+  memset(regfile, 0, sizeof(REGISTER) * REGFILE_SIZE);
+  memset(imemory, 0, sizeof(INSTRUCTION) * IMEMORY_SIZE);
+}
+
 

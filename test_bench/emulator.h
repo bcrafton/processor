@@ -2,6 +2,9 @@
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
+#include "defines.h"
+#include "memory.h"
+
 #define OP_CODE_NOP       0x00
 
 // 6'b00xxxx
@@ -81,5 +84,14 @@
 // I-TYPE
 #define IMM_MSB 15
 #define IMM_LSB 0
+
+typedef struct program_state{
+  uint32_t pc;
+  uint8_t zero;
+  uint8_t less;
+  uint8_t greater;
+} program_state_t;
+
+void execute_program(char* test_name, uint32_t run_time, char* program_dir, char* out_dir);
 
 #endif

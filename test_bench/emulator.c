@@ -1,106 +1,7 @@
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <stdbool.h>
-
 #include "emulator.h"
 
-typedef unsigned int WORD;
-typedef unsigned int REGISTER;
-typedef unsigned int INSTRUCTION;
-typedef unsigned long TIME;
-typedef unsigned char BYTE;
-typedef unsigned char BOOL;
-
-#define LAST(k,n) ((k) & ((1<<(n))-1))
-#define MID(k,m,n) LAST((k)>>(m),((n)-(m)))
-
-#define DMEMORY_SIZE 1024
-#define DATA_WIDTH 32
-
-#define IMEMORY_SIZE 256
-#define INST_WIDTH 32
-
-#define ADDRESS_WIDTH 16
-
-#define REGFILE_SIZE 32
-#define REG_WIDTH 32
-
-#define BITS_IN_INT 32
-
-WORD dmemory[DMEMORY_SIZE];
-REGISTER regfile[REGFILE_SIZE];
-INSTRUCTION imemory[IMEMORY_SIZE];
-
-typedef struct instruction{
-  unsigned int opcode;
-  unsigned int rs;
-  unsigned int rt;
-  unsigned int rd;
-  unsigned int immediate;
-} instruction_t;
-
-typedef struct program_state{
-  unsigned int pc;
-  unsigned int zero;
-  unsigned int less;
-  unsigned int greater;
-} program_state_t;
-
-// is this really what we want to do here?
-// no this is dumb
-// no need to go through each case
-// not useful at all.
-// 
-instruction_t* to_instruction(INSTRUCTION i, instruction_t* is)
-{}
-
-void load_program()
-{
-  char buffer[100];
-  sprintf(buffer, "code.hex");
-
-  FILE *file;
-  file = fopen(buffer, "r");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
-
-  // assert if we are too big
-  int i;
-  for(i=0; i<IMEMORY_SIZE; i++)
-  {
-    if(!fscanf(file, "%x", &imemory[i]))
-    {
-      break;
-    }
-  }
-}
-
-// make a function thats like
-// get bits from here to here/
-// 26:21
-// dont work because of 31 case ...
-
-/*
-static inline unsigned int bit_select(INSTRUCTION i, unsigned int msb, unsigned int lsb)
-{
-  unsigned int mask, masked, bits;
-  if (msb == 31) {
-    mask = 0xffffffff;
-  }
-  else {
-    mask = (1 << (msb+1)) - 1;
-  }  
-  masked = i & mask;
-  bits = masked >> lsb;
-  return bits;
-}
-*/
+static program_state_t p;
 
 // https://stackoverflow.com/questions/10090326/how-to-extract-specific-bits-from-a-number-in-c
 static inline unsigned int bit_select(INSTRUCTION i, unsigned int msb, unsigned int lsb)
@@ -135,149 +36,178 @@ static inline unsigned int imm_of(INSTRUCTION i)
   return bit_select(i, IMM_MSB, IMM_LSB);
 }
 
-void execute_instruction(INSTRUCTION i, program_state_t* p)
+static void execute_instruction(INSTRUCTION i, program_state_t* p)
 {
-  unsigned int opcode = opcode_of(i);
-  unsigned int rs = rs_of(i);
-  unsigned int rt = rt_of(i);
-  unsigned int rd = rd_of(i);
-  unsigned int imm = imm_of(i);
-  unsigned int address;
+  uint8_t opcode = opcode_of(i);
+  uint8_t rs = rs_of(i);
+  uint8_t rt = rt_of(i);
+  uint8_t rd = rd_of(i);
+  uint16_t imm = imm_of(i);
+
+  uint32_t rs_data = mem_read(rs, REGFILE_ID);
+  uint32_t rt_data = mem_read(rt, REGFILE_ID);
+
+  uint16_t address;
+  uint32_t data;
 
   switch (opcode) {
     // 6'b00xxxx
     case OP_CODE_ADD:
-      regfile[rd] = regfile[rs] + regfile[rt];
+      data = rs_data + rt_data;
+      mem_write(rd, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SUB:
-      regfile[rd] = regfile[rs] - regfile[rt];
+      data = rs_data - rt_data;
+      mem_write(rd, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NOT:
       printf("not implemented yet: not\n");
       break;
     case OP_CODE_AND:
-      regfile[rd] = regfile[rs] & regfile[rt];
+      data = rs_data & rt_data;
+      mem_write(rd, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_OR:
-      regfile[rd] = regfile[rs] | regfile[rt];
+      data = rs_data | rt_data;
+      mem_write(rd, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NAND:
-      regfile[rd] = ~(regfile[rs] & regfile[rt]);
+      data = ~(rs_data & rt_data);
+      mem_write(rd, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NOR:
-      regfile[rd] = ~(regfile[rs] | regfile[rt]);
+      data = ~(rs_data | rt_data);
+      mem_write(rd, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_MOV:
-      regfile[rd] = regfile[rt];
+      data = rt_data;
+      mem_write(rd, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SAR:
       // there is no sar in c ...
-      regfile[rd] = regfile[rs] >> regfile[rt];
+      data = rs_data >> rt_data;
+      mem_write(rd, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SHR:
-      regfile[rd] = regfile[rs] >> regfile[rt];
+      data = rs_data >> rt_data;
+      mem_write(rd, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SHL:
-      regfile[rd] = regfile[rs] << regfile[rt];
+      data = rs_data << rt_data;
+      mem_write(rd, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_XOR:
-      regfile[rd] = regfile[rs] ^ regfile[rt];
+      data = rs_data ^ rt_data;
+      mem_write(rd, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_TEST:
       p->pc++;
-      p->zero = (regfile[rs] & regfile[rt]) == 0;
-      p->less = (regfile[rs] < regfile[rt]);
-      p->greater = (regfile[rs] > regfile[rt]);
+      p->zero = (rs_data & rt_data) == 0;
+      p->less = (rs_data < rt_data);
+      p->greater = (rs_data > rt_data);
       break;
     case OP_CODE_CMP:
       p->pc++;
-      p->zero = (regfile[rs] - regfile[rt]) == 0;
-      p->less = (regfile[rs] < regfile[rt]);
-      p->greater = (regfile[rs] > regfile[rt]);
+      p->zero = (rs_data - rt_data) == 0;
+      p->less = (rs_data < rt_data);
+      p->greater = (rs_data > rt_data);
       break;
 
     // 6'b01xxxx
     case OP_CODE_ADDI:
-      regfile[rt] = regfile[rs] + imm;
+      data = rs_data + imm;
+      mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SUBI:
-      regfile[rt] = regfile[rs] - imm;
+      data = rs_data - imm;
+      mem_write(rd, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NOTI:
       printf("not implemented yet: noti\n");
       break;
     case OP_CODE_ANDI:
-      regfile[rt] = regfile[rs] & imm;
+      data = rs_data & imm;
+      mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_ORI:
-      regfile[rt] = regfile[rs] | imm;
+      data = rs_data | imm;
+      mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NANDI:
-      regfile[rt] = ~(regfile[rs] & imm);
+      data = ~(rs_data & imm);
+      mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NORI:
-      regfile[rt] = ~(regfile[rs] | imm);
+      data = ~(rs_data | imm);
+      mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_MOVI:
-      regfile[rt] = imm;
+      data = imm;
+      mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SARI:
       // there is no sar in c ...
-      regfile[rt] = regfile[rs] >> imm;
+      data = rs_data >> imm;
+      mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SHRI:
-      regfile[rt] = regfile[rs] >> imm;
+      data = rs_data >> imm;
+      mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SHLI:
-      regfile[rt] = regfile[rs] << imm;
+      rt_data = rs_data << imm;
+      mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_XORI:
-      regfile[rt] = regfile[rs] ^ imm;
+      data = rs_data ^ imm;
+      mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_TESTI:
       p->pc++;
-      p->zero = (regfile[rs] & imm) == 0;
-      p->less = (regfile[rs] < imm);
-      p->greater = (regfile[rs] > imm);
+      p->zero = (rs_data & imm) == 0;
+      p->less = (rs_data < imm);
+      p->greater = (rs_data > imm);
       break;
     case OP_CODE_CMPI:
       p->pc++;
-      p->zero = (regfile[rs] - imm) == 0;
-      p->less = (regfile[rs] < imm);
-      p->greater = (regfile[rs] > imm);
+      p->zero = (rs_data - imm) == 0;
+      p->less = (rs_data < imm);
+      p->greater = (rs_data > imm);
       break;
 
     // 6'b10xxxx
     case OP_CODE_LW:
-      address = regfile[rs] + imm;
-      regfile[rt] = dmemory[address];
+      address = rs_data + imm;
+      data = mem_read(address, DMEM_ID);
+      mem_write(rt, data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SW:
-      address = regfile[rs] + imm;
-      dmemory[address] = regfile[rt];
+      address = rs_data + imm;
+      data = rt_data;
+      mem_write(address, data, DMEM_ID);
       p->pc++;
       break;
     case OP_CODE_LA:
@@ -317,7 +247,10 @@ void execute_instruction(INSTRUCTION i, program_state_t* p)
       if (!p->zero) p->pc = imm;
       break;
     case OP_CODE_JR:
-      p->pc = regfile[rs];
+      p->pc = rs_data;
+      break;
+
+    case OP_CODE_NOP:
       break;
 
     default:
@@ -325,6 +258,22 @@ void execute_instruction(INSTRUCTION i, program_state_t* p)
   }
 }
 
+void execute_program(char* test_name, uint32_t run_time, char* program_dir, char* out_dir)
+{
+  memory_clear();
+  load_program(program_dir, test_name);
+  int i;
+
+  for(i=0; i<run_time; i++) // dont know whether to do this or use while(<256)
+  {
+    INSTRUCTION i = mem_read(p.pc, IMEM_ID);
+    execute_instruction(i, &p);
+  }
+
+  dump_memory(out_dir, test_name);
+}
+
+/*
 int main()
 {
   load_program();
@@ -350,7 +299,7 @@ int main()
   }
 }
 
-
+*/
 
 
 

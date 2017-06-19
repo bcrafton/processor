@@ -111,8 +111,9 @@ int main()
         assert(0);
     }
     
-    sprintf(command, RUN_SIM, test_name, tests[i].sim_time, program_dir, "../test_bench/out/");
-    int ret = system(command);
+    //sprintf(command, RUN_SIM, test_name, tests[i].sim_time, program_dir, "../test_bench/out/");
+    //int ret = system(command);
+    execute_program(test_name, tests[i].sim_time/10, program_dir, "../test_bench/out/");
   }
 
   bool result;

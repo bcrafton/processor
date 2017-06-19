@@ -3,6 +3,7 @@
 #define TEST_BENCH_H
 
 #include "defines.h"
+#include "emulator.h"
 
 ///////////////////////////////////////////
 
