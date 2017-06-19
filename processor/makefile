@@ -11,7 +11,6 @@ compile:
 
 .PHONY: run
 run:
-	vvp -M. -m sim_vpi sim_vpi.vvp +test_name="fib3.bc.s.hex" +run_time=10000 +program_dir="../test_bench/programs/code/bin/" +out_dir="../test_bench/out/"
 
 .PHONY: clean
 clean:
