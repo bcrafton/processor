@@ -92,6 +92,6 @@ typedef struct program_state{
   uint8_t greater;
 } program_state_t;
 
-void execute_program(char* test_name, uint32_t run_time, char* program_dir, char* out_dir);
+void execute_program(char* program_path, char* out_path, uint32_t run_time);
 
 #endif

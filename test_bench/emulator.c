@@ -266,25 +266,25 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
   }
 }
 
-void execute_program(char* test_name, uint32_t run_time, char* program_dir, char* out_dir)
+void execute_program(char* program_path, char* out_path, uint32_t run_time)
 {
   memory_clear();
+
   p.pc = 0;
   p.zero = 0;
   p.less = 0;
   p.greater = 0; 
 
-  load_program(program_dir, test_name);
-  int i;
+  load_program(program_path);
 
+  int i;
   for(i=0; i<run_time; i++) // dont know whether to do this or use while(<256)
   {
     INSTRUCTION i = mem_read(p.pc, IMEM_ID);
-    //printf("%d %x\n", p.pc, i);
     execute_instruction(i, &p);
   }
 
-  dump_memory(out_dir, test_name);
+  dump_memory(out_path);
 }
 
 

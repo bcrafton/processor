@@ -86,17 +86,17 @@ WORD mem_write(WORD address, WORD data, uint8_t memory_id)
   return 0;
 }
 
-void dump_memory(char* out_dir, char* test_name)
+void dump_memory(char* out_path)
 {
   int i;
-  char buffer[100];
+  char filepath[100];
   FILE *file;
 
-  sprintf(buffer, "%s%s.mem", out_dir, test_name);
-  file = fopen(buffer, "w");
+  sprintf(filepath, "%s/mem", out_path);
+  file = fopen(filepath, "w");
   if(file == NULL)
   {
-    fprintf(stderr, "could not find %s\n", buffer);
+    fprintf(stderr, "could not find %s\n", filepath);
     assert(0);
   }
 
@@ -107,12 +107,12 @@ void dump_memory(char* out_dir, char* test_name)
 
   fclose(file);
 
-  sprintf(buffer, "%s%s.reg", out_dir, test_name);
+  sprintf(filepath, "%s/reg", out_path);
   
-  file = fopen(buffer, "w");
+  file = fopen(filepath, "w");
   if(file == NULL)
   {
-    fprintf(stderr, "could not find %s\n", buffer);
+    fprintf(stderr, "could not find %s\n", filepath);
     assert(0);
   }
 
@@ -124,16 +124,13 @@ void dump_memory(char* out_dir, char* test_name)
   fclose(file);
 }
 
-void load_program(char* program_dir, char* test_name)
+void load_program(char* program_path)
 {
-  char buffer[100];
-  sprintf(buffer, "%s%s", program_dir, test_name);
-
   FILE *file;
-  file = fopen(buffer, "r");
+  file = fopen(program_path, "r");
   if(file == NULL)
   {
-    fprintf(stderr, "could not find %s\n", buffer);
+    fprintf(stderr, "could not find %s\n", program_path);
     assert(0);
   }
 
