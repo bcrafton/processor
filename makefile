@@ -12,7 +12,6 @@ processor: processor
 
 test_bench: test_bench
 	cd test_bench && $(MAKE)
-	
 
 clean:
 	cd compiler && $(MAKE) clean
