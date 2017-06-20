@@ -80,6 +80,44 @@ static test_t tests[] = {
 
 static int num_programs = sizeof(tests)/sizeof(test_t);
 
+void get_program_filepath(test_t* test, char filepath[])
+{
+  switch(test->test_type)
+  {
+    case CODE_TEST:
+      sprintf(filepath, "../test_bench/programs/code/bin/%s.bc.s.hex", test->name);
+      break;
+    case ASM_TEST:
+      sprintf(filepath, "../test_bench/programs/asm/bin/%s.s.hex", test->name);
+      break;
+    case BINARY_TEST:
+      sprintf(filepath, "../test_bench/programs/bin/%s.hex", test->name);
+      break;
+    default:
+      fprintf(stderr, "invalid test type: %d", test->test_type);
+      assert(0);
+  }
+}
+
+void get_out_filepath(test_t* test, char filepath[])
+{
+  switch(test->test_type)
+  {
+    case CODE_TEST:
+      sprintf(filepath, "../test_bench/out/%s.bc.s.hex", test->name);
+      break;
+    case ASM_TEST:
+      sprintf(filepath, "../test_bench/out/%s.s.hex", test->name);
+      break;
+    case BINARY_TEST:
+      sprintf(filepath, "../test_bench/out/%s.hex", test->name);
+      break;
+    default:
+      fprintf(stderr, "invalid test type: %d", test->test_type);
+      assert(0);
+  }
+}
+
 int main()
 {
   int i;
@@ -109,6 +147,15 @@ int main()
     
     //sprintf(command, RUN_SIM, test_name, tests[i].sim_time, program_dir, "../test_bench/out/");
     //int ret = system(command);
+    char outpath[200];
+    char inpath[200];
+    get_out_filepath(&tests[i], outpath);
+    get_program_filepath(&tests[i], inpath);
+    struct stat st = {0};
+
+    if (stat(outpath, &st) == -1) {
+        mkdir(outpath, 0700);
+    }
     execute_program(test_name, tests[i].sim_time/10, program_dir, "../test_bench/out/");
   }
 

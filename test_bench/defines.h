@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 typedef unsigned int   uint32_t;
 typedef unsigned short uint16_t;
