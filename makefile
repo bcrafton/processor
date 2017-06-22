@@ -1,5 +1,5 @@
 
-all: compile assemble processor test_bench
+all: compile assemble sim tb
 
 compile: compiler
 	cd compiler && $(MAKE) && ./main
@@ -7,10 +7,10 @@ compile: compiler
 assemble: assembler
 	cd assembler && $(MAKE) && ./main
 
-processor: processor
+sim: processor
 	cd processor && $(MAKE)
 
-test_bench: test_bench
+tb: test_bench
 	cd test_bench && $(MAKE)
 
 clean:
