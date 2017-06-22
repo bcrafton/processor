@@ -13,12 +13,24 @@ typedef enum test_type{
   ASM_TEST,
 } test_type_t;
 
+typedef enum run_type{
+  EMU,
+  SIM,
+} run_type_t;
+
 typedef struct test{
   char name[25];
   test_type_t test_type;
   int ans;
   unsigned int sim_time;
 } test_t;
+
+typedef struct run{
+  test_t test;
+  run_type_t run_type;
+  char program_dir[100];
+  char out_dir[100];  
+} run_t;
 
 ///////////////////////////////////////////
 
