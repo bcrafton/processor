@@ -99,45 +99,22 @@ void get_program_filepath(test_t* test, char filepath[])
   }
 }
 
-void get_out_filepath(test_t* test, run_type_t run_type, char filepath[])
+void get_out_filepath(test_t* test, char* run_type, char filepath[])
 {
-  if(run_type == EMU) {
-    switch(test->test_type)
-    {
-      case CODE_TEST:
-        sprintf(filepath, "../test_bench/out/emu/%s.bc.s.hex", test->name);
-        break;
-      case ASM_TEST:
-        sprintf(filepath, "../test_bench/out/emu/%s.s.hex", test->name);
-        break;
-      case BINARY_TEST:
-        sprintf(filepath, "../test_bench/out/emu/%s.hex", test->name);
-        break;
-      default:
-        fprintf(stderr, "invalid test type: %d", test->test_type);
-        assert(0);
-    }
-  }
-  else if(run_type == SIM) {
-    switch(test->test_type)
-    {
-      case CODE_TEST:
-        sprintf(filepath, "../test_bench/out/sim/%s.bc.s.hex", test->name);
-        break;
-      case ASM_TEST:
-        sprintf(filepath, "../test_bench/out/sim/%s.s.hex", test->name);
-        break;
-      case BINARY_TEST:
-        sprintf(filepath, "../test_bench/out/sim/%s.hex", test->name);
-        break;
-      default:
-        fprintf(stderr, "invalid test type: %d", test->test_type);
-        assert(0);
-    }
-  }
-  else {
-    fprintf(stderr, "invalid run type: %d", run_type);
-    assert(0);
+  switch(test->test_type)
+  {
+    case CODE_TEST:
+      sprintf(filepath, "../test_bench/out/%s/%s.bc.s.hex", run_type, test->name);
+      break;
+    case ASM_TEST:
+      sprintf(filepath, "../test_bench/out/%s/%s.s.hex", run_type, test->name);
+      break;
+    case BINARY_TEST:
+      sprintf(filepath, "../test_bench/out/%s/%s.hex", run_type, test->name);
+      break;
+    default:
+      fprintf(stderr, "invalid test type: %d", test->test_type);
+      assert(0);
   }
 }
 
@@ -172,7 +149,7 @@ int main()
     //int ret = system(command);
     char outpath[200];
     char inpath[200];
-    get_out_filepath(&tests[i], EMU, outpath);
+    get_out_filepath(&tests[i], "emu", outpath);
     get_program_filepath(&tests[i], inpath);
     struct stat st = {0};
 

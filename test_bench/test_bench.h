@@ -13,11 +13,6 @@ typedef enum test_type{
   ASM_TEST,
 } test_type_t;
 
-typedef enum run_type{
-  EMU,
-  SIM,
-} run_type_t;
-
 typedef struct test{
   char name[25];
   test_type_t test_type;
