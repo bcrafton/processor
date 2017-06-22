@@ -22,6 +22,6 @@ typedef struct perf_metrics_t{
 } perf_metrics_t;
 
 PLI_INT32 perf_metrics(char* user_data);
-void dump_perf_metrics(char* out_dir, char* test_name);
+void dump_perf_metrics(char* out_dir);
 
 #endif

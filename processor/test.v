@@ -24,11 +24,6 @@ module test;
 
 	initial begin
 
-    if (! $value$plusargs("test_name=%s", test_name)) begin
-      $display("ERROR: please specify +test_name=<value> to start.");
-      $finish;
-    end
-
     if (! $value$plusargs("run_time=%d", run_time)) begin
       $display("ERROR: please specify +run_time=<value> to start.");
       $finish;
@@ -47,7 +42,7 @@ module test;
     $dumpfile("test.vcd");
     $dumpvars(0,test);
 
-    init_bit <= $init(test_name, program_dir, out_dir);
+    init_bit <= $init(program_dir, out_dir);
 
 		clk <= 0;
 	end

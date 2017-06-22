@@ -203,16 +203,13 @@ PLI_INT32 perf_metrics(char* user_data)
   return 0;
 }
 
-void dump_perf_metrics(char* out_dir, char* test_name)
+void dump_perf_metrics(char* out_dir)
 {  
-  char buffer[100];
-  sprintf(buffer, "%s%s.perf", out_dir, test_name);
-  
   FILE *file;
-  file = fopen(buffer, "w");
+  file = fopen(out_dir, "w");
   if(file == NULL)
   {
-    fprintf(stderr, "could not find %s\n", buffer);
+    fprintf(stderr, "could not find %s\n", out_dir);
     assert(0);
   }
 

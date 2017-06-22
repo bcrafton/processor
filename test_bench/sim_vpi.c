@@ -1,8 +1,7 @@
 
 #include "sim_vpi.h"
 
-static char test_name[100];
-static char program_dir[100];
+static char in_dir[100];
 static char out_dir[100];
 
 PLI_INT32 init(char* user_data)
@@ -18,14 +17,8 @@ PLI_INT32 init(char* user_data)
     arg = vpi_scan(iterator);
     inval.format = vpiStringVal;
     vpi_get_value(arg, &inval);
-    strcpy(test_name, inval.value.str);
-    assert(test_name != NULL);
-
-    arg = vpi_scan(iterator);
-    inval.format = vpiStringVal;
-    vpi_get_value(arg, &inval);
-    strcpy(program_dir, inval.value.str);
-    assert(program_dir != NULL);
+    strcpy(in_dir, inval.value.str);
+    assert(in_dir != NULL);
 
     arg = vpi_scan(iterator);
     inval.format = vpiStringVal;
@@ -33,7 +26,7 @@ PLI_INT32 init(char* user_data)
     strcpy(out_dir, inval.value.str);
     assert(out_dir != NULL);
 
-    load_program(program_dir, test_name);
+    load_program(in_dir);
 
     return 0; 
 }
@@ -52,8 +45,8 @@ PLI_INT32 dump(char* user_data)
     inval.format = vpiTimeVal;
     vpi_get_value(arg, &inval);
     
-    dump_memory(out_dir, test_name);
-    dump_perf_metrics(out_dir, test_name);
+    dump_memory(out_dir);
+    dump_perf_metrics(out_dir);
 
     return 0; 
 }
