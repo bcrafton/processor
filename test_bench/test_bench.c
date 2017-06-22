@@ -118,6 +118,14 @@ void get_out_filepath(test_t* test, char* run_type, char filepath[])
   }
 }
 
+void execute_sim(char* in_path, char* out_path, uint32_t run_time)
+{
+  const char* sim_cmd = "vvp -M. -m ../processor/sim_vpi ../processor/sim_vpi.vvp +run_time=%d +in_path=%s +out_path=%s";
+  char cmd[200];
+  sprintf(cmd, sim_cmd, run_time, in_path, out_path);
+  int ret = system(cmd);
+}
+
 int main()
 {
   int i;
@@ -147,17 +155,24 @@ int main()
     
     //sprintf(command, RUN_SIM, test_name, tests[i].sim_time, program_dir, "../test_bench/out/");
     //int ret = system(command);
-    char outpath[200];
+    char emu_outpath[200];
+    char sim_outpath[200];
     char inpath[200];
-    get_out_filepath(&tests[i], "emu", outpath);
+    get_out_filepath(&tests[i], "emu", emu_outpath);
+    get_out_filepath(&tests[i], "sim", sim_outpath);
     get_program_filepath(&tests[i], inpath);
     struct stat st = {0};
 
-    if (stat(outpath, &st) == -1) {
-        mkdir(outpath, 0700);
+    if (stat(emu_outpath, &st) == -1) {
+        mkdir(emu_outpath, 0700);
     }
 
-    execute_program(inpath, outpath, tests[i].sim_time/10);
+    if (stat(sim_outpath, &st) == -1) {
+        mkdir(sim_outpath, 0700);
+    }
+
+    execute_program(inpath, emu_outpath, tests[i].sim_time/10);
+    execute_sim(inpath, sim_outpath, tests[i].sim_time);
   }
 
   bool result;

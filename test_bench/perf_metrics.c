@@ -206,10 +206,14 @@ PLI_INT32 perf_metrics(char* user_data)
 void dump_perf_metrics(char* out_dir)
 {  
   FILE *file;
-  file = fopen(out_dir, "w");
+  char filepath[100];
+
+  sprintf(filepath, "%s/perf", out_dir);
+
+  file = fopen(filepath, "w");
   if(file == NULL)
   {
-    fprintf(stderr, "could not find %s\n", out_dir);
+    fprintf(stderr, "could not find %s\n", filepath);
     assert(0);
   }
 
