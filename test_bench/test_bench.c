@@ -328,6 +328,96 @@ bool check_binary(test_t* test)
   return true;
 }
 
+/*
+void load_memory(char* dir, char* filename, char* ext, WORD memory[], uint32_t size)
+{
+
+  char filepath[100];
+  sprintf(filepath, "%s%s%s", dir, filename, ext);
+
+  FILE *file;
+  file = fopen(filepath, "r");
+  if(file == NULL)
+  {
+    fprintf(stderr, "could not find %s\n", filepath);
+    assert(0);
+  }
+
+  int i;
+  for(i=0; i<size; i++)
+  {
+    if(!fscanf(file, "%x", &memory[i]))
+    {
+      fprintf(stderr, "file does not contain enough words");
+      assert(0);
+    }
+  }
+  fclose(file);
+}
+
+
+bool check_code(test_t* test)
+{
+  REGISTER result_regfile[REGFILE_SIZE];
+  
+  load_memory("../test_bench/out/", test->name, ".bc.s.hex.reg", result_regfile, REGFILE_SIZE);
+
+  if(result_regfile[0] != test->ans)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+bool check_asm(test_t* test)
+{
+  REGISTER result_regfile[REGFILE_SIZE];
+
+  load_memory("../test_bench/out/", test->name, ".s.hex.reg", result_regfile, REGFILE_SIZE);
+
+  if(result_regfile[0] != test->ans)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+bool check_binary(test_t* test)
+{
+  REGISTER result_regfile[REGFILE_SIZE];
+  WORD result_memory[DMEMORY_SIZE];
+
+  REGISTER expected_regfile[REGFILE_SIZE];
+  WORD expected_memory[DMEMORY_SIZE];
+
+  load_memory("../test_bench/out/", test->name, ".hex.reg", result_regfile, REGFILE_SIZE);
+  load_memory("../test_bench/out/", test->name, ".hex.mem", result_memory, DMEMORY_SIZE);
+
+  load_memory("../test_bench/expected/reg/", test->name, ".reg.expected", expected_regfile, REGFILE_SIZE);
+  load_memory("../test_bench/expected/mem/", test->name, ".mem.expected", expected_memory, DMEMORY_SIZE);
+
+  int i;
+  for(i=0; i<REGFILE_SIZE; i++)
+  {
+    if(result_regfile[i] != expected_regfile[i])
+    {
+      return false;
+    }
+  }
+
+  for(i=0; i<DMEMORY_SIZE; i++)
+  {
+    if(result_memory[i] != expected_memory[i])
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+*/
 
 
 
