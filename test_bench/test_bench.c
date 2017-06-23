@@ -4,7 +4,6 @@
 #define RUN_SIM "vvp -M. -m ../processor/sim_vpi ../processor/sim_vpi.vvp +test_name=%s +run_time=%d +program_dir=%s +out_dir=%s"
 
 static test_t tests[] = {
-
 {"addi", BINARY_TEST, 0, 1000},
 {"subi", BINARY_TEST, 0, 1000},
 {"andi", BINARY_TEST, 0, 1000},
@@ -261,8 +260,9 @@ bool check_code(test_t* test)
   load_memory(emu_out_path, "/reg", "", reg_emu, REGFILE_SIZE);
   load_memory(emu_out_path, "/mem", "", mem_emu, DMEMORY_SIZE);
 
-  bool diff = diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
-  diff &= diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
+  bool diff = (reg_emu[0] == test->ans);
+  diff = diff && diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
+  diff = diff && diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
 
   return diff;
 }
@@ -287,8 +287,9 @@ bool check_asm(test_t* test)
   load_memory(emu_out_path, "/reg", "", reg_emu, REGFILE_SIZE);
   load_memory(emu_out_path, "/mem", "", mem_emu, DMEMORY_SIZE);
 
-  bool diff = diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
-  diff &= diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
+  bool diff = (reg_emu[0] == test->ans);
+  diff = diff && diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
+  diff = diff && diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
 
   return diff;
 }
@@ -320,12 +321,12 @@ bool check_binary(test_t* test)
   load_memory("../test_bench/expected/mem/", test->name, ".mem.expected", mem_exp, DMEMORY_SIZE);
 
   bool diff = diff_memory(reg_exp, reg_emu, REGFILE_SIZE);
-  diff &= diff_memory(mem_exp, mem_emu, DMEMORY_SIZE);
+  diff = diff && diff_memory(mem_exp, mem_emu, DMEMORY_SIZE);
 
-  diff &= diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
-  diff &= diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
+  diff = diff && diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
+  diff = diff && diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
 
-  return true;
+  return diff;
 }
 
 /*
