@@ -203,6 +203,54 @@ PLI_INT32 perf_metrics(char* user_data)
   return 0;
 }
 
+perf_metrics_t* get_perf_metrics()
+{
+  p.run_time = (last_vld_time - start_time) / 10;
+  p.instruction_count = instruction_counter;
+
+  p.load_stall_count = load_stall_counter;
+  p.split_stall_count = split_stall_counter;
+  p.steer_stall_count = steer_stall_counter;
+
+  p.flush_count = flush_counter;
+
+  p.jump_count = jump_counter;
+  p.unique_jump_count = next_jump_idx;
+
+  p.ipc =  (float)p.instruction_count / p.run_time;
+
+  if(p.jump_count > 0) {
+    p.branch_predict_percent = 1.0 - ((float)p.flush_count / p.jump_count);
+  }
+  else {
+    p.branch_predict_percent = 0;
+  }
+
+  return &p;
+}
+
+void clear_perf_metrics()
+{
+  start_time = 0;
+  last_vld_time = 0;
+
+  instruction_counter = 0;
+
+  load_stall_counter = 0;
+  split_stall_counter = 0;
+  steer_stall_counter = 0;
+
+  flush_counter = 0;
+  jump_counter = 0;
+
+  int i;
+  for(i=0; i<100; i++) {
+    jumps[i] = 0;
+  }
+
+  next_jump_idx = 0;
+}
+
 void dump_perf_metrics(char* out_dir)
 {  
   FILE *file;
