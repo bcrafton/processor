@@ -202,189 +202,131 @@ int main()
   }
 }
 
-
-bool check_code(test_t* test)
+void load_memory(char* dir, char* filename, char* ext, WORD memory[], uint32_t size)
 {
-  FILE *file;
-  REGISTER result_regfile[REGFILE_SIZE];
-  char buffer[100];
 
-  sprintf(buffer, "../test_bench/out/%s.bc.s.hex.reg", test->name); 
-  file = fopen(buffer, "r");
+  char filepath[100];
+  sprintf(filepath, "%s%s%s", dir, filename, ext);
+
+  FILE *file;
+  file = fopen(filepath, "r");
   if(file == NULL)
   {
-    fprintf(stderr, "could not find %s\n", buffer);
+    fprintf(stderr, "could not find %s\n", filepath);
     assert(0);
   }
 
   int i;
-  for(i=0; i<REGFILE_SIZE; i++)
+  for(i=0; i<size; i++)
   {
-    if(!fscanf(file, "%x", &result_regfile[i]))
+    if(!fscanf(file, "%x", &memory[i]))
     {
       fprintf(stderr, "file does not contain enough words");
       assert(0);
     }
   }
   fclose(file);
+}
 
-  if(result_regfile[0] != test->ans)
+bool diff_memory(WORD* mem1, WORD* mem2, uint32_t mem_size)
+{
+  int i;
+  for(i=0; i<mem_size; i++)
   {
-    return false;
+    if(mem1[i] != mem2[i])
+    {
+      return false;
+    }
   }
-
   return true;
+}
+
+bool check_code(test_t* test)
+{
+  REGISTER reg_sim[REGFILE_SIZE];
+  WORD mem_sim[DMEMORY_SIZE];
+
+  REGISTER reg_emu[REGFILE_SIZE];
+  WORD mem_emu[DMEMORY_SIZE];
+
+  char sim_out_path[200];
+  char emu_out_path[200];
+
+  get_out_filepath(test, "sim", sim_out_path);
+  get_out_filepath(test, "emu", emu_out_path);
+  
+  load_memory(sim_out_path, "/reg", "", reg_sim, REGFILE_SIZE);
+  load_memory(sim_out_path, "/mem", "", mem_sim, DMEMORY_SIZE);
+
+  load_memory(emu_out_path, "/reg", "", reg_emu, REGFILE_SIZE);
+  load_memory(emu_out_path, "/mem", "", mem_emu, DMEMORY_SIZE);
+
+  bool diff = diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
+  diff &= diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
+
+  return diff;
 }
 
 bool check_asm(test_t* test)
 {
-  FILE *file;
-  REGISTER result_regfile[REGFILE_SIZE];
-  char buffer[100];
+  REGISTER reg_sim[REGFILE_SIZE];
+  WORD mem_sim[DMEMORY_SIZE];
 
-  sprintf(buffer, "../test_bench/out/%s.s.hex.reg", test->name); 
-  file = fopen(buffer, "r");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
+  REGISTER reg_emu[REGFILE_SIZE];
+  WORD mem_emu[DMEMORY_SIZE];
 
-  int i;
-  for(i=0; i<REGFILE_SIZE; i++)
-  {
-    if(!fscanf(file, "%x", &result_regfile[i]))
-    {
-      fprintf(stderr, "file does not contain enough words");
-      assert(0);
-    }
-  }
-  fclose(file);
+  char sim_out_path[200];
+  char emu_out_path[200];
 
-  if(result_regfile[0] != test->ans)
-  {
-    return false;
-  }
+  get_out_filepath(test, "sim", sim_out_path);
+  get_out_filepath(test, "emu", emu_out_path);
+  
+  load_memory(sim_out_path, "/reg", "", reg_sim, REGFILE_SIZE);
+  load_memory(sim_out_path, "/mem", "", mem_sim, DMEMORY_SIZE);
 
-  return true;
+  load_memory(emu_out_path, "/reg", "", reg_emu, REGFILE_SIZE);
+  load_memory(emu_out_path, "/mem", "", mem_emu, DMEMORY_SIZE);
+
+  bool diff = diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
+  diff &= diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
+
+  return diff;
 }
 
 bool check_binary(test_t* test)
 {
+  REGISTER reg_exp[REGFILE_SIZE];
+  WORD mem_exp[DMEMORY_SIZE];
 
-  FILE *file;
-  REGISTER result_regfile[REGFILE_SIZE];
-  WORD result_memory[DMEMORY_SIZE];
+  REGISTER reg_sim[REGFILE_SIZE];
+  WORD mem_sim[DMEMORY_SIZE];
 
-  REGISTER expected_regfile[REGFILE_SIZE];
-  WORD expected_memory[DMEMORY_SIZE];
+  REGISTER reg_emu[REGFILE_SIZE];
+  WORD mem_emu[DMEMORY_SIZE];
 
-  int i;
-  char buffer[100];
+  char sim_out_path[200];
+  char emu_out_path[200];
 
-  /////////////////////////////////////////////////////////////////////
+  get_out_filepath(test, "sim", sim_out_path);
+  get_out_filepath(test, "emu", emu_out_path);
+  
+  load_memory(sim_out_path, "/reg", "", reg_sim, REGFILE_SIZE);
+  load_memory(sim_out_path, "/mem", "", mem_sim, DMEMORY_SIZE);
 
-  sprintf(buffer, "../test_bench/out/%s.hex.reg", test->name); 
-  file = fopen(buffer, "r");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
+  load_memory(emu_out_path, "/reg", "", reg_emu, REGFILE_SIZE);
+  load_memory(emu_out_path, "/mem", "", mem_emu, DMEMORY_SIZE);
 
-  for(i=0; i<REGFILE_SIZE; i++)
-  {
-    if(!fscanf(file, "%x", &result_regfile[i]))
-    {
-      fprintf(stderr, "file does not contain enough words");
-      assert(0);
-    }
-  }
-  fclose(file);
+  load_memory("../test_bench/expected/reg/", test->name, ".reg.expected", reg_exp, REGFILE_SIZE);
+  load_memory("../test_bench/expected/mem/", test->name, ".mem.expected", mem_exp, DMEMORY_SIZE);
 
-  /////////////////////////////////////////////////////////////////////
+  bool diff = diff_memory(reg_exp, reg_emu, REGFILE_SIZE);
+  diff &= diff_memory(mem_exp, mem_emu, DMEMORY_SIZE);
 
-  sprintf(buffer, "../test_bench/expected/reg/%s.reg.expected", test->name); 
-  file = fopen(buffer, "r");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
-
-  for(i=0; i<DMEMORY_SIZE; i++)
-  {
-    if(!fscanf(file, "%x", &expected_regfile[i]))
-    {
-      fprintf(stderr, "file does not contain enough words");
-      assert(0);
-    }
-  }
-  fclose(file);
-
-  /////////////////////////////////////////////////////////////////////
-
-  sprintf(buffer, "../test_bench/out/%s.hex.mem", test->name); 
-  file = fopen(buffer, "r");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
-
-  for(i=0; i<REGFILE_SIZE; i++)
-  {
-    if(!fscanf(file, "%x", &result_memory[i]))
-    {
-      fprintf(stderr, "file does not contain enough words");
-      assert(0);
-    }
-  }
-  fclose(file);
-
-  /////////////////////////////////////////////////////////////////////
-
-  sprintf(buffer, "../test_bench/expected/mem/%s.mem.expected", test->name); 
-  file = fopen(buffer, "r");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", buffer);
-    assert(0);
-  }
-
-  for(i=0; i<DMEMORY_SIZE; i++)
-  {
-    if(!fscanf(file, "%x", &expected_memory[i]))
-    {
-      fprintf(stderr, "file does not contain enough words");
-      assert(0);
-    }
-  }
-  fclose(file);
-
-  /////////////////////////////////////////////////////////////////////
-
-  for(i=0; i<REGFILE_SIZE; i++)
-  {
-    if(result_regfile[i] != expected_regfile[i])
-    {
-      return false;
-    }
-  }
-
-  for(i=0; i<DMEMORY_SIZE; i++)
-  {
-    if(result_memory[i] != expected_memory[i])
-    {
-      return false;
-    }
-  }
+  diff &= diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
+  diff &= diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
 
   return true;
-
 }
-
-
 
 
 
