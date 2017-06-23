@@ -253,6 +253,8 @@ void clear_perf_metrics()
 
 void dump_perf_metrics(char* out_dir)
 {  
+  perf_metrics_t* perf = get_perf_metrics();
+
   FILE *file;
   char filepath[100];
 
@@ -265,16 +267,16 @@ void dump_perf_metrics(char* out_dir)
     assert(0);
   }
 
-  fprintf(file, "ipc = %f\n", p.ipc);
-  fprintf(file, "instructions = %lu\n", p.instruction_count);
-  fprintf(file, "run time = %lu\n", p.run_time);
-  fprintf(file, "flushes = %u\n", p.flush_count);
-  fprintf(file, "load stalls = %u\n", p.load_stall_count);
-  fprintf(file, "split stalls = %u\n", p.split_stall_count);
-  fprintf(file, "steer stalls = %u\n", p.steer_stall_count);
-  fprintf(file, "branch count = %u\n", p.jump_count);
-  fprintf(file, "unique branch count = %u\n", p.unique_jump_count);
-  fprintf(file, "branch predict percent = %f\n", p.branch_predict_percent);
+  fprintf(file, "ipc = %f\n", perf->ipc);
+  fprintf(file, "instructions = %lu\n", perf->instruction_count);
+  fprintf(file, "run time = %lu\n", perf->run_time);
+  fprintf(file, "flushes = %u\n", perf->flush_count);
+  fprintf(file, "load stalls = %u\n", perf->load_stall_count);
+  fprintf(file, "split stalls = %u\n", perf->split_stall_count);
+  fprintf(file, "steer stalls = %u\n", perf->steer_stall_count);
+  fprintf(file, "branch count = %u\n", perf->jump_count);
+  fprintf(file, "unique branch count = %u\n", perf->unique_jump_count);
+  fprintf(file, "branch predict percent = %f\n", perf->branch_predict_percent);
 
   fclose(file);
 }
