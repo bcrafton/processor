@@ -2,6 +2,14 @@
 #define MEMORY_H
 
 #include "defines.h"
+#include "list.h"
+
+typedef struct memory_trans{
+  WORD pc;
+  WORD address;
+  WORD data;
+  uint8_t memory_id; // can just make this an enum
+} memory_trans_t;
 
 void dump_memory(char* out_path);
 void load_program(char* program_path);

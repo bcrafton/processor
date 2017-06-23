@@ -5,6 +5,8 @@ WORD dmemory[DMEMORY_SIZE];
 REGISTER regfile[REGFILE_SIZE];
 INSTRUCTION imemory[IMEMORY_SIZE];
 
+List* wr_trans_list = NULL;
+
 WORD mem_read(WORD address, uint8_t memory_id)
 {    
   WORD data;
@@ -76,6 +78,7 @@ WORD mem_write(WORD address, WORD data, uint8_t memory_id)
       }
       else
       {
+        log_write_tr(0, address, data, REGFILE_ID);
         regfile[address] = data;
       }
       break;
@@ -84,6 +87,22 @@ WORD mem_write(WORD address, WORD data, uint8_t memory_id)
       assert(0);
   }
   return 0;
+}
+
+void log_write_tr(WORD pc, WORD address, WORD data, uint8_t memory_id)
+{
+  if(wr_trans_list == NULL)
+  {
+    wr_trans_list = list_constructor();
+  }
+
+  memory_trans_t* tr = (memory_trans_t*) malloc(sizeof(memory_trans_t));
+  tr->pc = pc;
+  tr->address = address;
+  tr->data = data;
+  tr->memory_id = memory_id;
+
+  list_append(tr, wr_trans_list);
 }
 
 void dump_memory(char* out_path)
@@ -99,29 +118,42 @@ void dump_memory(char* out_path)
     fprintf(stderr, "could not find %s\n", filepath);
     assert(0);
   }
-
   for(i=0; i<DMEMORY_SIZE; i++)
   {
       fprintf(file, "%08x\n", dmemory[i]);
   }
-
   fclose(file);
 
   sprintf(filepath, "%s/reg", out_path);
-  
   file = fopen(filepath, "w");
   if(file == NULL)
   {
     fprintf(stderr, "could not find %s\n", filepath);
     assert(0);
   }
-
   for(i=0; i<REGFILE_SIZE; i++)
   {
       fprintf(file, "%08x\n", regfile[i]);
   }
-
   fclose(file);
+
+  if(wr_trans_list != NULL)
+  {
+    sprintf(filepath, "%s/wr_trans", out_path);
+    file = fopen(filepath, "w");
+    if(file == NULL)
+    {
+      fprintf(stderr, "could not find %s\n", filepath);
+      assert(0);
+    }
+    Node* tr;
+    for(tr=wr_trans_list->head; tr!=NULL; tr=tr->next)
+    {
+        memory_trans_t* wr_tr = (memory_trans_t*) tr->value;
+        fprintf(file, "%08x\n", wr_tr->address);
+    }
+    fclose(file);
+  }
 }
 
 void load_program(char* program_path)
