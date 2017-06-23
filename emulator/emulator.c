@@ -287,4 +287,29 @@ void execute_program(char* program_path, char* out_path, uint32_t run_time)
   dump_memory(out_path);
 }
 
+int main(int argc, char** argv)
+{
+  if(argc != 4)
+  {
+    fprintf(stderr, "want 4 arguments, got %d\n", argc);
+    int i;
+    for(i=1; i<argc; i++)
+    {
+      fprintf(stderr, "%s, ", argv[i]);
+    }
+  }
+  char* program_path = argv[1];
+  char* out_path = argv[2];
+  int32_t run_time = atoi(argv[3]);
+
+  execute_program(program_path, out_path, run_time);
+}
+
+
+
+
+
+
+
+
 

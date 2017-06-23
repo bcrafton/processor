@@ -125,6 +125,14 @@ void execute_sim(char* in_path, char* out_path, uint32_t run_time)
   int ret = system(cmd);
 }
 
+void execute_emu(char* in_path, char* out_path, uint32_t run_time)
+{
+  const char* emu_cmd = "../emulator/emulator %s %s %d";
+  char cmd[200];
+  sprintf(cmd, emu_cmd, in_path, out_path, run_time);
+  int ret = system(cmd);
+}
+
 int main()
 {
   int i;
@@ -170,7 +178,7 @@ int main()
         mkdir(sim_outpath, 0700);
     }
 
-    execute_program(inpath, emu_outpath, tests[i].sim_time/10);
+    execute_emu(inpath, emu_outpath, tests[i].sim_time/10);
     execute_sim(inpath, sim_outpath, tests[i].sim_time);
   }
 

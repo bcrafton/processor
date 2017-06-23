@@ -1,7 +1,7 @@
 
 verilog_depends = test.v processor.v branch_unit.v control_unit.v forwarding_unit.v hazard_detection_unit.v mux.v ram.v register_file.v pipeline_register.v alu.v program_counter.v instruction_memory.v steer.v blt.v encoder.v
 
-vpi_depends = ../test_bench/sim_vpi.c ../test_bench/memory.c ../test_bench/perf_metrics.c
+vpi_depends = sim_vpi.c perf_metrics.c ../common/memory.c 
 
 all: vpi_compile verilog_compile
 

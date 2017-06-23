@@ -1,7 +1,7 @@
 #ifndef PERF_METRICS_H
 #define PERF_METRICS_H
 
-#include "defines.h"
+#include "../common/defines.h"
 #include <vpi_user.h>
 
 typedef struct perf_metrics_t{

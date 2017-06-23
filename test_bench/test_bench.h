@@ -2,8 +2,8 @@
 #ifndef TEST_BENCH_H
 #define TEST_BENCH_H
 
-#include "defines.h"
-#include "emulator.h"
+#include "../common/defines.h"
+//#include "../emulator/emulator.h"
 
 ///////////////////////////////////////////
 

@@ -2,8 +2,8 @@
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
-#include "defines.h"
-#include "memory.h"
+#include "../common/defines.h"
+#include "../common/memory.h"
 
 #define OP_CODE_NOP       0x00
 

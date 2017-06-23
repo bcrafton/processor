@@ -1,5 +1,5 @@
 
-all: compile assemble sim tb
+all: compile assemble sim emu tb 
 
 compile: compiler
 	cd compiler && $(MAKE) && ./main
@@ -9,6 +9,9 @@ assemble: assembler
 
 sim: processor
 	cd processor && $(MAKE)
+
+emu: emulator
+	cd emulator && $(MAKE)
 
 tb: test_bench
 	cd test_bench && $(MAKE)

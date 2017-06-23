@@ -3,8 +3,8 @@
 
 #include <vpi_user.h>
 #include "perf_metrics.h"
-#include "memory.h"
-#include "defines.h"
+#include "../common/memory.h"
+#include "../common/defines.h"
 
 PLI_INT32 sim_mem_read(char* user_data);
 PLI_INT32 sim_mem_write(char* user_data);
