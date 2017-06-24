@@ -144,13 +144,14 @@ void dump_memory(char* out_path)
     fprintf(stderr, "could not find %s\n", filepath);
     assert(0);
   }
+
   if(wr_trans_list != NULL)
   {
     int size = vector_size(wr_trans_list);
     for(i=0; i<size; i++)
     {
         memory_trans_t* wr_tr = vector_get(i, wr_trans_list);
-        fprintf(file, "%08x\n", wr_tr->address);
+        fprintf(file, "addr: %08x data: %08x\n", wr_tr->address, wr_tr->data);
     }
   }
   fclose(file);
