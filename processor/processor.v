@@ -227,6 +227,26 @@ module processor(
       mem_wb_instruction1);
   end
 
+  reg instruction_log_bit;
+  always @(posedge clk) begin
+    instruction_log_bit = $instruction_log(
+      $time, 
+
+      mem_wb_instruction0,
+      mem_wb_instruction0,
+
+      mem_wb_instruction0,
+      mem_wb_instruction0,
+
+      mem_wb_instruction0,
+      mem_wb_instruction0,
+      mem_wb_instruction0,
+      mem_wb_instruction0,
+
+      mem_wb_instruction0,
+      mem_wb_instruction0);
+  end
+
   program_counter pc_unit(
   .clk(clk), 
   .reset(reset),

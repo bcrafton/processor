@@ -138,7 +138,160 @@ PLI_INT32 sim_mem_write(char* user_data)
     return 0; 
 }
 
+PLI_INT32 sim_instruction_log(char* user_data)
+{    
+  assert(user_data == NULL);
+  vpiHandle vhandle, iterator, arg;
+  vhandle = vpi_handle(vpiSysTfCall, NULL);
 
+  s_vpi_value inval;
+
+  unsigned int time_h;
+  unsigned int time_l;
+  unsigned long current_time;
+
+  unsigned int mem_wb_pc0;
+  unsigned int mem_wb_pc1;
+
+  unsigned int mem_wb_instruction0;
+  unsigned int mem_wb_instruction1;
+
+  unsigned int mem_wb_read_data0_0;
+  unsigned int mem_wb_read_data0_1;
+  unsigned int mem_wb_read_data1_0;
+  unsigned int mem_wb_read_data1_1;
+
+  unsigned int mem_wb_write_data0;
+  unsigned int mem_wb_write_data1;
+
+  iterator = vpi_iterate(vpiArgument, vhandle);
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiTimeVal;
+  vpi_get_value(arg, &inval);
+  time_h = inval.value.time->high;
+  time_l = inval.value.time->low;
+  current_time = time_h;
+  current_time = (current_time << BITS_IN_INT) | time_l;
+  
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_pc0 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_pc0 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_pc1 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_pc1 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_instruction0 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_instruction0 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_instruction1 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_instruction1 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_read_data0_0 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_read_data0_0 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_read_data0_1 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_read_data0_1 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_read_data1_0 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_read_data1_0 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_read_data1_1 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_read_data1_1 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_write_data0 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_write_data0 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_write_data1 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_write_data1 = 0;
+  }
+
+  instruction_log_t* log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
+
+  log->timestamp = current_time;
+  log->mem_wb_pc0 = mem_wb_pc0;
+  log->mem_wb_pc1 = mem_wb_pc1;
+  log->mem_wb_instruction0 = mem_wb_instruction0;
+  log->mem_wb_instruction1 = mem_wb_instruction1;
+  log->mem_wb_read_data0_0 = mem_wb_read_data0_0;
+  log->mem_wb_read_data0_1 = mem_wb_read_data0_1;
+  log->mem_wb_read_data1_0 = mem_wb_read_data1_0;
+  log->mem_wb_read_data1_1 = mem_wb_read_data1_1;
+  log->mem_wb_write_data0 = mem_wb_write_data0;
+  log->mem_wb_write_data1 = mem_wb_write_data1;
+
+  instruction_log(log);
+
+  return 0;
+}
 
 void mem_read_register(void)
 {
@@ -205,12 +358,26 @@ void perf_metrics_register(void)
     vpi_register_systf(&tf_data);
 }
 
+void instruction_log_register(void)
+{
+    s_vpi_systf_data tf_data;
+    tf_data.type        = vpiSysFunc;
+    tf_data.sysfunctype = vpiIntFunc;
+    tf_data.tfname    = "$instruction_log";
+    tf_data.calltf    = sim_instruction_log;
+    tf_data.compiletf = 0;
+    tf_data.sizetf    = 0;
+    tf_data.user_data = 0;
+    vpi_register_systf(&tf_data);
+}
+
 void (*vlog_startup_routines[])() = {
     mem_read_register,
     mem_write_register,
     init_register,
     dump_register,
     perf_metrics_register,
+    instruction_log_register,
     0
 };
 

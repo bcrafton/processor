@@ -5,11 +5,14 @@
 #include "perf_metrics.h"
 #include "../common/memory.h"
 #include "../common/defines.h"
+#include "../common/logs.h"
 
 PLI_INT32 sim_mem_read(char* user_data);
 PLI_INT32 sim_mem_write(char* user_data);
 PLI_INT32 init(char* user_data);
 PLI_INT32 dump(char* user_data);
 PLI_INT32 perf_metrics(char* user_data);
+
+PLI_INT32 sim_instruction_log(char* user_data);
 
 #endif
