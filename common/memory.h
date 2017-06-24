@@ -2,7 +2,7 @@
 #define MEMORY_H
 
 #include "defines.h"
-#include "list.h"
+#include "vector.h"
 
 typedef struct memory_trans{
   WORD pc;
