@@ -293,6 +293,148 @@ PLI_INT32 sim_instruction_log(char* user_data)
   return 0;
 }
 
+PLI_INT32 sim_perf_metrics(char* user_data)
+{    
+  assert(user_data == NULL);
+  vpiHandle vhandle, iterator, arg;
+  vhandle = vpi_handle(vpiSysTfCall, NULL);
+
+  s_vpi_value inval;
+
+  unsigned int time_h;
+  unsigned int time_l;
+  unsigned long current_time;
+
+  unsigned int stall0;
+  unsigned int stall1;
+  unsigned int steer_stall;
+
+  unsigned int flush;
+
+  unsigned int mem_wb_instruction0;
+  unsigned int mem_wb_instruction1;
+
+  unsigned int id_ex_jop;
+  unsigned int id_ex_pc;
+
+  iterator = vpi_iterate(vpiArgument, vhandle);
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiTimeVal;
+  vpi_get_value(arg, &inval);
+  time_h = inval.value.time->high;
+  time_l = inval.value.time->low;
+  current_time = time_h;
+  current_time = (current_time << BITS_IN_INT) | time_l;
+  
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    stall0 = inval.value.vector[0].aval;
+  }
+  else {
+    stall0 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    stall1 = inval.value.vector[0].aval;
+  }
+  else {
+    stall1 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    steer_stall = inval.value.vector[0].aval;
+  }
+  else {
+    steer_stall = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    flush = inval.value.vector[0].aval;
+  }
+  else {
+    flush = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    id_ex_jop = inval.value.vector[0].aval;
+  }
+  else {
+    id_ex_jop = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    id_ex_pc = inval.value.vector[0].aval;
+  }
+  else {
+    id_ex_pc = 0;
+  }
+
+/*
+  if (id_ex_jop != 0 && ((flush & FLUSH_MASK) == FLUSH_MASK) )
+    printf("%d %d\n", id_ex_pc, id_ex_jop);
+*/
+
+  // inval.value.vector[0].aval will be considered signed for instructions with bit in 1
+  // so that means just need to check to make sure its not 0.
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_instruction0 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_instruction0 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_instruction1 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_instruction1 = 0;
+  }
+
+  perf_log_t* log = (perf_log_t*) malloc(sizeof(perf_log_t));
+
+  log->timestamp = current_time;
+
+  log->stall0 = stall0;
+  log->stall1 = stall1;
+  log->steer_stall = steer_stall;
+
+  log->flush = flush;
+
+  log->mem_wb_instruction0 = mem_wb_instruction0;
+  log->mem_wb_instruction1 = mem_wb_instruction1;
+
+  log->id_ex_jop = id_ex_jop;
+  log->id_ex_pc = id_ex_pc;
+
+  perf_metrics(log);
+
+  return 0;
+}
+
 void mem_read_register(void)
 {
     s_vpi_systf_data tf_data;
@@ -351,7 +493,7 @@ void perf_metrics_register(void)
     tf_data.type        = vpiSysFunc;
     tf_data.sysfunctype = vpiIntFunc;
     tf_data.tfname    = "$perf_metrics";
-    tf_data.calltf    = perf_metrics;
+    tf_data.calltf    = sim_perf_metrics;
     tf_data.compiletf = 0;
     tf_data.sizetf    = 0;
     tf_data.user_data = 0;
