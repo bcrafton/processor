@@ -47,6 +47,7 @@ PLI_INT32 dump(char* user_data)
     
     dump_memory(out_dir);
     dump_perf_metrics(out_dir);
+    dump_instruction_logs(out_dir);
 
     return 0; 
 }

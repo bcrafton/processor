@@ -2,6 +2,7 @@
 #define LOGS_H
 
 #include "defines.h"
+#include "vector.h"
 
 typedef struct instructon_log {
   unsigned long timestamp;

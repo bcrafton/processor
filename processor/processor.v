@@ -232,19 +232,19 @@ module processor(
     instruction_log_bit = $instruction_log(
       $time, 
 
-      mem_wb_instruction0,
-      mem_wb_instruction0,
+      0,
+      0,
 
       mem_wb_instruction0,
       mem_wb_instruction0,
 
-      mem_wb_instruction0,
-      mem_wb_instruction0,
-      mem_wb_instruction0,
-      mem_wb_instruction0,
+      alu_input_mux_1_result0,
+      alu_input_mux_2_result0,
+      alu_input_mux_1_result1,
+      alu_input_mux_2_result1,
 
-      mem_wb_instruction0,
-      mem_wb_instruction0);
+      alu_result0,
+      alu_result1);
   end
 
   program_counter pc_unit(

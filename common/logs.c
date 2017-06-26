@@ -18,15 +18,50 @@ static unsigned int next_jump_idx;
 
 static perf_metrics_t p;
 
+////
+
+static Vector* instruction_logs = NULL;
+
+////
+
 void dump_instruction_logs(char* out_dir)
-{}
+{
+  FILE *file;
+  char filepath[100];
+  int i;
+
+  sprintf(filepath, "%s/logs", out_dir);
+
+  file = fopen(filepath, "w");
+  if(file == NULL)
+  {
+    fprintf(stderr, "could not find %s\n", filepath);
+    assert(0);
+  }
+
+  if(instruction_logs != NULL)
+  {
+    int size = vector_size(instruction_logs);
+    for(i=0; i<size; i++)
+    {
+        instruction_log_t* log = vector_get(i, instruction_logs);
+        fprintf(file, "%x\n", log->mem_wb_instruction0);
+    }
+  }
+
+  fclose(file);
+}
 
 void clear_instruction_logs()
 {}
 
 void instruction_log(instruction_log_t* log)
 {
-  //printf("%x\n", log->timestamp);
+  if(instruction_logs == NULL)
+  {
+    instruction_logs = vector_constructor();
+  }
+  vector_add(log, instruction_logs);
 }
 
 static bool contains(unsigned int pc)
