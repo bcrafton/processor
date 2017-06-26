@@ -296,8 +296,16 @@ PLI_INT32 sim_instruction_log(char* user_data)
   log0->mem_wb_write_data = mem_wb_write_data0;
   log1->mem_wb_write_data = mem_wb_write_data1;
 
-  instruction_log(log0);
-  instruction_log(log1);
+  if(log0->mem_wb_pc < log1->mem_wb_pc)
+  {
+    instruction_log(log0);
+    instruction_log(log1);
+  }
+  else
+  {
+    instruction_log(log1);
+    instruction_log(log0);
+  }
 
   return 0;
 }
