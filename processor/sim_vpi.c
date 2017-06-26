@@ -275,21 +275,29 @@ PLI_INT32 sim_instruction_log(char* user_data)
     mem_wb_write_data1 = 0;
   }
 
-  instruction_log_t* log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
+  instruction_log_t* log0 = (instruction_log_t*) malloc(sizeof(instruction_log_t));
+  instruction_log_t* log1 = (instruction_log_t*) malloc(sizeof(instruction_log_t));
 
-  log->timestamp = current_time;
-  log->mem_wb_pc0 = mem_wb_pc0;
-  log->mem_wb_pc1 = mem_wb_pc1;
-  log->mem_wb_instruction0 = mem_wb_instruction0;
-  log->mem_wb_instruction1 = mem_wb_instruction1;
-  log->mem_wb_read_data0_0 = mem_wb_read_data0_0;
-  log->mem_wb_read_data0_1 = mem_wb_read_data0_1;
-  log->mem_wb_read_data1_0 = mem_wb_read_data1_0;
-  log->mem_wb_read_data1_1 = mem_wb_read_data1_1;
-  log->mem_wb_write_data0 = mem_wb_write_data0;
-  log->mem_wb_write_data1 = mem_wb_write_data1;
+  log0->timestamp = current_time;
+  log1->timestamp = current_time;
 
-  instruction_log(log);
+  log0->mem_wb_pc = mem_wb_pc0;
+  log1->mem_wb_pc = mem_wb_pc1;
+
+  log0->mem_wb_instruction = mem_wb_instruction0;
+  log1->mem_wb_instruction = mem_wb_instruction1;
+
+  log0->mem_wb_read_data0 = mem_wb_read_data0_0;
+  log1->mem_wb_read_data0 = mem_wb_read_data0_1;
+
+  log0->mem_wb_read_data1 = mem_wb_read_data1_0;
+  log1->mem_wb_read_data1 = mem_wb_read_data1_1;
+
+  log0->mem_wb_write_data = mem_wb_write_data0;
+  log1->mem_wb_write_data = mem_wb_write_data1;
+
+  instruction_log(log0);
+  instruction_log(log1);
 
   return 0;
 }
@@ -415,6 +423,9 @@ PLI_INT32 sim_perf_metrics(char* user_data)
     mem_wb_instruction1 = 0;
   }
 
+  // probably need to half this ... meaning give pipe 0 and 1 their own struct
+  // shud not combine to same.
+  // take that back would be way to annoying to fix this.
   perf_log_t* log = (perf_log_t*) malloc(sizeof(perf_log_t));
 
   log->timestamp = current_time;

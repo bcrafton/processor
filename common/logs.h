@@ -7,19 +7,14 @@
 typedef struct instructon_log {
   unsigned long timestamp;
 
-  unsigned int mem_wb_pc0;
-  unsigned int mem_wb_pc1;
+  unsigned int mem_wb_pc;
 
-  unsigned int mem_wb_instruction0;
-  unsigned int mem_wb_instruction1;
+  unsigned int mem_wb_instruction;
 
-  unsigned int mem_wb_read_data0_0;
-  unsigned int mem_wb_read_data0_1;
-  unsigned int mem_wb_read_data1_0;
-  unsigned int mem_wb_read_data1_1;
+  unsigned int mem_wb_read_data0;
+  unsigned int mem_wb_read_data1;
 
-  unsigned int mem_wb_write_data0;
-  unsigned int mem_wb_write_data1;
+  unsigned int mem_wb_write_data;
 } instruction_log_t;
 
 typedef struct perf_log {

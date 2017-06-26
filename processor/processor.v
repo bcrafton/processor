@@ -236,7 +236,7 @@ module processor(
       0,
 
       mem_wb_instruction0,
-      mem_wb_instruction0,
+      mem_wb_instruction1,
 
       alu_input_mux_1_result0,
       alu_input_mux_2_result0,
