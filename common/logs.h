@@ -17,6 +17,26 @@ typedef struct instructon_log {
   unsigned int mem_wb_write_data;
 } instruction_log_t;
 
+
+/*
+So realized
+We needed to maek the instruction log
+On a per instruction basis
+Not have 2 of everything
+
+For perf log
+We need to have all of them to get the conds
+So I think 
+This must change
+We want to keep this log general
+So that means
+Insead of sending over all the values
+We shud just send the metrics over
+And let the sim convert it to the correct format
+
+That way it stays general.
+*/
+
 typedef struct perf_log {
 
   unsigned long timestamp;

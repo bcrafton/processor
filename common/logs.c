@@ -45,7 +45,13 @@ void dump_instruction_logs(char* out_dir)
     for(i=0; i<size; i++)
     {
         instruction_log_t* log = vector_get(i, instruction_logs);
-        fprintf(file, "%x\n", log->mem_wb_instruction);
+        fprintf(file, "@%lu %d 0x%x 0x%x 0x%x 0x%x\n", 
+          log->timestamp,
+          log->mem_wb_pc,
+          log->mem_wb_instruction,
+          log->mem_wb_read_data0,
+          log->mem_wb_read_data1,
+          log->mem_wb_write_data);
     }
   }
 

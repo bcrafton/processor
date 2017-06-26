@@ -50,6 +50,15 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
   uint16_t address;
   uint32_t data;
 
+  instruction_log_t* log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
+  log->mem_wb_pc = p->pc;
+  log->mem_wb_instruction = i;
+  log->mem_wb_read_data0 = rs_data;
+  log->mem_wb_read_data1 = rt_data;
+  // this needs to be filled in.
+  log->mem_wb_write_data = 0xa5a5a5a5;
+  instruction_log(log);
+
   switch (opcode) {
     // 6'b00xxxx
     case OP_CODE_ADD:
@@ -285,6 +294,7 @@ void execute_program(char* program_path, char* out_path, uint32_t run_time)
   }
 
   dump_memory(out_path);
+  dump_instruction_logs(out_path);
 }
 
 int main(int argc, char** argv)

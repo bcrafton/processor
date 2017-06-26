@@ -4,6 +4,7 @@
 
 #include "../common/defines.h"
 #include "../common/memory.h"
+#include "../common/logs.h"
 
 #define OP_CODE_NOP       0x00
 
