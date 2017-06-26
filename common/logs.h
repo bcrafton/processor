@@ -5,18 +5,35 @@
 #include "vector.h"
 
 typedef struct instructon_log {
+  // do we want to include all addresses.
   unsigned long timestamp;
 
-  unsigned int mem_wb_pc;
+  unsigned int pc;
 
-  unsigned int mem_wb_instruction;
+  unsigned int instruction;
 
-  unsigned int mem_wb_read_data0;
-  unsigned int mem_wb_read_data1;
+  unsigned int immediate;
 
-  unsigned int mem_wb_write_data;
+  unsigned int reg_read_data0;
+  unsigned int reg_read_data1;
+  unsigned int reg_write_data;
+
+  unsigned int mem_read_data0;
+  unsigned int mem_read_data1;
+  unsigned int mem_write_data;
+
+  unsigned int alu_in0;
+  unsigned int alu_in1;
+  unsigned int alu_out;
+
+  unsigned int zero;
+  unsigned int greater;
+  unsigned int less;
+
+  unsigned int jop;
+  unsigned int branch_taken;
+
 } instruction_log_t;
-
 
 /*
 So realized

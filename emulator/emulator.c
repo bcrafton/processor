@@ -51,12 +51,12 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
   uint32_t data;
 
   instruction_log_t* log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
-  log->mem_wb_pc = p->pc;
-  log->mem_wb_instruction = i;
-  log->mem_wb_read_data0 = rs_data;
-  log->mem_wb_read_data1 = rt_data;
+  log->pc = p->pc;
+  log->instruction = i;
+  log->reg_read_data0 = rs_data;
+  log->reg_read_data1 = rt_data;
   // this needs to be filled in.
-  log->mem_wb_write_data = 0xa5a5a5a5;
+  log->reg_write_data = 0xa5a5a5a5;
   instruction_log(log);
 
   switch (opcode) {

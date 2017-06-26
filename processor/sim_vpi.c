@@ -281,22 +281,22 @@ PLI_INT32 sim_instruction_log(char* user_data)
   log0->timestamp = current_time;
   log1->timestamp = current_time;
 
-  log0->mem_wb_pc = mem_wb_pc0;
-  log1->mem_wb_pc = mem_wb_pc1;
+  log0->pc = mem_wb_pc0;
+  log1->pc = mem_wb_pc1;
 
-  log0->mem_wb_instruction = mem_wb_instruction0;
-  log1->mem_wb_instruction = mem_wb_instruction1;
+  log0->instruction = mem_wb_instruction0;
+  log1->instruction = mem_wb_instruction1;
 
-  log0->mem_wb_read_data0 = mem_wb_read_data0_0;
-  log1->mem_wb_read_data0 = mem_wb_read_data0_1;
+  log0->reg_read_data0 = mem_wb_read_data0_0;
+  log1->reg_read_data0 = mem_wb_read_data0_1;
 
-  log0->mem_wb_read_data1 = mem_wb_read_data1_0;
-  log1->mem_wb_read_data1 = mem_wb_read_data1_1;
+  log0->reg_read_data1 = mem_wb_read_data1_0;
+  log1->reg_read_data1 = mem_wb_read_data1_1;
 
-  log0->mem_wb_write_data = mem_wb_write_data0;
-  log1->mem_wb_write_data = mem_wb_write_data1;
+  log0->reg_write_data = mem_wb_write_data0;
+  log1->reg_write_data = mem_wb_write_data1;
 
-  if(log0->mem_wb_pc < log1->mem_wb_pc)
+  if(log0->pc < log1->pc)
   {
     instruction_log(log0);
     instruction_log(log1);
