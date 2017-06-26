@@ -38,6 +38,7 @@ module steer(
 
   input wire [`ADDR_WIDTH-1:0] pc_in;
 
+  // kinda a hack.
   wire [`ADDR_WIDTH-1:0] pc0_in = pc_in;
   wire [`ADDR_WIDTH-1:0] pc1_in = pc_in + 1;
 
