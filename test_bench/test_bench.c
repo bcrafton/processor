@@ -1,9 +1,8 @@
 
 #include "test_bench.h"
 
-#define RUN_SIM "vvp -M. -m ../processor/sim_vpi ../processor/sim_vpi.vvp +test_name=%s +run_time=%d +program_dir=%s +out_dir=%s"
-
 static test_t tests[] = {
+
 {"addi", BINARY_TEST, 0, 1000},
 {"subi", BINARY_TEST, 0, 1000},
 {"andi", BINARY_TEST, 0, 1000},
@@ -75,6 +74,7 @@ static test_t tests[] = {
 {"nested_tuple", CODE_TEST, 202, 10000},
 {"list", CODE_TEST, 6, 200000},
 {"linked_list", CODE_TEST, 6, 200000},
+
 };
 
 static int num_programs = sizeof(tests)/sizeof(test_t);
@@ -160,8 +160,6 @@ int main()
         assert(0);
     }
     
-    //sprintf(command, RUN_SIM, test_name, tests[i].sim_time, program_dir, "../test_bench/out/");
-    //int ret = system(command);
     char emu_outpath[200];
     char sim_outpath[200];
     char inpath[200];

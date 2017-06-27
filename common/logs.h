@@ -18,8 +18,7 @@ typedef struct instructon_log {
   unsigned int reg_read_data1;
   unsigned int reg_write_data;
 
-  unsigned int mem_read_data0;
-  unsigned int mem_read_data1;
+  unsigned int mem_read_data;
   unsigned int mem_write_data;
 
   unsigned int alu_in0;

@@ -47,77 +47,80 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
   uint32_t rs_data = mem_read(rs, REGFILE_ID);
   uint32_t rt_data = mem_read(rt, REGFILE_ID);
 
-  uint16_t address;
-  uint32_t data;
+  uint16_t address = 0;
+  uint32_t write_data = 0;
+
+  uint32_t mem_read_data = 0;
+  uint32_t mem_write_data = 0;
 
   instruction_log_t* log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
   log->pc = p->pc;
   log->instruction = i;
   log->reg_read_data0 = rs_data;
   log->reg_read_data1 = rt_data;
-  // this needs to be filled in.
-  log->reg_write_data = 0xa5a5a5a5;
-  instruction_log(log);
+  // this happens after the switch.
+  // log->reg_write_data = ;
+  log->immediate = imm;
 
   switch (opcode) {
     // 6'b00xxxx
     case OP_CODE_ADD:
-      data = rs_data + rt_data;
-      mem_write(rd, data, REGFILE_ID);
+      write_data = rs_data + rt_data;
+      mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SUB:
-      data = rs_data - rt_data;
-      mem_write(rd, data, REGFILE_ID);
+      write_data = rs_data - rt_data;
+      mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NOT:
       printf("not implemented yet: not\n");
       break;
     case OP_CODE_AND:
-      data = rs_data & rt_data;
-      mem_write(rd, data, REGFILE_ID);
+      write_data = rs_data & rt_data;
+      mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_OR:
-      data = rs_data | rt_data;
-      mem_write(rd, data, REGFILE_ID);
+      write_data = rs_data | rt_data;
+      mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NAND:
-      data = ~(rs_data & rt_data);
-      mem_write(rd, data, REGFILE_ID);
+      write_data = ~(rs_data & rt_data);
+      mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NOR:
-      data = ~(rs_data | rt_data);
-      mem_write(rd, data, REGFILE_ID);
+      write_data = ~(rs_data | rt_data);
+      mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_MOV:
-      data = rt_data;
-      mem_write(rd, data, REGFILE_ID);
+      write_data = rt_data;
+      mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SAR:
       // there is no sar in c ...
-      data = rs_data >> rt_data;
-      mem_write(rd, data, REGFILE_ID);
+      write_data = rs_data >> rt_data;
+      mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SHR:
-      data = rs_data >> rt_data;
-      mem_write(rd, data, REGFILE_ID);
+      write_data = rs_data >> rt_data;
+      mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SHL:
-      data = rs_data << rt_data;
-      mem_write(rd, data, REGFILE_ID);
+      write_data = rs_data << rt_data;
+      mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_XOR:
-      data = rs_data ^ rt_data;
-      mem_write(rd, data, REGFILE_ID);
+      write_data = rs_data ^ rt_data;
+      mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_TEST:
@@ -135,62 +138,62 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
 
     // 6'b01xxxx
     case OP_CODE_ADDI:
-      data = rs_data + imm;
-      mem_write(rt, data, REGFILE_ID);
+      write_data = rs_data + imm;
+      mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SUBI:
-      data = rs_data - imm;
-      mem_write(rt, data, REGFILE_ID);
+      write_data = rs_data - imm;
+      mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NOTI:
       printf("not implemented yet: noti\n");
       break;
     case OP_CODE_ANDI:
-      data = rs_data & imm;
-      mem_write(rt, data, REGFILE_ID);
+      write_data = rs_data & imm;
+      mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_ORI:
-      data = rs_data | imm;
-      mem_write(rt, data, REGFILE_ID);
+      write_data = rs_data | imm;
+      mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NANDI:
-      data = ~(rs_data & imm);
-      mem_write(rt, data, REGFILE_ID);
+      write_data = ~(rs_data & imm);
+      mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NORI:
-      data = ~(rs_data | imm);
-      mem_write(rt, data, REGFILE_ID);
+      write_data = ~(rs_data | imm);
+      mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_MOVI:
-      data = imm;
-      mem_write(rt, data, REGFILE_ID);
+      write_data = imm;
+      mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SARI:
       // there is no sar in c ...
-      data = rs_data >> imm;
-      mem_write(rt, data, REGFILE_ID);
+      write_data = rs_data >> imm;
+      mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SHRI:
-      data = rs_data >> imm;
-      mem_write(rt, data, REGFILE_ID);
+      write_data = rs_data >> imm;
+      mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SHLI:
-      data = rs_data << imm;
-      mem_write(rt, data, REGFILE_ID);
+      write_data = rs_data << imm;
+      mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_XORI:
-      data = rs_data ^ imm;
-      mem_write(rt, data, REGFILE_ID);
+      write_data = rs_data ^ imm;
+      mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_TESTI:
@@ -209,14 +212,19 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
     // 6'b10xxxx
     case OP_CODE_LW:
       address = rs_data + imm;
-      data = mem_read(address, DMEM_ID);
-      mem_write(rt, data, REGFILE_ID);
+
+      mem_read_data = mem_read(address, DMEM_ID);
+      write_data = mem_read_data;
+
+      mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SW:
       address = rs_data + imm;
-      data = rt_data;
-      mem_write(address, data, DMEM_ID);
+
+      mem_write_data = rt_data;
+      mem_write(address, mem_write_data, DMEM_ID);
+
       p->pc++;
       break;
     case OP_CODE_LA:
@@ -273,6 +281,12 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
     default:
       printf("invalid instruction!\n");
   }
+  
+  log->reg_write_data = write_data;
+  log->mem_read_data = mem_read_data;
+  log->mem_write_data = mem_write_data;
+  instruction_log(log);
+
 }
 
 void execute_program(char* program_path, char* out_path, uint32_t run_time)
