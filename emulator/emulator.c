@@ -328,6 +328,7 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
   log->mem_read_data = mem_read_data;
   log->mem_write_data = mem_write_data;
 
+  // not confident with these.
   log->zero = p->zero;
   log->greater = p->greater;
   log->less = p->less;
