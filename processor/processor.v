@@ -201,6 +201,47 @@ module processor(
   wire [`ADDR_WIDTH-1:0] if_id_branch_taken_address;
   wire [`ADDR_WIDTH-1:0] id_ex_branch_taken_address;
 
+  // logs
+  wire [`IMM_WIDTH-1:0]  LOG_ex_mem_immediate0; 
+  wire [`DATA_WIDTH-1:0] LOG_ex_mem_reg_read_data0_0
+  wire [`DATA_WIDTH-1:0] LOG_ex_mem_reg_read_data1_0;
+  wire [`DATA_WIDTH-1:0] LOG_ex_mem_reg_write_data0;
+  wire                   LOG_ex_mem_zero0;
+  wire                   LOG_ex_mem_less0;
+  wire                   LOG_ex_mem_greater0;
+  
+  wire [`IMM_WIDTH-1:0]  LOG_ex_mem_immediate1; 
+  wire [`DATA_WIDTH-1:0] LOG_ex_mem_reg_read_data0_1
+  wire [`DATA_WIDTH-1:0] LOG_ex_mem_reg_read_data1_1;
+  wire [`DATA_WIDTH-1:0] LOG_ex_mem_reg_write_data1;
+  wire                   LOG_ex_mem_zero1;
+  wire                   LOG_ex_mem_less1;
+  wire                   LOG_ex_mem_greater1;
+  
+  wire [`IMM_WIDTH-1:0]  LOG_mem_wb_immediate0; 
+  wire [`DATA_WIDTH-1:0] LOG_mem_wb_reg_read_data0_0
+  wire [`DATA_WIDTH-1:0] LOG_mem_wb_reg_read_data1_0;
+  wire [`DATA_WIDTH-1:0] LOG_mem_wb_reg_write_data0;
+  wire                   LOG_mem_wb_zero0;
+  wire                   LOG_mem_wb_less0;
+  wire                   LOG_mem_wb_greater0;
+  wire [`DATA_WIDTH-1:0] LOG_mem_wb_mem_write_data_in0;
+  wire [`DATA_WIDTH-1:0] LOG_mem_wb_alu_in0_in0;
+  wire [`DATA_WIDTH-1:0] LOG_mem_wb_alu_in1_in0;
+  
+  
+  wire [`IMM_WIDTH-1:0]  LOG_mem_wb_immediate1; 
+  wire [`DATA_WIDTH-1:0] LOG_mem_wb_reg_read_data0_1
+  wire [`DATA_WIDTH-1:0] LOG_mem_wb_reg_read_data1_1;
+  wire [`DATA_WIDTH-1:0] LOG_mem_wb_reg_write_data1;
+  wire                   LOG_mem_wb_zero1;
+  wire                   LOG_mem_wb_less1;
+  wire                   LOG_mem_wb_greater1;
+  wire [`DATA_WIDTH-1:0] LOG_mem_wb_mem_write_data_in1;
+  wire [`DATA_WIDTH-1:0] LOG_mem_wb_alu_in0_in1;
+  wire [`DATA_WIDTH-1:0] LOG_mem_wb_alu_in1_in1;
+
+
   assign opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 = if_id_instruction0[`REG_RS_MSB:`REG_RS_LSB];
   assign rt0 = if_id_instruction0[`REG_RT_MSB:`REG_RT_LSB];
