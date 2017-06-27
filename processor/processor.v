@@ -684,6 +684,14 @@ module processor(
   .first_in(id_ex_first),
   .pc_in(id_ex_pc0),
 
+  .LOG_immediate_in(),
+  .LOG_reg_read_data0_in(),
+  .LOG_reg_read_data1_in(),
+  .LOG_reg_write_data_in(),
+  .LOG_zero_in(),
+  .LOG_less_in(),
+  .LOG_greater_in(),
+
   .alu_result_out(ex_mem_alu_result0), 
   .data_1_out(ex_mem_data_1_0), 
   .data_2_out(ex_mem_data_2_0),
@@ -696,7 +704,16 @@ module processor(
   .address_src_result_out(ex_mem_address_src_result0),
   .instruction_out(ex_mem_instruction0),
   .first_out(ex_mem_first),
-  .pc_out(ex_mem_pc0)
+  .pc_out(ex_mem_pc0),
+
+  .LOG_immediate_out(),
+  .LOG_reg_read_data0_out(),
+  .LOG_reg_read_data1_out(),
+  .LOG_reg_write_data_out(),
+  .LOG_zero_out(),
+  .LOG_less_out(),
+  .LOG_greater_out()
+
   );
 
   ex_mem_register ex_mem_reg1(
@@ -719,6 +736,14 @@ module processor(
   .first_in(),
   .pc_in(id_ex_pc1),
 
+  .LOG_immediate_in(),
+  .LOG_reg_read_data0_in(),
+  .LOG_reg_read_data1_in(),
+  .LOG_reg_write_data_in(),
+  .LOG_zero_in(),
+  .LOG_less_in(),
+  .LOG_greater_in(),
+
   .alu_result_out(ex_mem_alu_result1), 
   .data_1_out(ex_mem_data_1_1), 
   .data_2_out(ex_mem_data_2_1),
@@ -731,7 +756,15 @@ module processor(
   .address_src_result_out(ex_mem_address_src_result1),
   .instruction_out(ex_mem_instruction1),
   .first_out(),
-  .pc_out(ex_mem_pc1)
+  .pc_out(ex_mem_pc1),
+
+  .LOG_immediate_out(),
+  .LOG_reg_read_data0_out(),
+  .LOG_reg_read_data1_out(),
+  .LOG_reg_write_data_out(),
+  .LOG_zero_out(),
+  .LOG_less_out(),
+  .LOG_greater_out()
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -781,6 +814,17 @@ module processor(
   .first_in(ex_mem_first),
   .pc_in(ex_mem_pc0),
 
+  .LOG_immediate_in(),
+  .LOG_reg_read_data0_in(),
+  .LOG_reg_read_data1_in(),
+  .LOG_reg_write_data_in(),
+  .LOG_zero_in(),
+  .LOG_less_in(),
+  .LOG_greater_in(),
+  .LOG_mem_write_data_in(),
+  .LOG_alu_in0_in(),
+  .LOG_alu_in1_in(),
+
   .mem_to_reg_out(mem_wb_mem_to_reg0), 
   .ram_read_data_out(mem_wb_ram_read_data0), 
   .alu_result_out(mem_wb_alu_result0),
@@ -788,7 +832,18 @@ module processor(
   .reg_write_out(mem_wb_reg_write0),
   .instruction_out(mem_wb_instruction0),
   .first_out(mem_wb_first),
-  .pc_out(mem_wb_pc0)
+  .pc_out(mem_wb_pc0),
+
+  .LOG_immediate_out(),
+  .LOG_reg_read_data0_out(),
+  .LOG_reg_read_data1_out(),
+  .LOG_reg_write_data_out(),
+  .LOG_zero_out(),
+  .LOG_less_out(),
+  .LOG_greater_out(),
+  .LOG_mem_write_data_out(),
+  .LOG_alu_in0_out(),
+  .LOG_alu_in1_out()
   );
 
   mem_wb_register mem_wb_reg1(
@@ -806,6 +861,17 @@ module processor(
   .first_in(),
   .pc_in(ex_mem_pc1),
 
+  .LOG_immediate_in(),
+  .LOG_reg_read_data0_in(),
+  .LOG_reg_read_data1_in(),
+  .LOG_reg_write_data_in(),
+  .LOG_zero_in(),
+  .LOG_less_in(),
+  .LOG_greater_in(),
+  .LOG_mem_write_data_in(),
+  .LOG_alu_in0_in(),
+  .LOG_alu_in1_in(),
+
   .mem_to_reg_out(mem_wb_mem_to_reg1), 
   .ram_read_data_out(mem_wb_ram_read_data1), 
   .alu_result_out(mem_wb_alu_result1),
@@ -813,7 +879,18 @@ module processor(
   .reg_write_out(mem_wb_reg_write1),
   .instruction_out(mem_wb_instruction1),
   .first_out(),
-  .pc_out(mem_wb_pc1)
+  .pc_out(mem_wb_pc1),
+
+  .LOG_immediate_out(),
+  .LOG_reg_read_data0_out(),
+  .LOG_reg_read_data1_out(),
+  .LOG_reg_write_data_out(),
+  .LOG_zero_out(),
+  .LOG_less_out(),
+  .LOG_greater_out(),
+  .LOG_mem_write_data_out(),
+  .LOG_alu_in0_out(),
+  .LOG_alu_in1_out()
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////

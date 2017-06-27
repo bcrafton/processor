@@ -19,17 +19,19 @@ typedef struct instructon_log {
   unsigned int reg_write_data; // ex_mem, mem_wb
 
   unsigned int mem_read_data; // already got it.
-  unsigned int mem_write_data;
+  unsigned int mem_write_data; // mem_wb
 
   unsigned int alu_in0; // mem_wb
   unsigned int alu_in1; // mem_wb
   unsigned int alu_out; // already got it
 
-  unsigned int zero; // think about it.
-  unsigned int greater; // think about it.
-  unsigned int less; // think about it.
+  unsigned int zero; // ex_mem, mem_wb
+  unsigned int greater; // ex_mem, mem_wb
+  unsigned int less; // ex_mem, mem_wb
 
-  unsigned int branch_taken; // think about it.
+  unsigned int branch_taken; // ex_mem, mem_wb - flush ^ branch_taken
+  // we didnt take it and we shud have
+  // we took it and we shud have.
 
 } instruction_log_t;
 
