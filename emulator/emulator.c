@@ -53,6 +53,8 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
   uint32_t mem_read_data = 0;
   uint32_t mem_write_data = 0;
 
+  uint32_t branch_taken = 0;
+
   instruction_log_t* log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
   log->pc = p->pc;
   log->instruction = i;
@@ -240,36 +242,76 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
       printf("not implemented yet: jo\n");
       break;
     case OP_CODE_JE:
-      if (p->zero) p->pc = imm;
-      else p->pc++;
+      if (p->zero) {
+        p->pc = imm;
+        branch_taken = 1;
+      }
+      else {
+        p->pc++;
+      }
       break;
     case OP_CODE_JNE:
-      if (!p->zero) p->pc = imm;
-      else p->pc++;
+      if (!p->zero) {
+        p->pc = imm;
+        branch_taken = 1;
+      }
+      else {
+        p->pc++;
+      }
       break;
     case OP_CODE_JL:
-      if (p->less) p->pc = imm;
-      else p->pc++;
+      if (p->less) {
+        p->pc = imm;
+        branch_taken = 1;
+      }
+      else {
+        p->pc++;
+      }
       break;
     case OP_CODE_JLE:
-      if (p->less || p->zero) p->pc = imm;
-      else p->pc++;
+      if (p->less || p->zero) {
+        p->pc = imm;
+        branch_taken = 1;
+      }
+      else {
+        p->pc++;
+      }
       break;
     case OP_CODE_JG:
-      if (p->greater) p->pc = imm;
-      else p->pc++;
+      if (p->greater) {
+        p->pc = imm;
+        branch_taken = 1;
+      }
+      else {
+        p->pc++;
+      }
       break;
     case OP_CODE_JGE:
-      if (p->greater || p->zero) p->pc = imm;
-      else p->pc++;
+      if (p->greater || p->zero) {
+        p->pc = imm;
+        branch_taken = 1;
+      }
+      else {
+        p->pc++;
+      }
       break;
     case OP_CODE_JZ:
-      if (p->zero) p->pc = imm;
-      else p->pc++;
+      if (p->zero) {
+        p->pc = imm;
+        branch_taken = 1;
+      }
+      else {
+        p->pc++;
+      }
       break;
     case OP_CODE_JNZ:
-      if (!p->zero) p->pc = imm;
-      else p->pc++;
+      if (!p->zero) {
+        p->pc = imm;
+        branch_taken = 1;
+      }
+      else {
+        p->pc++;
+      }
       break;
     case OP_CODE_JR:
       p->pc = rs_data;
@@ -285,6 +327,13 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
   log->reg_write_data = write_data;
   log->mem_read_data = mem_read_data;
   log->mem_write_data = mem_write_data;
+
+  log->zero = p->zero;
+  log->greater = p->greater;
+  log->less = p->less;
+
+  log->branch_taken = branch_taken;
+
   instruction_log(log);
 
 }

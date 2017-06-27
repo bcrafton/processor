@@ -29,7 +29,6 @@ typedef struct instructon_log {
   unsigned int greater;
   unsigned int less;
 
-  unsigned int jop;
   unsigned int branch_taken;
 
 } instruction_log_t;
