@@ -8,28 +8,28 @@ typedef struct instructon_log {
   // do we want to include all addresses.
   unsigned long timestamp;
 
-  unsigned int pc;
+  unsigned int pc; // already got it.
 
-  unsigned int instruction;
+  unsigned int instruction; // already got it
 
-  unsigned int immediate;
+  unsigned int immediate; // ex_mem, mem_wb
 
-  unsigned int reg_read_data0;
-  unsigned int reg_read_data1;
-  unsigned int reg_write_data;
+  unsigned int reg_read_data0; // ex_mem, mem_wb
+  unsigned int reg_read_data1; // ex_mem, mem_wb
+  unsigned int reg_write_data; // ex_mem, mem_wb
 
-  unsigned int mem_read_data;
+  unsigned int mem_read_data; // already got it.
   unsigned int mem_write_data;
 
-  unsigned int alu_in0;
-  unsigned int alu_in1;
-  unsigned int alu_out;
+  unsigned int alu_in0; // mem_wb
+  unsigned int alu_in1; // mem_wb
+  unsigned int alu_out; // already got it
 
-  unsigned int zero;
-  unsigned int greater;
-  unsigned int less;
+  unsigned int zero; // think about it.
+  unsigned int greater; // think about it.
+  unsigned int less; // think about it.
 
-  unsigned int branch_taken;
+  unsigned int branch_taken; // think about it.
 
 } instruction_log_t;
 
