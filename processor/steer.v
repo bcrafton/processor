@@ -19,7 +19,9 @@ module steer(
   pc0_out,
   pc1_out,
 
-  timestamp
+  timestamp,
+  instruction0_id,
+  instruction1_id
   );
 
   input wire clk;
@@ -55,8 +57,8 @@ module steer(
   reg prev_stall;
 
   input wire [63:0] timestamp;
-  wire [51:0] instruction0_id;
-  wire [51:0] instruction1_id;
+  output wire [51:0] instruction0_id;
+  output wire [51:0] instruction1_id;
 
   assign opcode0 = instruction0_in[`OPCODE_MSB:`OPCODE_LSB];
   assign opcode1 = instruction1_in[`OPCODE_MSB:`OPCODE_LSB];
