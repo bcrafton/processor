@@ -57,6 +57,7 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
 
   instruction_log_t* log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
   log->pc = p->pc;
+  log->timestamp = p->pc;
   log->instruction = i;
   log->reg_read_data0 = rs_data;
   log->reg_read_data1 = rt_data;

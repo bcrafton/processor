@@ -27,12 +27,24 @@ static GTree* instruction_log_tree = NULL;
 
 int compare (gconstpointer a, gconstpointer b)
 {
-  return *((unsigned long*)a) > *((unsigned long*)b);
+  return *((unsigned long*)a) - *((unsigned long*)b);
 }
 
 gboolean traverse(void* key, void* value, void* data)
 {
-  printf("%d\n", *((int*)value)); 
+  instruction_log_t* log = (instruction_log_t*) value;
+  FILE* file = (FILE*) data;
+
+  if (log->instruction != 0)
+  {
+    fprintf(file, "@%lu %d 0x%x 0x%x 0x%x 0x%x\n", 
+      log->timestamp,
+      log->pc,
+      log->instruction,
+      log->reg_read_data0,
+      log->reg_read_data1,
+      log->reg_write_data);
+  }
   return FALSE;
 }
 
@@ -40,7 +52,7 @@ void dump_instruction_logs(char* out_dir)
 {
   FILE *file;
   char filepath[100];
-  int i;
+  //int i;
 
   sprintf(filepath, "%s/logs", out_dir);
 
@@ -51,6 +63,7 @@ void dump_instruction_logs(char* out_dir)
     assert(0);
   }
 
+/*
   if(instruction_logs != NULL)
   {
     int size = vector_size(instruction_logs);
@@ -69,8 +82,11 @@ void dump_instruction_logs(char* out_dir)
         }
     }
   }
+*/
 
-  //g_tree_foreach(t, &traverse, NULL);
+  if (instruction_log_tree != NULL) {
+    g_tree_foreach(instruction_log_tree, &traverse, file);
+  }
 
   fclose(file);
 }
