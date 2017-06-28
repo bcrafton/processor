@@ -49,6 +49,7 @@ module program_counter(
     pc = 0;
     branch_taken = 0;
     branch_taken_address = 0;
+    timestamp = 0;
   end
 
   always @(posedge clk) begin
