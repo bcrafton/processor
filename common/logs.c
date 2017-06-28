@@ -20,7 +20,7 @@ static perf_metrics_t p;
 
 ////
 
-static Vector* instruction_logs = NULL;
+//static Vector* instruction_logs = NULL;
 static GTree* instruction_log_tree = NULL;
 
 ////
@@ -96,16 +96,27 @@ void clear_instruction_logs()
 
 void instruction_log(instruction_log_t* log)
 {
+  /*
   if(instruction_logs == NULL)
   {
     instruction_logs = vector_constructor();
   }
+  */
   if(instruction_log_tree == NULL)
   {
     instruction_log_tree = g_tree_new(&compare);
   }
-  vector_add(log, instruction_logs);
+  //vector_add(log, instruction_logs);
   g_tree_insert(instruction_log_tree, &(log->timestamp), log);
+}
+
+instruction_log_t* get_instruction_log(void *key)
+{
+  if (instruction_log_tree == NULL) {
+    return NULL;
+  }
+  instruction_log_t* log = g_tree_lookup(instruction_log_tree, key);
+  return log;
 }
 
 static bool contains(unsigned int pc)
