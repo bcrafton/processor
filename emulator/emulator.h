@@ -91,6 +91,7 @@ typedef struct program_state{
   uint8_t zero;
   uint8_t less;
   uint8_t greater;
+  uint32_t instruction_count;
 } program_state_t;
 
 void execute_program(char* program_path, char* out_path, uint32_t run_time);

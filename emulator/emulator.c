@@ -57,7 +57,8 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
 
   instruction_log_t* log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
   log->pc = p->pc;
-  log->timestamp = p->pc;
+  log->timestamp = p->instruction_count;
+  log->id = p->instruction_count;
   log->instruction = i;
   log->reg_read_data0 = rs_data;
   log->reg_read_data1 = rt_data;
@@ -324,7 +325,7 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
     default:
       printf("invalid instruction!\n");
   }
-  
+
   log->reg_write_data = write_data;
   log->mem_read_data = mem_read_data;
   log->mem_write_data = mem_write_data;
@@ -348,6 +349,7 @@ void execute_program(char* program_path, char* out_path, uint32_t run_time)
   p.zero = 0;
   p.less = 0;
   p.greater = 0; 
+  p.instruction_count = 0;
 
   load_program(program_path);
 
@@ -356,6 +358,7 @@ void execute_program(char* program_path, char* out_path, uint32_t run_time)
   {
     INSTRUCTION i = mem_read(p.pc, IMEM_ID);
     execute_instruction(i, &p);
+    p.instruction_count++;
   }
 
   dump_memory(out_path);
