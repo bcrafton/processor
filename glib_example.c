@@ -1,6 +1,7 @@
 
 #include <glib.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 // sudo apt-get update
 // sudo apt-get upgrade
@@ -12,18 +13,36 @@
 
 int compare (gconstpointer a, gconstpointer b)
 {
-  return *(int*)a > *(int*)b;
+  return *((int*)a) > *((int*)b);
 }
 
+gboolean traverse(void* key, void* value, void* data)
+{
+  printf("%d\n", *((int*)value)); 
+  return FALSE;
+}
 
 int main()
 {
 
-  int x = 10;
-  int y = 5;
+  int a = 1;
+  int b = 2;
+  int c = 3;
+  int d = 4;
+  int e = 5;
+  int f = 6;
+
   GTree* t = g_tree_new(&compare);
-  g_tree_insert(t, &x, &y);
-  int* val = g_tree_lookup(t, &x);
-  printf("%d\n", *val);
+
+  g_tree_insert(t, &a, &a);
+  g_tree_insert(t, &b, &b);
+  g_tree_insert(t, &c, &c);
+  g_tree_insert(t, &d, &d);
+  g_tree_insert(t, &e, &e);
+
+  //int* val = g_tree_lookup(t, &x);
+  //printf("%d\n", *val);
+
+  g_tree_foreach(t, &traverse, NULL);
 
 }
