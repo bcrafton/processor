@@ -455,6 +455,54 @@ PLI_INT32 sim_perf_metrics(char* user_data)
   return 0;
 }
 
+/*
+PLI_INT32 sim_instruction_log_register(char* user_data)
+{    
+  assert(user_data == NULL);
+  vpiHandle vhandle, iterator, arg;
+  vhandle = vpi_handle(vpiSysTfCall, NULL);
+
+  s_vpi_value inval;
+
+  unsigned int id_h;
+  unsigned int id_l;
+  unsigned long id;
+
+  unsigned int mem_wb_read_data0;
+  unsigned int mem_wb_read_data1;
+
+  iterator = vpi_iterate(vpiArgument, vhandle);
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiTimeVal;
+  vpi_get_value(arg, &inval);
+  id_h = inval.value.time->high;
+  id_l = inval.value.time->low;
+  id = time_h;
+  id = (current_time << BITS_IN_INT) | time_l;
+  
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_read_data0 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_read_data0 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_wb_read_data1 = inval.value.vector[0].aval;
+  }
+  else {
+    mem_wb_read_data1 = 0;
+  }
+}
+*/
+
 void mem_read_register(void)
 {
     s_vpi_systf_data tf_data;
