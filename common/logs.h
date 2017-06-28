@@ -3,6 +3,7 @@
 
 #include "defines.h"
 #include "vector.h"
+#include <glib.h>
 
 typedef struct instructon_log {
   // do we want to include all addresses.

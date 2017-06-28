@@ -21,8 +21,20 @@ static perf_metrics_t p;
 ////
 
 static Vector* instruction_logs = NULL;
+static GTree* instruction_log_tree = NULL;
 
 ////
+
+int compare (gconstpointer a, gconstpointer b)
+{
+  return *((unsigned long*)a) > *((unsigned long*)b);
+}
+
+gboolean traverse(void* key, void* value, void* data)
+{
+  printf("%d\n", *((int*)value)); 
+  return FALSE;
+}
 
 void dump_instruction_logs(char* out_dir)
 {
@@ -58,6 +70,8 @@ void dump_instruction_logs(char* out_dir)
     }
   }
 
+  //g_tree_foreach(t, &traverse, NULL);
+
   fclose(file);
 }
 
@@ -70,7 +84,12 @@ void instruction_log(instruction_log_t* log)
   {
     instruction_logs = vector_constructor();
   }
+  if(instruction_log_tree == NULL)
+  {
+    instruction_log_tree = g_tree_new(&compare);
+  }
   vector_add(log, instruction_logs);
+  g_tree_insert(instruction_log_tree, &(log->timestamp), log);
 }
 
 static bool contains(unsigned int pc)
