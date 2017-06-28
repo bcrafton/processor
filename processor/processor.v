@@ -202,20 +202,20 @@ module processor(
   wire [`ADDR_WIDTH-1:0] id_ex_branch_taken_address;
 
   // the unique ids for each instruction in the pipe.
-  wire [51:0] instruction0_id;
-  wire [51:0] instruction1_id;
+  wire [63:0] instruction0_id;
+  wire [63:0] instruction1_id;
 
-  wire [51:0] if_id_instruction0_id;
-  wire [51:0] if_id_instruction1_id;
+  wire [63:0] if_id_instruction0_id;
+  wire [63:0] if_id_instruction1_id;
 
-  wire [51:0] id_ex_instruction0_id;
-  wire [51:0] id_ex_instruction1_id;
+  wire [63:0] id_ex_instruction0_id;
+  wire [63:0] id_ex_instruction1_id;
 
-  wire [51:0] ex_mem_instruction0_id;
-  wire [51:0] ex_mem_instruction1_id;
+  wire [63:0] ex_mem_instruction0_id;
+  wire [63:0] ex_mem_instruction1_id;
 
-  wire [51:0] mem_wb_instruction0_id;
-  wire [51:0] mem_wb_instruction1_id;
+  wire [63:0] mem_wb_instruction0_id;
+  wire [63:0] mem_wb_instruction1_id;
 
 /*
   // logs
@@ -294,6 +294,7 @@ module processor(
       mem_wb_instruction1);
   end
 
+/*
   reg instruction_log_bit;
   always @(posedge clk) begin
     instruction_log_bit = $instruction_log(
@@ -312,6 +313,13 @@ module processor(
 
       alu_result0,
       alu_result1);
+  end
+*/
+
+  reg instruction_log_bit;
+  always @(posedge clk) begin
+    instruction_log_bit = $instruction_log_register(if_id_instruction0_id, reg_read_data_1_0, reg_read_data_2_0);
+    instruction_log_bit = $instruction_log_register(if_id_instruction1_id, reg_read_data_1_1, reg_read_data_2_1);
   end
 
   program_counter pc_unit(
