@@ -139,177 +139,6 @@ PLI_INT32 sim_mem_write(char* user_data)
     return 0; 
 }
 
-PLI_INT32 sim_instruction_log(char* user_data)
-{    
-  assert(user_data == NULL);
-  vpiHandle vhandle, iterator, arg;
-  vhandle = vpi_handle(vpiSysTfCall, NULL);
-
-  s_vpi_value inval;
-
-  unsigned int time_h;
-  unsigned int time_l;
-  unsigned long current_time;
-
-  unsigned int mem_wb_pc0;
-  unsigned int mem_wb_pc1;
-
-  unsigned int mem_wb_instruction0;
-  unsigned int mem_wb_instruction1;
-
-  unsigned int mem_wb_read_data0_0;
-  unsigned int mem_wb_read_data0_1;
-  unsigned int mem_wb_read_data1_0;
-  unsigned int mem_wb_read_data1_1;
-
-  unsigned int mem_wb_write_data0;
-  unsigned int mem_wb_write_data1;
-
-  iterator = vpi_iterate(vpiArgument, vhandle);
-
-  arg = vpi_scan(iterator);
-  inval.format = vpiTimeVal;
-  vpi_get_value(arg, &inval);
-  time_h = inval.value.time->high;
-  time_l = inval.value.time->low;
-  current_time = time_h;
-  current_time = (current_time << BITS_IN_INT) | time_l;
-  
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
-  if (inval.value.vector[0].bval == 0) {
-    mem_wb_pc0 = inval.value.vector[0].aval;
-  }
-  else {
-    mem_wb_pc0 = 0;
-  }
-
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
-  if (inval.value.vector[0].bval == 0) {
-    mem_wb_pc1 = inval.value.vector[0].aval;
-  }
-  else {
-    mem_wb_pc1 = 0;
-  }
-
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
-  if (inval.value.vector[0].bval == 0) {
-    mem_wb_instruction0 = inval.value.vector[0].aval;
-  }
-  else {
-    mem_wb_instruction0 = 0;
-  }
-
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
-  if (inval.value.vector[0].bval == 0) {
-    mem_wb_instruction1 = inval.value.vector[0].aval;
-  }
-  else {
-    mem_wb_instruction1 = 0;
-  }
-
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
-  if (inval.value.vector[0].bval == 0) {
-    mem_wb_read_data0_0 = inval.value.vector[0].aval;
-  }
-  else {
-    mem_wb_read_data0_0 = 0;
-  }
-
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
-  if (inval.value.vector[0].bval == 0) {
-    mem_wb_read_data0_1 = inval.value.vector[0].aval;
-  }
-  else {
-    mem_wb_read_data0_1 = 0;
-  }
-
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
-  if (inval.value.vector[0].bval == 0) {
-    mem_wb_read_data1_0 = inval.value.vector[0].aval;
-  }
-  else {
-    mem_wb_read_data1_0 = 0;
-  }
-
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
-  if (inval.value.vector[0].bval == 0) {
-    mem_wb_read_data1_1 = inval.value.vector[0].aval;
-  }
-  else {
-    mem_wb_read_data1_1 = 0;
-  }
-
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
-  if (inval.value.vector[0].bval == 0) {
-    mem_wb_write_data0 = inval.value.vector[0].aval;
-  }
-  else {
-    mem_wb_write_data0 = 0;
-  }
-
-  arg = vpi_scan(iterator);
-  inval.format = vpiVectorVal;
-  vpi_get_value(arg, &inval);
-  if (inval.value.vector[0].bval == 0) {
-    mem_wb_write_data1 = inval.value.vector[0].aval;
-  }
-  else {
-    mem_wb_write_data1 = 0;
-  }
-
-  instruction_log_t* log0 = (instruction_log_t*) malloc(sizeof(instruction_log_t));
-  instruction_log_t* log1 = (instruction_log_t*) malloc(sizeof(instruction_log_t));
-
-  log0->timestamp = current_time;
-  log1->timestamp = current_time;
-
-  log0->pc = mem_wb_pc0;
-  log1->pc = mem_wb_pc1;
-
-  log0->instruction = mem_wb_instruction0;
-  log1->instruction = mem_wb_instruction1;
-
-  log0->reg_read_data0 = mem_wb_read_data0_0;
-  log1->reg_read_data0 = mem_wb_read_data0_1;
-
-  log0->reg_read_data1 = mem_wb_read_data1_0;
-  log1->reg_read_data1 = mem_wb_read_data1_1;
-
-  log0->reg_write_data = mem_wb_write_data0;
-  log1->reg_write_data = mem_wb_write_data1;
-
-  if(log0->pc < log1->pc)
-  {
-    instruction_log(log0);
-    instruction_log(log1);
-  }
-  else
-  {
-    instruction_log(log1);
-    instruction_log(log0);
-  }
-
-  return 0;
-}
-
 PLI_INT32 sim_log_id_ex(char* user_data)
 {    
   assert(user_data == NULL);
@@ -367,9 +196,9 @@ PLI_INT32 sim_log_id_ex(char* user_data)
   instruction_log_t* log = get_instruction_log(&id);
   if(log == NULL)
   {
-    instruction_log_t* new_log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
+    instruction_log_t* new_log = new_instruction_log();
 
-    new_log->timestamp = id;
+    new_log->id = id;
     new_log->reg_read_data0 = mem_wb_read_data0;
     new_log->reg_read_data1 = mem_wb_read_data1;
 
@@ -377,7 +206,7 @@ PLI_INT32 sim_log_id_ex(char* user_data)
   }
   else
   {
-    log->timestamp = id;
+    log->id = id;
     log->reg_read_data0 = mem_wb_read_data0;
     log->reg_read_data1 = mem_wb_read_data1;
   }
@@ -444,7 +273,7 @@ PLI_INT32 sim_log_mem_wb(char* user_data)
   {
     instruction_log_t* new_log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
 
-    new_log->timestamp = id;
+    new_log->id = id;
     new_log->pc = mem_wb_pc;
     new_log->instruction = mem_wb_instruction;
 
@@ -452,7 +281,7 @@ PLI_INT32 sim_log_mem_wb(char* user_data)
   }
   else
   {
-    log->timestamp = id;
+    log->id = id;
     log->pc = mem_wb_pc;
     log->instruction = mem_wb_instruction;
   }
@@ -670,19 +499,6 @@ void perf_metrics_register(void)
     vpi_register_systf(&tf_data);
 }
 
-void instruction_log_register(void)
-{
-    s_vpi_systf_data tf_data;
-    tf_data.type        = vpiSysFunc;
-    tf_data.sysfunctype = vpiIntFunc;
-    tf_data.tfname    = "$instruction_log";
-    tf_data.calltf    = sim_instruction_log;
-    tf_data.compiletf = 0;
-    tf_data.sizetf    = 0;
-    tf_data.user_data = 0;
-    vpi_register_systf(&tf_data);
-}
-
 void log_id_ex_register(void)
 {
     s_vpi_systf_data tf_data;
@@ -715,7 +531,6 @@ void (*vlog_startup_routines[])() = {
     init_register,
     dump_register,
     perf_metrics_register,
-    instruction_log_register,
     log_id_ex_register,
     log_mem_wb_register,
     0

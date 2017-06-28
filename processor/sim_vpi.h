@@ -12,6 +12,5 @@ PLI_INT32 init(char* user_data);
 PLI_INT32 dump(char* user_data);
 
 PLI_INT32 sim_perf_metrics(char* user_data);
-PLI_INT32 sim_instruction_log(char* user_data);
 
 #endif

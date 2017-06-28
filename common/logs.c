@@ -53,7 +53,7 @@ gboolean traverse(void* key, void* value, void* data)
   if (log->instruction != 0)
   {
     fprintf(file, "@0x%lx %d 0x%x 0x%x 0x%x 0x%x\n", 
-      log->timestamp,
+      log->id,
       log->pc,
       log->instruction,
       log->reg_read_data0,
@@ -109,6 +109,34 @@ void dump_instruction_logs(char* out_dir)
 void clear_instruction_logs()
 {}
 
+instruction_log_t* new_instruction_log()
+{
+  instruction_log_t* new_log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
+  new_log->timestamp = 0;
+  new_log->id = 0;
+  new_log->pc = 0;
+  new_log->instruction = 0;
+  new_log->immediate = 0;
+
+  new_log->reg_read_data0 = 0;
+  new_log->reg_read_data1 = 0;
+  new_log->reg_write_data = 0;
+
+  new_log->mem_read_data = 0;
+  new_log->mem_write_data = 0;
+
+  new_log->alu_in0 = 0;
+  new_log->alu_in1 = 0;
+  new_log->alu_out = 0;
+
+  new_log->zero = 0;
+  new_log->greater = 0;
+  new_log->less = 0;
+
+  new_log->branch_taken = 0;
+  return new_log;
+}
+
 void instruction_log(instruction_log_t* log)
 {
   /*
@@ -122,7 +150,7 @@ void instruction_log(instruction_log_t* log)
     instruction_log_tree = g_tree_new(&compare);
   }
   //vector_add(log, instruction_logs);
-  g_tree_insert(instruction_log_tree, &(log->timestamp), log);
+  g_tree_insert(instruction_log_tree, &(log->id), log);
 }
 
 instruction_log_t* get_instruction_log(void *key)

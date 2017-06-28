@@ -96,6 +96,8 @@ void clear_instruction_logs();
 void instruction_log(instruction_log_t* log);
 instruction_log_t* get_instruction_log(void *key);
 
+instruction_log_t* new_instruction_log();
+
 void dump_perf_metrics(char* out_dir);
 void clear_perf_metrics();
 void perf_metrics(perf_log_t* log);

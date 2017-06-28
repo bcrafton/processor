@@ -54,7 +54,7 @@ module program_counter(
 
   always @(posedge clk) begin
 
-    timestamp = $time;
+    timestamp = timestamp + 1;
 
     if(flush) begin
       pc <= branch_address;
