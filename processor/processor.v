@@ -243,6 +243,8 @@ module processor(
   wire [`DATA_WIDTH-1:0] LOG_mem_wb_alu_in1_in1;
 */
 
+  wire [63:0] timestamp;
+
   assign opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 = if_id_instruction0[`REG_RS_MSB:`REG_RS_LSB];
   assign rt0 = if_id_instruction0[`REG_RT_MSB:`REG_RT_LSB];
@@ -310,7 +312,9 @@ module processor(
   .take_branch(take_branch),
   .branch_predict(branch_predict),
   .branch_taken(branch_taken),
-  .branch_taken_address(branch_taken_address)
+  .branch_taken_address(branch_taken_address),
+
+  .timestamp(timestamp)
   );
   
   instruction_memory im(
@@ -335,7 +339,9 @@ module processor(
   .pc_in(pc),
 
   .pc0_out(steer_pc0),
-  .pc1_out(steer_pc1)
+  .pc1_out(steer_pc1),
+
+  .timestamp(timestamp)
   );
 
   if_id_register if_id_reg0(

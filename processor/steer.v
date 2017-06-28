@@ -17,7 +17,9 @@ module steer(
   pc_in,
 
   pc0_out,
-  pc1_out
+  pc1_out,
+
+  timestamp
   );
 
   input wire clk;
@@ -52,11 +54,27 @@ module steer(
 
   reg prev_stall;
 
+  input wire [63:0] timestamp;
+  wire [51:0] instruction0_id;
+  wire [51:0] instruction1_id;
+
   assign opcode0 = instruction0_in[`OPCODE_MSB:`OPCODE_LSB];
   assign opcode1 = instruction1_in[`OPCODE_MSB:`OPCODE_LSB];
 
+/*
+  initial begin
+    instruction0_id <= 0;
+    instruction1_id <= 0;
+  end
+*/
+
+  assign instruction0_id = (timestamp & 64'h0000FFFFFFFFFFFF) | 64'h0002000000000000;
+  assign instruction1_id = (timestamp & 64'h0000FFFFFFFFFFFF) | 64'h0003000000000000;
+
   always @(posedge clk) begin
     if(stall == 0) begin
+      //instruction0_id <= (timestamp & 64'h0000FFFFFFFFFFFF) | 64'h0002000000000000;
+      //instruction1_id <= (timestamp & 64'h0000FFFFFFFFFFFF) | 64'h0003000000000000;
       prev_stall <= steer_stall;  
     end
   end

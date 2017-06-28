@@ -17,6 +17,8 @@ module program_counter(
   branch_predict,
   branch_taken,
   branch_taken_address,
+
+  timestamp
   );
 
   input wire clk;
@@ -41,6 +43,8 @@ module program_counter(
 
   wire branch = ((opcode & 6'b110000) == 6'b110000) && (opcode != `OP_CODE_JMP);
 
+  output reg [63:0] timestamp;
+
   initial begin
     pc = 0;
     branch_taken = 0;
@@ -48,6 +52,8 @@ module program_counter(
   end
 
   always @(posedge clk) begin
+
+    timestamp = $time;
 
     if(flush) begin
       pc <= branch_address;
