@@ -206,7 +206,6 @@ PLI_INT32 sim_log_id_ex(char* user_data)
   }
   else
   {
-    log->id = id;
     log->reg_read_data0 = mem_wb_read_data0;
     log->reg_read_data1 = mem_wb_read_data1;
   }
@@ -225,6 +224,10 @@ PLI_INT32 sim_log_mem_wb(char* user_data)
   unsigned int id_h;
   unsigned int id_l;
   unsigned long id;
+
+  unsigned int time_h;
+  unsigned int time_l;
+  unsigned long current_time;
 
   unsigned int mem_wb_pc;
   unsigned int mem_wb_instruction;
@@ -246,7 +249,13 @@ PLI_INT32 sim_log_mem_wb(char* user_data)
     id = 0;
   }
   
-  //printf("%lx\n", id);
+  arg = vpi_scan(iterator);
+  inval.format = vpiTimeVal;
+  vpi_get_value(arg, &inval);
+  time_h = inval.value.time->high;
+  time_l = inval.value.time->low;
+  current_time = time_h;
+  current_time = (current_time << BITS_IN_INT) | time_l;
 
   arg = vpi_scan(iterator);
   inval.format = vpiVectorVal;
@@ -276,14 +285,15 @@ PLI_INT32 sim_log_mem_wb(char* user_data)
     new_log->id = id;
     new_log->pc = mem_wb_pc;
     new_log->instruction = mem_wb_instruction;
+    new_log->timestamp = current_time;
 
     instruction_log(new_log);
   }
   else
   {
-    log->id = id;
     log->pc = mem_wb_pc;
     log->instruction = mem_wb_instruction;
+    log->timestamp = current_time;
   }
 
   return 0;

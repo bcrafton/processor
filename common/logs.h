@@ -7,6 +7,9 @@
 
 typedef struct instructon_log {
   // do we want to include all addresses.
+
+  // we can order the instructions by commited timestamp
+  // all we have to do is put timestamp in whenever instruction is commited.
   unsigned long timestamp;
   unsigned long id;
 

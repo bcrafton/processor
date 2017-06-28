@@ -321,8 +321,8 @@ module processor(
     instruction_log_bit = $log_id_ex(id_ex_instruction0_id, id_ex_reg_read_data_1_0, id_ex_reg_read_data_2_0);
     instruction_log_bit = $log_id_ex(id_ex_instruction1_id, id_ex_reg_read_data_1_1, id_ex_reg_read_data_2_1);
 
-    instruction_log_bit = $log_mem_wb(mem_wb_instruction0_id, mem_wb_pc0, mem_wb_instruction0);
-    instruction_log_bit = $log_mem_wb(mem_wb_instruction1_id, mem_wb_pc1, mem_wb_instruction1);
+    instruction_log_bit = $log_mem_wb(mem_wb_instruction0_id, $time, mem_wb_pc0, mem_wb_instruction0);
+    instruction_log_bit = $log_mem_wb(mem_wb_instruction1_id, $time, mem_wb_pc1, mem_wb_instruction1);
   end
 
   program_counter pc_unit(
