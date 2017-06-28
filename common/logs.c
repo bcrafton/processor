@@ -27,7 +27,22 @@ static GTree* instruction_log_tree = NULL;
 
 int compare (gconstpointer a, gconstpointer b)
 {
-  return *((unsigned long*)a) - *((unsigned long*)b);
+
+  unsigned long num1 = *((unsigned long*)a);
+  unsigned long num2 = *((unsigned long*)b);
+
+  if( num1 > num2 )
+  {
+    return 1;
+  }
+  else if ( num1 < num2 )
+  {
+    return -1;
+  }
+  else
+  {
+    return 0;
+  }
 }
 
 gboolean traverse(void* key, void* value, void* data)
@@ -37,7 +52,7 @@ gboolean traverse(void* key, void* value, void* data)
 
   if (log->instruction != 0)
   {
-    fprintf(file, "@%lu %d 0x%x 0x%x 0x%x 0x%x\n", 
+    fprintf(file, "@0x%lx %d 0x%x 0x%x 0x%x 0x%x\n", 
       log->timestamp,
       log->pc,
       log->instruction,

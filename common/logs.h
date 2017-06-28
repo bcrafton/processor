@@ -8,6 +8,7 @@
 typedef struct instructon_log {
   // do we want to include all addresses.
   unsigned long timestamp;
+  unsigned long id;
 
   unsigned int pc; // already got it.
 
