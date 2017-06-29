@@ -213,6 +213,78 @@ PLI_INT32 sim_log_id_ex(char* user_data)
   return 0;
 }
 
+PLI_INT32 sim_log_ex_mem(char* user_data)
+{    
+  assert(user_data == NULL);
+  vpiHandle vhandle, iterator, arg;
+  vhandle = vpi_handle(vpiSysTfCall, NULL);
+
+  s_vpi_value inval;
+
+  unsigned int id_h;
+  unsigned int id_l;
+  unsigned long id;
+
+  unsigned int mem_read_data;
+  unsigned int mem_write_data;
+
+  iterator = vpi_iterate(vpiArgument, vhandle);
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+
+  if (inval.value.vector[0].bval == 0 && inval.value.vector[1].bval == 0) {
+    // we had these in the wrong order. was overflowing.
+    id_l = inval.value.vector[0].aval;
+    id_h = inval.value.vector[1].aval;
+    id = id_h;
+    id = (id << BITS_IN_INT) | id_l;
+  }
+  else {
+    id = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_read_data = inval.value.vector[0].aval;
+  }
+  else {
+    mem_read_data = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    mem_write_data = inval.value.vector[0].aval;
+  }
+  else {
+    mem_write_data = 0;
+  }
+
+  instruction_log_t* log = get_instruction_log(&id);
+  if(log == NULL)
+  {
+    instruction_log_t* new_log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
+
+    new_log->id = id;
+    new_log->mem_read_data = mem_read_data;
+    new_log->mem_write_data = mem_write_data;
+
+    instruction_log(new_log);
+  }
+  else
+  {
+    log->mem_read_data = mem_read_data;
+    log->mem_write_data = mem_write_data;
+  }
+
+  return 0;
+}
+
 PLI_INT32 sim_log_mem_wb(char* user_data)
 {    
   assert(user_data == NULL);
@@ -231,6 +303,8 @@ PLI_INT32 sim_log_mem_wb(char* user_data)
 
   unsigned int mem_wb_pc;
   unsigned int mem_wb_instruction;
+
+  unsigned int reg_write_data;
 
   iterator = vpi_iterate(vpiArgument, vhandle);
 
@@ -277,6 +351,16 @@ PLI_INT32 sim_log_mem_wb(char* user_data)
     mem_wb_instruction = 0;
   }
 
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    reg_write_data = inval.value.vector[0].aval;
+  }
+  else {
+    reg_write_data = 0;
+  }
+
   instruction_log_t* log = get_instruction_log(&id);
   if(log == NULL)
   {
@@ -286,6 +370,7 @@ PLI_INT32 sim_log_mem_wb(char* user_data)
     new_log->pc = mem_wb_pc;
     new_log->instruction = mem_wb_instruction;
     new_log->timestamp = current_time;
+    new_log->reg_write_data = reg_write_data;
 
     instruction_log(new_log);
   }
@@ -294,6 +379,7 @@ PLI_INT32 sim_log_mem_wb(char* user_data)
     log->pc = mem_wb_pc;
     log->instruction = mem_wb_instruction;
     log->timestamp = current_time;
+    log->reg_write_data = reg_write_data;
   }
 
   return 0;
@@ -522,6 +608,19 @@ void log_id_ex_register(void)
     vpi_register_systf(&tf_data);
 }
 
+void log_ex_mem_register(void)
+{
+    s_vpi_systf_data tf_data;
+    tf_data.type        = vpiSysFunc;
+    tf_data.sysfunctype = vpiIntFunc;
+    tf_data.tfname    = "$log_ex_mem";
+    tf_data.calltf    = sim_log_ex_mem;
+    tf_data.compiletf = 0;
+    tf_data.sizetf    = 0;
+    tf_data.user_data = 0;
+    vpi_register_systf(&tf_data);
+}
+
 void log_mem_wb_register(void)
 {
     s_vpi_systf_data tf_data;
@@ -542,6 +641,7 @@ void (*vlog_startup_routines[])() = {
     dump_register,
     perf_metrics_register,
     log_id_ex_register,
+    log_ex_mem_register,
     log_mem_wb_register,
     0
 };
