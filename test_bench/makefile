@@ -10,4 +10,4 @@ run_test_bench: test_bench
 clean:
 	rm programs/asm/bin/*.hex programs/asm/mips/*.m
 	rm programs/code/asm/*.s programs/code/bin/*.hex programs/code/mips/*.m
-	rm out/*.mem out/*.reg out/*.perf
+	rm -r out/sim/*/ out/emu/*/
