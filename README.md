@@ -23,11 +23,10 @@ Once these are acquired, the makefile can be run which will compile all four mod
 ### Future Features
 1. Super scalar :+1:
 2. Performance metrics (branch misses, IPC, instruction histograms, stalls) :+1:
-3. Robust Tests
-4. Branch predictor :+1:
-5. Out of order
-6. Compiler - Tuples and Forever loop
-7. OS
-8. SIMD 
-9. Basic terminal output
-10. Memory simulator (cache / memory heirarchy with random latency)
+3. Branch predictor :+1:
+4. Compiler - Tuples :+1:
+5. Emulator :+1:
+6. Instruction Logs :+1:
+7. Out of order
+8. Memory simulator (cache / memory heirarchy with random latency)
+9. Combining instruction memory and data memory
