@@ -3,39 +3,6 @@
 
 static program_state_t p;
 
-// https://stackoverflow.com/questions/10090326/how-to-extract-specific-bits-from-a-number-in-c
-static inline unsigned int bit_select(INSTRUCTION i, unsigned int msb, unsigned int lsb)
-{
-  unsigned int mask = ~(~0 << (msb - lsb + 1));
-  unsigned int value = (i >> lsb) & mask;
-  return value;
-}
-
-static inline unsigned int opcode_of(INSTRUCTION i)
-{
-  return bit_select(i, OPCODE_MSB, OPCODE_LSB);
-}
-
-static inline unsigned int rs_of(INSTRUCTION i)
-{
-  return bit_select(i, REG_RS_MSB, REG_RS_LSB);
-}
-
-static inline unsigned int rt_of(INSTRUCTION i)
-{
-  return bit_select(i, REG_RT_MSB, REG_RT_LSB);
-}
-
-static inline unsigned int rd_of(INSTRUCTION i)
-{
-  return bit_select(i, REG_RD_MSB, REG_RD_LSB);
-}
-
-static inline unsigned int imm_of(INSTRUCTION i)
-{
-  return bit_select(i, IMM_MSB, IMM_LSB);
-}
-
 static void execute_instruction(INSTRUCTION i, program_state_t* p)
 {
   uint8_t opcode = opcode_of(i);
