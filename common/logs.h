@@ -2,7 +2,6 @@
 #define LOGS_H
 
 #include "defines.h"
-#include "vector.h"
 #include <glib.h>
 
 typedef struct instructon_log {

@@ -18,12 +18,7 @@ static unsigned int next_jump_idx;
 
 static perf_metrics_t p;
 
-////
-
-//static Vector* instruction_logs = NULL;
 static GTree* instruction_log_tree = NULL;
-
-////
 
 int compare (gconstpointer a, gconstpointer b)
 {
@@ -81,27 +76,6 @@ void dump_instruction_logs(char* out_dir)
     assert(0);
   }
 
-/*
-  if(instruction_logs != NULL)
-  {
-    int size = vector_size(instruction_logs);
-    for(i=0; i<size; i++)
-    {
-        instruction_log_t* log = vector_get(i, instruction_logs);
-        if (log->instruction != 0)
-        {
-          fprintf(file, "@%lu %d 0x%x 0x%x 0x%x 0x%x\n", 
-            log->timestamp,
-            log->pc,
-            log->instruction,
-            log->reg_read_data0,
-            log->reg_read_data1,
-            log->reg_write_data);
-        }
-    }
-  }
-*/
-
   if (instruction_log_tree != NULL) {
     g_tree_foreach(instruction_log_tree, &traverse, file);
   }
@@ -142,17 +116,10 @@ instruction_log_t* new_instruction_log()
 
 void instruction_log(instruction_log_t* log)
 {
-  /*
-  if(instruction_logs == NULL)
-  {
-    instruction_logs = vector_constructor();
-  }
-  */
   if(instruction_log_tree == NULL)
   {
     instruction_log_tree = g_tree_new(&compare);
   }
-  //vector_add(log, instruction_logs);
   g_tree_insert(instruction_log_tree, &(log->id), log);
 }
 

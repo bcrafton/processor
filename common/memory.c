@@ -5,8 +5,6 @@ WORD dmemory[DMEMORY_SIZE];
 REGISTER regfile[REGFILE_SIZE];
 INSTRUCTION imemory[IMEMORY_SIZE];
 
-Vector* wr_trans_list = NULL;
-
 WORD mem_read(WORD address, uint8_t memory_id)
 {    
   WORD data;
@@ -51,22 +49,6 @@ WORD mem_read(WORD address, uint8_t memory_id)
   return data;
 }
 
-void log_write_tr(WORD pc, WORD address, WORD data, uint8_t memory_id)
-{
-  if(wr_trans_list == NULL)
-  {
-    wr_trans_list = vector_constructor();
-  }
-
-  memory_trans_t* tr = (memory_trans_t*) malloc(sizeof(memory_trans_t));
-  tr->pc = pc;
-  tr->address = address;
-  tr->data = data;
-  tr->memory_id = memory_id;
-
-  vector_add(tr, wr_trans_list);
-}
-
 WORD mem_write(WORD address, WORD data, uint8_t memory_id)
 {    
   switch(memory_id)
@@ -94,7 +76,6 @@ WORD mem_write(WORD address, WORD data, uint8_t memory_id)
       }
       else
       {
-        log_write_tr(0, address, data, REGFILE_ID);
         regfile[address] = data;
       }
       break;
@@ -134,25 +115,6 @@ void dump_memory(char* out_path)
   for(i=0; i<REGFILE_SIZE; i++)
   {
       fprintf(file, "%08x\n", regfile[i]);
-  }
-  fclose(file);
-
-  sprintf(filepath, "%s/wr_trans", out_path);
-  file = fopen(filepath, "w");
-  if(file == NULL)
-  {
-    fprintf(stderr, "could not find %s\n", filepath);
-    assert(0);
-  }
-
-  if(wr_trans_list != NULL)
-  {
-    int size = vector_size(wr_trans_list);
-    for(i=0; i<size; i++)
-    {
-        memory_trans_t* wr_tr = vector_get(i, wr_trans_list);
-        fprintf(file, "addr: %08x data: %08x\n", wr_tr->address, wr_tr->data);
-    }
   }
   fclose(file);
 }
