@@ -273,6 +273,86 @@ GQueue* load_instruction_log(char* dir, char* filename)
 
 bool diff_instruction_log(instruction_log_t* log1, instruction_log_t* log2)
 {
+
+  bool pass = (log1->instruction == log2->instruction);
+  pass = pass && (log1->pc == log2->pc);
+
+  uint8_t opcode = opcode_of(log1->instruction);
+
+  switch (opcode) {
+    // 6'b00xxxx
+    case OP_CODE_ADD:
+    case OP_CODE_SUB:
+    case OP_CODE_NOT:
+    case OP_CODE_AND:
+    case OP_CODE_OR:
+    case OP_CODE_NAND:
+    case OP_CODE_NOR:
+    case OP_CODE_MOV:
+    case OP_CODE_SAR:
+    case OP_CODE_SHR:
+    case OP_CODE_SHL:
+    case OP_CODE_XOR:
+    case OP_CODE_TEST:
+    case OP_CODE_CMP:
+      pass = pass && (log1->alu_in0 == log2->alu_in0);
+      pass = pass && (log1->alu_in1 == log2->alu_in1);
+      break;
+
+    // 6'b01xxxx
+    case OP_CODE_ADDI:
+    case OP_CODE_SUBI:
+    case OP_CODE_NOTI:
+    case OP_CODE_ANDI:
+    case OP_CODE_ORI:
+    case OP_CODE_NANDI:
+    case OP_CODE_NORI:
+    case OP_CODE_MOVI:
+    case OP_CODE_SARI:
+    case OP_CODE_SHRI:
+    case OP_CODE_SHLI:
+    case OP_CODE_XORI:
+    case OP_CODE_TESTI:
+    case OP_CODE_CMPI:
+      pass = pass && (log1->alu_in0 == log2->alu_in0);
+      pass = pass && (log1->alu_in1 == log2->alu_in1);
+      break;
+
+    // 6'b10xxxx
+    case OP_CODE_LW:
+      pass = pass && (log1->alu_in0 == log2->alu_in0);
+      pass = pass && (log1->alu_in1 == log2->alu_in1);
+      pass = pass && (log1->mem_read_data == log2->mem_read_data);
+      break;
+    case OP_CODE_SW:
+      pass = pass && (log1->alu_in0 == log2->alu_in0);
+      pass = pass && (log1->alu_in1 == log2->alu_in1);
+      pass = pass && (log1->mem_write_data == log2->mem_write_data);
+      break;
+    case OP_CODE_LA:
+      break;
+    case OP_CODE_SA:
+      break;
+
+    // 6'b11xxxx
+    case OP_CODE_JMP:
+    case OP_CODE_JO:
+    case OP_CODE_JE:
+    case OP_CODE_JNE:
+    case OP_CODE_JL:
+    case OP_CODE_JLE:
+    case OP_CODE_JG:
+    case OP_CODE_JGE:
+    case OP_CODE_JZ:
+    case OP_CODE_JNZ:
+    case OP_CODE_JR:
+    case OP_CODE_NOP:
+      break;
+
+    default:
+      printf("invalid instruction!\n");
+  }
+  return pass;
 }
 
 bool diff_instruction_logs(GQueue* q1, GQueue* q2)
@@ -290,9 +370,7 @@ bool diff_instruction_logs(GQueue* q1, GQueue* q2)
     instruction_log_t* log1 = g_queue_pop_head(q1);
     instruction_log_t* log2 = g_queue_pop_head(q2);
 
-    bool pass = (log1->instruction == log2->instruction);
-    pass = pass && (log1->pc == log2->pc);
-  
+    bool pass = diff_instruction_log(log1, log2);
     if(!pass)
     {
       return false;
