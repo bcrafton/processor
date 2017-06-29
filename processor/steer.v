@@ -19,7 +19,7 @@ module steer(
   pc0_out,
   pc1_out,
 
-  timestamp,
+  cycle_count,
   instruction0_id,
   instruction1_id
   );
@@ -56,30 +56,21 @@ module steer(
 
   reg prev_stall;
 
-  input wire [63:0] timestamp;
-  output wire [63:0] instruction0_id;
-  output wire [63:0] instruction1_id;
+  input wire [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
+  output wire [`INSTRUCTION_ID_WIDTH-1:0] instruction0_id;
+  output wire [`INSTRUCTION_ID_WIDTH-1:0] instruction1_id;
 
   assign opcode0 = instruction0_in[`OPCODE_MSB:`OPCODE_LSB];
   assign opcode1 = instruction1_in[`OPCODE_MSB:`OPCODE_LSB];
 
-/*
-  initial begin
-    instruction0_id <= 0;
-    instruction1_id <= 0;
-  end
-*/
-
-  wire [3:0] tag0  = !first ? 64'h0000000000000001 : 64'h0000000000000002;
-  wire [3:0] tag1  = first ? 64'h0000000000000001 : 64'h0000000000000002;
+  wire [`NUM_BITS_PIPE_ID-1:0] tag0  = !first ? `PIPE_ID1 : `PIPE_ID2;
+  wire [`NUM_BITS_PIPE_ID-1:0] tag1  = first  ? `PIPE_ID1 : `PIPE_ID2;
   
-  assign instruction0_id = (timestamp << 4) | tag0;
-  assign instruction1_id = (timestamp << 4) | tag1;
+  assign instruction0_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag0;
+  assign instruction1_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag1;
 
   always @(posedge clk) begin
     if(stall == 0) begin
-      //instruction0_id <= (timestamp & 64'h0000FFFFFFFFFFFF) | 64'h0002000000000000;
-      //instruction1_id <= (timestamp & 64'h0000FFFFFFFFFFFF) | 64'h0003000000000000;
       prev_stall <= steer_stall;  
     end
   end

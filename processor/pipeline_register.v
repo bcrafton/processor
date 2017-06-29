@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+`include "defines.vh"
+
 module if_id_register(
   clk,
   stall,
@@ -31,7 +33,7 @@ module if_id_register(
   input wire [`ADDR_WIDTH-1:0] pc_in;
   input wire branch_taken_in;
   input wire [`ADDR_WIDTH-1:0] branch_taken_address_in;
-  input wire [63:0] id_in;
+  input wire [`INSTRUCTION_ID_WIDTH-1:0] id_in;
 
   reg stall_latch;
   reg flush_latch;
@@ -42,14 +44,14 @@ module if_id_register(
   reg [`ADDR_WIDTH-1:0] pc;
   reg branch_taken;
   reg [`ADDR_WIDTH-1:0] branch_taken_address;
-  reg [63:0] id;
+  reg [`INSTRUCTION_ID_WIDTH-1:0] id;
 
   output wire [`INST_WIDTH-1:0] instruction_out;
   output wire first_out;
   output wire [`ADDR_WIDTH-1:0] pc_out;
   output wire branch_taken_out;
   output wire [`ADDR_WIDTH-1:0] branch_taken_address_out;
-  output wire [63:0] id_out;
+  output wire [`INSTRUCTION_ID_WIDTH-1:0] id_out;
 
   assign instruction_out =          nop_latch ? 0 : instruction;
   assign first_out =                nop_latch ? 0 : first;
@@ -176,7 +178,7 @@ module id_ex_register(
   input wire [`ADDR_WIDTH-1:0] pc_in;
   input wire branch_taken_in;
   input wire [`ADDR_WIDTH-1:0] branch_taken_address_in;
-  input wire [63:0] id_in;
+  input wire [`INSTRUCTION_ID_WIDTH-1:0] id_in;
 
   reg stall_latch;
   reg flush_latch;
@@ -203,7 +205,7 @@ module id_ex_register(
   reg [`ADDR_WIDTH-1:0] pc;
   reg branch_taken;
   reg [`ADDR_WIDTH-1:0] branch_taken_address;
-  reg [63:0] id;
+  reg [`INSTRUCTION_ID_WIDTH-1:0] id;
 
   output wire [`NUM_REGISTERS_LOG2-1:0] rs_out;
   output wire [`NUM_REGISTERS_LOG2-1:0] rt_out;
@@ -226,7 +228,7 @@ module id_ex_register(
   output wire [`ADDR_WIDTH-1:0] pc_out;
   output wire branch_taken_out;
   output wire [`ADDR_WIDTH-1:0] branch_taken_address_out;
-  output wire [63:0] id_out;
+  output wire [`INSTRUCTION_ID_WIDTH-1:0] id_out;
 
   assign rs_out =                   nop_latch ? 0 : rs;
   assign rt_out =                   nop_latch ? 0 : rt;
@@ -393,7 +395,7 @@ module ex_mem_register(
   input wire [`INST_WIDTH-1:0] instruction_in;
   input wire first_in;
   input wire [`ADDR_WIDTH-1:0] pc_in;
-  input wire [63:0] id_in;
+  input wire [`INSTRUCTION_ID_WIDTH-1:0] id_in;
 
   reg stall_latch;
   reg flush_latch;
@@ -412,7 +414,7 @@ module ex_mem_register(
   reg [`INST_WIDTH-1:0] instruction;
   reg first;
   reg [`ADDR_WIDTH-1:0] pc;
-  reg [63:0] id;
+  reg [`INSTRUCTION_ID_WIDTH-1:0] id;
 
   output wire [`DATA_WIDTH-1:0] alu_result_out;
   output wire [`DATA_WIDTH-1:0] data_1_out;
@@ -427,7 +429,7 @@ module ex_mem_register(
   output wire [`INST_WIDTH-1:0] instruction_out;
   output wire first_out;
   output wire [`ADDR_WIDTH-1:0] pc_out;
-  output wire [63:0] id_out;
+  output wire [`INSTRUCTION_ID_WIDTH-1:0] id_out;
 
   assign alu_result_out =         nop_latch ? 0 : alu_result;
   assign data_1_out =             nop_latch ? 0 : data_1;
@@ -547,7 +549,7 @@ module mem_wb_register(
   input wire [`INST_WIDTH-1:0] instruction_in;
   input wire first_in;
   input wire [`ADDR_WIDTH-1:0] pc_in;
-  input wire [63:0] id_in;
+  input wire [`INSTRUCTION_ID_WIDTH-1:0] id_in;
 
   reg stall_latch;
   reg flush_latch;
@@ -561,7 +563,7 @@ module mem_wb_register(
   reg [`INST_WIDTH-1:0] instruction;
   reg first;
   reg [`ADDR_WIDTH-1:0] pc;
-  reg [63:0] id;
+  reg [`INSTRUCTION_ID_WIDTH-1:0] id;
 
   output wire mem_to_reg_out;
   output wire [`DATA_WIDTH-1:0] ram_read_data_out;
@@ -571,7 +573,7 @@ module mem_wb_register(
   output wire [`INST_WIDTH-1:0] instruction_out;
   output wire first_out;
   output wire [`ADDR_WIDTH-1:0] pc_out;
-  output wire [63:0] id_out;
+  output wire [`INSTRUCTION_ID_WIDTH-1:0] id_out;
 
   assign mem_to_reg_out =     nop_latch ? 0 : mem_to_reg;
   assign ram_read_data_out =  nop_latch ? 0 : ram_read_data;

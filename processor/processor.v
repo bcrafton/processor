@@ -202,20 +202,20 @@ module processor(
   wire [`ADDR_WIDTH-1:0] id_ex_branch_taken_address;
 
   // the unique ids for each instruction in the pipe.
-  wire [63:0] instruction0_id;
-  wire [63:0] instruction1_id;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] instruction0_id;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] instruction1_id;
 
-  wire [63:0] if_id_instruction0_id;
-  wire [63:0] if_id_instruction1_id;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] if_id_instruction0_id;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] if_id_instruction1_id;
 
-  wire [63:0] id_ex_instruction0_id;
-  wire [63:0] id_ex_instruction1_id;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] id_ex_instruction0_id;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] id_ex_instruction1_id;
 
-  wire [63:0] ex_mem_instruction0_id;
-  wire [63:0] ex_mem_instruction1_id;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] ex_mem_instruction0_id;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] ex_mem_instruction1_id;
 
-  wire [63:0] mem_wb_instruction0_id;
-  wire [63:0] mem_wb_instruction1_id;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] mem_wb_instruction0_id;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] mem_wb_instruction1_id;
 
 /*
   // logs
@@ -259,7 +259,7 @@ module processor(
   wire [`DATA_WIDTH-1:0] LOG_mem_wb_alu_in1_in1;
 */
 
-  wire [63:0] timestamp;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
 
   assign opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 = if_id_instruction0[`REG_RS_MSB:`REG_RS_LSB];
@@ -344,7 +344,7 @@ module processor(
   .branch_taken(branch_taken),
   .branch_taken_address(branch_taken_address),
 
-  .timestamp(timestamp)
+  .cycle_count(cycle_count)
   );
   
   instruction_memory im(
@@ -371,7 +371,7 @@ module processor(
   .pc0_out(steer_pc0),
   .pc1_out(steer_pc1),
 
-  .timestamp(timestamp),
+  .cycle_count(cycle_count),
   .instruction0_id(instruction0_id),
   .instruction1_id(instruction1_id)
   );

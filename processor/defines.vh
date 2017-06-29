@@ -13,6 +13,12 @@
 `define GARBAGE           32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 `define NOP_INSTRUCTION   32'b00000000000000000000000000000000
 
+`define INSTRUCTION_ID_WIDTH 64
+
+`define PIPE_ID1          64'h0000000000000001  
+`define PIPE_ID2          64'h0000000000000002
+`define NUM_BITS_PIPE_ID  4
+
 `define PIPE_REG_PC       5'b00001
 `define PIPE_REG_IF_ID    5'b00010
 `define PIPE_REG_ID_EX    5'b00100
