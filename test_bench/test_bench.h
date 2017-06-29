@@ -4,6 +4,7 @@
 
 #include "../common/defines.h"
 #include "../common/logs.h"
+#include "../common/instruction.h"
 #include <glib.h>
 //#include "../emulator/emulator.h"
 
