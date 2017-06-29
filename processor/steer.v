@@ -70,8 +70,11 @@ module steer(
   end
 */
 
-  assign instruction0_id = ((timestamp >> 0) & 64'h0FFFFFFFFFFFFFFF) | 64'h2000000000000000;
-  assign instruction1_id = ((timestamp >> 0) & 64'h0FFFFFFFFFFFFFFF) | 64'h3000000000000000;
+  wire [3:0] tag0  = !first ? 64'h0000000000000001 : 64'h0000000000000002;
+  wire [3:0] tag1  = first ? 64'h0000000000000001 : 64'h0000000000000002;
+  
+  assign instruction0_id = (timestamp << 4) | tag0;
+  assign instruction1_id = (timestamp << 4) | tag1;
 
   always @(posedge clk) begin
     if(stall == 0) begin
