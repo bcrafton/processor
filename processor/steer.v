@@ -17,7 +17,11 @@ module steer(
   pc_in,
 
   pc0_out,
-  pc1_out
+  pc1_out,
+
+  cycle_count,
+  instruction0_id,
+  instruction1_id
   );
 
   input wire clk;
@@ -38,6 +42,7 @@ module steer(
 
   input wire [`ADDR_WIDTH-1:0] pc_in;
 
+  // kinda a hack.
   wire [`ADDR_WIDTH-1:0] pc0_in = pc_in;
   wire [`ADDR_WIDTH-1:0] pc1_in = pc_in + 1;
 
@@ -51,8 +56,18 @@ module steer(
 
   reg prev_stall;
 
+  input wire [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
+  output wire [`INSTRUCTION_ID_WIDTH-1:0] instruction0_id;
+  output wire [`INSTRUCTION_ID_WIDTH-1:0] instruction1_id;
+
   assign opcode0 = instruction0_in[`OPCODE_MSB:`OPCODE_LSB];
   assign opcode1 = instruction1_in[`OPCODE_MSB:`OPCODE_LSB];
+
+  wire [`NUM_BITS_PIPE_ID-1:0] tag0  = !first ? `PIPE_ID1 : `PIPE_ID2;
+  wire [`NUM_BITS_PIPE_ID-1:0] tag1  = first  ? `PIPE_ID1 : `PIPE_ID2;
+  
+  assign instruction0_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag0;
+  assign instruction1_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag1;
 
   always @(posedge clk) begin
     if(stall == 0) begin

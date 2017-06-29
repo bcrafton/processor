@@ -8,6 +8,10 @@
 test_bench/actual/*
 
 test_bench/performance/*
+test_bench/out/*
+test_bench/test_bench
+
+emulator/emulator
 
 test_bench/programs/code/asm/*
 test_bench/programs/code/bin/*

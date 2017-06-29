@@ -17,6 +17,8 @@ module program_counter(
   branch_predict,
   branch_taken,
   branch_taken_address,
+
+  cycle_count
   );
 
   input wire clk;
@@ -41,13 +43,18 @@ module program_counter(
 
   wire branch = ((opcode & 6'b110000) == 6'b110000) && (opcode != `OP_CODE_JMP);
 
+  output reg [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
+
   initial begin
     pc = 0;
     branch_taken = 0;
     branch_taken_address = 0;
+    cycle_count = 0;
   end
 
   always @(posedge clk) begin
+
+    cycle_count = cycle_count + 1;
 
     if(flush) begin
       pc <= branch_address;
