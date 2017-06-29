@@ -271,7 +271,11 @@ GQueue* load_instruction_log(char* dir, char* filename)
   return q;
 }
 
-bool diff_instruction_log(GQueue* q1, GQueue* q2)
+bool diff_instruction_log(instruction_log_t* log1, instruction_log_t* log2)
+{
+}
+
+bool diff_instruction_logs(GQueue* q1, GQueue* q2)
 {
   int length1 = g_queue_get_length(q1);
   int length2 = g_queue_get_length(q2);
@@ -337,7 +341,7 @@ bool check_code(test_t* test)
   GQueue* q1 = load_instruction_log(sim_out_path, "/logs");
   GQueue* q2 = load_instruction_log(emu_out_path, "/logs");
 
-  diff = diff && diff_instruction_log(q1, q2);
+  diff = diff && diff_instruction_logs(q1, q2);
 
   return diff;
 }
