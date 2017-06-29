@@ -271,6 +271,29 @@ GQueue* load_instruction_log(char* dir, char* filename)
   return q;
 }
 
+bool diff_instruction_log(GQueue* q1, GQueue* q2)
+{
+  int length1 = g_queue_get_length(q1);
+  int length2 = g_queue_get_length(q2);
+  if (length1 != length2)
+  {
+    return false;
+  }
+  
+  int i;
+  for(i=0; i<length1; i++)
+  {
+    instruction_log_t* log1 = g_queue_pop_head(q1);
+    instruction_log_t* log2 = g_queue_pop_head(q2);
+    
+    if(log1->instruction != log2->instruction)
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
 bool diff_memory(WORD* mem1, WORD* mem2, uint32_t mem_size)
 {
   int i;
@@ -308,7 +331,10 @@ bool check_code(test_t* test)
   diff = diff && diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
   diff = diff && diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
 
-  load_instruction_log(sim_out_path, "/logs");
+  GQueue* q1 = load_instruction_log(sim_out_path, "/logs");
+  GQueue* q2 = load_instruction_log(emu_out_path, "/logs");
+
+  diff = diff && diff_instruction_log(q1, q2);
 
   return diff;
 }
