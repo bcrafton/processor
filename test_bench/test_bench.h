@@ -3,6 +3,8 @@
 #define TEST_BENCH_H
 
 #include "../common/defines.h"
+#include "../common/logs.h"
+#include <glib.h>
 //#include "../emulator/emulator.h"
 
 ///////////////////////////////////////////

@@ -209,7 +209,6 @@ int main()
 
 void load_memory(char* dir, char* filename, char* ext, WORD memory[], uint32_t size)
 {
-
   char filepath[100];
   sprintf(filepath, "%s%s%s", dir, filename, ext);
 
@@ -231,6 +230,45 @@ void load_memory(char* dir, char* filename, char* ext, WORD memory[], uint32_t s
     }
   }
   fclose(file);
+}
+
+GQueue* load_instruction_log(char* dir, char* filename)
+{
+  GQueue* q = g_queue_new();
+
+  char filepath[100];
+  sprintf(filepath, "%s%s", dir, filename);
+
+  FILE *file;
+  file = fopen(filepath, "r");
+  if(file == NULL)
+  {
+    fprintf(stderr, "could not find %s\n", filepath);
+    assert(0);
+  }
+
+  unsigned long timestamp;
+  unsigned long id;
+  uint32_t pc;
+  uint32_t instruction;
+  uint32_t alu_in0;
+  uint32_t alu_in1;
+
+  while( fscanf(file, "@%lu 0x%lx %d 0x%x 0x%x 0x%x\n", &timestamp, &id, &pc, &instruction, &alu_in0, &alu_in1) != EOF )
+  {
+    instruction_log_t* log = new_instruction_log();
+  
+    log->timestamp = timestamp;
+    log->id = id;
+    log->pc = pc;
+    log->instruction = instruction;
+    log->alu_in0 = alu_in0;
+    log->alu_in1 = alu_in1;
+
+    g_queue_push_tail(q, log);
+  }
+  
+  return q;
 }
 
 bool diff_memory(WORD* mem1, WORD* mem2, uint32_t mem_size)
@@ -269,6 +307,8 @@ bool check_code(test_t* test)
   bool diff = (reg_emu[0] == test->ans);
   diff = diff && diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
   diff = diff && diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
+
+  load_instruction_log(sim_out_path, "/logs");
 
   return diff;
 }
