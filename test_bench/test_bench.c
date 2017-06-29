@@ -285,8 +285,11 @@ bool diff_instruction_log(GQueue* q1, GQueue* q2)
   {
     instruction_log_t* log1 = g_queue_pop_head(q1);
     instruction_log_t* log2 = g_queue_pop_head(q2);
-    
-    if(log1->instruction != log2->instruction)
+
+    bool pass = (log1->instruction == log2->instruction);
+    pass = pass && (log1->pc == log2->pc);
+  
+    if(!pass)
     {
       return false;
     }
