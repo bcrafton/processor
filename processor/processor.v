@@ -318,8 +318,8 @@ module processor(
 
   reg instruction_log_bit;
   always @(posedge clk) begin
-    instruction_log_bit = $log_id_ex(id_ex_instruction0_id, id_ex_reg_read_data_1_0, id_ex_reg_read_data_2_0);
-    instruction_log_bit = $log_id_ex(id_ex_instruction1_id, id_ex_reg_read_data_1_1, id_ex_reg_read_data_2_1);
+    instruction_log_bit = $log_id_ex(id_ex_instruction0_id, id_ex_reg_read_data_1_0, id_ex_reg_read_data_2_0, alu_input_mux_1_result0, alu_src_result0);
+    instruction_log_bit = $log_id_ex(id_ex_instruction1_id, id_ex_reg_read_data_1_1, id_ex_reg_read_data_2_1, alu_input_mux_1_result1, alu_src_result1);
 
     instruction_log_bit = $log_ex_mem(ex_mem_instruction0_id, ram_read_data, ex_mem_data_2_1);
     instruction_log_bit = $log_ex_mem(ex_mem_instruction1_id, ram_read_data, ex_mem_data_2_1);

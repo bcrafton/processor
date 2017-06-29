@@ -55,6 +55,9 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
 
   uint32_t branch_taken = 0;
 
+  uint32_t op1 = 0;
+  uint32_t op2 = 0;
+
   instruction_log_t* log = (instruction_log_t*) malloc(sizeof(instruction_log_t));
   log->pc = p->pc;
   log->timestamp = p->instruction_count;
@@ -69,12 +72,16 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
   switch (opcode) {
     // 6'b00xxxx
     case OP_CODE_ADD:
-      write_data = rs_data + rt_data;
+      op1 = rs_data;
+      op2 = rt_data;
+      write_data = op1 + op2;
       mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SUB:
-      write_data = rs_data - rt_data;
+      op1 = rs_data;
+      op2 = rt_data;
+      write_data = op1 - op2;
       mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
@@ -82,72 +89,98 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
       printf("not implemented yet: not\n");
       break;
     case OP_CODE_AND:
-      write_data = rs_data & rt_data;
+      op1 = rs_data;
+      op2 = rt_data;
+      write_data = op1 & op2;
       mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_OR:
-      write_data = rs_data | rt_data;
+      op1 = rs_data;
+      op2 = rt_data;
+      write_data = op1 | op2;
       mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NAND:
-      write_data = ~(rs_data & rt_data);
+      op1 = rs_data;
+      op2 = rt_data;
+      write_data = ~(op1 & op2);
       mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NOR:
-      write_data = ~(rs_data | rt_data);
+      op1 = rs_data;
+      op2 = rt_data;
+      write_data = ~(op1 | op2);
       mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_MOV:
-      write_data = rt_data;
+      op1 = rs_data;
+      op2 = rt_data;
+      write_data = op2;
       mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SAR:
       // there is no sar in c ...
-      write_data = rs_data >> rt_data;
+      op1 = rs_data;
+      op2 = rt_data;
+      write_data = op1 >> op2;
       mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SHR:
-      write_data = rs_data >> rt_data;
+      op1 = rs_data;
+      op2 = rt_data;
+      write_data = op1 >> op2;
       mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SHL:
-      write_data = rs_data << rt_data;
+      op1 = rs_data;
+      op2 = rt_data;
+      write_data = op1 << op2;
       mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_XOR:
-      write_data = rs_data ^ rt_data;
+      op1 = rs_data;
+      op2 = rt_data;
+      write_data = op1 ^ op2;
       mem_write(rd, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_TEST:
+      op1 = rs_data;
+      op2 = rt_data;
       p->pc++;
-      p->zero = (rs_data & rt_data) == 0;
-      p->less = (rs_data < rt_data);
-      p->greater = (rs_data > rt_data);
+      p->zero = (op1 & op2) == 0;
+      p->less = (op1 < op2);
+      p->greater = (op1 > op2);
       break;
     case OP_CODE_CMP:
+      op1 = rs_data;
+      op2 = rt_data;
       p->pc++;
-      p->zero = (rs_data - rt_data) == 0;
-      p->less = (rs_data < rt_data);
-      p->greater = (rs_data > rt_data);
+      p->zero = (op1 - op2) == 0;
+      p->less = (op1 < op2);
+      p->greater = (op1 > op2);
       break;
 
     // 6'b01xxxx
     case OP_CODE_ADDI:
-      write_data = rs_data + imm;
+      op1 = rs_data;
+      op2 = imm;
+      write_data = op1 + op2;
       mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SUBI:
-      write_data = rs_data - imm;
+      op1 = rs_data;
+      op2 = imm;
+      write_data = op1 - op2;
       mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
@@ -155,67 +188,92 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
       printf("not implemented yet: noti\n");
       break;
     case OP_CODE_ANDI:
-      write_data = rs_data & imm;
+      op1 = rs_data;
+      op2 = imm;
+      write_data = op1 & op2;
       mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_ORI:
-      write_data = rs_data | imm;
+      op1 = rs_data;
+      op2 = imm;
+      write_data = op1 | op2;
       mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NANDI:
-      write_data = ~(rs_data & imm);
+      op1 = rs_data;
+      op2 = imm;
+      write_data = ~(op1 & op2);
       mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_NORI:
-      write_data = ~(rs_data | imm);
+      op1 = rs_data;
+      op2 = imm;
+      write_data = ~(op1 | op2);
       mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_MOVI:
-      write_data = imm;
+      op1 = rs_data;
+      op2 = imm;
+      write_data = op2;
       mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SARI:
       // there is no sar in c ...
-      write_data = rs_data >> imm;
+      op1 = rs_data;
+      op2 = imm;
+      write_data = op1 >> op2;
       mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SHRI:
-      write_data = rs_data >> imm;
+      op1 = rs_data;
+      op2 = imm;
+      write_data = op1 >> op2;
       mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_SHLI:
-      write_data = rs_data << imm;
+      op1 = rs_data;
+      op2 = imm;
+      write_data = op1 << op2;
       mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_XORI:
-      write_data = rs_data ^ imm;
+      op1 = rs_data;
+      op2 = imm;
+      write_data = op1 ^ op2;
       mem_write(rt, write_data, REGFILE_ID);
       p->pc++;
       break;
     case OP_CODE_TESTI:
+      op1 = rs_data;
+      op2 = imm;
       p->pc++;
-      p->zero = (rs_data & imm) == 0;
-      p->less = (rs_data < imm);
-      p->greater = (rs_data > imm);
+      p->zero = (op1 & op2) == 0;
+      p->less = (op1 < op2);
+      p->greater = (op1 > op2);
       break;
     case OP_CODE_CMPI:
+      op1 = rs_data;
+      op2 = imm;
       p->pc++;
-      p->zero = (rs_data - imm) == 0;
-      p->less = (rs_data < imm);
-      p->greater = (rs_data > imm);
+      p->zero = (op1 - op2) == 0;
+      p->less = (op1 < op2);
+      p->greater = (op1 > op2);
       break;
 
     // 6'b10xxxx
     case OP_CODE_LW:
-      address = rs_data + imm;
+      op1 = rs_data;
+      op2 = imm;
+
+      address = op1 + op2;
 
       mem_read_data = mem_read(address, DMEM_ID);
       write_data = mem_read_data;
@@ -224,7 +282,10 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
       p->pc++;
       break;
     case OP_CODE_SW:
-      address = rs_data + imm;
+      op1 = rs_data;
+      op2 = imm;
+
+      address = op1 + op2;
 
       mem_write_data = rt_data;
       mem_write(address, mem_write_data, DMEM_ID);
@@ -336,6 +397,9 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
   log->less = p->less;
 
   log->branch_taken = branch_taken;
+
+  log->alu_in0 = op1;
+  log->alu_in1 = op2;
 
   instruction_log(log);
 

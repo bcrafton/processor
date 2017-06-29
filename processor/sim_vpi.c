@@ -154,6 +154,9 @@ PLI_INT32 sim_log_id_ex(char* user_data)
   unsigned int mem_wb_read_data0;
   unsigned int mem_wb_read_data1;
 
+  unsigned int alu_in0;
+  unsigned int alu_in1;
+
   iterator = vpi_iterate(vpiArgument, vhandle);
 
   arg = vpi_scan(iterator);
@@ -193,6 +196,26 @@ PLI_INT32 sim_log_id_ex(char* user_data)
     mem_wb_read_data1 = 0;
   }
 
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    alu_in0 = inval.value.vector[0].aval;
+  }
+  else {
+    alu_in0 = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    alu_in1 = inval.value.vector[0].aval;
+  }
+  else {
+    alu_in1 = 0;
+  }
+
   instruction_log_t* log = get_instruction_log(&id);
   if(log == NULL)
   {
@@ -202,12 +225,18 @@ PLI_INT32 sim_log_id_ex(char* user_data)
     new_log->reg_read_data0 = mem_wb_read_data0;
     new_log->reg_read_data1 = mem_wb_read_data1;
 
+    new_log->alu_in0 = alu_in0;
+    new_log->alu_in1 = alu_in1;
+
     instruction_log(new_log);
   }
   else
   {
     log->reg_read_data0 = mem_wb_read_data0;
     log->reg_read_data1 = mem_wb_read_data1;
+
+    log->alu_in0 = alu_in0;
+    log->alu_in1 = alu_in1;
   }
 
   return 0;
