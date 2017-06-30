@@ -1,4 +1,6 @@
 
+`timescale 1ns / 1ps
+
 // http://www.asic-world.com/examples/verilog/syn_fifo.html
 
 module fifo (
