@@ -45,7 +45,7 @@ module issue(
 */
 
   generate
-    for (i=0; i<8; i=i+1) begin : generate_2d_arrays
+    for (i=0; i<8; i=i+1) begin : generate_2d_arrays // this name cannot start with a #
       assign _ins[i] =          ins[ i*3   + 2 : i*3       ]; 
       assign _depends0[i] = depends[ i*2*3 + 2 : i*2*3     ]; 
       assign _depends1[i] = depends[ i*2*3 + 5 : i*2*3 + 3 ]; 
