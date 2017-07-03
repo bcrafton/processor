@@ -10,22 +10,6 @@ module hazard_detection_unit(
   instruction1,
   first,
 
-/*
-  id_ex_mem_op,
-  id_ex_rt,
-
-  if_id_opcode0,
-  if_id_opcode1,
-
-  if_id_rs0,
-  if_id_rt0,
-  if_id_rd0,
-
-  if_id_rs1,
-  if_id_rt1,
-  if_id_rd1,
-*/
-
   stall0,
   nop0,
 
@@ -42,20 +26,31 @@ module hazard_detection_unit(
   input wire [`INST_WIDTH-1:0] instruction1;
   input wire first;
 
+  reg [`PIPE_BITS-1:0] instruction0_pipe;
+  reg [`PIPE_BITS-1:0] instruction1_pipe;
 /*
-  input wire [`MEM_OP_BITS-1:0] id_ex_mem_op;
-  input wire [`NUM_REGISTERS_LOG2-1:0] id_ex_rt;
+  input wire [`ADDR_WIDTH-1:0] pc_in;
+  input wire [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
+  output reg [`INST_WIDTH-1:0] instruction0_out;
+  output reg [`INST_WIDTH-1:0] instruction1_out;
+  output reg first;
+  output wire [`INSTRUCTION_ID_WIDTH-1:0] instruction0_id;
+  output wire [`INSTRUCTION_ID_WIDTH-1:0] instruction1_id;
 
-  input wire [`OP_CODE_BITS-1:0] if_id_opcode0;
-  input wire [`OP_CODE_BITS-1:0] if_id_opcode1;
+  output reg [`ADDR_WIDTH-1:0] pc0_out;
+  output reg [`ADDR_WIDTH-1:0] pc1_out;
 
-  input wire [`NUM_REGISTERS_LOG2-1:0] if_id_rs0;
-  input wire [`NUM_REGISTERS_LOG2-1:0] if_id_rt0;
-  input wire [`NUM_REGISTERS_LOG2-1:0] if_id_rd0;
+  reg steer_stall;
 
-  input wire [`NUM_REGISTERS_LOG2-1:0] if_id_rs1;
-  input wire [`NUM_REGISTERS_LOG2-1:0] if_id_rt1;
-  input wire [`NUM_REGISTERS_LOG2-1:0] if_id_rd1;
+
+  wire [`NUM_BITS_PIPE_ID-1:0] tag0  = !first ? `PIPE_ID1 : `PIPE_ID2;
+  wire [`NUM_BITS_PIPE_ID-1:0] tag1  = first  ? `PIPE_ID1 : `PIPE_ID2;
+
+  wire [`ADDR_WIDTH-1:0] pc0_in = pc_in;
+  wire [`ADDR_WIDTH-1:0] pc1_in = pc_in + 1;
+  
+  assign instruction0_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag0;
+  assign instruction1_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag1;
 */
 
   output reg [`NUM_PIPE_MASKS-1:0] stall0;
@@ -156,6 +151,65 @@ module hazard_detection_unit(
       stall0 <= 0;
       flush0 <= 0;
     end
+  end
+
+  always @(*) begin
+
+    casex(opcode0)
+      6'b000000: begin
+        instruction0_pipe = `PIPE_DONT_CARE;
+      end
+      6'b00????: begin // add, sub...
+        if (opcode0 == `OP_CODE_CMP || opcode0 == `OP_CODE_TEST) begin
+          instruction0_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction0_pipe = `PIPE_DONT_CARE;
+        end
+      end
+      6'b01????: begin // addi, subi...
+        if (opcode0 == `OP_CODE_CMPI || opcode0 == `OP_CODE_TESTI) begin
+          instruction0_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction0_pipe = `PIPE_DONT_CARE;
+        end        
+      end
+      6'b10????: begin // lw, sw, la, sa
+        instruction0_pipe = `PIPE_MEMORY;
+      end
+      6'b11????: begin // jmp, jo, je ...
+        instruction0_pipe = `PIPE_BRANCH;
+      end
+    endcase
+
+    casex(opcode1)
+      6'b000000: begin
+        instruction1_pipe = `PIPE_DONT_CARE;
+      end
+      6'b00????: begin // add, sub...
+        if (opcode1 == `OP_CODE_CMP || opcode1 == `OP_CODE_TEST) begin
+          instruction1_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction1_pipe = `PIPE_DONT_CARE;
+        end
+      end
+      6'b01????: begin // addi, subi...
+        if (opcode1 == `OP_CODE_CMPI || opcode1 == `OP_CODE_TESTI) begin
+          instruction1_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction1_pipe = `PIPE_DONT_CARE;
+        end        
+      end
+      6'b10????: begin // lw, sw, la, sa
+        instruction1_pipe = `PIPE_MEMORY;
+      end
+      6'b11????: begin // jmp, jo, je ...
+        // actually want to include jmp here.
+        // actually ... it does cost you an instruction sometimes.
+        // yeah but then will add logic for getting the next address.
+        // yeah this and program counter is somewhere to look for a little perf boost.
+        instruction1_pipe = `PIPE_BRANCH;
+      end
+    endcase
   end
 
   always @(*) begin
