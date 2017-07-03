@@ -485,7 +485,22 @@ module processor(
   .nop1(nop1),
 
   .flush0(hazard_flush0),
-  .flush1(hazard_flush1)
+  .flush1(hazard_flush1),
+
+  ////////////////////////////////
+
+  .instruction0_out(),
+  .instruction1_out(),
+
+  .pc_in(),
+
+  .pc0_out(),
+  .pc1_out(),
+
+  .cycle_count(),
+
+  .instruction0_id(),
+  .instruction1_id()
   );
 
 /*

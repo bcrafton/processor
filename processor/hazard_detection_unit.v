@@ -17,7 +17,22 @@ module hazard_detection_unit(
   nop1,
 
   flush0,
-  flush1
+  flush1,
+
+///////////////////////////////////////////////////////////////////////
+
+  pc_in,
+  cycle_count,
+
+  instruction0_id,
+  instruction1_id,
+
+  pc0_out,
+  pc1_out,
+
+  instruction0_out,
+  instruction1_out
+  
   );
 
   input wire [`INST_WIDTH-1:0] load_instruction;
@@ -26,31 +41,38 @@ module hazard_detection_unit(
   input wire [`INST_WIDTH-1:0] instruction1;
   input wire first;
 
-  reg [`PIPE_BITS-1:0] instruction0_pipe;
-  reg [`PIPE_BITS-1:0] instruction1_pipe;
-/*
+///////////////////////////////////////////////////////////////////////
+
   input wire [`ADDR_WIDTH-1:0] pc_in;
   input wire [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
-  output reg [`INST_WIDTH-1:0] instruction0_out;
-  output reg [`INST_WIDTH-1:0] instruction1_out;
-  output reg first;
+
   output wire [`INSTRUCTION_ID_WIDTH-1:0] instruction0_id;
   output wire [`INSTRUCTION_ID_WIDTH-1:0] instruction1_id;
 
   output reg [`ADDR_WIDTH-1:0] pc0_out;
   output reg [`ADDR_WIDTH-1:0] pc1_out;
 
-  reg steer_stall;
+  output reg [`INST_WIDTH-1:0] instruction0_out;
+  output reg [`INST_WIDTH-1:0] instruction1_out;
 
+///////////////////////////////////////////////////////////////////////
+
+  reg [`PIPE_BITS-1:0] instruction0_pipe;
+  reg [`PIPE_BITS-1:0] instruction1_pipe;
 
   wire [`NUM_BITS_PIPE_ID-1:0] tag0  = !first ? `PIPE_ID1 : `PIPE_ID2;
   wire [`NUM_BITS_PIPE_ID-1:0] tag1  = first  ? `PIPE_ID1 : `PIPE_ID2;
 
   wire [`ADDR_WIDTH-1:0] pc0_in = pc_in;
   wire [`ADDR_WIDTH-1:0] pc1_in = pc_in + 1;
-  
+
   assign instruction0_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag0;
   assign instruction1_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag1;
+
+///////////////////////////////////////////////////////////////////////
+
+/*
+  output reg first;
 */
 
   output reg [`NUM_PIPE_MASKS-1:0] stall0;
@@ -82,6 +104,7 @@ module hazard_detection_unit(
 
   reg load_stall;
   reg split_stall;
+  reg steer_stall;
 
   assign opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 =     instruction0[`REG_RS_MSB:`REG_RS_LSB];
@@ -111,6 +134,7 @@ module hazard_detection_unit(
 
     load_stall = 0;
     split_stall = 0;
+    steer_stall = 0;
   end
 
 /*
