@@ -457,10 +457,15 @@ module processor(
   ///////////////////////////////////////////////////////////////////////////////////////////
   
   hazard_detection_unit hdu(
+
+  .load_instruction(id_ex_instruction1),
+  .mem_op(id_ex_mem_op1),
+  .instruction0(if_id_instruction0),
+  .instruction1(if_id_instruction1),
+  .first(if_id_first),
+/*
   .id_ex_mem_op(id_ex_mem_op1), 
   .id_ex_rt(id_ex_rt1), 
-
-  .first(if_id_first),
 
   .if_id_opcode0(opcode0),
   .if_id_opcode1(opcode1),
@@ -472,7 +477,7 @@ module processor(
   .if_id_rs1(rs1), 
   .if_id_rt1(rt1), 
   .if_id_rd1(rd1),
-
+*/
   .stall0(stall0),
   .nop0(nop0),
 

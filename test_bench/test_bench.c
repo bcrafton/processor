@@ -74,7 +74,6 @@ static test_t tests[] = {
 {"nested_tuple", CODE_TEST, 202, 10000},
 {"list", CODE_TEST, 6, 200000},
 {"linked_list", CODE_TEST, 6, 200000},
-
 };
 
 static int num_programs = sizeof(tests)/sizeof(test_t);
