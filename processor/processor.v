@@ -382,7 +382,10 @@ module processor(
 
   .cycle_count(cycle_count),
   .instruction0(instruction0),
-  .instruction1(instruction1)
+  .instruction1(instruction1),
+  
+  .hazard_flush0(1'b0),
+  .hazard_flush1(1'b0)
   );
 
   steer str(

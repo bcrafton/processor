@@ -21,7 +21,10 @@ module program_counter(
   cycle_count,
 
   instruction0,
-  instruction1
+  instruction1,
+
+  hazard_flush0,
+  hazard_flush1
   );
 
   input wire clk;
@@ -48,13 +51,19 @@ module program_counter(
 
   output reg [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
 
+  wire [`INST_WIDTH-1:0] im_instruction0;
+  wire [`INST_WIDTH-1:0] im_instruction1;
+
   output wire [`INST_WIDTH-1:0] instruction0;
   output wire [`INST_WIDTH-1:0] instruction1;
 
+  input wire hazard_flush0;
+  input wire hazard_flush1;
+
   instruction_memory im(
   .pc(pc), 
-  .instruction0(instruction0),
-  .instruction1(instruction1));
+  .instruction0(im_instruction0),
+  .instruction1(im_instruction1));
 
   initial begin
     pc = 0;
@@ -62,6 +71,9 @@ module program_counter(
     branch_taken_address = 0;
     cycle_count = 0;
   end
+
+  assign instruction0 = hazard_flush0 ? 0 : im_instruction0;
+  assign instruction1 = hazard_flush1 ? 0 : im_instruction1;
 
   always @(posedge clk) begin
 
