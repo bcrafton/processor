@@ -85,6 +85,9 @@ module hazard_detection_unit(
 
   wire [`NUM_REGISTERS_LOG2-1:0] load_rt;
 
+  reg load_stall;
+  reg split_stall;
+
   assign opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 =     instruction0[`REG_RS_MSB:`REG_RS_LSB];
   assign rt0 =     instruction0[`REG_RT_MSB:`REG_RT_LSB];
@@ -110,6 +113,9 @@ module hazard_detection_unit(
     nop1 <= 0;
     flush0 <= 0;
     flush1 <= 0;
+
+    load_stall = 0;
+    split_stall = 0;
   end
 
 /*
@@ -120,6 +126,37 @@ module hazard_detection_unit(
     end
   end
 */
+
+  always @(*) begin
+    if (load_stall) begin
+      stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+      flush0 <= `PIPE_REG_ID_EX;
+
+      stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+      flush1 <= `PIPE_REG_ID_EX;
+    end else if (split_stall) begin
+
+      if (first) begin
+        stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+        flush0 <= `PIPE_REG_ID_EX;
+
+        stall1 <= `PIPE_REG_PC;
+        flush1 <= `PIPE_REG_IF_ID;
+      end else begin
+        stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+        flush1 <= `PIPE_REG_ID_EX;
+
+        stall0 <= `PIPE_REG_PC;
+        flush0 <= `PIPE_REG_IF_ID;
+      end
+    end else begin
+      stall1 <= 0;
+      flush1 <= 0;
+
+      stall0 <= 0;
+      flush0 <= 0;
+    end
+  end
 
   always @(*) begin
 
@@ -205,22 +242,14 @@ module hazard_detection_unit(
 
     // well that needs to be fixed.
     if((rs0 == load_rt || rt0 == load_rt) && (mem_op == `MEM_OP_READ)) begin
-      
-      stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-      flush0 <= `PIPE_REG_ID_EX;
-
-      stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-      flush1 <= `PIPE_REG_ID_EX;
-
+      load_stall = 1;
     end else if((rs1 == load_rt || rt1 == load_rt) && (mem_op == `MEM_OP_READ)) begin
-      
-      stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-      flush0 <= `PIPE_REG_ID_EX;
-
-      stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-      flush1 <= `PIPE_REG_ID_EX;
-
+      load_stall = 1;
     end else begin
+      load_stall = 0;
+    end
+
+    if(!load_stall) begin
 
       if (first) begin
 
@@ -228,101 +257,49 @@ module hazard_detection_unit(
 
           {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RT}: begin
             if (rs0 == rt1 || rt0 == rt1) begin
-              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              flush0 <= `PIPE_REG_ID_EX;
-
-              stall1 <= `PIPE_REG_PC;
-              flush1 <= `PIPE_REG_IF_ID;
+              split_stall = 1;
             end else begin
-              stall0 <= 0;
-              flush0 <= 0;
-
-              stall1 <= 0;
-              flush1 <= 0;
+              split_stall = 0;
             end
           end
           {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RD}: begin
             if (rs0 == rd1 || rt0 == rd1) begin
-              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              flush0 <= `PIPE_REG_ID_EX;
-
-              stall1 <= `PIPE_REG_PC;
-              flush1 <= `PIPE_REG_IF_ID;
+              split_stall = 1;
             end else begin
-              stall0 <= 0;
-              flush0 <= 0;
-
-              stall1 <= 0;
-              flush1 <= 0;
+              split_stall = 0;
             end
           end
 
           {`REG_MASK_RS, `REG_MASK_RT}: begin
             if (rs0 == rt1) begin
-              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              flush0 <= `PIPE_REG_ID_EX;
-
-              stall1 <= `PIPE_REG_PC;
-              flush1 <= `PIPE_REG_IF_ID;
+              split_stall = 1;
             end else begin
-              stall0 <= 0;
-              flush0 <= 0;
-
-              stall1 <= 0;
-              flush1 <= 0;
+              split_stall = 0;
             end
           end
           {`REG_MASK_RS, `REG_MASK_RD}: begin
             if (rs0 == rd1) begin
-              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              flush0 <= `PIPE_REG_ID_EX;
-
-              stall1 <= `PIPE_REG_PC;
-              flush1 <= `PIPE_REG_IF_ID;
+              split_stall = 1;
             end else begin
-              stall0 <= 0;
-              flush0 <= 0;
-
-              stall1 <= 0;
-              flush1 <= 0;
+              split_stall = 0;
             end
           end
           {`REG_MASK_RT, `REG_MASK_RT}: begin
             if (rt0 == rt1) begin
-              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              flush0 <= `PIPE_REG_ID_EX;
-
-              stall1 <= `PIPE_REG_PC;
-              flush1 <= `PIPE_REG_IF_ID;
+              split_stall = 1;
             end else begin
-              stall0 <= 0;
-              flush0 <= 0;
-
-              stall1 <= 0;
-              flush1 <= 0;
+              split_stall = 0;
             end
           end
           {`REG_MASK_RT, `REG_MASK_RD}: begin
             if (rt0 == rd1) begin
-              stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              flush0 <= `PIPE_REG_ID_EX;
-
-              stall1 <= `PIPE_REG_PC;
-              flush1 <= `PIPE_REG_IF_ID;
+               split_stall = 1;
             end else begin
-              stall0 <= 0;
-              flush0 <= 0;
-
-              stall1 <= 0;
-              flush1 <= 0;
+              split_stall = 0;
             end
           end
           default: begin
-            stall0 <= 0;
-            flush0 <= 0;
-
-            stall1 <= 0;
-            flush1 <= 0;
+            split_stall = 0;
           end
         endcase
 
@@ -332,101 +309,49 @@ module hazard_detection_unit(
 
           {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RT}: begin
             if (rs1 == rt0 || rt1 == rt0) begin
-              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              flush1 <= `PIPE_REG_ID_EX;
-
-              stall0 <= `PIPE_REG_PC;
-              flush0 <= `PIPE_REG_IF_ID;
+              split_stall = 1;
             end else begin
-              stall0 <= 0;
-              flush0 <= 0;
-
-              stall1 <= 0;
-              flush1 <= 0;
+              split_stall = 0;
             end
           end
           {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RD}: begin
             if (rs1 == rd0 || rt1 == rd0) begin
-              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              flush1 <= `PIPE_REG_ID_EX;
-
-              stall0 <= `PIPE_REG_PC;
-              flush0 <= `PIPE_REG_IF_ID;
+              split_stall = 1;
             end else begin
-              stall0 <= 0;
-              flush0 <= 0;
-
-              stall1 <= 0;
-              flush1 <= 0;
+              split_stall = 0;
             end
           end
 
           {`REG_MASK_RS, `REG_MASK_RT}: begin
             if (rs1 == rt0) begin
-              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              flush1 <= `PIPE_REG_ID_EX;
-
-              stall0 <= `PIPE_REG_PC;
-              flush0 <= `PIPE_REG_IF_ID;
+              split_stall = 1;
             end else begin
-              stall0 <= 0;
-              flush0 <= 0;
-
-              stall1 <= 0;
-              flush1 <= 0;
+              split_stall = 0;
             end
           end
           {`REG_MASK_RS, `REG_MASK_RD}: begin
             if (rs1 == rd0) begin
-              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              flush1 <= `PIPE_REG_ID_EX;
-
-              stall0 <= `PIPE_REG_PC;
-              flush0 <= `PIPE_REG_IF_ID;
+              split_stall = 1;
             end else begin
-              stall0 <= 0;
-              flush0 <= 0;
-
-              stall1 <= 0;
-              flush1 <= 0;
+              split_stall = 0;
             end
           end
           {`REG_MASK_RT, `REG_MASK_RT}: begin
             if (rt1 == rt0) begin
-              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              flush1 <= `PIPE_REG_ID_EX;
-
-              stall0 <= `PIPE_REG_PC;
-              flush0 <= `PIPE_REG_IF_ID;
+              split_stall = 1;
             end else begin
-              stall0 <= 0;
-              flush0 <= 0;
-
-              stall1 <= 0;
-              flush1 <= 0;
+              split_stall = 0;
             end
           end
           {`REG_MASK_RT, `REG_MASK_RD}: begin
             if (rt1 == rd0) begin
-              stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-              flush1 <= `PIPE_REG_ID_EX;
-
-              stall0 <= `PIPE_REG_PC;
-              flush0 <= `PIPE_REG_IF_ID;
+              split_stall = 1;
             end else begin
-              stall0 <= 0;
-              flush0 <= 0;
-
-              stall1 <= 0;
-              flush1 <= 0;
+              split_stall = 0;
             end
           end
           default: begin
-            stall0 <= 0;
-            flush0 <= 0;
-
-            stall1 <= 0;
-            flush1 <= 0;
+            split_stall = 0;
           end
         endcase
 
