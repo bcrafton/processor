@@ -97,6 +97,12 @@ module hazard_detection_unit(
 
   assign load_rt = load_instruction[`REG_RT_MSB:`REG_RT_LSB];
 
+/*
+  assign load_hazard0 = (((rs0 == load_rt) && ((src_mask0 & `REG_MASK_RS) == `REG_MASK_RS)) || ((rt0 == load_rt) && ((src_mask0 & `REG_MASK_RT) == `REG_MASK_RT))) && (mem_op == `MEM_OP_READ);
+
+  assign load_hazard1 = (((rs1 == load_rt) && ((src_mask1 & `REG_MASK_RS) == `REG_MASK_RS)) || ((rt1 == load_rt) && ((src_mask1 & `REG_MASK_RT) == `REG_MASK_RT))) && (mem_op == `MEM_OP_READ);
+*/
+
   initial begin
     stall0 <= 0;
     nop0 <= 0;
