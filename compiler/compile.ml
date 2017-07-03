@@ -417,43 +417,12 @@ let rec replicate x i =
   if i = 0 then []
   else x :: (replicate x (i - 1))
 
-let check_index (a : arg) : instruction list =
-  [
-    IMov(Reg(EAX), a);
-    ITest(Reg(EAX), Const(0x00000001));
-    IJnz("err_index_not_num");
-  ]
-
-let check_tuple_size (tuple : arg) (index : arg) : instruction list = 
-  [
-    IMov(Reg(EAX), tuple);
-    IAnd(Reg(EAX), Const(0xFFF8));
-    IMov(Reg(EAX), RegOffset(0, EAX));
-    
-    IMov(Reg(EEX), index);
-    ISar(Reg(EEX), Const(1));
-    ICmp(Reg(EEX), Reg(EAX));
-
-    IJge("err_index_too_large");
-
-    ICmp(Reg(EEX), Const(0));
-    IJl("err_index_too_small");
-  ]
-
-let check_tuple (a : arg) : instruction list = 
-  [
-    IMov(Reg(EAX), a);
-    IAnd(Reg(EAX), Const(0x00000007));
-    IXor(Reg(EAX), Const(0x00000006));
-    ICmp(Reg(EAX), Const(0x00000007));
-    IJne("err_not_tuple");
-  ]
-
 let check_num (err_label : string) (a : arg) : instruction list =
   [
     IMov(Reg(EAX), a);
-    ITest(Reg(EAX), tag_as_bool);
-    IJnz(err_label)
+    IAnd(Reg(EAX), HexConst(0x00000001));
+    ICmp(Reg(EAX), HexConst(0x00000000));
+    IJne(err_label);
   ]
 
 let check_num_arith  = check_num "err_arith_not_num"
@@ -519,8 +488,9 @@ let check_one_num (a1 : arg) (t : tag) : instruction list =
   let pass_label = (sprintf "pass_label_%d" t) in
   [
     IMov(Reg(EAX), a1);
-    ITest(Reg(EAX), Const(0x00000001));
-    IJnz(err_label);
+    IAnd(Reg(EAX), HexConst(0x00000001));
+    ICmp(Reg(EAX), HexConst(0x00000000));
+    IJne(err_label);
   ] @
   [IJmp(pass_label);] @
   [
@@ -537,13 +507,15 @@ let check_two_num (a1 : arg) (a2 : arg) (t : tag) : instruction list =
   let pass_label = (sprintf "pass_label_%d" t) in
   [
     IMov(Reg(EAX), a1);
-    ITest(Reg(EAX), Const(0x00000001));
-    IJnz(err_label);
+    IAnd(Reg(EAX), HexConst(0x00000001));
+    ICmp(Reg(EAX), HexConst(0x00000000));
+    IJne(err_label);
   ] @
   [
     IMov(Reg(EAX), a2);
-    ITest(Reg(EAX), Const(0x00000001));
-    IJnz(err_label);
+    IAnd(Reg(EAX), HexConst(0x00000001));
+    ICmp(Reg(EAX), HexConst(0x00000000));
+    IJne(err_label);
   ] @
   [IJmp(pass_label);] @
   [
@@ -682,9 +654,9 @@ and compile_cexpr (e : tag cexpr) (si : int) (env : arg envt) (num_args : int) (
       let done_label = (sprintf "done_%d" t) in
       [
         IMov(Reg(EAX), e_reg);
-
-        ITest(Reg(EAX), Const(0x00000001));
-        IJnz(else_label);
+        IAnd(Reg(EAX), HexConst(0x00000001));
+        ICmp(Reg(EAX), HexConst(0x00000000));
+        IJne(else_label);
 
         IMov(Reg(EAX), HexConst(0xFFFFFFFF));
         IJmp(done_label);
