@@ -21,17 +21,23 @@ module alu
   input wire [`DATA_WIDTH-1:0] data1;
   input wire [`DATA_WIDTH-1:0] data2;
 
-  output reg zero;
-  output reg less;
-  output reg greater;
+  output wire zero;
+  output wire less;
+  output wire greater;
 
   output reg [`DATA_WIDTH-1:0] alu_result;
 
+/*
   initial begin
     zero <= 0;
     less <= 0;
     greater <= 0;
   end
+*/
+
+  assign zero = ((data1 - data2) == 0) ? 1'b1 : 1'b0;
+  assign less = (data1 < data2) ? 1'b1 : 1'b0;
+  assign greater = (data1 > data2) ? 1'b1 : 1'b0;
 
   always @(*) begin
 
@@ -52,14 +58,18 @@ module alu
       `ALU_OP_SHL: alu_result = data1 << data2;
       `ALU_OP_XOR: alu_result = data1 ^ data2;
       `ALU_OP_CMP: begin
+      /*
           zero <= ((data1 - data2) == 0) ? 1'b1 : 1'b0;
           less <= (data1 < data2) ? 1'b1 : 1'b0;
           greater <= (data1 > data2) ? 1'b1 : 1'b0;
+      */
       end
       `ALU_OP_TEST: begin
+      /*
           zero <= ((data1 & data2) == 0) ? 1'b1 : 1'b0;
           less <= (data1 < data2) ? 1'b1 : 1'b0;
           greater <= (data1 > data2) ? 1'b1 : 1'b0;
+      */
       end
       `ALU_OP_NOP: alu_result = `GARBAGE;
       default: alu_result = `GARBAGE;
