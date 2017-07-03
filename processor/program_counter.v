@@ -18,7 +18,10 @@ module program_counter(
   branch_taken,
   branch_taken_address,
 
-  cycle_count
+  cycle_count,
+
+  instruction0,
+  instruction1
   );
 
   input wire clk;
@@ -44,6 +47,14 @@ module program_counter(
   wire branch = ((opcode & 6'b110000) == 6'b110000) && (opcode != `OP_CODE_JMP);
 
   output reg [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
+
+  output wire [`INST_WIDTH-1:0] instruction0;
+  output wire [`INST_WIDTH-1:0] instruction1;
+
+  instruction_memory im(
+  .pc(pc), 
+  .instruction0(instruction0),
+  .instruction1(instruction1));
 
   initial begin
     pc = 0;

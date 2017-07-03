@@ -73,6 +73,22 @@ module processor(
 
   wire if_id_first;
 
+  wire [`OP_CODE_BITS-1:0] steer_opcode0;
+  wire [`NUM_REGISTERS_LOG2-1:0] steer_rs0;
+  wire [`NUM_REGISTERS_LOG2-1:0] steer_rt0;
+  wire [`NUM_REGISTERS_LOG2-1:0] steer_rd0;
+  wire [`IMM_WIDTH-1:0] steer_immediate0;
+  wire [`ADDR_WIDTH-1:0] steer_address0;
+  wire [`SHAMT_BITS-1:0] steer_shamt0;
+
+  wire [`OP_CODE_BITS-1:0] steer_opcode1;
+  wire [`NUM_REGISTERS_LOG2-1:0] steer_rs1;
+  wire [`NUM_REGISTERS_LOG2-1:0] steer_rt1;
+  wire [`NUM_REGISTERS_LOG2-1:0] steer_rd1;
+  wire [`IMM_WIDTH-1:0] steer_immediate1;
+  wire [`ADDR_WIDTH-1:0] steer_address1;
+  wire [`SHAMT_BITS-1:0] steer_shamt1;
+
   wire [`OP_CODE_BITS-1:0] opcode0;
   wire [`NUM_REGISTERS_LOG2-1:0] rs0;
   wire [`NUM_REGISTERS_LOG2-1:0] rt0;
@@ -261,6 +277,26 @@ module processor(
 
   wire [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
 
+  ///////////////////////////////////////////////////////////////////////////////////////////
+
+  assign steer_opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
+  assign steer_rs0 = if_id_instruction0[`REG_RS_MSB:`REG_RS_LSB];
+  assign steer_rt0 = if_id_instruction0[`REG_RT_MSB:`REG_RT_LSB];
+  assign steer_rd0 = if_id_instruction0[`REG_RD_MSB:`REG_RD_LSB];
+  assign steer_immediate0 = if_id_instruction0[`IMM_MSB:`IMM_LSB];
+  assign steer_address0 = if_id_instruction0[`IMM_MSB:`IMM_LSB];
+  assign steer_shamt0 = if_id_instruction0[`SHAMT_MSB:`SHAMT_LSB];
+
+  assign steer_opcode1 = if_id_instruction1[`OPCODE_MSB:`OPCODE_LSB];
+  assign steer_rs1 = if_id_instruction1[`REG_RS_MSB:`REG_RS_LSB];
+  assign steer_rt1 = if_id_instruction1[`REG_RT_MSB:`REG_RT_LSB];
+  assign steer_rd1 = if_id_instruction1[`REG_RD_MSB:`REG_RD_LSB];
+  assign steer_immediate1 = if_id_instruction1[`IMM_MSB:`IMM_LSB];
+  assign steer_address1 = if_id_instruction1[`IMM_MSB:`IMM_LSB];
+  assign steer_shamt1 = if_id_instruction1[`SHAMT_MSB:`SHAMT_LSB];
+
+  ///////////////////////////////////////////////////////////////////////////////////////////
+
   assign opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 = if_id_instruction0[`REG_RS_MSB:`REG_RS_LSB];
   assign rt0 = if_id_instruction0[`REG_RT_MSB:`REG_RT_LSB];
@@ -344,13 +380,10 @@ module processor(
   .branch_taken(branch_taken),
   .branch_taken_address(branch_taken_address),
 
-  .cycle_count(cycle_count)
-  );
-  
-  instruction_memory im(
-  .pc(pc), 
+  .cycle_count(cycle_count),
   .instruction0(instruction0),
-  .instruction1(instruction1));
+  .instruction1(instruction1)
+  );
 
   steer str(
   .clk(clk),
@@ -446,6 +479,36 @@ module processor(
   .flush0(hazard_flush0),
   .flush1(hazard_flush1)
   );
+
+/*
+  hazard_detection_unit hdu(
+  .id_ex_mem_op(mem_op1), 
+  .id_ex_rt(rt1), 
+
+  .first(first),
+
+  .if_id_opcode0(steer_opcode0),
+  .if_id_opcode1(steer_opcode1),
+
+  .if_id_rs0(steer_rs0), 
+  .if_id_rt0(steer_rt0), 
+  .if_id_rd0(steer_rd0),
+
+  .if_id_rs1(steer_rs1), 
+  .if_id_rt1(steer_rt1), 
+  .if_id_rd1(steer_rd1),
+
+  .stall0(stall0),
+  .nop0(nop0),
+
+  .stall1(stall1),
+  .nop1(nop1),
+
+  .flush0(hazard_flush0),
+  .flush1(hazard_flush1)
+  );
+*/
+
 
   control_unit cu0(
   .opcode(opcode0), 
