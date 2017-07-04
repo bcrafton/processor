@@ -60,7 +60,7 @@ module processor(
   wire [`ADDR_WIDTH-1:0] address_src_result0;
   wire [`ADDR_WIDTH-1:0] address_src_result1;
 
-  wire [`ADDR_WIDTH-1:0] pc;
+  //wire [`ADDR_WIDTH-1:0] pc;
   wire [`INST_WIDTH-1:0] instruction0;
   wire [`INST_WIDTH-1:0] instruction1;
   
@@ -191,6 +191,9 @@ module processor(
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result0, alu_input_mux_2_result0;
   wire [`DATA_WIDTH-1:0] alu_input_mux_1_result1, alu_input_mux_2_result1;
 
+  wire [`ADDR_WIDTH-1:0] pc0;
+  wire [`ADDR_WIDTH-1:0] pc1;
+
   wire [`ADDR_WIDTH-1:0] steer_pc0;
   wire [`ADDR_WIDTH-1:0] steer_pc1;
 
@@ -220,6 +223,9 @@ module processor(
   // the unique ids for each instruction in the pipe.
   wire [`INSTRUCTION_ID_WIDTH-1:0] instruction0_id;
   wire [`INSTRUCTION_ID_WIDTH-1:0] instruction1_id;
+
+  wire [`INSTRUCTION_ID_WIDTH-1:0] steer_instruction0_id;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] steer_instruction1_id;
 
   wire [`INSTRUCTION_ID_WIDTH-1:0] if_id_instruction0_id;
   wire [`INSTRUCTION_ID_WIDTH-1:0] if_id_instruction1_id;
@@ -367,49 +373,64 @@ module processor(
   program_counter pc_unit(
   .clk(clk), 
   .reset(reset),
+
   .opcode(steer_instruction0[`OPCODE_MSB:`OPCODE_LSB]),
   .address(steer_instruction0[`IMM_MSB:`IMM_LSB]),
-  .branch_address(jump_address), 
-  .pc(pc), 
-  .flush(branch_flush[`PC_MASK_INDEX]), 
+
   .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX] | steer_stall),
-  .nop(1'b0),
+
+  .flush(branch_flush[`PC_MASK_INDEX]), 
+  .branch_address(jump_address), 
 
   .take_branch(take_branch),
   .branch_predict(branch_predict),
+
+  .hazard_flush0(1'b0),
+  .hazard_flush1(1'b0),
+
+  .nop(1'b0),
+
+  //////////////
+
   .branch_taken(branch_taken),
   .branch_taken_address(branch_taken_address),
 
-  .cycle_count(cycle_count),
+  .pc0(pc0), 
+  .pc1(pc1), 
+
+  .id0(instruction0_id),
+  .id1(instruction1_id),
+
   .instruction0(instruction0),
-  .instruction1(instruction1),
-  
-  .hazard_flush0(1'b0),
-  .hazard_flush1(1'b0)
+  .instruction1(instruction1)
   );
 
   steer str(
   .clk(clk),
+  .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX]),
 
   .instruction0_in(instruction0),
   .instruction1_in(instruction1),
 
+  .pc0_in(pc0),
+  .pc1_in(pc1),
+
+  .id0_in(instruction0_id),
+  .id1_in(instruction1_id),
+
+  //////////////
+
   .instruction0_out(steer_instruction0),
   .instruction1_out(steer_instruction1),
-
-  .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX]),
-
-  .steer_stall(steer_stall),
-  .first(first),
-
-  .pc_in(pc),
 
   .pc0_out(steer_pc0),
   .pc1_out(steer_pc1),
 
-  .cycle_count(cycle_count),
-  .instruction0_id(instruction0_id),
-  .instruction1_id(instruction1_id)
+  .id0_out(steer_instruction0_id),
+  .id1_out(steer_instruction1_id),
+
+  .steer_stall(steer_stall),
+  .first(first)
   );
 
   if_id_register if_id_reg0(
@@ -423,7 +444,7 @@ module processor(
   .pc_in(steer_pc0),
   .branch_taken_in(),
   .branch_taken_address_in(),
-  .id_in(instruction0_id),
+  .id_in(steer_instruction0_id),
 
   .instruction_out(if_id_instruction0),
   .first_out(if_id_first),
@@ -444,7 +465,7 @@ module processor(
   .pc_in(steer_pc1),
   .branch_taken_in(),
   .branch_taken_address_in(),
-  .id_in(instruction1_id),
+  .id_in(steer_instruction1_id),
 
   .instruction_out(if_id_instruction1),
   .first_out(),

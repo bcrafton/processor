@@ -2,34 +2,51 @@
 
 module steer(
   clk,
+  stall,
 
   instruction0_in,
   instruction1_in,
 
+  pc0_in,
+  pc1_in,
+
+  id0_in,
+  id1_in,
+  
+  //////////////
+
   instruction0_out,
   instruction1_out,
-
-  stall,
-
-  steer_stall,
-  first,
-
-  pc_in,
 
   pc0_out,
   pc1_out,
 
-  cycle_count,
-  instruction0_id,
-  instruction1_id
+  id0_out,
+  id1_out,
+
+  steer_stall,
+  first
   );
 
   input wire clk;
+  input wire stall;
+
+  input wire [`ADDR_WIDTH-1:0] pc0_in;
+  input wire [`ADDR_WIDTH-1:0] pc1_in;
+
+  input wire [`INSTRUCTION_ID_WIDTH-1:0] id0_in;
+  input wire [`INSTRUCTION_ID_WIDTH-1:0] id1_in;
 
   input wire [`INST_WIDTH-1:0] instruction0_in;
   input wire [`INST_WIDTH-1:0] instruction1_in;
 
-  input wire stall;
+  //////////////
+
+  output reg [`ADDR_WIDTH-1:0] pc0_out;
+  output reg [`ADDR_WIDTH-1:0] pc1_out;
+
+  output reg [`INSTRUCTION_ID_WIDTH-1:0] id0_out;
+  output reg [`INSTRUCTION_ID_WIDTH-1:0] id1_out;
 
   output reg [`INST_WIDTH-1:0] instruction0_out;
   output reg [`INST_WIDTH-1:0] instruction1_out;
@@ -37,37 +54,17 @@ module steer(
   output reg steer_stall;
   output reg first;
 
-  wire [`OP_CODE_BITS-1:0] opcode0;
-  wire [`OP_CODE_BITS-1:0] opcode1;
+  //////////////
 
-  input wire [`ADDR_WIDTH-1:0] pc_in;
-
-  // kinda a hack.
-  wire [`ADDR_WIDTH-1:0] pc0_in = pc_in;
-  wire [`ADDR_WIDTH-1:0] pc1_in = pc_in + 1;
-
-  output reg [`ADDR_WIDTH-1:0] pc0_out;
-  output reg [`ADDR_WIDTH-1:0] pc1_out;
-
-  // A, B, X
-  // pipe a, b, dont care.
   reg [`PIPE_BITS-1:0] instruction0_pipe;
   reg [`PIPE_BITS-1:0] instruction1_pipe;
 
   reg prev_stall;
 
-  input wire [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
-  output wire [`INSTRUCTION_ID_WIDTH-1:0] instruction0_id;
-  output wire [`INSTRUCTION_ID_WIDTH-1:0] instruction1_id;
+  wire [`OP_CODE_BITS-1:0] opcode0 = instruction0_in[`OPCODE_MSB:`OPCODE_LSB];
+  wire [`OP_CODE_BITS-1:0] opcode1 = instruction1_in[`OPCODE_MSB:`OPCODE_LSB];
 
-  assign opcode0 = instruction0_in[`OPCODE_MSB:`OPCODE_LSB];
-  assign opcode1 = instruction1_in[`OPCODE_MSB:`OPCODE_LSB];
-
-  wire [`NUM_BITS_PIPE_ID-1:0] tag0  = !first ? `PIPE_ID1 : `PIPE_ID2;
-  wire [`NUM_BITS_PIPE_ID-1:0] tag1  = first  ? `PIPE_ID1 : `PIPE_ID2;
-  
-  assign instruction0_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag0;
-  assign instruction1_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag1;
+  //////////////
 
   always @(posedge clk) begin
     if(stall == 0) begin
@@ -140,6 +137,10 @@ module steer(
           instruction1_out = `NOP_INSTRUCTION;
           pc0_out = pc0_in;
           pc1_out = 0;
+
+          id0_out = id0_in;
+          id1_out = 0;
+
           steer_stall = 1;
           first = 0;
         end else begin
@@ -147,6 +148,10 @@ module steer(
           instruction1_out = `NOP_INSTRUCTION;
           pc0_out = pc1_in;
           pc1_out = 0;
+
+          id0_out = id1_in;
+          id1_out = 0;
+
           steer_stall = 0;
           first = 0;
         end
@@ -156,6 +161,10 @@ module steer(
         instruction1_out = instruction0_in;
         pc0_out = pc1_in;
         pc1_out = pc0_in;
+
+        id0_out = id1_in;
+        id1_out = id0_in;
+
         steer_stall = 0;
         first = 1;
       end
@@ -165,6 +174,10 @@ module steer(
           instruction1_out = instruction0_in;
           pc0_out = 0;
           pc1_out = pc0_in;
+
+          id0_out = 0;
+          id1_out = id0_in;
+
           steer_stall = 1;
           first = 1;
         end else begin
@@ -172,6 +185,10 @@ module steer(
           instruction1_out = instruction1_in;
           pc0_out = 0;
           pc1_out = pc1_in;
+
+          id0_out = 0;
+          id1_out = id1_in;
+
           steer_stall = 0;
           first = 1;
         end
@@ -181,6 +198,10 @@ module steer(
         instruction1_out = instruction0_in;
         pc0_out = pc1_in;
         pc1_out = pc0_in;
+
+        id0_out = id1_in;
+        id1_out = id0_in;
+
         steer_stall = 0;
         first = 1;
       end
@@ -189,6 +210,10 @@ module steer(
         instruction1_out = instruction0_in;
         pc0_out = pc1_in;
         pc1_out = pc0_in;
+
+        id0_out = id1_in;
+        id1_out = id0_in;
+
         steer_stall = 0;
         first = 1;
       end
@@ -197,6 +222,10 @@ module steer(
         instruction1_out = instruction1_in;
         pc0_out = pc0_in;
         pc1_out = pc1_in;
+
+        id0_out = id0_in;
+        id1_out = id1_in;
+
         steer_stall = 0;
         first = 0;
       end
