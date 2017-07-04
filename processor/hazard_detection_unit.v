@@ -129,6 +129,9 @@ module hazard_detection_unit(
 
   //////////////
 
+  wire [`OP_CODE_BITS-1:0] split_opcode0;
+  wire [`OP_CODE_BITS-1:0] split_opcode1;
+
   wire [`ADDR_WIDTH-1:0] split_pc0;
   wire [`ADDR_WIDTH-1:0] split_pc1;
 
@@ -165,11 +168,6 @@ module hazard_detection_unit(
 
   //////////////
 
-  assign load_opcode0 = load_instruction0[`OPCODE_MSB:`OPCODE_LSB];
-  assign load_opcode1 = load_instruction1[`OPCODE_MSB:`OPCODE_LSB];
-
-  //////////////
-
   assign load_pc0 = load_stall ? 0 : pc0_in;
   assign load_pc1 = load_stall ? 0 : pc1_in;
 
@@ -178,6 +176,9 @@ module hazard_detection_unit(
 
   assign load_instruction0 = load_stall ? 0 : instruction0_in;
   assign load_instruction1 = load_stall ? 0 : instruction1_in;
+
+  assign load_opcode0 = load_instruction0[`OPCODE_MSB:`OPCODE_LSB];
+  assign load_opcode1 = load_instruction1[`OPCODE_MSB:`OPCODE_LSB];
   
   //////////////
 
@@ -189,6 +190,9 @@ module hazard_detection_unit(
 
   assign split_instruction0 = split_stall ? 0 : load_instruction0;
   assign split_instruction1 = split_stall ? 0 : load_instruction1;
+
+  assign split_opcode0 = split_instruction0[`OPCODE_MSB:`OPCODE_LSB];
+  assign split_opcode1 = split_instruction1[`OPCODE_MSB:`OPCODE_LSB];
   
   //////////////
 
@@ -436,7 +440,7 @@ module hazard_detection_unit(
 /*
   always @(*) begin
 
-    casex(opcode0)
+    casex(split_opcode0)
       6'b000000: begin
         instruction0_pipe = `PIPE_DONT_CARE;
       end
@@ -462,7 +466,7 @@ module hazard_detection_unit(
       end
     endcase
 
-    casex(opcode1)
+    casex(split_opcode1)
       6'b000000: begin
         instruction1_pipe = `PIPE_DONT_CARE;
       end
