@@ -415,8 +415,10 @@ module processor(
 
   .load_instruction(id_ex_instruction1),
   .mem_op(id_ex_mem_op1),
-  .instruction0(if_id_instruction0),
-  .instruction1(if_id_instruction1),
+
+  .instruction0_in(if_id_instruction0),
+  .instruction1_in(if_id_instruction1),
+
   .first(if_id_first),
 
   ////////////////////////////////
@@ -432,16 +434,22 @@ module processor(
 
   ////////////////////////////////
 
+  .pc0_in(),
+  .pc1_in(),
+
+  .id0_in(),
+  .id1_in(),
+
+  ////////////////////////////////
+
   .instruction0_out(),
   .instruction1_out(),
-
-  .pc_in(),
 
   .pc0_out(),
   .pc1_out(),
 
-  .instruction0_id(),
-  .instruction1_id()
+  .id0_out(),
+  .id1_out()
   );
 
   control_unit cu0(

@@ -6,9 +6,13 @@ module hazard_detection_unit(
 
   load_instruction,
   mem_op,
-  instruction0,
-  instruction1,
+
+  instruction0_in,
+  instruction1_in,
+
   first,
+
+  //////////////
 
   stall0,
   nop0,
@@ -19,61 +23,44 @@ module hazard_detection_unit(
   flush0,
   flush1,
 
-///////////////////////////////////////////////////////////////////////
+  //////////////
 
-  pc_in,
-  cycle_count,
+  pc0_in,
+  pc1_in,
 
-  instruction0_id,
-  instruction1_id,
+  id0_in,
+  id1_in,
+
+  //////////////
+
+  instruction0_out,
+  instruction1_out,
 
   pc0_out,
   pc1_out,
 
-  instruction0_out,
-  instruction1_out
+  id0_out,
+  id1_out,
   
   );
 
   input wire [`INST_WIDTH-1:0] load_instruction;
   input wire [`MEM_OP_BITS-1:0] mem_op;
-  input wire [`INST_WIDTH-1:0] instruction0;
-  input wire [`INST_WIDTH-1:0] instruction1;
+
+  input wire [`INST_WIDTH-1:0] instruction0_in;
+  input wire [`INST_WIDTH-1:0] instruction1_in;
+
   input wire first;
 
-///////////////////////////////////////////////////////////////////////
+  //////////////
 
-  input wire [`ADDR_WIDTH-1:0] pc_in;
-  input wire [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
+  input wire [`ADDR_WIDTH-1:0] pc0_in;
+  input wire [`ADDR_WIDTH-1:0] pc1_in;
 
-  output wire [`INSTRUCTION_ID_WIDTH-1:0] instruction0_id;
-  output wire [`INSTRUCTION_ID_WIDTH-1:0] instruction1_id;
+  input wire [`INSTRUCTION_ID_WIDTH-1:0] id0_in;
+  input wire [`INSTRUCTION_ID_WIDTH-1:0] id1_in;
 
-  output reg [`ADDR_WIDTH-1:0] pc0_out;
-  output reg [`ADDR_WIDTH-1:0] pc1_out;
-
-  output reg [`INST_WIDTH-1:0] instruction0_out;
-  output reg [`INST_WIDTH-1:0] instruction1_out;
-
-///////////////////////////////////////////////////////////////////////
-
-  reg [`PIPE_BITS-1:0] instruction0_pipe;
-  reg [`PIPE_BITS-1:0] instruction1_pipe;
-
-  wire [`NUM_BITS_PIPE_ID-1:0] tag0  = !first ? `PIPE_ID1 : `PIPE_ID2;
-  wire [`NUM_BITS_PIPE_ID-1:0] tag1  = first  ? `PIPE_ID1 : `PIPE_ID2;
-
-  wire [`ADDR_WIDTH-1:0] pc0_in = pc_in;
-  wire [`ADDR_WIDTH-1:0] pc1_in = pc_in + 1;
-
-  assign instruction0_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag0;
-  assign instruction1_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag1;
-
-///////////////////////////////////////////////////////////////////////
-
-/*
-  output reg first;
-*/
+  //////////////
 
   output reg [`NUM_PIPE_MASKS-1:0] stall0;
   output reg [`NUM_PIPE_MASKS-1:0] nop0;
@@ -83,6 +70,28 @@ module hazard_detection_unit(
 
   output reg [`NUM_PIPE_MASKS-1:0] flush0;
   output reg [`NUM_PIPE_MASKS-1:0] flush1;
+
+  //////////////
+
+  output reg [`ADDR_WIDTH-1:0] pc0_out;
+  output reg [`ADDR_WIDTH-1:0] pc1_out;
+
+  output reg [`INSTRUCTION_ID_WIDTH-1:0] id0_out;
+  output reg [`INSTRUCTION_ID_WIDTH-1:0] id1_out;
+
+  output reg [`INST_WIDTH-1:0] instruction0_out;
+  output reg [`INST_WIDTH-1:0] instruction1_out;
+
+  //////////////
+
+  reg load_stall;
+  reg split_stall;
+  reg steer_stall;
+
+  reg [`PIPE_BITS-1:0] instruction0_pipe;
+  reg [`PIPE_BITS-1:0] instruction1_pipe;
+
+  //////////////
 
   reg [`NUM_REG_MASKS-1:0] src_mask0;
   reg [`NUM_REG_MASKS-1:0] dst_mask0;
@@ -102,19 +111,17 @@ module hazard_detection_unit(
 
   wire [`NUM_REGISTERS_LOG2-1:0] load_rt;
 
-  reg load_stall;
-  reg split_stall;
-  reg steer_stall;
+  //////////////
 
-  assign opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
-  assign rs0 =     instruction0[`REG_RS_MSB:`REG_RS_LSB];
-  assign rt0 =     instruction0[`REG_RT_MSB:`REG_RT_LSB];
-  assign rd0 =     instruction0[`REG_RD_MSB:`REG_RD_LSB];
+  assign opcode0 = instruction0_in[`OPCODE_MSB:`OPCODE_LSB];
+  assign rs0 =     instruction0_in[`REG_RS_MSB:`REG_RS_LSB];
+  assign rt0 =     instruction0_in[`REG_RT_MSB:`REG_RT_LSB];
+  assign rd0 =     instruction0_in[`REG_RD_MSB:`REG_RD_LSB];
 
-  assign opcode1 = instruction1[`OPCODE_MSB:`OPCODE_LSB];
-  assign rs1 =     instruction1[`REG_RS_MSB:`REG_RS_LSB];
-  assign rt1 =     instruction1[`REG_RT_MSB:`REG_RT_LSB];
-  assign rd1 =     instruction1[`REG_RD_MSB:`REG_RD_LSB];
+  assign opcode1 = instruction1_in[`OPCODE_MSB:`OPCODE_LSB];
+  assign rs1 =     instruction1_in[`REG_RS_MSB:`REG_RS_LSB];
+  assign rt1 =     instruction1_in[`REG_RT_MSB:`REG_RT_LSB];
+  assign rd1 =     instruction1_in[`REG_RD_MSB:`REG_RD_LSB];
 
   assign load_rt = load_instruction[`REG_RT_MSB:`REG_RT_LSB];
 
