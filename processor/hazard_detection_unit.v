@@ -172,16 +172,6 @@ module hazard_detection_unit(
   end
 
   always @(*) begin
-    if((rs0 == load_rt || rt0 == load_rt) && (mem_op == `MEM_OP_READ)) begin
-      load_stall = 1;
-    end else if((rs1 == load_rt || rt1 == load_rt) && (mem_op == `MEM_OP_READ)) begin
-      load_stall = 1;
-    end else begin
-      load_stall = 0;
-    end
-  end
-
-  always @(*) begin
     if (load_stall) begin
       stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
       flush0 <= `PIPE_REG_ID_EX;
@@ -209,6 +199,16 @@ module hazard_detection_unit(
 
       stall0 <= 0;
       flush0 <= 0;
+    end
+  end
+
+  always @(*) begin
+    if((rs0 == load_rt || rt0 == load_rt) && (mem_op == `MEM_OP_READ)) begin
+      load_stall = 1;
+    end else if((rs1 == load_rt || rt1 == load_rt) && (mem_op == `MEM_OP_READ)) begin
+      load_stall = 1;
+    end else begin
+      load_stall = 0;
     end
   end
 
