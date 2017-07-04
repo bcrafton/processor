@@ -225,6 +225,13 @@ module hazard_detection_unit(
 
       stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
       flush1 <= `PIPE_REG_ID_EX;
+
+      stall_instruction0 = instruction0_in;
+      stall_instruction1 = instruction1_in;
+      stall_pc0 = pc0_in;
+      stall_pc1 = pc1_in;
+      stall_id0 = id0_in;
+      stall_id1 = id1_in;
     end else if (split_stall) begin
 
       if (first) begin
@@ -240,6 +247,13 @@ module hazard_detection_unit(
         stall0 <= `PIPE_REG_PC;
         flush0 <= `PIPE_REG_IF_ID;
       end
+
+      stall_instruction0 = 0;
+      stall_instruction1 = instruction1_in;
+      stall_pc0 = 0;
+      stall_pc1 = pc1_in;
+      stall_id0 = 0;
+      stall_id1 = id1_in;
     end else begin
       stall1 <= 0;
       flush1 <= 0;
