@@ -484,21 +484,9 @@ module processor(
   .instruction0(if_id_instruction0),
   .instruction1(if_id_instruction1),
   .first(if_id_first),
-/*
-  .id_ex_mem_op(id_ex_mem_op1), 
-  .id_ex_rt(id_ex_rt1), 
 
-  .if_id_opcode0(opcode0),
-  .if_id_opcode1(opcode1),
+  ////////////////////////////////
 
-  .if_id_rs0(rs0), 
-  .if_id_rt0(rt0), 
-  .if_id_rd0(rd0),
-
-  .if_id_rs1(rs1), 
-  .if_id_rt1(rt1), 
-  .if_id_rd1(rd1),
-*/
   .stall0(stall0),
   .nop0(nop0),
 
