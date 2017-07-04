@@ -32,6 +32,10 @@
 `define DONT_TAKE_BRANCH2 4'b1000
 `define NUM_BRANCH_MASKS  4 //$bits(TAKE_BRANCH2)
 
+`define STEER_0           2'b00
+`define STEER_1           2'b01
+`define STEER_NOP         2'b10
+
 `define PC_MASK_INDEX     0
 `define IF_ID_MASK_INDEX  1
 `define ID_EX_MASK_INDEX  2

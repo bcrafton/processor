@@ -113,6 +113,39 @@ module hazard_detection_unit(
 
   //////////////
 
+  reg [`ADDR_WIDTH-1:0] load_pc0;
+  reg [`ADDR_WIDTH-1:0] load_pc1;
+
+  reg [`INSTRUCTION_ID_WIDTH-1:0] load_id0;
+  reg [`INSTRUCTION_ID_WIDTH-1:0] load_id1;
+
+  reg [`INST_WIDTH-1:0] load_instruction0;
+  reg [`INST_WIDTH-1:0] load_instruction1;
+
+  //////////////
+
+  reg [`ADDR_WIDTH-1:0] split_pc0;
+  reg [`ADDR_WIDTH-1:0] split_pc1;
+
+  reg [`INSTRUCTION_ID_WIDTH-1:0] split_id0;
+  reg [`INSTRUCTION_ID_WIDTH-1:0] split_id1;
+
+  reg [`INST_WIDTH-1:0] split_instruction0;
+  reg [`INST_WIDTH-1:0] split_instruction1;
+
+  //////////////
+
+  reg [`ADDR_WIDTH-1:0] steer_pc0;
+  reg [`ADDR_WIDTH-1:0] steer_pc1;
+
+  reg [`INSTRUCTION_ID_WIDTH-1:0] steer_id0;
+  reg [`INSTRUCTION_ID_WIDTH-1:0] steer_id1;
+
+  reg [`INST_WIDTH-1:0] steer_instruction0;
+  reg [`INST_WIDTH-1:0] steer_instruction1;
+
+  //////////////
+
   assign opcode0 = instruction0_in[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 =     instruction0_in[`REG_RS_MSB:`REG_RS_LSB];
   assign rt0 =     instruction0_in[`REG_RT_MSB:`REG_RT_LSB];
@@ -124,12 +157,6 @@ module hazard_detection_unit(
   assign rd1 =     instruction1_in[`REG_RD_MSB:`REG_RD_LSB];
 
   assign load_rt = load_instruction[`REG_RT_MSB:`REG_RT_LSB];
-
-/*
-  assign load_hazard0 = (((rs0 == load_rt) && ((src_mask0 & `REG_MASK_RS) == `REG_MASK_RS)) || ((rt0 == load_rt) && ((src_mask0 & `REG_MASK_RT) == `REG_MASK_RT))) && (mem_op == `MEM_OP_READ);
-
-  assign load_hazard1 = (((rs1 == load_rt) && ((src_mask1 & `REG_MASK_RS) == `REG_MASK_RS)) || ((rt1 == load_rt) && ((src_mask1 & `REG_MASK_RT) == `REG_MASK_RT))) && (mem_op == `MEM_OP_READ);
-*/
 
   initial begin
     stall0 <= 0;
@@ -144,14 +171,15 @@ module hazard_detection_unit(
     steer_stall = 0;
   end
 
-/*
   always @(*) begin
-    if (load_stall) begin
-    end else if (split_stall) begin
-    end else if (steer_stall) begin
+    if((rs0 == load_rt || rt0 == load_rt) && (mem_op == `MEM_OP_READ)) begin
+      load_stall = 1;
+    end else if((rs1 == load_rt || rt1 == load_rt) && (mem_op == `MEM_OP_READ)) begin
+      load_stall = 1;
+    end else begin
+      load_stall = 0;
     end
   end
-*/
 
   always @(*) begin
     if (load_stall) begin
@@ -182,65 +210,6 @@ module hazard_detection_unit(
       stall0 <= 0;
       flush0 <= 0;
     end
-  end
-
-  always @(*) begin
-
-    casex(opcode0)
-      6'b000000: begin
-        instruction0_pipe = `PIPE_DONT_CARE;
-      end
-      6'b00????: begin // add, sub...
-        if (opcode0 == `OP_CODE_CMP || opcode0 == `OP_CODE_TEST) begin
-          instruction0_pipe = `PIPE_BRANCH;
-        end else begin
-          instruction0_pipe = `PIPE_DONT_CARE;
-        end
-      end
-      6'b01????: begin // addi, subi...
-        if (opcode0 == `OP_CODE_CMPI || opcode0 == `OP_CODE_TESTI) begin
-          instruction0_pipe = `PIPE_BRANCH;
-        end else begin
-          instruction0_pipe = `PIPE_DONT_CARE;
-        end        
-      end
-      6'b10????: begin // lw, sw, la, sa
-        instruction0_pipe = `PIPE_MEMORY;
-      end
-      6'b11????: begin // jmp, jo, je ...
-        instruction0_pipe = `PIPE_BRANCH;
-      end
-    endcase
-
-    casex(opcode1)
-      6'b000000: begin
-        instruction1_pipe = `PIPE_DONT_CARE;
-      end
-      6'b00????: begin // add, sub...
-        if (opcode1 == `OP_CODE_CMP || opcode1 == `OP_CODE_TEST) begin
-          instruction1_pipe = `PIPE_BRANCH;
-        end else begin
-          instruction1_pipe = `PIPE_DONT_CARE;
-        end
-      end
-      6'b01????: begin // addi, subi...
-        if (opcode1 == `OP_CODE_CMPI || opcode1 == `OP_CODE_TESTI) begin
-          instruction1_pipe = `PIPE_BRANCH;
-        end else begin
-          instruction1_pipe = `PIPE_DONT_CARE;
-        end        
-      end
-      6'b10????: begin // lw, sw, la, sa
-        instruction1_pipe = `PIPE_MEMORY;
-      end
-      6'b11????: begin // jmp, jo, je ...
-        // actually want to include jmp here.
-        // actually ... it does cost you an instruction sometimes.
-        // yeah but then will add logic for getting the next address.
-        // yeah this and program counter is somewhere to look for a little perf boost.
-        instruction1_pipe = `PIPE_BRANCH;
-      end
-    endcase
   end
 
   always @(*) begin
@@ -320,19 +289,6 @@ module hazard_detection_unit(
         dst_mask1 <= 0;
       end
     endcase
-
-    // lol we stall even if we are not dependent.
-    // dont even care what instruction it is...
-    // thats bad.
-
-    // well that needs to be fixed.
-    if((rs0 == load_rt || rt0 == load_rt) && (mem_op == `MEM_OP_READ)) begin
-      load_stall = 1;
-    end else if((rs1 == load_rt || rt1 == load_rt) && (mem_op == `MEM_OP_READ)) begin
-      load_stall = 1;
-    end else begin
-      load_stall = 0;
-    end
 
     if(!load_stall) begin
 
@@ -439,10 +395,166 @@ module hazard_detection_unit(
             split_stall = 0;
           end
         endcase
-
       end
-
     end
   end
+
+/*
+  always @(*) begin
+
+    casex(opcode0)
+      6'b000000: begin
+        instruction0_pipe = `PIPE_DONT_CARE;
+      end
+      6'b00????: begin // add, sub...
+        if (opcode0 == `OP_CODE_CMP || opcode0 == `OP_CODE_TEST) begin
+          instruction0_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction0_pipe = `PIPE_DONT_CARE;
+        end
+      end
+      6'b01????: begin // addi, subi...
+        if (opcode0 == `OP_CODE_CMPI || opcode0 == `OP_CODE_TESTI) begin
+          instruction0_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction0_pipe = `PIPE_DONT_CARE;
+        end        
+      end
+      6'b10????: begin // lw, sw, la, sa
+        instruction0_pipe = `PIPE_MEMORY;
+      end
+      6'b11????: begin // jmp, jo, je ...
+        instruction0_pipe = `PIPE_BRANCH;
+      end
+    endcase
+
+    casex(opcode1)
+      6'b000000: begin
+        instruction1_pipe = `PIPE_DONT_CARE;
+      end
+      6'b00????: begin // add, sub...
+        if (opcode1 == `OP_CODE_CMP || opcode1 == `OP_CODE_TEST) begin
+          instruction1_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction1_pipe = `PIPE_DONT_CARE;
+        end
+      end
+      6'b01????: begin // addi, subi...
+        if (opcode1 == `OP_CODE_CMPI || opcode1 == `OP_CODE_TESTI) begin
+          instruction1_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction1_pipe = `PIPE_DONT_CARE;
+        end        
+      end
+      6'b10????: begin // lw, sw, la, sa
+        instruction1_pipe = `PIPE_MEMORY;
+      end
+      6'b11????: begin // jmp, jo, je ...
+        instruction1_pipe = `PIPE_BRANCH;
+      end
+    endcase
+
+    case( {instruction0_pipe, instruction1_pipe} )
+      {`PIPE_BRANCH, `PIPE_BRANCH}: begin
+        if (prev_stall == 0) begin
+          instruction0_out = instruction0_in;
+          instruction1_out = `NOP_INSTRUCTION;
+          pc0_out = pc0_in;
+          pc1_out = 0;
+
+          id0_out = id0_in;
+          id1_out = 0;
+
+          steer_stall = 1;
+          first = 0;
+        end else begin
+          instruction0_out = instruction1_in;
+          instruction1_out = `NOP_INSTRUCTION;
+          pc0_out = pc1_in;
+          pc1_out = 0;
+
+          id0_out = id1_in;
+          id1_out = 0;
+
+          steer_stall = 0;
+          first = 0;
+        end
+      end
+      {`PIPE_MEMORY, `PIPE_BRANCH}: begin
+        instruction0_out = instruction1_in;
+        instruction1_out = instruction0_in;
+        pc0_out = pc1_in;
+        pc1_out = pc0_in;
+
+        id0_out = id1_in;
+        id1_out = id0_in;
+
+        steer_stall = 0;
+        first = 1;
+      end
+      {`PIPE_MEMORY, `PIPE_MEMORY}: begin
+        if (prev_stall == 0) begin
+          instruction0_out = `NOP_INSTRUCTION;
+          instruction1_out = instruction0_in;
+          pc0_out = 0;
+          pc1_out = pc0_in;
+
+          id0_out = 0;
+          id1_out = id0_in;
+
+          steer_stall = 1;
+          first = 1;
+        end else begin
+          instruction0_out = `NOP_INSTRUCTION;
+          instruction1_out = instruction1_in;
+          pc0_out = 0;
+          pc1_out = pc1_in;
+
+          id0_out = 0;
+          id1_out = id1_in;
+
+          steer_stall = 0;
+          first = 1;
+        end
+      end
+      {`PIPE_MEMORY, `PIPE_DONT_CARE}: begin
+        instruction0_out = instruction1_in;
+        instruction1_out = instruction0_in;
+        pc0_out = pc1_in;
+        pc1_out = pc0_in;
+
+        id0_out = id1_in;
+        id1_out = id0_in;
+
+        steer_stall = 0;
+        first = 1;
+      end
+      {`PIPE_DONT_CARE, `PIPE_BRANCH}: begin
+        instruction0_out = instruction1_in;
+        instruction1_out = instruction0_in;
+        pc0_out = pc1_in;
+        pc1_out = pc0_in;
+
+        id0_out = id1_in;
+        id1_out = id0_in;
+
+        steer_stall = 0;
+        first = 1;
+      end
+      default: begin
+        instruction0_out = instruction0_in;
+        instruction1_out = instruction1_in;
+        pc0_out = pc0_in;
+        pc1_out = pc1_in;
+
+        id0_out = id0_in;
+        id1_out = id1_in;
+
+        steer_stall = 0;
+        first = 0;
+      end
+    endcase
+  end
+*/
 
 endmodule
