@@ -343,7 +343,7 @@ module processor(
   if_id_register if_id_reg0(
   .clk(clk), 
   .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush0[`IF_ID_MASK_INDEX]), 
-  .stall(stall0[`IF_ID_MASK_INDEX]), 
+  .stall(1'b0), 
   .nop(1'b0), 
 
   .instruction_in(steer_instruction0),
@@ -364,7 +364,7 @@ module processor(
   if_id_register if_id_reg1(
   .clk(clk), 
   .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush1[`IF_ID_MASK_INDEX]), 
-  .stall(stall1[`IF_ID_MASK_INDEX]), 
+  .stall(1'b0), 
   .nop(1'b0), 
 
   .instruction_in(steer_instruction1),
@@ -415,6 +415,8 @@ module processor(
 */
 
   hazard_detection_unit hdu(
+
+  .clk(clk),
 
   .load_instruction(if_id_instruction1),
   .mem_op(mem_op1),
@@ -501,7 +503,7 @@ module processor(
   id_ex_register id_ex_reg0(
   .clk(clk), 
   .flush(branch_flush[`ID_EX_MASK_INDEX] | hazard_flush0[`ID_EX_MASK_INDEX]), 
-  .stall(stall0[`ID_EX_MASK_INDEX]), 
+  .stall(1'b0), 
   .nop(1'b0), 
 
   .rs_in(rs0), 
@@ -554,7 +556,7 @@ module processor(
   id_ex_register id_ex_reg1(
   .clk(clk), 
   .flush(branch_flush[`ID_EX_MASK_INDEX] | hazard_flush1[`ID_EX_MASK_INDEX]), 
-  .stall(stall1[`ID_EX_MASK_INDEX]), 
+  .stall(1'b0), 
   .nop(1'b0), 
 
   .rs_in(rs1), 

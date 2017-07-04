@@ -4,6 +4,8 @@
 
 module hazard_detection_unit(
 
+  clk,
+
   load_instruction,
   mem_op,
 
@@ -37,6 +39,8 @@ module hazard_detection_unit(
   
   );
 
+  input wire clk;
+
   input wire [`INST_WIDTH-1:0] load_instruction;
   input wire [`MEM_OP_BITS-1:0] mem_op;
 
@@ -57,14 +61,14 @@ module hazard_detection_unit(
 
   //////////////
 
-  output reg [`ADDR_WIDTH-1:0] pc0_out;
-  output reg [`ADDR_WIDTH-1:0] pc1_out;
+  output wire [`ADDR_WIDTH-1:0] pc0_out;
+  output wire [`ADDR_WIDTH-1:0] pc1_out;
 
-  output reg [`INSTRUCTION_ID_WIDTH-1:0] id0_out;
-  output reg [`INSTRUCTION_ID_WIDTH-1:0] id1_out;
+  output wire [`INSTRUCTION_ID_WIDTH-1:0] id0_out;
+  output wire [`INSTRUCTION_ID_WIDTH-1:0] id1_out;
 
-  output reg [`INST_WIDTH-1:0] instruction0_out;
-  output reg [`INST_WIDTH-1:0] instruction1_out;
+  output wire [`INST_WIDTH-1:0] instruction0_out;
+  output wire [`INST_WIDTH-1:0] instruction1_out;
 
   output reg first;
 
@@ -80,6 +84,13 @@ module hazard_detection_unit(
   reg [`ADDR_WIDTH-1:0] stall_pc1;
   reg [`INSTRUCTION_ID_WIDTH-1:0] stall_id0;
   reg [`INSTRUCTION_ID_WIDTH-1:0] stall_id1;
+
+  reg [`INST_WIDTH-1:0] last_instruction0;
+  reg [`INST_WIDTH-1:0] last_instruction1;
+  reg [`ADDR_WIDTH-1:0] last_pc0;
+  reg [`ADDR_WIDTH-1:0] last_pc1;
+  reg [`INSTRUCTION_ID_WIDTH-1:0] last_id0;
+  reg [`INSTRUCTION_ID_WIDTH-1:0] last_id1;
 
   reg [`PIPE_BITS-1:0] instruction0_pipe;
   reg [`PIPE_BITS-1:0] instruction1_pipe;
@@ -147,28 +158,39 @@ module hazard_detection_unit(
 
   //////////////
 
-  assign opcode0 = instruction0_in[`OPCODE_MSB:`OPCODE_LSB];
-  assign rs0 =     instruction0_in[`REG_RS_MSB:`REG_RS_LSB];
-  assign rt0 =     instruction0_in[`REG_RT_MSB:`REG_RT_LSB];
-  assign rd0 =     instruction0_in[`REG_RD_MSB:`REG_RD_LSB];
+  wire [`INST_WIDTH-1:0] instruction0;
+  wire [`INST_WIDTH-1:0] instruction1;
 
-  assign opcode1 = instruction1_in[`OPCODE_MSB:`OPCODE_LSB];
-  assign rs1 =     instruction1_in[`REG_RS_MSB:`REG_RS_LSB];
-  assign rt1 =     instruction1_in[`REG_RT_MSB:`REG_RT_LSB];
-  assign rd1 =     instruction1_in[`REG_RD_MSB:`REG_RD_LSB];
+  wire [`ADDR_WIDTH-1:0] pc0;
+  wire [`ADDR_WIDTH-1:0] pc1;
+
+  wire [`INSTRUCTION_ID_WIDTH-1:0] id0;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] id1;
+
+  //////////////
+
+  assign opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
+  assign rs0 =     instruction0[`REG_RS_MSB:`REG_RS_LSB];
+  assign rt0 =     instruction0[`REG_RT_MSB:`REG_RT_LSB];
+  assign rd0 =     instruction0[`REG_RD_MSB:`REG_RD_LSB];
+
+  assign opcode1 = instruction1[`OPCODE_MSB:`OPCODE_LSB];
+  assign rs1 =     instruction1[`REG_RS_MSB:`REG_RS_LSB];
+  assign rt1 =     instruction1[`REG_RT_MSB:`REG_RT_LSB];
+  assign rd1 =     instruction1[`REG_RD_MSB:`REG_RD_LSB];
 
   assign load_rt = load_instruction[`REG_RT_MSB:`REG_RT_LSB];
 
   //////////////
 
-  assign load_pc0 = load_stall ? 0 : pc0_in;
-  assign load_pc1 = load_stall ? 0 : pc1_in;
+  assign load_pc0 = load_stall ? 0 : pc0;
+  assign load_pc1 = load_stall ? 0 : pc1;
 
-  assign load_id0 = load_stall ? 0 : id0_in;
-  assign load_id1 = load_stall ? 0 : id1_in;
+  assign load_id0 = load_stall ? 0 : id0;
+  assign load_id1 = load_stall ? 0 : id1;
 
-  assign load_instruction0 = load_stall ? 0 : instruction0_in;
-  assign load_instruction1 = load_stall ? 0 : instruction1_in;
+  assign load_instruction0 = load_stall ? 0 : instruction0;
+  assign load_instruction1 = load_stall ? 0 : instruction1;
 
   assign load_opcode0 = load_instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign load_opcode1 = load_instruction1[`OPCODE_MSB:`OPCODE_LSB];
@@ -181,7 +203,7 @@ module hazard_detection_unit(
   assign split_id0 = split_stall ? 0 : load_id0;
   assign split_id1 = split_stall ? 0 : load_id1;
 
-  assign split_instruction0 = split_stall ? 0 : load_instruction0;
+  assign split_instruction0 = load_instruction0;
   assign split_instruction1 = split_stall ? 0 : load_instruction1;
 
   assign split_opcode0 = split_instruction0[`OPCODE_MSB:`OPCODE_LSB];
@@ -189,7 +211,29 @@ module hazard_detection_unit(
   
   //////////////
 
-  assign stall = (stall_instruction0 == 0) && (stall_instruction1 == 0);
+  assign stall = (last_instruction0 != 0) || (last_instruction1 != 0);
+
+  //////////////
+
+  assign instruction0 = stall ? last_instruction0 : instruction0_in;
+  assign instruction1 = stall ? last_instruction1 : instruction1_in;
+
+  assign pc0 = stall ? last_pc0 : pc0_in;
+  assign pc1 = stall ? last_pc1 : pc1_in;
+
+  assign id0 = stall ? last_id0 : id0_in;
+  assign id1 = stall ? last_id1 : id1_in;
+
+  //////////////
+
+  assign pc0_out = steer_pc0;
+  assign pc1_out = steer_pc1;
+
+  assign id0_out = steer_id0;
+  assign id1_out = steer_id1;
+
+  assign instruction0_out = steer_instruction0;
+  assign instruction1_out = steer_instruction1;
 
   //////////////
 
@@ -204,16 +248,32 @@ module hazard_detection_unit(
     stall_pc1 = 0;
     stall_id0 = 0;
     stall_id1 = 0;
+
+    last_instruction0 = 0;
+    last_instruction1 = 0;
+    last_pc0 = 0;
+    last_pc1 = 0;
+    last_id0 = 0;
+    last_id1 = 0;
+  end
+
+  always @(posedge clk) begin
+    last_instruction0 = stall_instruction0;
+    last_instruction1 = stall_instruction1;
+    last_pc0 = stall_pc0;
+    last_pc1 = stall_pc1;
+    last_id0 = stall_id0;
+    last_id1 = stall_id1;
   end
 
   always @(*) begin
     if (load_stall) begin
-      stall_instruction0 = instruction0_in;
-      stall_instruction1 = instruction1_in;
-      stall_pc0 = pc0_in;
-      stall_pc1 = pc1_in;
-      stall_id0 = id0_in;
-      stall_id1 = id1_in;
+      stall_instruction0 = instruction0;
+      stall_instruction1 = instruction1;
+      stall_pc0 = pc0;
+      stall_pc1 = pc1;
+      stall_id0 = id0;
+      stall_id1 = id1;
     end else if (split_stall) begin
       stall_instruction0 = 0;
       stall_instruction1 = instruction1_in;
@@ -489,8 +549,8 @@ module hazard_detection_unit(
         steer_instruction1 = `NOP_INSTRUCTION;
         steer_pc0 = split_pc0;
         steer_pc1 = 0;
-        steer_pc0 = split_id0;
-        steer_pc1 = 0;
+        steer_id0 = split_id0;
+        steer_id1 = 0;
 
         //steer_stall = 1;
         first = 0;
@@ -506,8 +566,8 @@ module hazard_detection_unit(
         steer_instruction1 = split_instruction0;
         steer_pc0 = split_pc1;
         steer_pc1 = split_pc0;
-        steer_pc0 = split_id1;
-        steer_pc1 = split_id0;
+        steer_id0 = split_id1;
+        steer_id1 = split_id0;
 
         //steer_stall = 0;
         first = 1;
@@ -534,8 +594,8 @@ module hazard_detection_unit(
         steer_instruction1 = split_instruction0;
         steer_pc0 = split_pc1;
         steer_pc1 = split_pc0;
-        steer_pc0 = split_id1;
-        steer_pc1 = split_id0;
+        steer_id0 = split_id1;
+        steer_id1 = split_id0;
 
         //steer_stall = 0;
         first = 1;
@@ -545,8 +605,8 @@ module hazard_detection_unit(
         steer_instruction1 = split_instruction0;
         steer_pc0 = split_pc1;
         steer_pc1 = split_pc0;
-        steer_pc0 = split_id1;
-        steer_pc1 = split_id0;
+        steer_id0 = split_id1;
+        steer_id1 = split_id0;
 
         //steer_stall = 0;
         first = 1;
@@ -556,8 +616,8 @@ module hazard_detection_unit(
         steer_instruction1 = split_instruction1;
         steer_pc0 = split_pc0;
         steer_pc1 = split_pc1;
-        steer_pc0 = split_id0;
-        steer_pc1 = split_id1;
+        steer_id0 = split_id0;
+        steer_id1 = split_id1;
 
         //steer_stall = 0;
         first = 0;
