@@ -239,50 +239,6 @@ module processor(
   wire [`INSTRUCTION_ID_WIDTH-1:0] mem_wb_instruction0_id;
   wire [`INSTRUCTION_ID_WIDTH-1:0] mem_wb_instruction1_id;
 
-/*
-  // logs
-  wire [`IMM_WIDTH-1:0]  LOG_ex_mem_immediate0; 
-  wire [`DATA_WIDTH-1:0] LOG_ex_mem_reg_read_data0_0
-  wire [`DATA_WIDTH-1:0] LOG_ex_mem_reg_read_data1_0;
-  wire [`DATA_WIDTH-1:0] LOG_ex_mem_reg_write_data0;
-  wire                   LOG_ex_mem_zero0;
-  wire                   LOG_ex_mem_less0;
-  wire                   LOG_ex_mem_greater0;
-  
-  wire [`IMM_WIDTH-1:0]  LOG_ex_mem_immediate1; 
-  wire [`DATA_WIDTH-1:0] LOG_ex_mem_reg_read_data0_1
-  wire [`DATA_WIDTH-1:0] LOG_ex_mem_reg_read_data1_1;
-  wire [`DATA_WIDTH-1:0] LOG_ex_mem_reg_write_data1;
-  wire                   LOG_ex_mem_zero1;
-  wire                   LOG_ex_mem_less1;
-  wire                   LOG_ex_mem_greater1;
-  
-  wire [`IMM_WIDTH-1:0]  LOG_mem_wb_immediate0; 
-  wire [`DATA_WIDTH-1:0] LOG_mem_wb_reg_read_data0_0
-  wire [`DATA_WIDTH-1:0] LOG_mem_wb_reg_read_data1_0;
-  wire [`DATA_WIDTH-1:0] LOG_mem_wb_reg_write_data0;
-  wire                   LOG_mem_wb_zero0;
-  wire                   LOG_mem_wb_less0;
-  wire                   LOG_mem_wb_greater0;
-  wire [`DATA_WIDTH-1:0] LOG_mem_wb_mem_write_data_in0;
-  wire [`DATA_WIDTH-1:0] LOG_mem_wb_alu_in0_in0;
-  wire [`DATA_WIDTH-1:0] LOG_mem_wb_alu_in1_in0;
-  
-  
-  wire [`IMM_WIDTH-1:0]  LOG_mem_wb_immediate1; 
-  wire [`DATA_WIDTH-1:0] LOG_mem_wb_reg_read_data0_1
-  wire [`DATA_WIDTH-1:0] LOG_mem_wb_reg_read_data1_1;
-  wire [`DATA_WIDTH-1:0] LOG_mem_wb_reg_write_data1;
-  wire                   LOG_mem_wb_zero1;
-  wire                   LOG_mem_wb_less1;
-  wire                   LOG_mem_wb_greater1;
-  wire [`DATA_WIDTH-1:0] LOG_mem_wb_mem_write_data_in1;
-  wire [`DATA_WIDTH-1:0] LOG_mem_wb_alu_in0_in1;
-  wire [`DATA_WIDTH-1:0] LOG_mem_wb_alu_in1_in1;
-*/
-
-  wire [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
-
   ///////////////////////////////////////////////////////////////////////////////////////////
 
   assign steer_opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
@@ -335,28 +291,6 @@ module processor(
       mem_wb_instruction0,
       mem_wb_instruction1);
   end
-
-/*
-  reg instruction_log_bit;
-  always @(posedge clk) begin
-    instruction_log_bit = $instruction_log(
-      $time, 
-
-      mem_wb_pc0,
-      mem_wb_pc1,
-
-      mem_wb_instruction0,
-      mem_wb_instruction1,
-
-      alu_input_mux_1_result0,
-      alu_input_mux_2_result0,
-      alu_input_mux_1_result1,
-      alu_input_mux_2_result1,
-
-      alu_result0,
-      alu_result1);
-  end
-*/
 
   reg instruction_log_bit;
   always @(posedge clk) begin
@@ -506,41 +440,9 @@ module processor(
   .pc0_out(),
   .pc1_out(),
 
-  .cycle_count(),
-
   .instruction0_id(),
   .instruction1_id()
   );
-
-/*
-  hazard_detection_unit hdu(
-  .id_ex_mem_op(mem_op1), 
-  .id_ex_rt(rt1), 
-
-  .first(first),
-
-  .if_id_opcode0(steer_opcode0),
-  .if_id_opcode1(steer_opcode1),
-
-  .if_id_rs0(steer_rs0), 
-  .if_id_rt0(steer_rt0), 
-  .if_id_rd0(steer_rd0),
-
-  .if_id_rs1(steer_rs1), 
-  .if_id_rt1(steer_rt1), 
-  .if_id_rd1(steer_rd1),
-
-  .stall0(stall0),
-  .nop0(nop0),
-
-  .stall1(stall1),
-  .nop1(nop1),
-
-  .flush0(hazard_flush0),
-  .flush1(hazard_flush1)
-  );
-*/
-
 
   control_unit cu0(
   .opcode(opcode0), 
@@ -867,15 +769,7 @@ module processor(
   .first_in(id_ex_first),
   .pc_in(id_ex_pc0),
   .id_in(id_ex_instruction0_id),
-/*
-  .LOG_immediate_in(),
-  .LOG_reg_read_data0_in(),
-  .LOG_reg_read_data1_in(),
-  .LOG_reg_write_data_in(),
-  .LOG_zero_in(),
-  .LOG_less_in(),
-  .LOG_greater_in(),
-*/
+
   .alu_result_out(ex_mem_alu_result0), 
   .data_1_out(ex_mem_data_1_0), 
   .data_2_out(ex_mem_data_2_0),
@@ -890,15 +784,6 @@ module processor(
   .first_out(ex_mem_first),
   .pc_out(ex_mem_pc0),
   .id_out(ex_mem_instruction0_id)
-/*
-  .LOG_immediate_out(),
-  .LOG_reg_read_data0_out(),
-  .LOG_reg_read_data1_out(),
-  .LOG_reg_write_data_out(),
-  .LOG_zero_out(),
-  .LOG_less_out(),
-  .LOG_greater_out()
-*/
   );
 
   ex_mem_register ex_mem_reg1(
@@ -921,15 +806,7 @@ module processor(
   .first_in(),
   .pc_in(id_ex_pc1),
   .id_in(id_ex_instruction1_id),
-/*
-  .LOG_immediate_in(),
-  .LOG_reg_read_data0_in(),
-  .LOG_reg_read_data1_in(),
-  .LOG_reg_write_data_in(),
-  .LOG_zero_in(),
-  .LOG_less_in(),
-  .LOG_greater_in(),
-*/
+
   .alu_result_out(ex_mem_alu_result1), 
   .data_1_out(ex_mem_data_1_1), 
   .data_2_out(ex_mem_data_2_1),
@@ -944,15 +821,6 @@ module processor(
   .first_out(),
   .pc_out(ex_mem_pc1),
   .id_out(ex_mem_instruction1_id)
-/*
-  .LOG_immediate_out(),
-  .LOG_reg_read_data0_out(),
-  .LOG_reg_read_data1_out(),
-  .LOG_reg_write_data_out(),
-  .LOG_zero_out(),
-  .LOG_less_out(),
-  .LOG_greater_out()
-*/
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1002,18 +870,7 @@ module processor(
   .first_in(ex_mem_first),
   .pc_in(ex_mem_pc0),
   .id_in(ex_mem_instruction0_id),
-/*
-  .LOG_immediate_in(),
-  .LOG_reg_read_data0_in(),
-  .LOG_reg_read_data1_in(),
-  .LOG_reg_write_data_in(),
-  .LOG_zero_in(),
-  .LOG_less_in(),
-  .LOG_greater_in(),
-  .LOG_mem_write_data_in(),
-  .LOG_alu_in0_in(),
-  .LOG_alu_in1_in(),
-*/
+
   .mem_to_reg_out(mem_wb_mem_to_reg0), 
   .ram_read_data_out(mem_wb_ram_read_data0), 
   .alu_result_out(mem_wb_alu_result0),
@@ -1023,18 +880,6 @@ module processor(
   .first_out(mem_wb_first),
   .pc_out(mem_wb_pc0),
   .id_out(mem_wb_instruction0_id)
-/*
-  .LOG_immediate_out(),
-  .LOG_reg_read_data0_out(),
-  .LOG_reg_read_data1_out(),
-  .LOG_reg_write_data_out(),
-  .LOG_zero_out(),
-  .LOG_less_out(),
-  .LOG_greater_out(),
-  .LOG_mem_write_data_out(),
-  .LOG_alu_in0_out(),
-  .LOG_alu_in1_out()
-*/
   );
 
   mem_wb_register mem_wb_reg1(
@@ -1052,18 +897,7 @@ module processor(
   .first_in(),
   .pc_in(ex_mem_pc1),
   .id_in(ex_mem_instruction1_id),
-/*
-  .LOG_immediate_in(),
-  .LOG_reg_read_data0_in(),
-  .LOG_reg_read_data1_in(),
-  .LOG_reg_write_data_in(),
-  .LOG_zero_in(),
-  .LOG_less_in(),
-  .LOG_greater_in(),
-  .LOG_mem_write_data_in(),
-  .LOG_alu_in0_in(),
-  .LOG_alu_in1_in(),
-*/
+
   .mem_to_reg_out(mem_wb_mem_to_reg1), 
   .ram_read_data_out(mem_wb_ram_read_data1), 
   .alu_result_out(mem_wb_alu_result1),
@@ -1073,18 +907,6 @@ module processor(
   .first_out(),
   .pc_out(mem_wb_pc1),
   .id_out(mem_wb_instruction1_id)
-/*
-  .LOG_immediate_out(),
-  .LOG_reg_read_data0_out(),
-  .LOG_reg_read_data1_out(),
-  .LOG_reg_write_data_out(),
-  .LOG_zero_out(),
-  .LOG_less_out(),
-  .LOG_greater_out(),
-  .LOG_mem_write_data_out(),
-  .LOG_alu_in0_out(),
-  .LOG_alu_in1_out()
-*/
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
