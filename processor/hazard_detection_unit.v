@@ -99,6 +99,8 @@ module hazard_detection_unit(
   reg [`NUM_REG_MASKS-1:0] src_mask1;
   reg [`NUM_REG_MASKS-1:0] dst_mask1;
 
+  //////////////
+
   wire [`OP_CODE_BITS-1:0] opcode0;
   wire [`NUM_REGISTERS_LOG2-1:0] rs0;
   wire [`NUM_REGISTERS_LOG2-1:0] rt0;
@@ -113,25 +115,28 @@ module hazard_detection_unit(
 
   //////////////
 
-  reg [`ADDR_WIDTH-1:0] load_pc0;
-  reg [`ADDR_WIDTH-1:0] load_pc1;
+  wire [`OP_CODE_BITS-1:0] load_opcode0;
+  wire [`OP_CODE_BITS-1:0] load_opcode1;
 
-  reg [`INSTRUCTION_ID_WIDTH-1:0] load_id0;
-  reg [`INSTRUCTION_ID_WIDTH-1:0] load_id1;
+  wire [`ADDR_WIDTH-1:0] load_pc0;
+  wire [`ADDR_WIDTH-1:0] load_pc1;
 
-  reg [`INST_WIDTH-1:0] load_instruction0;
-  reg [`INST_WIDTH-1:0] load_instruction1;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] load_id0;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] load_id1;
+
+  wire [`INST_WIDTH-1:0] load_instruction0;
+  wire [`INST_WIDTH-1:0] load_instruction1;
 
   //////////////
 
-  reg [`ADDR_WIDTH-1:0] split_pc0;
-  reg [`ADDR_WIDTH-1:0] split_pc1;
+  wire [`ADDR_WIDTH-1:0] split_pc0;
+  wire [`ADDR_WIDTH-1:0] split_pc1;
 
-  reg [`INSTRUCTION_ID_WIDTH-1:0] split_id0;
-  reg [`INSTRUCTION_ID_WIDTH-1:0] split_id1;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] split_id0;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] split_id1;
 
-  reg [`INST_WIDTH-1:0] split_instruction0;
-  reg [`INST_WIDTH-1:0] split_instruction1;
+  wire [`INST_WIDTH-1:0] split_instruction0;
+  wire [`INST_WIDTH-1:0] split_instruction1;
 
   //////////////
 
@@ -157,6 +162,35 @@ module hazard_detection_unit(
   assign rd1 =     instruction1_in[`REG_RD_MSB:`REG_RD_LSB];
 
   assign load_rt = load_instruction[`REG_RT_MSB:`REG_RT_LSB];
+
+  //////////////
+
+  assign load_opcode0 = load_instruction0[`OPCODE_MSB:`OPCODE_LSB];
+  assign load_opcode1 = load_instruction1[`OPCODE_MSB:`OPCODE_LSB];
+
+  //////////////
+
+  assign load_pc0 = load_stall ? 0 : pc0_in;
+  assign load_pc1 = load_stall ? 0 : pc1_in;
+
+  assign load_id0 = load_stall ? 0 : id0_in;
+  assign load_id1 = load_stall ? 0 : id1_in;
+
+  assign load_instruction0 = load_stall ? 0 : instruction0_in;
+  assign load_instruction1 = load_stall ? 0 : instruction1_in;
+  
+  //////////////
+
+  assign split_pc0 = split_stall ? 0 : load_pc0;
+  assign split_pc1 = split_stall ? 0 : load_pc1;
+
+  assign split_id0 = split_stall ? 0 : load_id0;
+  assign split_id1 = split_stall ? 0 : load_id1;
+
+  assign split_instruction0 = split_stall ? 0 : load_instruction0;
+  assign split_instruction1 = split_stall ? 0 : load_instruction1;
+  
+  //////////////
 
   initial begin
     stall0 <= 0;
@@ -214,7 +248,7 @@ module hazard_detection_unit(
 
   always @(*) begin
 
-    casex(opcode0)
+    casex(load_opcode0)
      `OP_CODE_NOP: begin
         src_mask0 <= 0;
         dst_mask0 <= 0;
@@ -252,7 +286,7 @@ module hazard_detection_unit(
       end
     endcase
 
-    casex(opcode1)
+    casex(load_opcode1)
      `OP_CODE_NOP: begin
         src_mask1 <= 0;
         dst_mask1 <= 0;
