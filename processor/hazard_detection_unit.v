@@ -220,25 +220,25 @@ module hazard_detection_unit(
 
   always @(*) begin
     if (load_stall) begin
-      stall0 = `PIPE_REG_PC | `PIPE_REG_IF_ID;
-      flush0 = `PIPE_REG_ID_EX;
+      stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+      flush0 <= `PIPE_REG_ID_EX;
 
-      stall1 = `PIPE_REG_PC | `PIPE_REG_IF_ID;
-      flush1 = `PIPE_REG_ID_EX;
+      stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+      flush1 <= `PIPE_REG_ID_EX;
     end else if (split_stall) begin
 
       if (first) begin
-        stall0 = `PIPE_REG_PC | `PIPE_REG_IF_ID;
-        flush0 = `PIPE_REG_ID_EX;
+        stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+        flush0 <= `PIPE_REG_ID_EX;
 
-        stall1 = `PIPE_REG_PC;
-        flush1 = `PIPE_REG_IF_ID;
+        stall1 <= `PIPE_REG_PC;
+        flush1 <= `PIPE_REG_IF_ID;
       end else begin
-        stall1 = `PIPE_REG_PC | `PIPE_REG_IF_ID;
-        flush1 = `PIPE_REG_ID_EX;
+        stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
+        flush1 <= `PIPE_REG_ID_EX;
 
-        stall0 = `PIPE_REG_PC;
-        flush0 = `PIPE_REG_IF_ID;
+        stall0 <= `PIPE_REG_PC;
+        flush0 <= `PIPE_REG_IF_ID;
       end
     end else begin
       stall1 <= 0;
