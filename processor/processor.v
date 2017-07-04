@@ -185,6 +185,7 @@ module processor(
   wire [`NUM_PIPE_MASKS-1:0] hazard_flush0;
   wire [`NUM_PIPE_MASKS-1:0] hazard_flush1;
 
+  wire stall;
   wire first;
   wire steer_stall;
 
@@ -311,7 +312,7 @@ module processor(
   .opcode(steer_instruction0[`OPCODE_MSB:`OPCODE_LSB]),
   .address(steer_instruction0[`IMM_MSB:`IMM_LSB]),
 
-  .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX] | steer_stall),
+  .stall(stall),
 
   .flush(branch_flush[`PC_MASK_INDEX]), 
   .branch_address(jump_address), 
@@ -337,34 +338,6 @@ module processor(
 
   .instruction0(instruction0),
   .instruction1(instruction1)
-  );
-
-  steer str(
-  .clk(clk),
-  .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX]),
-
-  .instruction0_in(instruction0),
-  .instruction1_in(instruction1),
-
-  .pc0_in(pc0),
-  .pc1_in(pc1),
-
-  .id0_in(instruction0_id),
-  .id1_in(instruction1_id),
-
-  //////////////
-
-  .instruction0_out(steer_instruction0),
-  .instruction1_out(steer_instruction1),
-
-  .pc0_out(steer_pc0),
-  .pc1_out(steer_pc1),
-
-  .id0_out(steer_instruction0_id),
-  .id1_out(steer_instruction1_id),
-
-  .steer_stall(steer_stall),
-  .first(first)
   );
 
   if_id_register if_id_reg0(
@@ -411,45 +384,68 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   
+/*
+  steer str(
+  .clk(clk),
+  .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX]),
+
+  .instruction0_in(instruction0),
+  .instruction1_in(instruction1),
+
+  .pc0_in(pc0),
+  .pc1_in(pc1),
+
+  .id0_in(instruction0_id),
+  .id1_in(instruction1_id),
+
+  //////////////
+
+  .instruction0_out(steer_instruction0),
+  .instruction1_out(steer_instruction1),
+
+  .pc0_out(steer_pc0),
+  .pc1_out(steer_pc1),
+
+  .id0_out(steer_instruction0_id),
+  .id1_out(steer_instruction1_id),
+
+  .steer_stall(steer_stall),
+  .first(first)
+  );
+*/
+
   hazard_detection_unit hdu(
 
-  .load_instruction(id_ex_instruction1),
-  .mem_op(id_ex_mem_op1),
+  .load_instruction(if_id_instruction1),
+  .mem_op(mem_op1),
 
-  .instruction0_in(if_id_instruction0),
-  .instruction1_in(if_id_instruction1),
-
-  .first(if_id_first),
+  .instruction0_in(instruction0),
+  .instruction1_in(instruction1),
 
   ////////////////////////////////
 
-  .stall0(stall0),
-  .nop0(nop0),
-
-  .stall1(stall1),
-  .nop1(nop1),
-
-  .flush0(hazard_flush0),
-  .flush1(hazard_flush1),
+  .stall(stall),
 
   ////////////////////////////////
 
-  .pc0_in(),
-  .pc1_in(),
+  .pc0_in(pc0),
+  .pc1_in(pc1),
 
-  .id0_in(),
-  .id1_in(),
+  .id0_in(instruction0_id),
+  .id1_in(instruction1_id),
 
   ////////////////////////////////
 
-  .instruction0_out(),
-  .instruction1_out(),
+  .instruction0_out(steer_instruction0),
+  .instruction1_out(steer_instruction1),
 
-  .pc0_out(),
-  .pc1_out(),
+  .pc0_out(steer_pc0),
+  .pc1_out(steer_pc1),
 
-  .id0_out(),
-  .id1_out()
+  .id0_out(steer_instruction0_id),
+  .id1_out(steer_instruction1_id),
+
+  .first(first)
   );
 
   control_unit cu0(

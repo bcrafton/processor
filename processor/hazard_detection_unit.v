@@ -10,18 +10,9 @@ module hazard_detection_unit(
   instruction0_in,
   instruction1_in,
 
-  first,
-
   //////////////
 
-  stall0,
-  nop0,
-
-  stall1,
-  nop1,
-
-  flush0,
-  flush1,
+  stall,
 
   //////////////
 
@@ -41,6 +32,8 @@ module hazard_detection_unit(
 
   id0_out,
   id1_out,
+
+  first
   
   );
 
@@ -50,7 +43,9 @@ module hazard_detection_unit(
   input wire [`INST_WIDTH-1:0] instruction0_in;
   input wire [`INST_WIDTH-1:0] instruction1_in;
 
-  input wire first;
+  //////////////
+
+  output wire stall;
 
   //////////////
 
@@ -62,17 +57,6 @@ module hazard_detection_unit(
 
   //////////////
 
-  output reg [`NUM_PIPE_MASKS-1:0] stall0;
-  output reg [`NUM_PIPE_MASKS-1:0] nop0;
-
-  output reg [`NUM_PIPE_MASKS-1:0] stall1;
-  output reg [`NUM_PIPE_MASKS-1:0] nop1;
-
-  output reg [`NUM_PIPE_MASKS-1:0] flush0;
-  output reg [`NUM_PIPE_MASKS-1:0] flush1;
-
-  //////////////
-
   output reg [`ADDR_WIDTH-1:0] pc0_out;
   output reg [`ADDR_WIDTH-1:0] pc1_out;
 
@@ -81,6 +65,8 @@ module hazard_detection_unit(
 
   output reg [`INST_WIDTH-1:0] instruction0_out;
   output reg [`INST_WIDTH-1:0] instruction1_out;
+
+  output reg first;
 
   //////////////
 
@@ -203,29 +189,25 @@ module hazard_detection_unit(
   
   //////////////
 
-  initial begin
-    stall0 <= 0;
-    stall1 <= 0;
-    nop0 <= 0;
-    nop1 <= 0;
-    flush0 <= 0;
-    flush1 <= 0;
+  assign stall = (stall_instruction0 == 0) && (stall_instruction1 == 0);
 
+  //////////////
+
+  initial begin
     load_stall = 0;
     split_stall = 0;
     steer_stall = 0;
 
-    
+    stall_instruction0 = 0;
+    stall_instruction1 = 0;
+    stall_pc0 = 0;
+    stall_pc1 = 0;
+    stall_id0 = 0;
+    stall_id1 = 0;
   end
 
   always @(*) begin
     if (load_stall) begin
-      stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-      flush0 <= `PIPE_REG_ID_EX;
-
-      stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-      flush1 <= `PIPE_REG_ID_EX;
-
       stall_instruction0 = instruction0_in;
       stall_instruction1 = instruction1_in;
       stall_pc0 = pc0_in;
@@ -233,33 +215,20 @@ module hazard_detection_unit(
       stall_id0 = id0_in;
       stall_id1 = id1_in;
     end else if (split_stall) begin
-
-      if (first) begin
-        stall0 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-        flush0 <= `PIPE_REG_ID_EX;
-
-        stall1 <= `PIPE_REG_PC;
-        flush1 <= `PIPE_REG_IF_ID;
-      end else begin
-        stall1 <= `PIPE_REG_PC | `PIPE_REG_IF_ID;
-        flush1 <= `PIPE_REG_ID_EX;
-
-        stall0 <= `PIPE_REG_PC;
-        flush0 <= `PIPE_REG_IF_ID;
-      end
-
       stall_instruction0 = 0;
       stall_instruction1 = instruction1_in;
       stall_pc0 = 0;
       stall_pc1 = pc1_in;
       stall_id0 = 0;
       stall_id1 = id1_in;
+    end else if (steer_stall) begin
     end else begin
-      stall1 <= 0;
-      flush1 <= 0;
-
-      stall0 <= 0;
-      flush0 <= 0;
+      stall_instruction0 = 0;
+      stall_instruction1 = 0;
+      stall_pc0 = 0;
+      stall_pc1 = 0;
+      stall_id0 = 0;
+      stall_id1 = 0;
     end
   end
 
@@ -524,7 +493,7 @@ module hazard_detection_unit(
         steer_pc1 = 0;
 
         //steer_stall = 1;
-        //first = 0;
+        first = 0;
         stall_instruction0 = split_instruction1;
         stall_instruction1 = `NOP_INSTRUCTION;
         stall_pc0 = split_pc1;
@@ -541,7 +510,7 @@ module hazard_detection_unit(
         steer_pc1 = split_id0;
 
         //steer_stall = 0;
-        //first = 1;
+        first = 1;
       end
       {`PIPE_MEMORY, `PIPE_MEMORY}: begin // hazard. steer stall = 1.
         steer_instruction0 = `NOP_INSTRUCTION;
@@ -552,7 +521,7 @@ module hazard_detection_unit(
         steer_pc1 = split_id0;
 
         //steer_stall = 1;
-        //first = 1;
+        first = 1;
         stall_instruction0 = `NOP_INSTRUCTION;
         stall_instruction1 = split_instruction1;
         stall_pc0 = 0;
@@ -569,7 +538,7 @@ module hazard_detection_unit(
         steer_pc1 = split_id0;
 
         //steer_stall = 0;
-        //first = 1;
+        first = 1;
       end
       {`PIPE_DONT_CARE, `PIPE_BRANCH}: begin
         steer_instruction0 = split_instruction1;
@@ -580,7 +549,7 @@ module hazard_detection_unit(
         steer_pc1 = split_id0;
 
         //steer_stall = 0;
-        //first = 1;
+        first = 1;
       end
       default: begin
         steer_instruction0 = split_instruction0;
@@ -591,7 +560,7 @@ module hazard_detection_unit(
         steer_pc1 = split_id1;
 
         //steer_stall = 0;
-        //first = 0;
+        first = 0;
       end
     endcase
   end
