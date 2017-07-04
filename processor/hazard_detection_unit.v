@@ -88,6 +88,13 @@ module hazard_detection_unit(
   reg split_stall;
   reg steer_stall;
 
+  reg [`INST_WIDTH-1:0] stall_instruction0;
+  reg [`INST_WIDTH-1:0] stall_instruction1;
+  reg [`ADDR_WIDTH-1:0] stall_pc0;
+  reg [`ADDR_WIDTH-1:0] stall_pc1;
+  reg [`INSTRUCTION_ID_WIDTH-1:0] stall_id0;
+  reg [`INSTRUCTION_ID_WIDTH-1:0] stall_id1;
+
   reg [`PIPE_BITS-1:0] instruction0_pipe;
   reg [`PIPE_BITS-1:0] instruction1_pipe;
 
@@ -497,19 +504,23 @@ module hazard_detection_unit(
         steer_instruction1 = `NOP_INSTRUCTION;
         steer_pc0 = split_pc0;
         steer_pc1 = 0;
-
         steer_pc0 = split_id0;
         steer_pc1 = 0;
 
         //steer_stall = 1;
         //first = 0;
+        stall_instruction0 = split_instruction1;
+        stall_instruction1 = `NOP_INSTRUCTION;
+        stall_pc0 = split_pc1;
+        stall_pc1 = 0;
+        stall_id0 = split_id1;
+        stall_id1 = 0;
       end
       {`PIPE_MEMORY, `PIPE_BRANCH}: begin
         steer_instruction0 = split_instruction1;
         steer_instruction1 = split_instruction0;
         steer_pc0 = split_pc1;
         steer_pc1 = split_pc0;
-
         steer_pc0 = split_id1;
         steer_pc1 = split_id0;
 
@@ -521,19 +532,23 @@ module hazard_detection_unit(
         steer_instruction1 = split_instruction0;
         steer_pc0 = 0;
         steer_pc1 = split_pc0;
-
         steer_pc0 = 0;
         steer_pc1 = split_id0;
 
         //steer_stall = 1;
         //first = 1;
+        stall_instruction0 = `NOP_INSTRUCTION;
+        stall_instruction1 = split_instruction1;
+        stall_pc0 = 0;
+        stall_pc1 = split_pc1;
+        stall_id0 = 0;
+        stall_id1 = split_id1;
       end
       {`PIPE_MEMORY, `PIPE_DONT_CARE}: begin
         steer_instruction0 = split_instruction1;
         steer_instruction1 = split_instruction0;
         steer_pc0 = split_pc1;
         steer_pc1 = split_pc0;
-
         steer_pc0 = split_id1;
         steer_pc1 = split_id0;
 
@@ -545,7 +560,6 @@ module hazard_detection_unit(
         steer_instruction1 = split_instruction0;
         steer_pc0 = split_pc1;
         steer_pc1 = split_pc0;
-
         steer_pc0 = split_id1;
         steer_pc1 = split_id0;
 
@@ -557,7 +571,6 @@ module hazard_detection_unit(
         steer_instruction1 = split_instruction1;
         steer_pc0 = split_pc0;
         steer_pc1 = split_pc1;
-
         steer_pc0 = split_id0;
         steer_pc1 = split_id1;
 
