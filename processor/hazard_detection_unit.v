@@ -437,7 +437,6 @@ module hazard_detection_unit(
     end
   end
 
-/*
   always @(*) begin
 
     casex(split_opcode0)
@@ -493,106 +492,79 @@ module hazard_detection_unit(
     endcase
 
     case( {instruction0_pipe, instruction1_pipe} )
-      {`PIPE_BRANCH, `PIPE_BRANCH}: begin
-        if (prev_stall == 0) begin
-          instruction0_out = instruction0_in;
-          instruction1_out = `NOP_INSTRUCTION;
-          pc0_out = pc0_in;
-          pc1_out = 0;
+      {`PIPE_BRANCH, `PIPE_BRANCH}: begin // hazard. steer stall = 1.
+        steer_instruction0 = split_instruction0;
+        steer_instruction1 = `NOP_INSTRUCTION;
+        steer_pc0 = split_pc0;
+        steer_pc1 = 0;
 
-          id0_out = id0_in;
-          id1_out = 0;
+        steer_pc0 = split_id0;
+        steer_pc1 = 0;
 
-          steer_stall = 1;
-          first = 0;
-        end else begin
-          instruction0_out = instruction1_in;
-          instruction1_out = `NOP_INSTRUCTION;
-          pc0_out = pc1_in;
-          pc1_out = 0;
-
-          id0_out = id1_in;
-          id1_out = 0;
-
-          steer_stall = 0;
-          first = 0;
-        end
+        //steer_stall = 1;
+        //first = 0;
       end
       {`PIPE_MEMORY, `PIPE_BRANCH}: begin
-        instruction0_out = instruction1_in;
-        instruction1_out = instruction0_in;
-        pc0_out = pc1_in;
-        pc1_out = pc0_in;
+        steer_instruction0 = split_instruction1;
+        steer_instruction1 = split_instruction0;
+        steer_pc0 = split_pc1;
+        steer_pc1 = split_pc0;
 
-        id0_out = id1_in;
-        id1_out = id0_in;
+        steer_pc0 = split_id1;
+        steer_pc1 = split_id0;
 
-        steer_stall = 0;
-        first = 1;
+        //steer_stall = 0;
+        //first = 1;
       end
-      {`PIPE_MEMORY, `PIPE_MEMORY}: begin
-        if (prev_stall == 0) begin
-          instruction0_out = `NOP_INSTRUCTION;
-          instruction1_out = instruction0_in;
-          pc0_out = 0;
-          pc1_out = pc0_in;
+      {`PIPE_MEMORY, `PIPE_MEMORY}: begin // hazard. steer stall = 1.
+        steer_instruction0 = `NOP_INSTRUCTION;
+        steer_instruction1 = split_instruction0;
+        steer_pc0 = 0;
+        steer_pc1 = split_pc0;
 
-          id0_out = 0;
-          id1_out = id0_in;
+        steer_pc0 = 0;
+        steer_pc1 = split_id0;
 
-          steer_stall = 1;
-          first = 1;
-        end else begin
-          instruction0_out = `NOP_INSTRUCTION;
-          instruction1_out = instruction1_in;
-          pc0_out = 0;
-          pc1_out = pc1_in;
-
-          id0_out = 0;
-          id1_out = id1_in;
-
-          steer_stall = 0;
-          first = 1;
-        end
+        //steer_stall = 1;
+        //first = 1;
       end
       {`PIPE_MEMORY, `PIPE_DONT_CARE}: begin
-        instruction0_out = instruction1_in;
-        instruction1_out = instruction0_in;
-        pc0_out = pc1_in;
-        pc1_out = pc0_in;
+        steer_instruction0 = split_instruction1;
+        steer_instruction1 = split_instruction0;
+        steer_pc0 = split_pc1;
+        steer_pc1 = split_pc0;
 
-        id0_out = id1_in;
-        id1_out = id0_in;
+        steer_pc0 = split_id1;
+        steer_pc1 = split_id0;
 
-        steer_stall = 0;
-        first = 1;
+        //steer_stall = 0;
+        //first = 1;
       end
       {`PIPE_DONT_CARE, `PIPE_BRANCH}: begin
-        instruction0_out = instruction1_in;
-        instruction1_out = instruction0_in;
-        pc0_out = pc1_in;
-        pc1_out = pc0_in;
+        steer_instruction0 = split_instruction1;
+        steer_instruction1 = split_instruction0;
+        steer_pc0 = split_pc1;
+        steer_pc1 = split_pc0;
 
-        id0_out = id1_in;
-        id1_out = id0_in;
+        steer_pc0 = split_id1;
+        steer_pc1 = split_id0;
 
-        steer_stall = 0;
-        first = 1;
+        //steer_stall = 0;
+        //first = 1;
       end
       default: begin
-        instruction0_out = instruction0_in;
-        instruction1_out = instruction1_in;
-        pc0_out = pc0_in;
-        pc1_out = pc1_in;
+        steer_instruction0 = split_instruction0;
+        steer_instruction1 = split_instruction1;
+        steer_pc0 = split_pc0;
+        steer_pc1 = split_pc1;
 
-        id0_out = id0_in;
-        id1_out = id1_in;
+        steer_pc0 = split_id0;
+        steer_pc1 = split_id1;
 
-        steer_stall = 0;
-        first = 0;
+        //steer_stall = 0;
+        //first = 0;
       end
     endcase
   end
-*/
 
 endmodule
