@@ -417,6 +417,7 @@ module processor(
   hazard_detection_unit hdu(
 
   .clk(clk),
+  .flush(branch_flush[`PC_MASK_INDEX]),
 
   .load_instruction(if_id_instruction1),
   .mem_op(mem_op1),

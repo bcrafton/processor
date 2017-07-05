@@ -3,7 +3,6 @@
 
 static test_t tests[] = {
 
-/*
 {"addi", BINARY_TEST, 0, 1000},
 {"subi", BINARY_TEST, 0, 1000},
 {"andi", BINARY_TEST, 0, 1000},
@@ -52,9 +51,7 @@ static test_t tests[] = {
 {"mov", ASM_TEST, 0, 1000},
 {"push", ASM_TEST, 100, 1000},
 {"pop", ASM_TEST, 100, 1000},
-*/
-{"push1", ASM_TEST, 100, 1000},
-/*
+
 {"fn_add", CODE_TEST, 6, 10000},
 {"if_false", CODE_TEST, 10, 10000},
 {"if_true", CODE_TEST, 20, 10000},
@@ -76,7 +73,7 @@ static test_t tests[] = {
 {"nested_tuple", CODE_TEST, 202, 10000},
 {"list", CODE_TEST, 6, 200000},
 {"linked_list", CODE_TEST, 6, 200000},
-*/
+
 };
 
 static int num_programs = sizeof(tests)/sizeof(test_t);

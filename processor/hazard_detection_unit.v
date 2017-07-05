@@ -5,6 +5,7 @@
 module hazard_detection_unit(
 
   clk,
+  flush,
 
   load_instruction,
   mem_op,
@@ -40,6 +41,7 @@ module hazard_detection_unit(
   );
 
   input wire clk;
+  input wire flush;
 
   input wire [`INST_WIDTH-1:0] load_instruction;
   input wire [`MEM_OP_BITS-1:0] mem_op;
@@ -258,12 +260,21 @@ module hazard_detection_unit(
   end
 
   always @(posedge clk) begin
-    last_instruction0 = stall_instruction0;
-    last_instruction1 = stall_instruction1;
-    last_pc0 = stall_pc0;
-    last_pc1 = stall_pc1;
-    last_id0 = stall_id0;
-    last_id1 = stall_id1;
+    if (flush) begin
+      last_instruction0 = 0;
+      last_instruction1 = 0;
+      last_pc0 = 0;
+      last_pc1 = 0;
+      last_id0 = 0;
+      last_id1 = 0;
+    end else begin
+      last_instruction0 = stall_instruction0;
+      last_instruction1 = stall_instruction1;
+      last_pc0 = stall_pc0;
+      last_pc1 = stall_pc1;
+      last_id0 = stall_id0;
+      last_id1 = stall_id1;
+    end
   end
 
   always @(*) begin
@@ -276,11 +287,11 @@ module hazard_detection_unit(
       stall_id1 = id1;
     end else if (split_stall) begin
       stall_instruction0 = 0;
-      stall_instruction1 = instruction1_in;
+      stall_instruction1 = instruction1;
       stall_pc0 = 0;
-      stall_pc1 = pc1_in;
+      stall_pc1 = pc1;
       stall_id0 = 0;
-      stall_id1 = id1_in;
+      stall_id1 = id1;
     end else if (steer_stall) begin
     end else begin
       stall_instruction0 = 0;
@@ -380,7 +391,12 @@ module hazard_detection_unit(
       end
     endcase
 
-    if(!load_stall) begin
+    if(load_stall) begin
+
+      split_stall = 0;
+
+    end else begin
+
       casex( {src_mask1, dst_mask0} )
 
         {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RT}: begin
@@ -431,6 +447,7 @@ module hazard_detection_unit(
         end
       endcase
     end
+
   end
 
   always @(*) begin
