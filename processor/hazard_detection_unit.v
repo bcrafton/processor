@@ -171,6 +171,16 @@ module hazard_detection_unit(
 
   //////////////
 
+  wire vld_rs0;
+  wire vld_rt0;
+  wire vld_rs1;
+  wire vld_rt1;
+
+  assign vld_rs0 = (src_mask0 & `REG_MASK_RS) == `REG_MASK_RS;
+  assign vld_rt0 = (src_mask0 & `REG_MASK_RT) == `REG_MASK_RT;
+  assign vld_rs1 = (src_mask1 & `REG_MASK_RS) == `REG_MASK_RS;
+  assign vld_rt1 = (src_mask1 & `REG_MASK_RT) == `REG_MASK_RT;
+
   assign opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 =     instruction0[`REG_RS_MSB:`REG_RS_LSB];
   assign rt0 =     instruction0[`REG_RT_MSB:`REG_RT_LSB];
@@ -304,9 +314,9 @@ module hazard_detection_unit(
   end
 
   always @(*) begin
-    if((rs0 == load_rt || rt0 == load_rt) && (mem_op == `MEM_OP_READ)) begin
+    if((          ((rs0 == load_rt) && vld_rs0) || ((rt0 == load_rt) && vld_rt0) ) && (mem_op == `MEM_OP_READ)) begin
       load_stall = 1;
-    end else if((rs1 == load_rt || rt1 == load_rt) && (mem_op == `MEM_OP_READ)) begin
+    end else if(( ((rs1 == load_rt) && vld_rs1) || ((rt1 == load_rt) && vld_rt1) ) && (mem_op == `MEM_OP_READ)) begin
       load_stall = 1;
     end else begin
       load_stall = 0;
@@ -315,7 +325,7 @@ module hazard_detection_unit(
 
   always @(*) begin
 
-    casex(load_opcode0)
+    casex(opcode0)
      `OP_CODE_NOP: begin
         src_mask0 <= 0;
         dst_mask0 <= 0;
@@ -353,7 +363,7 @@ module hazard_detection_unit(
       end
     endcase
 
-    casex(load_opcode1)
+    casex(opcode1)
      `OP_CODE_NOP: begin
         src_mask1 <= 0;
         dst_mask1 <= 0;
@@ -513,7 +523,7 @@ module hazard_detection_unit(
         steer_id0 = split_id0;
         steer_id1 = 0;
 
-        //steer_stall = 1;
+        steer_stall = 1;
         first = 0;
         stall_instruction0 = split_instruction1;
         stall_instruction1 = `NOP_INSTRUCTION;
@@ -530,7 +540,7 @@ module hazard_detection_unit(
         steer_id0 = split_id1;
         steer_id1 = split_id0;
 
-        //steer_stall = 0;
+        steer_stall = 0;
         first = 1;
       end
       {`PIPE_MEMORY, `PIPE_MEMORY}: begin // hazard. steer stall = 1.
@@ -541,7 +551,7 @@ module hazard_detection_unit(
         steer_id0 = 0;
         steer_id1 = split_id0;
 
-        //steer_stall = 1;
+        steer_stall = 1;
         first = 1;
         stall_instruction0 = `NOP_INSTRUCTION;
         stall_instruction1 = split_instruction1;
@@ -558,7 +568,7 @@ module hazard_detection_unit(
         steer_id0 = split_id1;
         steer_id1 = split_id0;
 
-        //steer_stall = 0;
+        steer_stall = 0;
         first = 1;
       end
       {`PIPE_DONT_CARE, `PIPE_BRANCH}: begin
@@ -569,7 +579,7 @@ module hazard_detection_unit(
         steer_id0 = split_id1;
         steer_id1 = split_id0;
 
-        //steer_stall = 0;
+        steer_stall = 0;
         first = 1;
       end
       default: begin
@@ -580,7 +590,7 @@ module hazard_detection_unit(
         steer_id0 = split_id0;
         steer_id1 = split_id1;
 
-        //steer_stall = 0;
+        steer_stall = 0;
         first = 0;
       end
     endcase
