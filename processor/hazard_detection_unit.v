@@ -538,8 +538,8 @@ module hazard_detection_unit(
         steer_instruction1 = split_instruction0;
         steer_pc0 = 0;
         steer_pc1 = split_pc0;
-        steer_pc0 = 0;
-        steer_pc1 = split_id0;
+        steer_id0 = 0;
+        steer_id1 = split_id0;
 
         //steer_stall = 1;
         first = 1;

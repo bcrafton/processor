@@ -411,15 +411,29 @@ bool check_code(test_t* test)
   load_memory(emu_out_path, "/reg", "", reg_emu, REGFILE_SIZE);
   load_memory(emu_out_path, "/mem", "", mem_emu, DMEMORY_SIZE);
 
-  bool diff = (reg_emu[0] == test->ans);
-  diff = diff && diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
-  diff = diff && diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
+  bool diff_ans = (reg_emu[0] == test->ans);
+
+  bool diff_reg = diff_memory(reg_sim, reg_emu, REGFILE_SIZE);
+  bool diff_mem = diff_memory(mem_sim, mem_emu, DMEMORY_SIZE);
 
   GQueue* q1 = load_instruction_log(sim_out_path, "/logs");
   GQueue* q2 = load_instruction_log(emu_out_path, "/logs");
+  bool diff_log = diff_instruction_logs(q1, q2);
 
-  diff = diff && diff_instruction_logs(q1, q2);
+  if (!diff_ans) {
+    printf("Answer diff\n");  
+  }
+  if (!diff_reg) {
+    printf("Reg diff\n");  
+  }
+  if (!diff_mem) {
+    printf("Mem diff\n");  
+  }
+  if (!diff_log) {
+    printf("log diff\n");  
+  }
 
+  bool diff = diff_ans && diff_reg && diff_mem && diff_log;
   return diff;
 }
 
