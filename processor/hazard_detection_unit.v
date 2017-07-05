@@ -197,10 +197,10 @@ module hazard_detection_unit(
   
   //////////////
 
-  assign split_pc0 = split_stall ? 0 : load_pc0;
+  assign split_pc0 = load_pc0;
   assign split_pc1 = split_stall ? 0 : load_pc1;
 
-  assign split_id0 = split_stall ? 0 : load_id0;
+  assign split_id0 = load_id0;
   assign split_id1 = split_stall ? 0 : load_id1;
 
   assign split_instruction0 = load_instruction0;
@@ -381,111 +381,55 @@ module hazard_detection_unit(
     endcase
 
     if(!load_stall) begin
+      casex( {src_mask1, dst_mask0} )
 
-      if (first) begin
-
-        casex( {src_mask0, dst_mask1} )
-
-          {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RT}: begin
-            if (rs0 == rt1 || rt0 == rt1) begin
-              split_stall = 1;
-            end else begin
-              split_stall = 0;
-            end
-          end
-          {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RD}: begin
-            if (rs0 == rd1 || rt0 == rd1) begin
-              split_stall = 1;
-            end else begin
-              split_stall = 0;
-            end
-          end
-
-          {`REG_MASK_RS, `REG_MASK_RT}: begin
-            if (rs0 == rt1) begin
-              split_stall = 1;
-            end else begin
-              split_stall = 0;
-            end
-          end
-          {`REG_MASK_RS, `REG_MASK_RD}: begin
-            if (rs0 == rd1) begin
-              split_stall = 1;
-            end else begin
-              split_stall = 0;
-            end
-          end
-          {`REG_MASK_RT, `REG_MASK_RT}: begin
-            if (rt0 == rt1) begin
-              split_stall = 1;
-            end else begin
-              split_stall = 0;
-            end
-          end
-          {`REG_MASK_RT, `REG_MASK_RD}: begin
-            if (rt0 == rd1) begin
-               split_stall = 1;
-            end else begin
-              split_stall = 0;
-            end
-          end
-          default: begin
+        {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RT}: begin
+          if (rs1 == rt0 || rt1 == rt0) begin
+            split_stall = 1;
+          end else begin
             split_stall = 0;
           end
-        endcase
-
-      end else begin
-
-        casex( {src_mask1, dst_mask0} )
-
-          {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RT}: begin
-            if (rs1 == rt0 || rt1 == rt0) begin
-              split_stall = 1;
-            end else begin
-              split_stall = 0;
-            end
-          end
-          {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RD}: begin
-            if (rs1 == rd0 || rt1 == rd0) begin
-              split_stall = 1;
-            end else begin
-              split_stall = 0;
-            end
-          end
-
-          {`REG_MASK_RS, `REG_MASK_RT}: begin
-            if (rs1 == rt0) begin
-              split_stall = 1;
-            end else begin
-              split_stall = 0;
-            end
-          end
-          {`REG_MASK_RS, `REG_MASK_RD}: begin
-            if (rs1 == rd0) begin
-              split_stall = 1;
-            end else begin
-              split_stall = 0;
-            end
-          end
-          {`REG_MASK_RT, `REG_MASK_RT}: begin
-            if (rt1 == rt0) begin
-              split_stall = 1;
-            end else begin
-              split_stall = 0;
-            end
-          end
-          {`REG_MASK_RT, `REG_MASK_RD}: begin
-            if (rt1 == rd0) begin
-              split_stall = 1;
-            end else begin
-              split_stall = 0;
-            end
-          end
-          default: begin
+        end
+        {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RD}: begin
+          if (rs1 == rd0 || rt1 == rd0) begin
+            split_stall = 1;
+          end else begin
             split_stall = 0;
           end
-        endcase
-      end
+        end
+
+        {`REG_MASK_RS, `REG_MASK_RT}: begin
+          if (rs1 == rt0) begin
+            split_stall = 1;
+          end else begin
+            split_stall = 0;
+          end
+        end
+        {`REG_MASK_RS, `REG_MASK_RD}: begin
+          if (rs1 == rd0) begin
+            split_stall = 1;
+          end else begin
+            split_stall = 0;
+          end
+        end
+        {`REG_MASK_RT, `REG_MASK_RT}: begin
+          if (rt1 == rt0) begin
+            split_stall = 1;
+          end else begin
+            split_stall = 0;
+          end
+        end
+        {`REG_MASK_RT, `REG_MASK_RD}: begin
+          if (rt1 == rd0) begin
+            split_stall = 1;
+          end else begin
+            split_stall = 0;
+          end
+        end
+        default: begin
+          split_stall = 0;
+        end
+      endcase
     end
   end
 
