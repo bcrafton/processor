@@ -283,9 +283,9 @@ module processor(
   always @(posedge clk) begin
     perf_metrics_bit = $perf_metrics(
       $time, 
-      stall0,
-      stall1,
-      steer_stall,
+      5'b00000,
+      5'b00000,
+      stall,
       branch_flush,
       id_ex_jop0,
       id_ex_pc0,
