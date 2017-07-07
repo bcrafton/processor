@@ -147,6 +147,7 @@ module issue(
   end
   
   always @(posedge clk) begin
+    
     if (flush) begin
       instruction0_out <= 0;
       pc0_out          <= 0;
@@ -156,40 +157,24 @@ module issue(
       pc1_out          <= 0;
       id1_out          <= 0;
     end else begin
-      if (load_stall) begin
-        instruction0_out <= !load_vld_mask[0] ? instruction0 : 0;
-        pc0_out          <= !load_vld_mask[0] ? pc0 : 0;
-        id0_out          <= !load_vld_mask[0] ? id0 : 0;
+      if(!first) begin
+        instruction0_out <= steer_vld_mask[0] ? instruction0 : 0;
+        pc0_out          <= steer_vld_mask[0] ? pc0 : 0;
+        id0_out          <= steer_vld_mask[0] ? id0 : 0;
         
-        instruction1_out <= !load_vld_mask[1] ? instruction1 : 0;
-        pc1_out          <= !load_vld_mask[1] ? pc1 : 0;
-        id1_out          <= !load_vld_mask[1] ? id1 : 0;
-      end else if (split_stall) begin
-        instruction0_out <= !split_vld_mask[0] ? instruction0 : 0;
-        pc0_out          <= !split_vld_mask[0] ? pc0 : 0;
-        id0_out          <= !split_vld_mask[0] ? id0 : 0;
-        
-        instruction1_out <= !split_vld_mask[1] ? instruction1 : 0;
-        pc1_out          <= !split_vld_mask[1] ? pc1 : 0;
-        id1_out          <= !split_vld_mask[1] ? id1 : 0;
-      end else if (steer_stall) begin
-        // need to use first here.
-        instruction0_out <= !steer_vld_mask[0] ? instruction0 : 0;
-        pc0_out          <= !steer_vld_mask[0] ? pc0 : 0;
-        id0_out          <= !steer_vld_mask[0] ? id0 : 0;
-        
-        instruction1_out <= !steer_vld_mask[1] ? instruction1 : 0;
-        pc1_out          <= !steer_vld_mask[1] ? pc1 : 0;
-        id1_out          <= !steer_vld_mask[1] ? id1 : 0;
+        instruction1_out <= steer_vld_mask[1] ? instruction1 : 0;
+        pc1_out          <= steer_vld_mask[1] ? pc1 : 0;
+        id1_out          <= steer_vld_mask[1] ? id1 : 0;
       end else begin
-        instruction0_out <= instruction0;
-        pc0_out          <= pc0;
-        id0_out          <= id0;
+        instruction1_out <= steer_vld_mask[0] ? instruction0 : 0;
+        pc1_out          <= steer_vld_mask[0] ? pc0 : 0;
+        id1_out          <= steer_vld_mask[0] ? id0 : 0;
         
-        instruction1_out <= instruction1;
-        pc1_out          <= pc1;
-        id1_out          <= id1;
+        instruction0_out <= steer_vld_mask[1] ? instruction1 : 0;
+        pc0_out          <= steer_vld_mask[1] ? pc1 : 0;
+        id0_out          <= steer_vld_mask[1] ? id1 : 0;
       end
+
     end
     
   end
@@ -204,40 +189,13 @@ module issue(
       stall_pc1          <= 0;
       stall_id1          <= 0;
     end else begin
-      if (load_stall) begin
-        stall_instruction0 <= load_vld_mask[0] ? instruction0 : 0;
-        stall_pc0          <= load_vld_mask[0] ? pc0 : 0;
-        stall_id0          <= load_vld_mask[0] ? id0 : 0;
-        
-        stall_instruction1 <= load_vld_mask[1] ? instruction1 : 0;
-        stall_pc1          <= load_vld_mask[1] ? pc1 : 0;
-        stall_id1          <= load_vld_mask[1] ? id1 : 0;
-      end else if (split_stall) begin
-        stall_instruction0 <= split_vld_mask[0] ? instruction0 : 0;
-        stall_pc0          <= split_vld_mask[0] ? pc0 : 0;
-        stall_id0          <= split_vld_mask[0] ? id0 : 0;
-        
-        stall_instruction1 <= split_vld_mask[1] ? instruction1 : 0;
-        stall_pc1          <= split_vld_mask[1] ? pc1 : 0;
-        stall_id1          <= split_vld_mask[1] ? id1 : 0;
-      end else if (steer_stall) begin
-        // need to use first here.
-        stall_instruction0 <= steer_vld_mask[0] ? instruction0 : 0;
-        stall_pc0          <= steer_vld_mask[0] ? pc0 : 0;
-        stall_id0          <= steer_vld_mask[0] ? id0 : 0;
-        
-        stall_instruction1 <= steer_vld_mask[1] ? instruction1 : 0;
-        stall_pc1          <= steer_vld_mask[1] ? pc1 : 0;
-        stall_id1          <= steer_vld_mask[1] ? id1 : 0;
-      end else begin
-        stall_instruction0 <= 0;
-        stall_pc0          <= 0;
-        stall_id0          <= 0;
-        
-        stall_instruction1 <= 0;
-        stall_pc1          <= 0;
-        stall_id1          <= 0;
-      end
+      stall_instruction0 <= !steer_vld_mask[0] ? instruction0 : 0;
+      stall_pc0          <= !steer_vld_mask[0] ? pc0 : 0;
+      stall_id0          <= !steer_vld_mask[0] ? id0 : 0;
+      
+      stall_instruction1 <= !steer_vld_mask[1] ? instruction1 : 0;
+      stall_pc1          <= !steer_vld_mask[1] ? pc1 : 0;
+      stall_id1          <= !steer_vld_mask[1] ? id1 : 0;
     end
   end
 
@@ -275,10 +233,13 @@ module load_hazard(
   always @(*) begin
     if((rs0 == if_id_rt || rt0 == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ)) begin
       load_stall = 1;
+      vld_mask_out = 2'b00;
     end else if((rs1 == if_id_rt || rt0 == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ)) begin
       load_stall = 1;
+      vld_mask_out = 2'b00;
     end else begin
       load_stall = 0;
+      vld_mask_out = 2'b11;
     end
   end
   
@@ -326,9 +287,9 @@ module split_hazard(
 
   always @(*) begin
     if (split_stall) begin
-      vld_mask_out = 2'b10;
+      vld_mask_out = vld_mask_in & 2'b10;
     end else begin
-      vld_mask_out = 2'b11;
+      vld_mask_out = vld_mask_in & 2'b11;
     end
   end
 
@@ -551,32 +512,32 @@ module steer(
       {`PIPE_BRANCH, `PIPE_BRANCH}: begin // hazard. steer stall = 1.
         steer_stall = 1;
         first = 0;
-        vld_mask_out = 2'b01;
+        vld_mask_out = vld_mask_in & 2'b01;
       end
       {`PIPE_MEMORY, `PIPE_BRANCH}: begin
         steer_stall = 0;
         first = 1;
-        vld_mask_out = 2'b11;
+        vld_mask_out = vld_mask_in & 2'b11;
       end
       {`PIPE_MEMORY, `PIPE_MEMORY}: begin // hazard. steer stall = 1.
         steer_stall = 1;
         first = 1;
-        vld_mask_out = 2'b10;
+        vld_mask_out = vld_mask_in & 2'b01;
       end
       {`PIPE_MEMORY, `PIPE_DONT_CARE}: begin
         steer_stall = 0;
         first = 1;
-        vld_mask_out = 2'b11;
+        vld_mask_out = vld_mask_in & 2'b11;
       end
       {`PIPE_DONT_CARE, `PIPE_BRANCH}: begin
         steer_stall = 0;
         first = 1;
-        vld_mask_out = 2'b11;
+        vld_mask_out = vld_mask_in & 2'b11;
       end
       default: begin
         steer_stall = 0;
         first = 0;
-        vld_mask_out = 2'b11;
+        vld_mask_out = vld_mask_in & 2'b11;
       end
     endcase
   end
