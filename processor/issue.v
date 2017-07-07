@@ -103,7 +103,10 @@ module issue(
   
   //////////////
 
-  assign stall = load_stall || split_stall || steer_stall;
+
+  // can this be assign stall = load_stall || split_stall || steer_stall; ?
+  assign stall = (stall_instruction0 != 0) || (stall_instruction1 != 0);
+
 
   //////////////
   
@@ -137,6 +140,14 @@ module issue(
   );
   
   initial begin
+    instruction0_out <= 0;
+    pc0_out          <= 0;
+    id0_out          <= 0;
+    
+    instruction1_out <= 0;
+    pc1_out          <= 0;
+    id1_out          <= 0;
+
     stall_instruction0 <= 0;
     stall_pc0          <= 0;
     stall_id0          <= 0;
@@ -266,8 +277,8 @@ module split_hazard(
   output reg [1:0] vld_mask_out;
 	output reg split_stall;
   
-  wire [`INST_WIDTH-1:0] instruction0 = vld_mask[0] ? instruction0_in : 0;
-  wire [`INST_WIDTH-1:0] instruction1 = vld_mask[1] ? instruction1_in : 0;
+  wire [`INST_WIDTH-1:0] instruction0 = vld_mask_in[0] ? instruction0_in : 0;
+  wire [`INST_WIDTH-1:0] instruction1 = vld_mask_in[1] ? instruction1_in : 0;
   
   wire [`OP_CODE_BITS-1:0] opcode0   = instruction0[`OPCODE_MSB:`OPCODE_LSB];
   wire [`NUM_REGISTERS_LOG2-1:0] rs0 = instruction0[`REG_RS_MSB:`REG_RS_LSB];
@@ -287,7 +298,7 @@ module split_hazard(
 
   always @(*) begin
     if (split_stall) begin
-      vld_mask_out = vld_mask_in & 2'b10;
+      vld_mask_out = vld_mask_in & 2'b01;
     end else begin
       vld_mask_out = vld_mask_in & 2'b11;
     end
@@ -445,8 +456,8 @@ module steer(
   output reg [1:0] vld_mask_out;
   output reg first;
   
-  wire [`INST_WIDTH-1:0] instruction0 = vld_mask[0] ? instruction0_in : 0;
-  wire [`INST_WIDTH-1:0] instruction1 = vld_mask[1] ? instruction1_in : 0;
+  wire [`INST_WIDTH-1:0] instruction0 = vld_mask_in[0] ? instruction0_in : 0;
+  wire [`INST_WIDTH-1:0] instruction1 = vld_mask_in[1] ? instruction1_in : 0;
   
   wire [`OP_CODE_BITS-1:0] opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
   wire [`OP_CODE_BITS-1:0] opcode1 = instruction1[`OPCODE_MSB:`OPCODE_LSB];
