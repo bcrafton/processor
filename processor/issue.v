@@ -113,16 +113,16 @@ module issue(
   load_hazard lh(
   .if_id_instruction1(if_id_instruction1),
   .if_id_mem_op1(if_id_mem_op1),
-  .instruction0_in(instruction0_in),
-  .instruction1_in(instruction1_in),
+  .instruction0_in(instruction0),
+  .instruction1_in(instruction1),
   
   .vld_mask_out(load_vld_mask),
   .load_stall(load_stall)
   );
   
   split_hazard sh(
-  .instruction0_in(instruction0_in),
-  .instruction1_in(instruction1_in),
+  .instruction0_in(instruction0),
+  .instruction1_in(instruction1),
   .vld_mask_in(load_vld_mask),
   
   .vld_mask_out(split_vld_mask),
@@ -130,8 +130,8 @@ module issue(
   );
   
   steer s(
-  .instruction0_in(instruction0_in),
-  .instruction1_in(instruction1_in),
+  .instruction0_in(instruction0),
+  .instruction1_in(instruction1),
   .vld_mask_in(split_vld_mask),
   
   .vld_mask_out(steer_vld_mask),
@@ -157,33 +157,33 @@ module issue(
     stall_id1          <= 0;
   end
   
-  always @(posedge clk) begin
+  always @(*) begin
     
     if (flush) begin
-      instruction0_out <= 0;
-      pc0_out          <= 0;
-      id0_out          <= 0;
+      instruction0_out = 0;
+      pc0_out          = 0;
+      id0_out          = 0;
       
-      instruction1_out <= 0;
-      pc1_out          <= 0;
-      id1_out          <= 0;
+      instruction1_out = 0;
+      pc1_out          = 0;
+      id1_out          = 0;
     end else begin
       if(!first) begin
-        instruction0_out <= steer_vld_mask[0] ? instruction0 : 0;
-        pc0_out          <= steer_vld_mask[0] ? pc0 : 0;
-        id0_out          <= steer_vld_mask[0] ? id0 : 0;
+        instruction0_out = steer_vld_mask[0] ? instruction0 : 0;
+        pc0_out          = steer_vld_mask[0] ? pc0 : 0;
+        id0_out          = steer_vld_mask[0] ? id0 : 0;
         
-        instruction1_out <= steer_vld_mask[1] ? instruction1 : 0;
-        pc1_out          <= steer_vld_mask[1] ? pc1 : 0;
-        id1_out          <= steer_vld_mask[1] ? id1 : 0;
+        instruction1_out = steer_vld_mask[1] ? instruction1 : 0;
+        pc1_out          = steer_vld_mask[1] ? pc1 : 0;
+        id1_out          = steer_vld_mask[1] ? id1 : 0;
       end else begin
-        instruction1_out <= steer_vld_mask[0] ? instruction0 : 0;
-        pc1_out          <= steer_vld_mask[0] ? pc0 : 0;
-        id1_out          <= steer_vld_mask[0] ? id0 : 0;
+        instruction1_out = steer_vld_mask[0] ? instruction0 : 0;
+        pc1_out          = steer_vld_mask[0] ? pc0 : 0;
+        id1_out          = steer_vld_mask[0] ? id0 : 0;
         
-        instruction0_out <= steer_vld_mask[1] ? instruction1 : 0;
-        pc0_out          <= steer_vld_mask[1] ? pc1 : 0;
-        id0_out          <= steer_vld_mask[1] ? id1 : 0;
+        instruction0_out = steer_vld_mask[1] ? instruction1 : 0;
+        pc0_out          = steer_vld_mask[1] ? pc1 : 0;
+        id0_out          = steer_vld_mask[1] ? id1 : 0;
       end
 
     end
