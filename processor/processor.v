@@ -414,13 +414,13 @@ module processor(
   );
 */
 
-  hazard_detection_unit hdu(
+  issue i(
 
   .clk(clk),
   .flush(branch_flush[`PC_MASK_INDEX]),
 
-  .load_instruction(if_id_instruction1),
-  .mem_op(mem_op1),
+  .if_id_instruction1(if_id_instruction1),
+  .if_id_mem_op1(mem_op1),
 
   .instruction0_in(instruction0),
   .instruction1_in(instruction1),

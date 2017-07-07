@@ -2,7 +2,7 @@
 
 `include "defines.vh"
 
-module hazard_detection_unit(
+module issue(
   clk,
   flush,
 
