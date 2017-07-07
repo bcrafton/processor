@@ -14,7 +14,7 @@ module issue(
 
   //////////////
 
-  stall,
+  stall_out,
 
   //////////////
 
@@ -50,7 +50,8 @@ module issue(
 
   //////////////
 
-  output wire stall;
+  wire stall;
+  output wire stall_out;
 
   //////////////
 
@@ -102,11 +103,10 @@ module issue(
   wire [`INSTRUCTION_ID_WIDTH-1:0] id1 = stall ? stall_id1 : id1_in;
   
   //////////////
-
-
+  
   // can this be assign stall = load_stall || split_stall || steer_stall; ?
   assign stall = (stall_instruction0 != 0) || (stall_instruction1 != 0);
-
+  assign stall_out = !steer_vld_mask[0] ||  !steer_vld_mask[1];
 
   //////////////
   

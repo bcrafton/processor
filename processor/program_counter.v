@@ -115,10 +115,6 @@ module program_counter(
     if(flush) begin
       pc <= branch_address;
       branch_taken <= 0;
-    end else if(branch & take_branch) begin
-        pc <= branch_predict;
-        branch_taken <= 1;
-        branch_taken_address <= branch_predict;
     end else if(!stall) begin
       if(reset) begin
         pc <= 0;
@@ -127,7 +123,9 @@ module program_counter(
         pc <= address;
         branch_taken <= 0;
       end else if (branch & take_branch) begin
-
+        pc <= branch_predict;
+        branch_taken <= 1;
+        branch_taken_address <= branch_predict;
       end else begin
         pc <= pc + 2;
         branch_taken <= 0;
