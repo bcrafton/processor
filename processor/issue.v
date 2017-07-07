@@ -245,7 +245,7 @@ module load_hazard(
     if((rs0 == if_id_rt || rt0 == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ)) begin
       load_stall = 1;
       vld_mask_out = 2'b00;
-    end else if((rs1 == if_id_rt || rt0 == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ)) begin
+    end else if((rs1 == if_id_rt || rt1 == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ)) begin
       load_stall = 1;
       vld_mask_out = 2'b00;
     end else begin
