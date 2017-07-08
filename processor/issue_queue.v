@@ -29,22 +29,24 @@ module issue_queue(
   
   );
 
+  // we are gonna be outputing these things as separate things (instruction, pc, id) but storing them together.
+
   input wire clk;
   input wire flush;
-  output wire [2:0] free; // the # of non valid slots
-  output wire [2:0] count;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] free; // the # of non valid slots
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] count;
 
   input wire pop0;
-  output reg pop_instruction0;
-  output reg pop_pc0;
-  output reg pop_id0;
-  output reg pop_key0;
+  output wire pop_instruction0;
+  output wire pop_pc0;
+  output wire pop_id0;
+  output wire pop_key0;
 
   input wire pop1;
-  output reg pop_instruction1;
-  output reg pop_pc1;
-  output reg pop_id1;
-  output reg pop_key1;
+  output wire pop_instruction1;
+  output wire pop_pc1;
+  output wire pop_id1;
+  output wire pop_key1;
 
   input wire push0;
   input wire push_instruction0;
@@ -58,14 +60,19 @@ module issue_queue(
 
   ///////////////
 
-  reg [] instructions [0:7];
-  reg [] pcs [0:7];
-  reg [] ids [0:7];
-  reg [] keys [0:7];
+  //reg [] instructions [0:7];
+  //reg [] pcs [0:7];
+  //reg [] ids [0:7];
+  reg [] data [0:7];
+
+  reg [] nexts [0:7];
+  reg [] prevs [0:7];
   reg [] vld [0:7];
 
-  reg [] mru;
-  reg [] lru;
+  reg [] head;
+  reg [] tail;
+
+  wire next;
 
   ///////////////
 
@@ -87,6 +94,17 @@ module issue_queue(
                  vld[6] +
                  vld[7];
 
+  assign next = !vld[0] ? 0 :
+                !vld[1] ? 1 :
+                !vld[2] ? 2 :
+                !vld[3] ? 3 :
+                !vld[4] ? 4 :
+                !vld[5] ? 5 :
+                !vld[6] ? 6 :
+                !vld[7] ? 7 :
+                8;
+                  
+
   ///////////////
 
   // it shudnt matter where we put the pushed instruction ... earliest valid spot? -> no just lru
@@ -102,24 +120,28 @@ module issue_queue(
 
   at what point is not incrementing all not-changed wires better.
 
+  we can use next to calculate order.
+
+  so this implementation just needs to be a linked list.
+  wondering how well it can be done in verilog and if it is even synthesizable.
+
   */
-
-  // ALL THE DATA NEEDS TO BE BOUND TOGETHER SO U DONT HAVE TO UPDATE EACH ONES NEXT POINTERS AND SHIT.
-
-  // THIS BE HARD SON.
 
   initial begin
 
     for(i=0; i<8; i=i+1) begin
-      instructions[i] = 0;
-      pcs[i] = 0;
-      ids[i] = 0;
-      keys[i] = 0; // we maintain this
+      //instructions[i] = 0;
+      //pcs[i] = 0;
+      //ids[i] = 0;
+      data[i] = 0;
+
+      nexts[i] = 0; // we maintain this
+      prevs[i] = 0;
       vld[i] = 0; // we maintain this
     end
 
-    newest = 7;
-    oldest = 0;
+    head = 0; // do we even need this?
+    tail = 0;
   end
 
   // dont have to increment free if it is a wire that will change - ah but we do because its posedge clk
@@ -130,23 +152,23 @@ module issue_queue(
 
       if (push0 && (free >= 1)) begin
 
-        // do the evict.
-        
+        nexts[tail] <= next;
+        nexts[prev] <= tail;
+        data[tail] <= push_data0;
+        vld[tail] <= 1;
+        tail <= next;
 
-        instructions[oldest] = push_instruction0;
-        pcs[oldest] = push_pc0;
-        ids[oldest] = push_id0;
-        vld[oldest] = 1;
       end
 
       if (push1 && (free >= 2)) begin // not sure if correct
-        instructions[oldest] = push_instruction0;
-        pcs[oldest] = push_pc0;
-        ids[oldest] = push_id0;
-        vld[oldest] = 1;
       end
 
       if (pop0 && (count >= 1)) begin
+
+        nexts[ prevs[pop0] ] <= nexts[pop0];
+        prevs[ nexts[pop0] ] <= prevs[pop0];
+        vld[pop0] = 0;
+
       end
 
       if (pop1 && (count >= 2)) begin

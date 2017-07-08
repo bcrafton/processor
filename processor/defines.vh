@@ -84,6 +84,11 @@
 `define ADDR_WIDTH 16 
 `define IMM_WIDTH  16 
 
+// pc + instruction + id
+`define IQ_ENTRY_SIZE       `INST_WIDTH + `ADDR_WIDTH + `INSTRUCTION_ID_WIDTH
+`define NUM_IQ_ENTRIES      8
+`define NUM_IQ_ENTRIES_LOG2 3
+
 `define ALU_OP_NOP        4'b0000
 `define ALU_OP_ADD        4'b0001
 `define ALU_OP_SUB        4'b0010
