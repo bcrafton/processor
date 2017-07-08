@@ -8,6 +8,7 @@ sudo apt-get install ocaml;
 sudo apt-get install iverilog;
 sudo apt-get install cppo;
 sudo apt-get install libglib2.0-dev;
+sudo apt-get install gtkwave;
 
 mkdir tmp;
 cd tmp;
