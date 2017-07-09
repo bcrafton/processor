@@ -73,7 +73,7 @@ module program_counter(
   //////////////
 
   reg [`ADDR_WIDTH-1:0] pc;
-  reg [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
+  reg [`INSTRUCTION_ID_WIDTH-1:0] instruction_counter;
 
   wire [`INST_WIDTH-1:0] im_instruction0;
   wire [`INST_WIDTH-1:0] im_instruction1;
@@ -84,8 +84,8 @@ module program_counter(
   assign pc0 = pc;
   assign pc1 = pc + 1;
 
-  assign id0 = (cycle_count << `NUM_BITS_PIPE_ID) | tag0;
-  assign id1 = (cycle_count << `NUM_BITS_PIPE_ID) | tag1;
+  assign id0 = instruction_counter;
+  assign id1 = instruction_counter + 1;
 
   assign instruction0 = hazard_flush0 ? 0 : im_instruction0;
   assign instruction1 = hazard_flush1 ? 0 : im_instruction1;
@@ -102,7 +102,7 @@ module program_counter(
 
   initial begin
     pc = 0;
-    cycle_count = 0;
+    instruction_counter = 1; // needs to be one because everything else in pipeline to start =0.
 
     branch_taken = 0;
     branch_taken_address = 0;
@@ -110,7 +110,7 @@ module program_counter(
 
   always @(posedge clk) begin
 
-    cycle_count = cycle_count + 1;
+    instruction_counter = instruction_counter + 2;
 
     if(flush) begin
       pc <= branch_address;
