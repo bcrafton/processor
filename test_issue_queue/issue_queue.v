@@ -155,20 +155,20 @@ module issue_queue(
 
       end
 
-      if (pop0 && (count >= 1)) begin
+      if (pop0) begin // no need for this : (pop0 && (count >= 1))
 
         vld[pop_key0] = 0;
 
       end
 
-      if (pop1 && (count >= 2)) begin // not sure if correct
+      if (push1 && (free >= 2)) begin
 
         data[next1] <= push_data1;
         vld[next1] <= 1;
 
       end
 
-      if (push1 && (free >= 2)) begin // not sure if correct
+      if (pop1) begin
 
         vld[pop_key1] = 0;
 

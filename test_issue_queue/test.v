@@ -66,17 +66,18 @@ module test;
     pop_key1 <= 0;
 
     push0 <= 1;
-    push_data0 <= 1;
+    push_data0 <= 15;
 
     push1 <= 0;
-    push_data1 <= 0;
+    push_data1 <= 255;
 
     for(i=0; i<16; i=i+1) begin
 
       #5
+      push1 <= 1;
       clk = ~clk;
       
-      push_data0 <= push_data0 + 1;
+      push_data0 <= push_data0;
 
     end
 
