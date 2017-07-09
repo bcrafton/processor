@@ -146,6 +146,12 @@ module issue_queue(
   always @(posedge clk) begin
 
     if (flush) begin
+
+      for(i=0; i<8; i=i+1) begin
+        data[i] = 0;
+        vld[i] = 0; 
+      end
+
     end else begin
 
       if (push0 && (free >= 1)) begin
