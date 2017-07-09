@@ -105,6 +105,8 @@ module issue_queue(
   wire [`IQ_ENTRY_SIZE-1:0] push_data0;
   wire [`IQ_ENTRY_SIZE-1:0] push_data1;
 
+
+  genvar i;
   ///////////////
 
   assign push_data0 = data
@@ -155,6 +157,19 @@ module issue_queue(
 
   */
 
+  assign keys[head] = oldest;
+  assign keys[ nexts[head] ] = 1;
+  
+
+ 
+  assign order[0] = head;
+  generate
+    for (i=1; i<`NUM_IQ_ENTRIES; i=i+1) begin : generate_out_vals
+
+      assign order[i] = nexts[order[i-1]];
+
+    end
+  endgenerate
   
 
 
