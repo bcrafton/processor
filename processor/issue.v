@@ -110,11 +110,51 @@ module issue(
 
   //////////////
   
+  wire [`INST_WIDTH-1:0] instruction [0:7];
+  wire [`OP_CODE_BITS-1:0] opcode [0:7];
+  wire [`NUM_REG_MASKS-1:0] reg_vld_mask [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0 [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1 [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_dest [0:7];
+  
+  assign instruction[0] = instruction0;
+  assign instruction[1] = instruction1;
+  assign instruction[2] = 0;
+  assign instruction[3] = 0;
+  assign instruction[4] = 0;
+  assign instruction[5] = 0;
+  assign instruction[6] = 0;
+  assign instruction[7] = 0;
+  
+  //////////////
+  
+  genvar i;
+
+  generate
+    for (i=0; i<8; i=i+1) begin : generate_reg_depends
+      
+	  assign opcode[i] = instruction[i][`OPCODE_MSB:`OPCODE_LSB];
+	  
+      reg_depends reg_depends(
+      .instruction(instruction[i]),
+      .reg_src0(reg_src0[i]),
+      .reg_src1(reg_src1[i]),
+      .reg_dest(reg_dest[i]),
+      .vld_mask(reg_vld_mask[i])
+      );
+
+    end
+  endgenerate
+  
+  ///////////////////
+  
   load_hazard lh(
   .if_id_instruction1(if_id_instruction1),
   .if_id_mem_op1(if_id_mem_op1),
-  .instruction0_in(instruction0),
-  .instruction1_in(instruction1),
+
+  .reg_src0_in( {reg_src0[7], reg_src0[6], reg_src0[5], reg_src0[4], reg_src0[3], reg_src0[2], reg_src0[1], reg_src0[0]} ),
+  .reg_src1_in( {reg_src1[7], reg_src1[6], reg_src1[5], reg_src1[4], reg_src1[3], reg_src1[2], reg_src1[1], reg_src1[0]} ),
+  .reg_vld_mask_in( {reg_vld_mask[7], reg_vld_mask[6], reg_vld_mask[5], reg_vld_mask[4], reg_vld_mask[3], reg_vld_mask[2], reg_vld_mask[1], reg_vld_mask[0]} ),
   
   .vld_mask_out(load_vld_mask),
   .load_stall(load_stall)
@@ -216,8 +256,9 @@ module load_hazard(
   if_id_instruction1,
   if_id_mem_op1,
 
-  instruction0_in,
-  instruction1_in,
+  reg_src0_in,
+  reg_src1_in,
+  reg_vld_mask_in,
 
   vld_mask_out,
   load_stall
@@ -227,25 +268,34 @@ module load_hazard(
   input wire [`INST_WIDTH-1:0] if_id_instruction1;
   input wire [`MEM_OP_BITS-1:0] if_id_mem_op1;
 
-  input wire [`INST_WIDTH-1:0] instruction0_in;
-  input wire [`INST_WIDTH-1:0] instruction1_in;
-
+  input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_src0_in;
+  input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_src1_in;
+  input wire [`NUM_REG_MASKS * 8 -1:0]      reg_vld_mask_in;
+  
   output reg [1:0] vld_mask_out;
   output reg load_stall;
-
-  wire [`NUM_REGISTERS_LOG2-1:0] rs0 = instruction0_in[`REG_RS_MSB:`REG_RS_LSB];
-  wire [`NUM_REGISTERS_LOG2-1:0] rt0 = instruction0_in[`REG_RT_MSB:`REG_RT_LSB];
-
-  wire [`NUM_REGISTERS_LOG2-1:0] rs1 = instruction1_in[`REG_RS_MSB:`REG_RS_LSB];
-  wire [`NUM_REGISTERS_LOG2-1:0] rt1 = instruction1_in[`REG_RT_MSB:`REG_RT_LSB];
-
+  
   wire [`NUM_REGISTERS_LOG2-1:0] if_id_rt = if_id_instruction1[`REG_RT_MSB:`REG_RT_LSB];
+  wire [`NUM_REG_MASKS-1:0] reg_vld_mask [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0 [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1 [0:7];
+  
+  genvar i;
+  generate
+    for (i=0; i<8; i=i+1) begin : generate_reg_depends
+	  
+      assign reg_vld_mask[i] = reg_vld_mask_in[`NUM_REG_MASKS*i + `NUM_REG_MASKS-1 : `NUM_REG_MASKS*i];
+      assign reg_src0[i] =     reg_src0_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
+      assign reg_src1[i] =     reg_src1_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
 
+    end
+  endgenerate
+  
   always @(*) begin
-    if((rs0 == if_id_rt || rt0 == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ)) begin
+    if((reg_src0[0] == if_id_rt || reg_src1[0] == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ)) begin
       load_stall = 1;
       vld_mask_out = 2'b00;
-    end else if((rs1 == if_id_rt || rt1 == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ)) begin
+    end else if((reg_src0[1] == if_id_rt || reg_src1[1] == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ)) begin
       load_stall = 1;
       vld_mask_out = 2'b00;
     end else begin
