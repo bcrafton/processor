@@ -161,8 +161,11 @@ module issue(
   );
   
   split_hazard sh(
-  .instruction0_in(instruction0),
-  .instruction1_in(instruction1),
+  .reg_src0_in( {reg_src0[7], reg_src0[6], reg_src0[5], reg_src0[4], reg_src0[3], reg_src0[2], reg_src0[1], reg_src0[0]} ),
+  .reg_src1_in( {reg_src1[7], reg_src1[6], reg_src1[5], reg_src1[4], reg_src1[3], reg_src1[2], reg_src1[1], reg_src1[0]} ),
+  .reg_dest_in( {reg_dest[7], reg_dest[6], reg_dest[5], reg_dest[4], reg_dest[3], reg_dest[2], reg_dest[1], reg_dest[0]} ),
+  .reg_vld_mask_in( {reg_vld_mask[7], reg_vld_mask[6], reg_vld_mask[5], reg_vld_mask[4], reg_vld_mask[3], reg_vld_mask[2], reg_vld_mask[1], reg_vld_mask[0]} ),
+
   .vld_mask_in(load_vld_mask),
   
   .vld_mask_out(split_vld_mask),
@@ -377,8 +380,10 @@ endmodule
 
 module split_hazard(
 
-	instruction0_in,
-	instruction1_in,
+  reg_src0_in,
+  reg_src1_in,
+  reg_dest_in,
+  reg_vld_mask_in,
 	
 	vld_mask_in,
 	
@@ -387,40 +392,32 @@ module split_hazard(
 
   );
 
-	input wire [`INST_WIDTH-1:0] instruction0_in;
-	input wire [`INST_WIDTH-1:0] instruction1_in;
-	
+  input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_src0_in;
+  input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_src1_in;
+  input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_dest_in;
+  input wire [`NUM_REG_MASKS * 8 -1:0]      reg_vld_mask_in;
+  
 	input wire [1:0] vld_mask_in;
-	
+  
   output wire [1:0] vld_mask_out;
 	output wire split_stall;
   
   ///////////////////
+ 
+  wire [`NUM_REG_MASKS-1:0] reg_vld_mask [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0 [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1 [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_dest [0:7];
   
-  wire [`INST_WIDTH-1:0] instruction [0:1];
-  assign instruction[0] = vld_mask_in[0] ? instruction0_in : 0;
-  assign instruction[1] = vld_mask_in[1] ? instruction1_in : 0;
-
-  wire [`NUM_REG_MASKS-1:0] reg_vld_mask [0:1];
-
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0 [0:1];
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1 [0:1];
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_dest [0:1];
-
+  // just unpacking the wires.
   genvar i;
-
-  ///////////////////
-
   generate
-    for (i=0; i<2; i=i+1) begin : generate_reg_depends
-     
-      reg_depends reg_depends(
-      .instruction(instruction[i]),
-      .reg_src0(reg_src0[i]),
-      .reg_src1(reg_src1[i]),
-      .reg_dest(reg_dest[i]),
-      .vld_mask(reg_vld_mask[i])
-      );
+    for (i=0; i<8; i=i+1) begin : generate_reg_depends
+	  
+      assign reg_vld_mask[i] = reg_vld_mask_in[`NUM_REG_MASKS*i + `NUM_REG_MASKS-1 : `NUM_REG_MASKS*i];
+      assign reg_src0[i] =     reg_src0_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
+      assign reg_src1[i] =     reg_src1_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
+      assign reg_dest[i] =     reg_dest_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
 
     end
   endgenerate
