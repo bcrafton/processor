@@ -42,10 +42,10 @@
 `define EX_MEM_MASK_INDEX 3
 `define MEM_WB_MASK_INDEX 4
 
-`define REG_MASK_RS       3'b100
-`define REG_MASK_RT       3'b010
-`define REG_MASK_RD       3'b001
-`define NUM_REG_MASKS     3 // //$bits(REG_MASK_RS)
+`define REG_MASK_RS0       3'b100
+`define REG_MASK_RS1       3'b010
+`define REG_MASK_RD        3'b001
+`define NUM_REG_MASKS      3 // //$bits(REG_MASK_RS)
 
 `define MEM_OP_NOP        2'b00
 `define MEM_OP_READ       2'b01

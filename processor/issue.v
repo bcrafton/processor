@@ -256,6 +256,74 @@ module load_hazard(
   
 endmodule
 
+module reg_depends(
+
+  instruction,
+
+  reg_src0,
+  reg_src1,
+  reg_dest,
+
+  vld_mask
+
+  );
+
+  input wire [`INST_WIDTH-1:0] instruction;
+
+  output reg [`NUM_REGISTERS_LOG2-1:0] reg_src0;
+  output reg [`NUM_REGISTERS_LOG2-1:0] reg_src1;
+  output reg [`NUM_REGISTERS_LOG2-1:0] reg_dest;
+
+  output reg [`NUM_REG_MASKS-1:0] vld_mask;
+
+  wire [`OP_CODE_BITS-1:0]       opcode =   instruction[`OPCODE_MSB:`OPCODE_LSB];
+  wire [`NUM_REGISTERS_LOG2-1:0] rs =       instruction[`REG_RS_MSB:`REG_RS_LSB];
+  wire [`NUM_REGISTERS_LOG2-1:0] rt =       instruction[`REG_RT_MSB:`REG_RT_LSB];
+  wire [`NUM_REGISTERS_LOG2-1:0] rd =       instruction[`REG_RD_MSB:`REG_RD_LSB];
+
+  always @(*) begin
+
+    casex(opcode)
+     `OP_CODE_NOP: begin
+        vld_mask <= 0;
+      end
+      `OP_CODE_JR: begin
+        reg_src0 <= rs;
+        vld_mask <= `REG_MASK_RS0;
+      end
+      6'b00????: begin // add, sub...
+        reg_src0 <= rs;
+        reg_src1 <= rt;
+        reg_dest <= rd;
+        vld_mask <= `REG_MASK_RS0 | `REG_MASK_RS1 | `REG_MASK_RD;
+      end
+      6'b01????: begin // addi, subi...
+        reg_src0 <= rs;
+        reg_dest <= rt;
+        vld_mask <= `REG_MASK_RS0 | `REG_MASK_RD;
+      end
+      6'b10????: begin // lw, sw, la, sa
+        if(opcode == `OP_CODE_LW) begin
+          reg_src0 <= rs;
+          reg_dest <= rt;
+          vld_mask <= `REG_MASK_RS0 | `REG_MASK_RD;
+        end else if(opcode == `OP_CODE_SW) begin
+          reg_src0 <= rs;
+          reg_src1 <= rt;
+          vld_mask <= `REG_MASK_RS0 | `REG_MASK_RS1;
+        end else if(opcode == `OP_CODE_LA) begin
+        end else if(opcode == `OP_CODE_SA) begin
+        end
+      end
+      6'b11????: begin // jmp, jo, je ...
+        vld_mask <= 0;
+      end
+    endcase
+
+  end
+
+endmodule
+
 
 module split_hazard(
 
@@ -274,164 +342,48 @@ module split_hazard(
 	
 	input wire [1:0] vld_mask_in;
 	
-  output reg [1:0] vld_mask_out;
-	output reg split_stall;
+  output wire [1:0] vld_mask_out;
+	output wire split_stall;
+  
+  ///////////////////
   
   wire [`INST_WIDTH-1:0] instruction0 = vld_mask_in[0] ? instruction0_in : 0;
   wire [`INST_WIDTH-1:0] instruction1 = vld_mask_in[1] ? instruction1_in : 0;
-  
-  wire [`OP_CODE_BITS-1:0] opcode0   = instruction0[`OPCODE_MSB:`OPCODE_LSB];
-  wire [`NUM_REGISTERS_LOG2-1:0] rs0 = instruction0[`REG_RS_MSB:`REG_RS_LSB];
-  wire [`NUM_REGISTERS_LOG2-1:0] rt0 = instruction0[`REG_RT_MSB:`REG_RT_LSB];
-  wire [`NUM_REGISTERS_LOG2-1:0] rd0 = instruction0[`REG_RD_MSB:`REG_RD_LSB];
 
-  wire [`OP_CODE_BITS-1:0] opcode1   = instruction1[`OPCODE_MSB:`OPCODE_LSB];
-  wire [`NUM_REGISTERS_LOG2-1:0] rs1 = instruction1[`REG_RS_MSB:`REG_RS_LSB];
-  wire [`NUM_REGISTERS_LOG2-1:0] rt1 = instruction1[`REG_RT_MSB:`REG_RT_LSB];
-  wire [`NUM_REGISTERS_LOG2-1:0] rd1 = instruction1[`REG_RD_MSB:`REG_RD_LSB];
+  wire [`NUM_REG_MASKS-1:0] reg_vld_mask0;
+  wire [`NUM_REG_MASKS-1:0] reg_vld_mask1;
 
-  reg [`NUM_REG_MASKS-1:0] src_mask0;
-  reg [`NUM_REG_MASKS-1:0] dst_mask0;
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0_0;
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1_0;
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_dest_0;
 
-  reg [`NUM_REG_MASKS-1:0] src_mask1;
-  reg [`NUM_REG_MASKS-1:0] dst_mask1;
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0_1;
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1_1;
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_dest_1;
 
-  always @(*) begin
-    if (split_stall) begin
-      vld_mask_out = vld_mask_in & 2'b01;
-    end else begin
-      vld_mask_out = vld_mask_in & 2'b11;
-    end
-  end
+  ///////////////////
 
-	always @(*) begin
+  reg_depends reg_depends0(
+  .instruction(instruction0),
+  .reg_src0(reg_src0_0),
+  .reg_src1(reg_src1_0),
+  .reg_dest(reg_dest_0),
+  .vld_mask(reg_vld_mask0)
+  );
 
-    casex(opcode0)
-     `OP_CODE_NOP: begin
-        src_mask0 <= 0;
-        dst_mask0 <= 0;
-      end
-      `OP_CODE_JR: begin
-        src_mask0 <= `REG_MASK_RS;
-        dst_mask0 <= 0;
-      end
-      6'b00????: begin // add, sub...
-        src_mask0 <= `REG_MASK_RS | `REG_MASK_RT;
-        dst_mask0 <= `REG_MASK_RD;
-      end
-      6'b01????: begin // addi, subi...
-        src_mask0 <= `REG_MASK_RS;
-        dst_mask0 <= `REG_MASK_RT;
-      end
-      6'b10????: begin // lw, sw, la, sa
-        if(opcode0 == `OP_CODE_LW) begin
-          src_mask0 <= `REG_MASK_RS;
-          dst_mask0 <= `REG_MASK_RT;
-        end else if(opcode0 == `OP_CODE_SW) begin
-          src_mask0 <= `REG_MASK_RS | `REG_MASK_RT;
-          dst_mask0 <= 0;
-        end else if(opcode0 == `OP_CODE_LA) begin
-          src_mask0 <= 0;
-          dst_mask0 <= `REG_MASK_RT;
-        end else if(opcode0 == `OP_CODE_SA) begin
-          src_mask0 <= `REG_MASK_RT;
-          dst_mask0 <= 0;
-        end
-      end
-      6'b11????: begin // jmp, jo, je ...
-        src_mask0 <= 0;
-        dst_mask0 <= 0;
-      end
-    endcase
+  reg_depends reg_depends1(
+  .instruction(instruction1),
+  .reg_src0(reg_src0_1),
+  .reg_src1(reg_src1_1),
+  .reg_dest(reg_dest_1),
+  .vld_mask(reg_vld_mask1)
+  );
 
-    casex(opcode1)
-     `OP_CODE_NOP: begin
-        src_mask1 <= 0;
-        dst_mask1 <= 0;
-      end
-      `OP_CODE_JR: begin
-        src_mask1 <= `REG_MASK_RS;
-        dst_mask1 <= 0;
-      end
-      6'b00????: begin // add, sub...
-        src_mask1 <= `REG_MASK_RS | `REG_MASK_RT;
-        dst_mask1 <= `REG_MASK_RD;
-      end
-      6'b01????: begin // addi, subi...
-        src_mask1 <= `REG_MASK_RS;
-        dst_mask1 <= `REG_MASK_RT;
-      end
-      6'b10????: begin // lw, sw, la, sa
-        if(opcode1 == `OP_CODE_LW) begin
-          src_mask1 <= `REG_MASK_RS;
-          dst_mask1 <= `REG_MASK_RT;
-        end else if(opcode1 == `OP_CODE_SW) begin
-          src_mask1 <= `REG_MASK_RS | `REG_MASK_RT;
-          dst_mask1 <= 0;
-        end else if(opcode1 == `OP_CODE_LA) begin
-          src_mask1 <= 0;
-          dst_mask1 <= `REG_MASK_RT;
-        end else if(opcode1 == `OP_CODE_SA) begin
-          src_mask1 <= `REG_MASK_RT;
-          dst_mask1 <= 0;
-        end
-      end
-      6'b11????: begin // jmp, jo, je ...
-        src_mask1 <= 0;
-        dst_mask1 <= 0;
-      end
-    endcase
+  assign split_stall = ( ((reg_src0_1 == reg_dest_0) && ((reg_vld_mask1 & `REG_MASK_RS0) == `REG_MASK_RS0) && ((reg_vld_mask0 & `REG_MASK_RD) == `REG_MASK_RD)) ||
+                         ((reg_src1_1 == reg_dest_0) && ((reg_vld_mask1 & `REG_MASK_RS1) == `REG_MASK_RS1) && ((reg_vld_mask0 & `REG_MASK_RD) == `REG_MASK_RD)) );
 
-    casex( {src_mask1, dst_mask0} )
+  assign vld_mask_out = split_stall ? vld_mask_in & 2'b01 : vld_mask_in;
 
-      {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RT}: begin
-        if (rs1 == rt0 || rt1 == rt0) begin
-          split_stall = 1;
-        end else begin
-          split_stall = 0;
-        end
-      end
-      {`REG_MASK_RS | `REG_MASK_RT, `REG_MASK_RD}: begin
-        if (rs1 == rd0 || rt1 == rd0) begin
-          split_stall = 1;
-        end else begin
-          split_stall = 0;
-        end
-      end
-
-      {`REG_MASK_RS, `REG_MASK_RT}: begin
-        if (rs1 == rt0) begin
-          split_stall = 1;
-        end else begin
-          split_stall = 0;
-        end
-      end
-      {`REG_MASK_RS, `REG_MASK_RD}: begin
-        if (rs1 == rd0) begin
-          split_stall = 1;
-        end else begin
-          split_stall = 0;
-        end
-      end
-      {`REG_MASK_RT, `REG_MASK_RT}: begin
-        if (rt1 == rt0) begin
-          split_stall = 1;
-        end else begin
-          split_stall = 0;
-        end
-      end
-      {`REG_MASK_RT, `REG_MASK_RD}: begin
-        if (rt1 == rd0) begin
-          split_stall = 1;
-        end else begin
-          split_stall = 0;
-        end
-      end
-      default: begin
-        split_stall = 0;
-      end
-    endcase
-  end
 endmodule
 
 module steer(
