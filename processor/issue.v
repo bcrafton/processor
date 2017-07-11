@@ -347,40 +347,36 @@ module split_hazard(
   
   ///////////////////
   
-  wire [`INST_WIDTH-1:0] instruction0 = vld_mask_in[0] ? instruction0_in : 0;
-  wire [`INST_WIDTH-1:0] instruction1 = vld_mask_in[1] ? instruction1_in : 0;
+  wire [`INST_WIDTH-1:0] instruction [0:1];
+  assign instruction[0] = vld_mask_in[0] ? instruction0_in : 0;
+  assign instruction[1] = vld_mask_in[1] ? instruction1_in : 0;
 
-  wire [`NUM_REG_MASKS-1:0] reg_vld_mask0;
-  wire [`NUM_REG_MASKS-1:0] reg_vld_mask1;
+  wire [`NUM_REG_MASKS-1:0] reg_vld_mask [0:1];
 
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0_0;
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1_0;
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_dest_0;
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0 [0:1];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1 [0:1];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_dest [0:1];
 
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0_1;
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1_1;
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_dest_1;
+  genvar i;
 
   ///////////////////
 
-  reg_depends reg_depends0(
-  .instruction(instruction0),
-  .reg_src0(reg_src0_0),
-  .reg_src1(reg_src1_0),
-  .reg_dest(reg_dest_0),
-  .vld_mask(reg_vld_mask0)
-  );
+  generate
+    for (i=0; i<2; i=i+1) begin : generate_reg_depends
+     
+      reg_depends reg_depends(
+      .instruction(instruction[i]),
+      .reg_src0(reg_src0[i]),
+      .reg_src1(reg_src1[i]),
+      .reg_dest(reg_dest[i]),
+      .vld_mask(reg_vld_mask[i])
+      );
 
-  reg_depends reg_depends1(
-  .instruction(instruction1),
-  .reg_src0(reg_src0_1),
-  .reg_src1(reg_src1_1),
-  .reg_dest(reg_dest_1),
-  .vld_mask(reg_vld_mask1)
-  );
+    end
+  endgenerate
 
-  assign split_stall = ( ((reg_src0_1 == reg_dest_0) && ((reg_vld_mask1 & `REG_MASK_RS0) == `REG_MASK_RS0) && ((reg_vld_mask0 & `REG_MASK_RD) == `REG_MASK_RD)) ||
-                         ((reg_src1_1 == reg_dest_0) && ((reg_vld_mask1 & `REG_MASK_RS1) == `REG_MASK_RS1) && ((reg_vld_mask0 & `REG_MASK_RD) == `REG_MASK_RD)) );
+  assign split_stall = ( ((reg_src0[1] == reg_dest[0]) && ((reg_vld_mask[1] & `REG_MASK_RS0) == `REG_MASK_RS0) && ((reg_vld_mask[0] & `REG_MASK_RD) == `REG_MASK_RD)) ||
+                         ((reg_src1[1] == reg_dest[0]) && ((reg_vld_mask[1] & `REG_MASK_RS1) == `REG_MASK_RS1) && ((reg_vld_mask[0] & `REG_MASK_RD) == `REG_MASK_RD)) );
 
   assign vld_mask_out = split_stall ? vld_mask_in & 2'b01 : vld_mask_in;
 
