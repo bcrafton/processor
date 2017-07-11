@@ -173,8 +173,7 @@ module issue(
   );
   
   steer s(
-  .instruction0_in(instruction0),
-  .instruction1_in(instruction1),
+  .opcode_in( {opcode[7], opcode[6], opcode[5], opcode[4], opcode[3], opcode[2], opcode[1], opcode[0]} ),
   .vld_mask_in(split_vld_mask),
   
   .vld_mask_out(steer_vld_mask),
@@ -431,8 +430,7 @@ endmodule
 
 module steer(
 
-	instruction0_in,
-	instruction1_in,
+	opcode_in,
 
 	vld_mask_in,
 	
@@ -442,8 +440,7 @@ module steer(
 	
 	);
   
-  input wire [`INST_WIDTH-1:0] instruction0_in;
-	input wire [`INST_WIDTH-1:0] instruction1_in;
+  input wire [`OP_CODE_BITS * 8 -1:0] opcode_in;
 	
 	input wire [1:0] vld_mask_in;
 	
@@ -451,30 +448,38 @@ module steer(
   output reg [1:0] vld_mask_out;
   output reg first;
   
-  wire [`INST_WIDTH-1:0] instruction0 = vld_mask_in[0] ? instruction0_in : 0;
-  wire [`INST_WIDTH-1:0] instruction1 = vld_mask_in[1] ? instruction1_in : 0;
+  ///////////////////
   
-  wire [`OP_CODE_BITS-1:0] opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
-  wire [`OP_CODE_BITS-1:0] opcode1 = instruction1[`OPCODE_MSB:`OPCODE_LSB];
+  wire [`OP_CODE_BITS-1:0] opcode [0:7];
+  
+  // just unpacking the wires.
+  genvar i;
+  generate
+    for (i=0; i<8; i=i+1) begin : generate_reg_depends
+	  
+      assign opcode[i] = opcode_in[`OP_CODE_BITS*i + `OP_CODE_BITS-1 : `OP_CODE_BITS*i];
+
+    end
+  endgenerate
 	
   reg [`PIPE_BITS-1:0] instruction0_pipe;
   reg [`PIPE_BITS-1:0] instruction1_pipe;
 	
 	always @(*) begin
 
-    casex(opcode0)
+    casex(opcode[0])
       6'b000000: begin
         instruction0_pipe = `PIPE_DONT_CARE;
       end
       6'b00????: begin // add, sub...
-        if (opcode0 == `OP_CODE_CMP || opcode0 == `OP_CODE_TEST) begin
+        if (opcode[0] == `OP_CODE_CMP || opcode[0] == `OP_CODE_TEST) begin
           instruction0_pipe = `PIPE_BRANCH;
         end else begin
           instruction0_pipe = `PIPE_DONT_CARE;
         end
       end
       6'b01????: begin // addi, subi...
-        if (opcode0 == `OP_CODE_CMPI || opcode0 == `OP_CODE_TESTI) begin
+        if (opcode[0] == `OP_CODE_CMPI || opcode[0] == `OP_CODE_TESTI) begin
           instruction0_pipe = `PIPE_BRANCH;
         end else begin
           instruction0_pipe = `PIPE_DONT_CARE;
@@ -488,19 +493,19 @@ module steer(
       end
     endcase
 
-    casex(opcode1)
+    casex(opcode[1])
       6'b000000: begin
         instruction1_pipe = `PIPE_DONT_CARE;
       end
       6'b00????: begin // add, sub...
-        if (opcode1 == `OP_CODE_CMP || opcode1 == `OP_CODE_TEST) begin
+        if (opcode[1] == `OP_CODE_CMP || opcode[1] == `OP_CODE_TEST) begin
           instruction1_pipe = `PIPE_BRANCH;
         end else begin
           instruction1_pipe = `PIPE_DONT_CARE;
         end
       end
       6'b01????: begin // addi, subi...
-        if (opcode1 == `OP_CODE_CMPI || opcode1 == `OP_CODE_TESTI) begin
+        if (opcode[1] == `OP_CODE_CMPI || opcode[1] == `OP_CODE_TESTI) begin
           instruction1_pipe = `PIPE_BRANCH;
         end else begin
           instruction1_pipe = `PIPE_DONT_CARE;
