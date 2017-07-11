@@ -25,8 +25,7 @@ module test;
 	issue_queue q (
 		.clk(clk),
 		.flush(flush),
-    .free(free),
-    .count(count),
+    .free(),
 
     .pop0(pop0),
     .pop_key0(pop_key0),
@@ -59,22 +58,21 @@ module test;
 		clk <= 0;
     flush <= 0;
 
-    pop0 <= 0;
-    pop_key0 <= 0;
+    pop0 <= 1;
+    pop_key0 <= 6;
 
-    pop1 <= 0;
-    pop_key1 <= 0;
+    pop1 <= 1;
+    pop_key1 <= 7;
 
     push0 <= 1;
     push_data0 <= 15;
 
-    push1 <= 0;
+    push1 <= 1;
     push_data1 <= 255;
 
     for(i=0; i<16; i=i+1) begin
 
       #5
-      push1 <= 1;
       clk = ~clk;
       
       push_data0 <= push_data0;
@@ -83,6 +81,7 @@ module test;
 
     #5 
     push0 <= 0;
+    push1 <= 0;
     pop0 <= 1;
 
     for(i=0; i<8; i=i+1) begin
@@ -90,7 +89,7 @@ module test;
       #5
       clk = ~clk;
       
-      pop_key0 <= pop_key0 + 1;
+      pop_key0 <= pop_key0;
 
     end
 

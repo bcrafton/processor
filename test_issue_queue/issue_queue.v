@@ -9,7 +9,6 @@ module issue_queue(
   flush,
 
   free,
-  count,
 
   ///////////////
 
@@ -60,7 +59,6 @@ module issue_queue(
   // these two are NUM_IQ_ENTRIES_LOG2 (not -1) because need to be able to store 8.
   
   output wire [`NUM_IQ_ENTRIES_LOG2:0] free; // the # of non valid slots
-  output wire [`NUM_IQ_ENTRIES_LOG2:0] count; // # of valid slots
 
   output wire [`IQ_ENTRY_SIZE-1:0] data0;
   output wire [`IQ_ENTRY_SIZE-1:0] data1;
@@ -68,21 +66,51 @@ module issue_queue(
   output wire [`IQ_ENTRY_SIZE-1:0] data3;
   output wire [`IQ_ENTRY_SIZE-1:0] data4;
   output wire [`IQ_ENTRY_SIZE-1:0] data5;
-  output wire [`IQ_ENTRY_SIZE-1:0] data6;
-  output wire [`IQ_ENTRY_SIZE-1:0] data7;
+  output wire [`IQ_ENTRY_SIZE-1:0] data6; // passthrough
+  output wire [`IQ_ENTRY_SIZE-1:0] data7; // passthrough
 
   ///////////////
 
   reg [`IQ_ENTRY_SIZE-1:0] data [0:`NUM_IQ_ENTRIES-1];
   reg                      vld  [0:`NUM_IQ_ENTRIES-1];
 
-  wire [`NUM_IQ_ENTRIES_LOG2-1:0] next0;
-  wire [`NUM_IQ_ENTRIES_LOG2-1:0] next1;
+  wire [`NUM_IQ_ENTRIES_LOG2:0] next [0:5];
 
   ///////////////
 
   integer i;
+  genvar j;
 
+  ///////////////
+  
+  assign next[0] = vld[0] & !(pop0 && (pop_key0 == 0)) & !(pop1 && (pop_key1 == 0)) ? 0 :
+                   vld[1] & !(pop0 && (pop_key0 == 1)) & !(pop1 && (pop_key1 == 1)) ? 1 :
+                   vld[2] & !(pop0 && (pop_key0 == 2)) & !(pop1 && (pop_key1 == 2)) ? 2 :
+                   vld[3] & !(pop0 && (pop_key0 == 3)) & !(pop1 && (pop_key1 == 3)) ? 3 :
+                   vld[4] & !(pop0 && (pop_key0 == 4)) & !(pop1 && (pop_key1 == 4)) ? 4 :
+                   vld[5] & !(pop0 && (pop_key0 == 5)) & !(pop1 && (pop_key1 == 5)) ? 5 :
+                   vld[6] & !(pop0 && (pop_key0 == 6)) & !(pop1 && (pop_key1 == 6)) ? 6 :
+                   vld[7] & !(pop0 && (pop_key0 == 7)) & !(pop1 && (pop_key1 == 7)) ? 7 :
+                   8;
+  generate
+    for (j=1; j<6; j=j+1) begin : generate_reg_depends
+
+      //assign next[i] = i + (pop0 && (pop_key0 <= i)) + (pop1 && (pop_key1 <= i));
+      
+      assign next[j] = vld[0] & !(pop0 && (pop_key0 == 0)) & !(pop1 && (pop_key1 == 0)) & ( next[j-1] < 0 ) ? 0 :
+                       vld[1] & !(pop0 && (pop_key0 == 1)) & !(pop1 && (pop_key1 == 1)) & ( next[j-1] < 1 ) ? 1 :
+                       vld[2] & !(pop0 && (pop_key0 == 2)) & !(pop1 && (pop_key1 == 2)) & ( next[j-1] < 2 ) ? 2 :
+                       vld[3] & !(pop0 && (pop_key0 == 3)) & !(pop1 && (pop_key1 == 3)) & ( next[j-1] < 3 ) ? 3 :
+                       vld[4] & !(pop0 && (pop_key0 == 4)) & !(pop1 && (pop_key1 == 4)) & ( next[j-1] < 4 ) ? 4 :
+                       vld[5] & !(pop0 && (pop_key0 == 5)) & !(pop1 && (pop_key1 == 5)) & ( next[j-1] < 5 ) ? 5 :
+                       vld[6] & !(pop0 && (pop_key0 == 6)) & !(pop1 && (pop_key1 == 6)) & ( next[j-1] < 6 ) ? 6 :
+                       vld[7] & !(pop0 && (pop_key0 == 7)) & !(pop1 && (pop_key1 == 7)) & ( next[j-1] < 7 ) ? 7 :
+                       8;
+      
+
+    end
+  endgenerate
+  
   ///////////////
 
   assign free = !vld[0] +
@@ -90,38 +118,7 @@ module issue_queue(
                 !vld[2] +
                 !vld[3] +
                 !vld[4] +
-                !vld[5] +
-                !vld[6] +
-                !vld[7];
-
-  assign count = vld[0] +
-                 vld[1] +
-                 vld[2] +
-                 vld[3] +
-                 vld[4] +
-                 vld[5] +
-                 vld[6] +
-                 vld[7];
-
-  assign next0 = !vld[0] ? 0 :
-                !vld[1] ? 1 :
-                !vld[2] ? 2 :
-                !vld[3] ? 3 :
-                !vld[4] ? 4 :
-                !vld[5] ? 5 :
-                !vld[6] ? 6 :
-                !vld[7] ? 7 :
-                8;
-
-  assign next1 = !vld[0] & ( next0 != 0 ) ? 0 :
-                 !vld[1] & ( next0 != 1 ) ? 1 :
-                 !vld[2] & ( next0 != 2 ) ? 2 :
-                 !vld[3] & ( next0 != 3 ) ? 3 :
-                 !vld[4] & ( next0 != 4 ) ? 4 :
-                 !vld[5] & ( next0 != 5 ) ? 5 :
-                 !vld[6] & ( next0 != 6 ) ? 6 :
-                 !vld[7] & ( next0 != 7 ) ? 7 :
-                 0;
+                !vld[5]; // + pop0 + pop1
 
   assign data0 = vld[0] ? data[0] : 0;
   assign data1 = vld[1] ? data[1] : 0;
@@ -131,12 +128,20 @@ module issue_queue(
   assign data5 = vld[5] ? data[5] : 0;
   assign data6 = vld[6] ? data[6] : 0;
   assign data7 = vld[7] ? data[7] : 0;
+  
+  always @(*) begin
+    data[6] = push_data0;
+    vld[6] = push0;
+    
+    data[7] = push_data1;
+    vld[7] = push1;
+  end
 
   ///////////////
 
   initial begin
 
-    for(i=0; i<8; i=i+1) begin
+    for(i=0; i<6; i=i+1) begin
       data[i] = 0;
       vld[i] = 0; 
     end
@@ -147,39 +152,31 @@ module issue_queue(
 
     if (flush) begin
 
-      for(i=0; i<8; i=i+1) begin
+      for(i=0; i<6; i=i+1) begin
         data[i] = 0;
         vld[i] = 0; 
       end
 
     end else begin
 
-      if (push0 && (free >= 1)) begin
-
-        data[next0] <= push_data0;
-        vld[next0] <= 1;
-
-      end
-
-      if (pop0) begin // no need for this : (pop0 && (count >= 1))
-
-        vld[pop_key0] = 0;
-
-      end
-
-      if (push1 && (free >= 2)) begin
-
-        data[next1] <= push_data1;
-        vld[next1] <= 1;
-
-      end
-
-      if (pop1) begin
-
-        vld[pop_key1] = 0;
-
-      end
-
+      data[0] <= next[0] < 8 ? data[next[0]] : 0;
+      vld[0] <=  next[0] < 8 ? vld[next[0]]  : 0;
+      
+      data[1] <= next[1] < 8 ? data[next[1]] : 0;
+      vld[1] <=  next[1] < 8 ? vld[next[1]]  : 0;
+      
+      data[2] <= next[2] < 8 ? data[next[2]] : 0;
+      vld[2] <=  next[2] < 8 ? vld[next[2]]  : 0;
+      
+      data[3] <= next[3] < 8 ? data[next[3]] : 0;
+      vld[3] <=  next[3] < 8 ? vld[next[3]]  : 0;
+      
+      data[4] <= next[4] < 8 ? data[next[4]] : 0;
+      vld[4] <=  next[4] < 8 ? vld[next[4]]  : 0;
+      
+      data[5] <= next[5] < 8 ? data[next[5]] : 0;
+      vld[5] <=  next[5] < 8 ? vld[next[5]]  : 0;
+      
     end
 
   end
