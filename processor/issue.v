@@ -95,18 +95,22 @@ module issue(
 
   //////////////
 
-  wire [`INST_WIDTH-1:0] instruction0  = stall ? stall_instruction0 : instruction0_in;
-  wire [`INST_WIDTH-1:0] instruction1  = stall ? stall_instruction1 : instruction1_in;
-  wire [`ADDR_WIDTH-1:0] pc0           = stall ? stall_pc0 : pc0_in;
-  wire [`ADDR_WIDTH-1:0] pc1           = stall ? stall_pc1 : pc1_in;
-  wire [`INSTRUCTION_ID_WIDTH-1:0] id0 = stall ? stall_id0 : id0_in;
-  wire [`INSTRUCTION_ID_WIDTH-1:0] id1 = stall ? stall_id1 : id1_in;
+  wire [`INST_WIDTH-1:0] instruction0;
+  wire [`INST_WIDTH-1:0] instruction1;
+  wire [`ADDR_WIDTH-1:0] pc0;
+  wire [`ADDR_WIDTH-1:0] pc1;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] id0;
+  wire [`INSTRUCTION_ID_WIDTH-1:0] id1;
   
+  //////////////
+
+  wire [3:0] free;
+
   //////////////
   
   // can this be assign stall = load_stall || split_stall || steer_stall; ?
-  assign stall = (stall_instruction0 != 0) || (stall_instruction1 != 0);
-  assign stall_out = !steer_vld_mask[0] ||  !steer_vld_mask[1];
+  assign stall = free == 0;
+  assign stall_out = free == 0;
 
   //////////////
   
@@ -125,6 +129,41 @@ module issue(
   assign instruction[5] = 0;
   assign instruction[6] = 0;
   assign instruction[7] = 0;
+
+  //////////////
+
+  issue_queue q(
+  .clk(clk),
+  .flush(flush),
+  .free(free),
+
+  ///////////////
+
+  .pop0(steer_vld_mask[0]),
+  .pop_key0(0),
+
+  .pop1(steer_vld_mask[1]),
+  .pop_key1(1),
+
+  ///////////////
+
+  .data0({pc0, instruction0, id0}),
+  .data1({pc1, instruction1, id1}),
+  .data2(),
+  .data3(),
+  .data4(),
+  .data5(),
+  .data6(),
+  .data7(),
+
+  ///////////////
+
+  .push0(1),
+  .push_data0({pc0_in, instruction0_in, id0_in}),
+
+  .push1(1),
+  .push_data1({pc1_in, instruction1_in, id1_in})
+  );
   
   //////////////
   
