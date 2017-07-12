@@ -31,30 +31,37 @@ module test;
     flush <= 0;
 
     pop0 <= 1;
-    pop_key0 <= 6;
+    pop_key0 <= 0;
 
-    pop1 <= 1;
-    pop_key1 <= 7;
+    pop1 <= 0;
+    pop_key1 <= 1;
 
     push0 <= 1;
-    push_data0 <= 15;
+    push_data0 <= 1;
 
     push1 <= 1;
-    push_data1 <= 255;
+    push_data1 <= 2;
 
     for(i=0; i<16; i=i+1) begin
 
       #5
       clk = ~clk;
       
-      push_data0 <= push_data0;
+      if (i % 2 == 0) begin
+        push_data0 <= push_data0 + 2;
+        push_data1 <= push_data1 + 2;
+      end
 
     end
 
     #5 
     push0 <= 0;
     push1 <= 0;
+
+    pop_key0 <= 2;
+    pop_key1 <= 3;
     pop0 <= 1;
+    pop1 <= 1;
 
     for(i=0; i<8; i=i+1) begin
 
