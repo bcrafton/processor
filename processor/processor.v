@@ -240,6 +240,8 @@ module processor(
   wire [`INSTRUCTION_ID_WIDTH-1:0] mem_wb_instruction0_id;
   wire [`INSTRUCTION_ID_WIDTH-1:0] mem_wb_instruction1_id;
 
+  wire [3:0] free;
+
   ///////////////////////////////////////////////////////////////////////////////////////////
 
   assign steer_opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
@@ -308,6 +310,7 @@ module processor(
   program_counter pc_unit(
   .clk(clk), 
   .reset(reset),
+  .free(free),
 
   .opcode(steer_instruction0[`OPCODE_MSB:`OPCODE_LSB]),
   .address(steer_instruction0[`IMM_MSB:`IMM_LSB]),
@@ -418,6 +421,7 @@ module processor(
 
   .clk(clk),
   .flush(branch_flush[`PC_MASK_INDEX]),
+  .free(free),
 
   .if_id_instruction1(if_id_instruction1),
   .if_id_mem_op1(mem_op1),

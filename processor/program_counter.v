@@ -5,6 +5,7 @@
 module program_counter(
   clk,
   reset, 
+  free,
 
   opcode, // should we jump
   address, // where to
@@ -39,6 +40,7 @@ module program_counter(
 
   input wire clk;
   input wire reset;
+  input wire [3:0] free;
 
   input wire [`OP_CODE_BITS-1:0] opcode;
   input wire [`ADDR_WIDTH-1:0] address;
@@ -127,7 +129,11 @@ module program_counter(
         branch_taken <= 1;
         branch_taken_address <= branch_predict;
       end else begin
-        pc <= pc + 2;
+        if (free == 1) begin
+          pc <= pc + 1;
+        end else begin
+          pc <= pc + 2;
+        end
         branch_taken <= 0;
       end
     end

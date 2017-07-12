@@ -5,6 +5,7 @@
 module issue(
   clk,
   flush,
+  free,
 
   if_id_instruction1,
   if_id_mem_op1,
@@ -104,7 +105,7 @@ module issue(
   
   //////////////
 
-  wire [3:0] free;
+  output wire [3:0] free;
 
   //////////////
   
