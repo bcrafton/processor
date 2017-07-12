@@ -22,38 +22,10 @@ module test;
 
   integer i;
 
-	issue_queue q (
-		.clk(clk),
-		.flush(flush),
-    .free(),
-
-    .pop0(pop0),
-    .pop_key0(pop_key0),
-
-    .pop1(pop1),
-    .pop_key1(pop_key1),
-
-    .push0(push0),
-    .push_data0(push_data0),
-
-    .push1(push1),
-    .push_data1(push_data1),
-
-    .data0(),
-    .data1(),
-    .data2(),
-    .data3(),
-    .data4(),
-    .data5(),
-    .data6(),
-    .data7()
-
-	);
-
 	initial begin
 
-    $dumpfile("test.vcd");
-    $dumpvars(0,test);
+    $dumpfile("dump.vcd");
+    $dumpvars(0, test);
 
 		clk <= 0;
     flush <= 0;
@@ -94,6 +66,35 @@ module test;
     end
 
 	end
+
+  issue_queue q (
+		  .clk(clk),
+		  .flush(flush),
+      .free(),
+
+      .pop0(pop0),
+      .pop_key0(pop_key0),
+
+      .pop1(pop1),
+      .pop_key1(pop_key1),
+
+      .push0(push0),
+      .push_data0(push_data0),
+
+      .push1(push1),
+      .push_data1(push_data1),
+
+      .data0(),
+      .data1(),
+      .data2(),
+      .data3(),
+      .data4(),
+      .data5(),
+      .data6(),
+      .data7()
+
+	  );
+
       
 endmodule
 
