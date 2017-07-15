@@ -2,8 +2,9 @@
 #include "test_bench.h"
 
 static test_t tests[] = {
-
+/*
 {"addi", BINARY_TEST, 0, 1000},
+
 {"subi", BINARY_TEST, 0, 1000},
 {"andi", BINARY_TEST, 0, 1000},
 
@@ -54,7 +55,7 @@ static test_t tests[] = {
 {"fn_add", CODE_TEST, 6, 10000},
 {"if_false", CODE_TEST, 10, 10000},
 {"if_true", CODE_TEST, 20, 10000},
-/*
+
 {"fib0", CODE_TEST, 0, 10000},
 {"fib1", CODE_TEST, 2, 10000},
 {"fib2", CODE_TEST, 2, 10000},
@@ -73,6 +74,7 @@ static test_t tests[] = {
 {"list", CODE_TEST, 6, 200000},
 {"linked_list", CODE_TEST, 6, 200000},
 */
+{"fib5", CODE_TEST, 10, 100000},
 };
 
 static int num_programs = sizeof(tests)/sizeof(test_t);
@@ -252,7 +254,12 @@ GQueue* load_instruction_log(char* dir, char* filename)
   uint32_t alu_in0;
   uint32_t alu_in1;
 
-  while( fscanf(file, "@%lu 0x%lx %d 0x%x 0x%x 0x%x\n", &timestamp, &id, &pc, &instruction, &alu_in0, &alu_in1) != EOF )
+  uint32_t branch_taken;
+  uint32_t branch_taken_address;
+  uint32_t branch_imm_address;
+  uint32_t branch_reg_address;
+
+  while( fscanf(file, "@%lu 0x%lx %d 0x%x 0x%x 0x%x %d %x %x %x\n", &timestamp, &id, &pc, &instruction, &alu_in0, &alu_in1, &branch_taken, &branch_taken_address, &branch_imm_address, &branch_reg_address) != EOF )
   {
     instruction_log_t* log = new_instruction_log();
   
@@ -262,6 +269,10 @@ GQueue* load_instruction_log(char* dir, char* filename)
     log->instruction = instruction;
     log->alu_in0 = alu_in0;
     log->alu_in1 = alu_in1;
+    log->branch_taken = branch_taken;
+    log->branch_taken_address = branch_taken_address;
+    log->branch_imm_address = branch_imm_address;
+    log->branch_reg_address = branch_reg_address;
 
     g_queue_push_tail(q, log);
   }
