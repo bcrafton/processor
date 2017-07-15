@@ -133,7 +133,7 @@ module issue_queue(
                                           sum_valid[5] == j+1 ? {data[5], 1'h1} : 
                                           sum_valid[6] == j+1 ? {data[6], 1'h1} : 
                                           sum_valid[7] == j+1 ? {data[7], 1'h1} : 
-                                          {112'h0, 1'h0};
+                                          {129'h0, 1'h0};
 
       
       assign {data_next[j], vld_next[j]} =  next_sum_valid[0] == j+1 ? {data_out[0], 1'h1} : 
@@ -144,7 +144,7 @@ module issue_queue(
                                             next_sum_valid[5] == j+1 ? {data_out[5], 1'h1} : 
                                             next_sum_valid[6] == j+1 ? {data_out[6], 1'h1} : 
                                             next_sum_valid[7] == j+1 ? {data_out[7], 1'h1} : 
-                                            {112'h0, 1'h0};
+                                            {129'h0, 1'h0};
 
     end
   endgenerate

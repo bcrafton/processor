@@ -176,8 +176,8 @@ module issue(
 
   ///////////////
 
-  .data0({pc0, instruction0, id0, branch_taken0, branch_taken_address0}),
-  .data1({pc1, instruction1, id1, branch_taken1, branch_taken_address1}),
+  .data0({branch_taken0, branch_taken_address0, id0, instruction0, pc0}),
+  .data1({branch_taken1, branch_taken_address1, id1, instruction1, pc1}),
   .data2(),
   .data3(),
   .data4(),
@@ -188,10 +188,10 @@ module issue(
   ///////////////
 
   .push0(push0),
-  .push_data0({pc0_in, instruction0_in, id0_in, branch_taken0_in, branch_taken_address0_in}),
+  .push_data0({branch_taken0_in, branch_taken_address0_in, id0_in, instruction0_in, pc0_in}),
 
   .push1(push1),
-  .push_data1({pc1_in, instruction1_in, id1_in, branch_taken1_in, branch_taken_address1_in})
+  .push_data1({branch_taken1_in, branch_taken_address1_in, id1_in, instruction1_in, pc1_in})
   );
   
   //////////////
@@ -266,17 +266,17 @@ module issue(
   always @(*) begin
 
     if (flush) begin
-      instruction0_out          <= 0;
-      pc0_out                   <= 0;
-      id0_out                   <= 0;
-      branch_taken0_out         <= 0;
-      branch_taken_address0_out <= 0;
+      instruction0_out          = 0;
+      pc0_out                   = 0;
+      id0_out                   = 0;
+      branch_taken0_out         = 0;
+      branch_taken_address0_out = 0;
       
-      instruction1_out          <= 0;
-      pc1_out                   <= 0;
-      id1_out                   <= 0;
-      branch_taken1_out         <= 0;
-      branch_taken_address1_out <= 0;
+      instruction1_out          = 0;
+      pc1_out                   = 0;
+      id1_out                   = 0;
+      branch_taken1_out         = 0;
+      branch_taken_address1_out = 0;
     end else begin
       if(!first) begin
         instruction0_out          = steer_vld_mask[0] ? instruction0          : 0;
