@@ -56,6 +56,8 @@ module branch_unit(
   reg branch_cond;
   reg is_branch;
 
+  reg [`NUM_PIPE_MASKS-1:0] flush1;
+
   blt l(
     .clk(clk),
 
@@ -73,6 +75,7 @@ module branch_unit(
 
   initial begin
     flush = 0;
+    flush1 = 0;
     jump_address = 0;
     branch_cond = 0;
     is_branch = 0;
@@ -119,12 +122,29 @@ module branch_unit(
       `JMP_OP_J:   flush = 0;//`PIPE_REG_EX_MEM;
       `JMP_OP_JR:  begin
 
-        if (branch_taken) begin
-          if(branch_taken_address == id_ex_reg_address) begin
-            //flush = `PIPE_REG_EX_MEM;
-          end else begin
-            flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
-          end
+/*
+        if (branch_taken && !(branch_taken_address == id_ex_reg_address)) begin
+          flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        end else if (!branch_taken) begin
+          flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        end else begin
+          flush = 0;
+        end
+
+    
+        if (branch_taken && (branch_taken_address == id_ex_reg_address)) begin
+          flush1 = 0;
+        end else begin
+          flush1 = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
+        end
+
+        if (flush != flush1) begin
+          $display("%x %x %x %x %x %d %d\n", branch_taken, branch_taken_address, id_ex_reg_address, flush, flush1, $time, jop);
+        end
+*/
+
+        if (branch_taken && (branch_taken_address == id_ex_reg_address)) begin
+          flush = 0;
         end else begin
           flush = `PIPE_REG_EX_MEM | `PIPE_REG_ID_EX | `PIPE_REG_IF_ID | `PIPE_REG_PC;
         end
