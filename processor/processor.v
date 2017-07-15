@@ -194,6 +194,7 @@ module processor(
 
   wire [`ADDR_WIDTH-1:0] pc0;
   wire [`ADDR_WIDTH-1:0] pc1;
+  wire [`ADDR_WIDTH-1:0] blt_pc;
 
   wire [`ADDR_WIDTH-1:0] steer_pc0;
   wire [`ADDR_WIDTH-1:0] steer_pc1;
@@ -213,13 +214,25 @@ module processor(
   wire [`ADDR_WIDTH-1:0] branch_predict;
   wire take_branch;
 
-  wire branch_taken;
-  wire if_id_branch_taken;
-  wire id_ex_branch_taken;
+  wire branch_taken0;
+  wire [`ADDR_WIDTH-1:0] branch_taken_address0;
+  wire branch_taken1;
+  wire [`ADDR_WIDTH-1:0] branch_taken_address1;
 
-  wire [`ADDR_WIDTH-1:0] branch_taken_address;
-  wire [`ADDR_WIDTH-1:0] if_id_branch_taken_address;
-  wire [`ADDR_WIDTH-1:0] id_ex_branch_taken_address;
+  wire issue_branch_taken0;
+  wire [`ADDR_WIDTH-1:0] issue_branch_taken_address0;
+  wire issue_branch_taken1;
+  wire [`ADDR_WIDTH-1:0] issue_branch_taken_address1;
+
+  wire if_id_branch_taken0;
+  wire [`ADDR_WIDTH-1:0] if_id_branch_taken_address0;
+  wire if_id_branch_taken1;
+  wire [`ADDR_WIDTH-1:0] if_id_branch_taken_address1;
+
+  wire id_ex_branch_taken0;
+  wire [`ADDR_WIDTH-1:0] id_ex_branch_taken_address0;
+  wire id_ex_branch_taken1;
+  wire [`ADDR_WIDTH-1:0] id_ex_branch_taken_address1;
 
   // the unique ids for each instruction in the pipe.
   wire [`INSTRUCTION_ID_WIDTH-1:0] instruction0_id;
@@ -241,6 +254,8 @@ module processor(
   wire [`INSTRUCTION_ID_WIDTH-1:0] mem_wb_instruction1_id;
 
   wire [3:0] free;
+  wire push0;
+  wire push1;
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -311,10 +326,7 @@ module processor(
   .clk(clk), 
   .reset(reset),
   .free(free),
-
-  .opcode(steer_instruction0[`OPCODE_MSB:`OPCODE_LSB]),
-  .address(steer_instruction0[`IMM_MSB:`IMM_LSB]),
-
+  
   .stall(stall),
 
   .flush(branch_flush[`PC_MASK_INDEX]), 
@@ -323,24 +335,26 @@ module processor(
   .take_branch(take_branch),
   .branch_predict(branch_predict),
 
-  .hazard_flush0(1'b0),
-  .hazard_flush1(1'b0),
-
-  .nop(1'b0),
-
   //////////////
 
-  .branch_taken(branch_taken),
-  .branch_taken_address(branch_taken_address),
+  .branch_taken0(branch_taken0),
+  .branch_taken_address0(branch_taken_address0),
+
+  .branch_taken1(branch_taken1),
+  .branch_taken_address1(branch_taken_address1),
 
   .pc0(pc0), 
-  .pc1(pc1), 
+  .pc1(pc1),
+  .blt_pc(blt_pc),
 
   .id0(instruction0_id),
   .id1(instruction1_id),
 
   .instruction0(instruction0),
-  .instruction1(instruction1)
+  .instruction1(instruction1),
+
+  .push0(push0),
+  .push1(push1)
   );
 
   if_id_register if_id_reg0(
@@ -352,15 +366,15 @@ module processor(
   .instruction_in(steer_instruction0),
   .first_in(first),
   .pc_in(steer_pc0),
-  .branch_taken_in(),
-  .branch_taken_address_in(),
+  .branch_taken_in(issue_branch_taken0),
+  .branch_taken_address_in(issue_branch_taken_address0),
   .id_in(steer_instruction0_id),
 
   .instruction_out(if_id_instruction0),
   .first_out(if_id_first),
   .pc_out(if_id_pc0),
-  .branch_taken_out(),
-  .branch_taken_address_out(),
+  .branch_taken_out(if_id_branch_taken0),
+  .branch_taken_address_out(if_id_branch_taken_address0),
   .id_out(if_id_instruction0_id)
   );
 
@@ -374,7 +388,7 @@ module processor(
   .first_in(),
   .pc_in(steer_pc1),
   .branch_taken_in(),
-  .branch_taken_address_in(),
+  .branch_taken_address_in(branch_taken_address0),
   .id_in(steer_instruction1_id),
 
   .instruction_out(if_id_instruction1),
@@ -386,36 +400,6 @@ module processor(
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////
-  
-/*
-  steer str(
-  .clk(clk),
-  .stall(stall0[`PC_MASK_INDEX] | stall1[`PC_MASK_INDEX]),
-
-  .instruction0_in(instruction0),
-  .instruction1_in(instruction1),
-
-  .pc0_in(pc0),
-  .pc1_in(pc1),
-
-  .id0_in(instruction0_id),
-  .id1_in(instruction1_id),
-
-  //////////////
-
-  .instruction0_out(steer_instruction0),
-  .instruction1_out(steer_instruction1),
-
-  .pc0_out(steer_pc0),
-  .pc1_out(steer_pc1),
-
-  .id0_out(steer_instruction0_id),
-  .id1_out(steer_instruction1_id),
-
-  .steer_stall(steer_stall),
-  .first(first)
-  );
-*/
 
   issue i(
 
@@ -429,11 +413,20 @@ module processor(
   .instruction0_in(instruction0),
   .instruction1_in(instruction1),
 
+  .push0(push0),
+  .push1(push1),
+
   ////////////////////////////////
 
   .stall_out(stall),
 
   ////////////////////////////////
+
+  .branch_taken0_in(branch_taken0),
+  .branch_taken1_in(branch_taken1),
+
+  .branch_taken_address0_in(branch_taken_address0),
+  .branch_taken_address1_in(branch_taken_address1),
 
   .pc0_in(pc0),
   .pc1_in(pc1),
@@ -451,6 +444,12 @@ module processor(
 
   .id0_out(steer_instruction0_id),
   .id1_out(steer_instruction1_id),
+
+  .branch_taken0_out(issue_branch_taken0),
+  .branch_taken1_out(),
+
+  .branch_taken_address0_out(issue_branch_taken_address0),
+  .branch_taken_address1_out(),
 
   .first(first)
   );
@@ -530,8 +529,8 @@ module processor(
   .instruction_in(if_id_instruction0),
   .first_in(if_id_first),
   .pc_in(if_id_pc0),
-  .branch_taken_in(branch_taken),
-  .branch_taken_address_in(branch_taken_address),
+  .branch_taken_in(if_id_branch_taken0),
+  .branch_taken_address_in(if_id_branch_taken_address0),
   .id_in(if_id_instruction0_id),
 
   .rs_out(id_ex_rs0), 
@@ -553,8 +552,8 @@ module processor(
   .instruction_out(id_ex_instruction0),
   .first_out(id_ex_first),
   .pc_out(id_ex_pc0),
-  .branch_taken_out(id_ex_branch_taken),
-  .branch_taken_address_out(id_ex_branch_taken_address),
+  .branch_taken_out(id_ex_branch_taken0),
+  .branch_taken_address_out(id_ex_branch_taken_address0),
   .id_out(id_ex_instruction0_id)
   );
 
@@ -854,12 +853,12 @@ module processor(
   .id_ex_reg_address(alu_input_mux_1_result0[`ADDR_WIDTH-1:0]),
   .id_ex_imm_address(id_ex_address0),
 
-  .pc(steer_pc0),
+  .pc(blt_pc),
   .branch_predict(branch_predict),
   .take_branch(take_branch),
 
-  .branch_taken(id_ex_branch_taken),
-  .branch_taken_address(id_ex_branch_taken_address),
+  .branch_taken(id_ex_branch_taken0),
+  .branch_taken_address(id_ex_branch_taken_address0),
 
   .jop(id_ex_jop0), 
   .flush(branch_flush),

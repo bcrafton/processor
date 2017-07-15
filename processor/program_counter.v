@@ -7,9 +7,6 @@ module program_counter(
   reset, 
   free,
 
-  opcode, // should we jump
-  address, // where to
-
   stall,
 
   flush, // mispredict
@@ -18,32 +15,31 @@ module program_counter(
   take_branch, // should we take the branch predict 
   branch_predict, // the address to branch to
 
-  hazard_flush0, // supposed to be new nop
-  hazard_flush1, // supposed to be new nop
-
-  nop, // not used.
-
   //////////////
 
-  branch_taken, // did we take the branch
-  branch_taken_address, // the address we took
+  branch_taken0, // did we take the branch
+  branch_taken_address0, // the address we took
+
+  branch_taken1, // did we take the branch
+  branch_taken_address1, // the address we took
 
   pc0,
   pc1,
+  blt_pc,
 
   id0, // used for logging
   id1, // used for logging
 
   instruction0,
   instruction1,
+
+  push0,
+  push1
   );
 
   input wire clk;
   input wire reset;
   input wire [3:0] free;
-
-  input wire [`OP_CODE_BITS-1:0] opcode;
-  input wire [`ADDR_WIDTH-1:0] address;
 
   input wire stall;
 
@@ -53,90 +49,160 @@ module program_counter(
   input wire take_branch;
   input wire [`ADDR_WIDTH-1:0] branch_predict;
 
-  input wire hazard_flush0;
-  input wire hazard_flush1;
-
-  input wire nop;
-
   //////////////
-
-  output reg branch_taken;
-  output reg [`ADDR_WIDTH-1:0] branch_taken_address;
 
   output wire [`ADDR_WIDTH-1:0] pc0;
   output wire [`ADDR_WIDTH-1:0] pc1;
+  output wire [`ADDR_WIDTH-1:0] blt_pc;
+  reg         [`ADDR_WIDTH-1:0] next_pc;
 
   output wire [`INSTRUCTION_ID_WIDTH-1:0] id0;
   output wire [`INSTRUCTION_ID_WIDTH-1:0] id1;
 
+  output reg branch_taken0;
+  output reg [`ADDR_WIDTH-1:0] branch_taken_address0;
   output wire [`INST_WIDTH-1:0] instruction0;
+
+  output reg branch_taken1;
+  output reg [`ADDR_WIDTH-1:0] branch_taken_address1;
   output wire [`INST_WIDTH-1:0] instruction1;
+
+  output wire push0;
+  output wire push1;
 
   //////////////
 
   reg [`ADDR_WIDTH-1:0] pc;
   reg [`INSTRUCTION_ID_WIDTH-1:0] instruction_counter;
 
-  wire [`INST_WIDTH-1:0] im_instruction0;
-  wire [`INST_WIDTH-1:0] im_instruction1;
+  wire [`OP_CODE_BITS-1:0] opcode0 = instruction0[`OPCODE_MSB:`OPCODE_LSB];
+  wire [`ADDR_WIDTH-1:0] address0 = instruction0[`IMM_MSB:`IMM_LSB];
 
-  wire [`NUM_BITS_PIPE_ID-1:0] tag0 = `PIPE_ID1; // this is unnecessary, but moving from steer
-  wire [`NUM_BITS_PIPE_ID-1:0] tag1 = `PIPE_ID2; // this is unnecessary, but moving from steer
+  wire [`OP_CODE_BITS-1:0] opcode1 = instruction1[`OPCODE_MSB:`OPCODE_LSB];
+  wire [`ADDR_WIDTH-1:0] address1 = instruction1[`IMM_MSB:`IMM_LSB];
 
   assign pc0 = pc;
   assign pc1 = pc + 1;
+  assign blt_pc = branch0 ? pc0 : pc1;
 
   assign id0 = instruction_counter;
   assign id1 = instruction_counter + 1;
 
-  assign instruction0 = hazard_flush0 ? 0 : im_instruction0;
-  assign instruction1 = hazard_flush1 ? 0 : im_instruction1;
+  // we get log diffs if we dont issue the jump
+  //assign push0 = !jump0; 
+  //assign push1 = !jump0 && !branch_taken0 && !jump1;
+  assign push0 = 1;
+  assign push1 = !jump0 && !branch_taken0;
 
-  wire branch = ((opcode & 6'b110000) == 6'b110000) && (opcode != `OP_CODE_JMP);
+  wire branch0 = ((opcode0 & 6'b110000) == 6'b110000) && (opcode0 != `OP_CODE_JMP);
+  wire branch1 = ((opcode1 & 6'b110000) == 6'b110000) && (opcode1 != `OP_CODE_JMP);
+
+  wire jump0 = opcode0 == `OP_CODE_JMP;
+  wire jump1 = opcode1 == `OP_CODE_JMP;
 
   //////////////
 
   instruction_memory im(
   .pc(pc), 
-  .instruction0(im_instruction0),
-  .instruction1(im_instruction1)
+  .instruction0(instruction0),
+  .instruction1(instruction1)
   );
 
   initial begin
     pc = 0;
     instruction_counter = 1; // needs to be one because everything else in pipeline to start =0.
 
-    branch_taken = 0;
-    branch_taken_address = 0;
+    branch_taken0 = 0;
+    branch_taken_address0 = 0;
+
+    branch_taken1 = 0;
+    branch_taken_address1 = 0;
+
+    next_pc = 0;
   end
 
-  always @(posedge clk) begin
+/*
+  always @(*) begin
+  
+    if (branch0 & take_branch) begin
 
-    instruction_counter = instruction_counter + 2;
+      branch_taken0 <= 1;
+      branch_taken1 <= 0;
+      branch_taken_address0 <= branch_predict;
 
-    if(flush) begin
-      pc <= branch_address;
-      branch_taken <= 0;
-    end else if(!stall) begin
-      if(reset) begin
-        pc <= 0;
-        branch_taken <= 0;
-      end else if(opcode == `OP_CODE_JMP) begin // double jump/branch can happen. not steered yet.
-        pc <= address;
-        branch_taken <= 0;
-      end else if (branch & take_branch) begin
-        pc <= branch_predict;
-        branch_taken <= 1;
-        branch_taken_address <= branch_predict;
-      end else begin
-        if (free == 1) begin
-          pc <= pc + 1;
-        end else begin
-          pc <= pc + 2;
-        end
-        branch_taken <= 0;
-      end
+    end else if (branch1 & take_branch && free >= 2) begin
+
+      branch_taken0 <= 0;
+      branch_taken1 <= 1;
+      branch_taken_address1 <= branch_predict;
+
+    end else begin
+
+      branch_taken0 <= 0;
+      branch_taken1 <= 0;
+
     end
+
+  end
+*/
+
+  always @(posedge clk) begin
+    if(!stall) begin
+      instruction_counter = instruction_counter + 2;
+      pc <= next_pc;
+    end
+  end
+
+  always @(*) begin
+
+    if(reset) begin
+      next_pc = 0;
+      branch_taken0 = 0;
+      branch_taken1 = 0;
+
+    end else if(flush) begin
+      next_pc = branch_address;
+      branch_taken0 = 0;
+      branch_taken1 = 0;
+
+    // before there was a "if !stall" here.
+
+    end else if(opcode0 == `OP_CODE_JMP) begin
+      next_pc = address0;
+      branch_taken0 = 0;
+      branch_taken1 = 0;
+
+    end else if (branch0 & take_branch) begin
+      next_pc = branch_predict;
+      branch_taken_address0 = branch_predict;
+
+      branch_taken0 = 1;
+      branch_taken1 = 0;
+
+    //////////////////////////////////////////
+
+    end else if(opcode1 == `OP_CODE_JMP && free >= 2) begin
+      next_pc = address1;
+      branch_taken0 = 0;
+      branch_taken1 = 0;
+
+    end else if (branch1 & take_branch && free >= 2) begin
+      next_pc = branch_predict;
+      branch_taken_address1 = branch_predict;
+
+      branch_taken0 = 0;
+      branch_taken1 = 1;
+
+    end else begin
+      if (free == 1) begin
+        next_pc = pc + 1;
+      end else begin
+        next_pc = pc + 2;
+      end
+      branch_taken0 = 0;
+      branch_taken1 = 0;
+    end
+
 
   end
 

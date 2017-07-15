@@ -84,8 +84,8 @@
 `define ADDR_WIDTH 16 
 `define IMM_WIDTH  16 
 
-// pc + instruction + id
-`define IQ_ENTRY_SIZE       `INST_WIDTH + `ADDR_WIDTH + `INSTRUCTION_ID_WIDTH
+// pc + instruction + id + branch taken + branch taken address
+`define IQ_ENTRY_SIZE       `INST_WIDTH + `ADDR_WIDTH + `INSTRUCTION_ID_WIDTH + 1 + `ADDR_WIDTH
 `define NUM_IQ_ENTRIES      8
 `define NUM_IQ_ENTRIES_LOG2 3 // this may need to change to 3 because need to point to nothing
 // or can just check if next thing is valid
