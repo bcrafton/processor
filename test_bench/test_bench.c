@@ -74,7 +74,7 @@ static test_t tests[] = {
 {"list", CODE_TEST, 6, 200000},
 {"linked_list", CODE_TEST, 6, 200000},
 */
-{"fib5", CODE_TEST, 10, 100000},
+{"to_10", CODE_TEST, 20, 100000},
 };
 
 static int num_programs = sizeof(tests)/sizeof(test_t);
