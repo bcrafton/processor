@@ -43,7 +43,8 @@ let () =
     "pop.s";
     "push1.s";
     "plus1_asm.s";
-    "branch_predict.s"
+    "branch_predict.s";
+    "ooo.s";
     
   ] in
 
