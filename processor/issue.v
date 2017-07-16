@@ -617,6 +617,7 @@ module steer(
     end
   endgenerate
 
+  // THIS IS LITERALLY A PRIORITY ENCODER ...
   assign {pop_key0, pop0} = vld_mask_in[0] == 1 ? {3'h0, 1'h1} : 
                             vld_mask_in[1] == 1 ? {3'h1, 1'h1} : 
                             vld_mask_in[2] == 1 ? {3'h2, 1'h1} : 
