@@ -106,8 +106,6 @@ module issue(
   output wire first;
 
   //////////////
-
-  wire steer_stall;
   
   wire [1:0] load_vld_mask;
   wire [1:0] split_vld_mask;
@@ -219,7 +217,6 @@ module issue(
   .vld_mask_in(split_vld_mask),
   
   .vld_mask_out(steer_vld_mask),
-  .steer_stall(steer_stall),
   .first(first)
   );
   
@@ -509,13 +506,58 @@ module steer_depends(
 
 endmodule
 
+module pipe_depends(
+  instruction_pipe0,
+  instruction_pipe1,
+  
+  steer_stall,
+  first
+  );
+
+  input wire [`PIPE_BITS-1:0] instruction_pipe0;
+  input wire [`PIPE_BITS-1:0] instruction_pipe1;
+
+  output reg steer_stall;
+  output reg first;
+
+  always @(*) begin
+
+    case( {instruction_pipe0, instruction_pipe1} )
+      {`PIPE_BRANCH, `PIPE_BRANCH}: begin // hazard. steer stall = 1.
+        steer_stall = 1;
+        first = 0;
+      end
+      {`PIPE_MEMORY, `PIPE_BRANCH}: begin
+        steer_stall = 0;
+        first = 1;
+      end
+      {`PIPE_MEMORY, `PIPE_MEMORY}: begin // hazard. steer stall = 1.
+        steer_stall = 1;
+        first = 1;
+      end
+      {`PIPE_MEMORY, `PIPE_DONT_CARE}: begin
+        steer_stall = 0;
+        first = 1;
+      end
+      {`PIPE_DONT_CARE, `PIPE_BRANCH}: begin
+        steer_stall = 0;
+        first = 1;
+      end
+      default: begin
+        steer_stall = 0;
+        first = 0;
+      end
+    endcase
+  end
+
+endmodule
+
+
 module steer(
 
 	opcode_in,
-
 	vld_mask_in,
 	
-	steer_stall,
 	vld_mask_out,
 	first
 	
@@ -525,14 +567,14 @@ module steer(
 	
 	input wire [1:0] vld_mask_in;
 	
-	output reg steer_stall;
   output reg [1:0] vld_mask_out;
-  output reg first;
+  output wire first;
   
   ///////////////////
   
   wire [`OP_CODE_BITS-1:0] opcode           [0:7];
   wire [`PIPE_BITS-1:0]    instruction_pipe [0:7];
+  wire steer_stall;
   
   // just unpacking the wires.
   genvar i;
@@ -549,40 +591,19 @@ module steer(
     end
   endgenerate
 	
-	always @(*) begin
+  pipe_depends pipe_depends(
+  .instruction_pipe0(instruction_pipe[0]),
+  .instruction_pipe1(instruction_pipe[1]),
+  .first(first),
+  .steer_stall(steer_stall)
+  );
 
-    case( {instruction_pipe[0], instruction_pipe[1]} )
-      {`PIPE_BRANCH, `PIPE_BRANCH}: begin // hazard. steer stall = 1.
-        steer_stall = 1;
-        first = 0;
-        vld_mask_out = vld_mask_in & 2'b01;
-      end
-      {`PIPE_MEMORY, `PIPE_BRANCH}: begin
-        steer_stall = 0;
-        first = 1;
-        vld_mask_out = vld_mask_in & 2'b11;
-      end
-      {`PIPE_MEMORY, `PIPE_MEMORY}: begin // hazard. steer stall = 1.
-        steer_stall = 1;
-        first = 1;
-        vld_mask_out = vld_mask_in & 2'b01;
-      end
-      {`PIPE_MEMORY, `PIPE_DONT_CARE}: begin
-        steer_stall = 0;
-        first = 1;
-        vld_mask_out = vld_mask_in & 2'b11;
-      end
-      {`PIPE_DONT_CARE, `PIPE_BRANCH}: begin
-        steer_stall = 0;
-        first = 1;
-        vld_mask_out = vld_mask_in & 2'b11;
-      end
-      default: begin
-        steer_stall = 0;
-        first = 0;
-        vld_mask_out = vld_mask_in & 2'b11;
-      end
-    endcase
+  always @(*) begin
+    if (steer_stall) begin
+      vld_mask_out = vld_mask_in & 2'b01;
+    end else begin
+      vld_mask_out = vld_mask_in & 2'b11;
+    end
   end
   
 endmodule
