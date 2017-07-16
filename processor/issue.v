@@ -109,7 +109,11 @@ module issue(
   
   wire [7:0] load_vld_mask;
   wire [7:0] split_vld_mask;
-  wire [1:0] steer_vld_mask;
+  //wire [1:0] steer_vld_mask;
+  wire [2:0] pop_key0;
+  wire [2:0] pop_key1;  
+  wire pop0;
+  wire pop1;
 
   //////////////
 
@@ -142,11 +146,11 @@ module issue(
 
   ///////////////
 
-  .pop0(steer_vld_mask[0]),
-  .pop_key0(0),
+  .pop0(pop0),
+  .pop_key0(pop_key0),
 
-  .pop1(steer_vld_mask[1]),
-  .pop_key1(1),
+  .pop1(pop1),
+  .pop_key1(pop_key1),
 
   ///////////////
 
@@ -216,8 +220,11 @@ module issue(
   .opcode_in( {opcode[7], opcode[6], opcode[5], opcode[4], opcode[3], opcode[2], opcode[1], opcode[0]} ),
   .vld_mask_in(split_vld_mask),
   
-  .vld_mask_out(steer_vld_mask),
-  .first(first)
+  .first(first),
+  .pop_key0(pop_key0),
+  .pop_key1(pop_key1),
+  .pop0(pop0),
+  .pop1(pop1)
   );
   
   initial begin
@@ -250,29 +257,29 @@ module issue(
       branch_taken_address1_out = 0;
     end else begin
       if(!first) begin
-        instruction0_out          = steer_vld_mask[0] ? instruction[0]          : 0;
-        pc0_out                   = steer_vld_mask[0] ? pc[0]                   : 0;
-        id0_out                   = steer_vld_mask[0] ? id[0]                   : 0;
-        branch_taken0_out         = steer_vld_mask[0] ? branch_taken[0]         : 0;
-        branch_taken_address0_out = steer_vld_mask[0] ? branch_taken_address[0] : 0;
+        instruction0_out          = pop0 ? instruction[pop_key0]          : 0;
+        pc0_out                   = pop0 ? pc[pop_key0]                   : 0;
+        id0_out                   = pop0 ? id[pop_key0]                   : 0;
+        branch_taken0_out         = pop0 ? branch_taken[pop_key0]         : 0;
+        branch_taken_address0_out = pop0 ? branch_taken_address[pop_key0] : 0;
         
-        instruction1_out          = steer_vld_mask[1] ? instruction[1]          : 0;
-        pc1_out                   = steer_vld_mask[1] ? pc[1]                   : 0;
-        id1_out                   = steer_vld_mask[1] ? id[1]                   : 0;
-        branch_taken1_out         = steer_vld_mask[1] ? branch_taken[1]         : 0;
-        branch_taken_address1_out = steer_vld_mask[1] ? branch_taken_address[1] : 0;
+        instruction1_out          = pop1 ? instruction[pop_key1]          : 0;
+        pc1_out                   = pop1 ? pc[pop_key1]                   : 0;
+        id1_out                   = pop1 ? id[pop_key1]                   : 0;
+        branch_taken1_out         = pop1 ? branch_taken[pop_key1]         : 0;
+        branch_taken_address1_out = pop1 ? branch_taken_address[pop_key1] : 0;
       end else begin
-        instruction1_out          = steer_vld_mask[0] ? instruction[0]          : 0;
-        pc1_out                   = steer_vld_mask[0] ? pc[0]                   : 0;
-        id1_out                   = steer_vld_mask[0] ? id[0]                   : 0;
-        branch_taken1_out         = steer_vld_mask[0] ? branch_taken[0]         : 0;
-        branch_taken_address1_out = steer_vld_mask[0] ? branch_taken_address[0] : 0;
+        instruction1_out          = pop0 ? instruction[pop_key0]          : 0;
+        pc1_out                   = pop0 ? pc[pop_key0]                   : 0;
+        id1_out                   = pop0 ? id[pop_key0]                   : 0;
+        branch_taken1_out         = pop0 ? branch_taken[pop_key0]         : 0;
+        branch_taken_address1_out = pop0 ? branch_taken_address[pop_key0] : 0;
         
-        instruction0_out          = steer_vld_mask[1] ? instruction[1]          : 0;
-        pc0_out                   = steer_vld_mask[1] ? pc[1]                   : 0;
-        id0_out                   = steer_vld_mask[1] ? id[1]                   : 0;
-        branch_taken0_out         = steer_vld_mask[1] ? branch_taken[1]         : 0;
-        branch_taken_address0_out = steer_vld_mask[1] ? branch_taken_address[1] : 0;
+        instruction0_out          = pop1 ? instruction[pop_key1]          : 0;
+        pc0_out                   = pop1 ? pc[pop_key1]                   : 0;
+        id0_out                   = pop1 ? id[pop_key1]                   : 0;
+        branch_taken0_out         = pop1 ? branch_taken[pop_key1]         : 0;
+        branch_taken_address0_out = pop1 ? branch_taken_address[pop_key1] : 0;
       end
 
     end
@@ -553,24 +560,39 @@ module steer(
 	opcode_in,
 	vld_mask_in,
 	
-	vld_mask_out,
-	first
+	first,
+  pop_key0,
+  pop_key1,
+  pop0,
+  pop1
 	
 	);
   
   input wire [`OP_CODE_BITS * 8 -1:0] opcode_in;
-	
 	input wire [7:0] vld_mask_in;
 	
-  output reg [1:0] vld_mask_out;
   output wire first;
+  output wire [2:0] pop_key0;
+  output wire [2:0] pop_key1;  
+  output wire pop0;
+  output wire pop1;
   
   ///////////////////
   
   wire [`OP_CODE_BITS-1:0] opcode           [0:7];
   wire [`PIPE_BITS-1:0]    instruction_pipe [0:7];
-  wire steer_stall;
-  
+
+  wire [7:0] steer_stall;
+  wire [7:0] first_array;
+
+  wire [7:0] steer_vld_mask;
+
+  ///////////////////
+
+  assign first = first_array[pop_key1];
+
+  ///////////////////
+
   // just unpacking the wires.
   genvar i;
   generate
@@ -583,23 +605,37 @@ module steer(
         .instruction_pipe(instruction_pipe[i])
       );
 
+      pipe_depends pipe_depends(
+      .instruction_pipe0(instruction_pipe[pop_key0]),
+      .instruction_pipe1(instruction_pipe[i]),
+      .first(first_array[i]),
+      .steer_stall(steer_stall[i])
+      );
+
+      assign steer_vld_mask[i] = !steer_stall[i] & vld_mask_in[i];
+
     end
   endgenerate
-	
-  pipe_depends pipe_depends(
-  .instruction_pipe0(instruction_pipe[0]),
-  .instruction_pipe1(instruction_pipe[1]),
-  .first(first),
-  .steer_stall(steer_stall)
-  );
 
-  always @(*) begin
-    if (steer_stall) begin
-      vld_mask_out = vld_mask_in[1:0] & 2'b01;
-    end else begin
-      vld_mask_out = vld_mask_in[1:0] & 2'b11;
-    end
-  end
+  assign {pop_key0, pop0} = vld_mask_in[0] == 1 ? {3'h0, 1'h1} : 
+                            vld_mask_in[1] == 1 ? {3'h1, 1'h1} : 
+                            vld_mask_in[2] == 1 ? {3'h2, 1'h1} : 
+                            vld_mask_in[3] == 1 ? {3'h3, 1'h1} : 
+                            vld_mask_in[4] == 1 ? {3'h4, 1'h1} : 
+                            vld_mask_in[5] == 1 ? {3'h5, 1'h1} : 
+                            vld_mask_in[6] == 1 ? {3'h6, 1'h1} : 
+                            vld_mask_in[7] == 1 ? {3'h7, 1'h1} : 
+                                                  {3'h0, 1'h0};
+
+  assign {pop_key1, pop1} = (steer_vld_mask[0] == 1) & !(pop_key0 == 0) ? {3'h0, 1'h1} : 
+                            (steer_vld_mask[1] == 1) & !(pop_key0 == 1) ? {3'h1, 1'h1} : 
+                            (steer_vld_mask[2] == 1) & !(pop_key0 == 2) ? {3'h2, 1'h1} : 
+                            (steer_vld_mask[3] == 1) & !(pop_key0 == 3) ? {3'h3, 1'h1} : 
+                            (steer_vld_mask[4] == 1) & !(pop_key0 == 4) ? {3'h4, 1'h1} : 
+                            (steer_vld_mask[5] == 1) & !(pop_key0 == 5) ? {3'h5, 1'h1} : 
+                            (steer_vld_mask[6] == 1) & !(pop_key0 == 6) ? {3'h6, 1'h1} : 
+                            (steer_vld_mask[7] == 1) & !(pop_key0 == 7) ? {3'h7, 1'h1} : 
+                                                                          {3'h0, 1'h0};
   
 endmodule
 
