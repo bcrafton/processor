@@ -468,6 +468,47 @@ module split_hazard(
 
 endmodule
 
+module steer_depends(
+  opcode,
+  instruction_pipe
+  );
+
+  input wire [`OP_CODE_BITS-1:0] opcode;
+
+  output reg [`PIPE_BITS-1:0]    instruction_pipe;
+
+  always @(*) begin
+
+    casex(opcode)
+      6'b000000: begin
+        instruction_pipe = `PIPE_DONT_CARE;
+      end
+      6'b00????: begin // add, sub...
+        if (opcode == `OP_CODE_CMP || opcode == `OP_CODE_TEST) begin
+          instruction_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction_pipe = `PIPE_DONT_CARE;
+        end
+      end
+      6'b01????: begin // addi, subi...
+        if (opcode == `OP_CODE_CMPI || opcode == `OP_CODE_TESTI) begin
+          instruction_pipe = `PIPE_BRANCH;
+        end else begin
+          instruction_pipe = `PIPE_DONT_CARE;
+        end        
+      end
+      6'b10????: begin // lw, sw, la, sa
+        instruction_pipe = `PIPE_MEMORY;
+      end
+      6'b11????: begin // jmp, jo, je ...
+        instruction_pipe = `PIPE_BRANCH;
+      end
+    endcase
+
+  end 
+
+endmodule
+
 module steer(
 
 	opcode_in,
@@ -490,7 +531,8 @@ module steer(
   
   ///////////////////
   
-  wire [`OP_CODE_BITS-1:0] opcode [0:7];
+  wire [`OP_CODE_BITS-1:0] opcode           [0:7];
+  wire [`PIPE_BITS-1:0]    instruction_pipe [0:7];
   
   // just unpacking the wires.
   genvar i;
@@ -499,67 +541,17 @@ module steer(
 	  
       assign opcode[i] = opcode_in[`OP_CODE_BITS*i + `OP_CODE_BITS-1 : `OP_CODE_BITS*i];
 
+      steer_depends steer_depend(
+        .opcode(opcode[i]),
+        .instruction_pipe(instruction_pipe[i])
+      );
+
     end
   endgenerate
 	
-  reg [`PIPE_BITS-1:0] instruction0_pipe;
-  reg [`PIPE_BITS-1:0] instruction1_pipe;
-	
 	always @(*) begin
 
-    casex(opcode[0])
-      6'b000000: begin
-        instruction0_pipe = `PIPE_DONT_CARE;
-      end
-      6'b00????: begin // add, sub...
-        if (opcode[0] == `OP_CODE_CMP || opcode[0] == `OP_CODE_TEST) begin
-          instruction0_pipe = `PIPE_BRANCH;
-        end else begin
-          instruction0_pipe = `PIPE_DONT_CARE;
-        end
-      end
-      6'b01????: begin // addi, subi...
-        if (opcode[0] == `OP_CODE_CMPI || opcode[0] == `OP_CODE_TESTI) begin
-          instruction0_pipe = `PIPE_BRANCH;
-        end else begin
-          instruction0_pipe = `PIPE_DONT_CARE;
-        end        
-      end
-      6'b10????: begin // lw, sw, la, sa
-        instruction0_pipe = `PIPE_MEMORY;
-      end
-      6'b11????: begin // jmp, jo, je ...
-        instruction0_pipe = `PIPE_BRANCH;
-      end
-    endcase
-
-    casex(opcode[1])
-      6'b000000: begin
-        instruction1_pipe = `PIPE_DONT_CARE;
-      end
-      6'b00????: begin // add, sub...
-        if (opcode[1] == `OP_CODE_CMP || opcode[1] == `OP_CODE_TEST) begin
-          instruction1_pipe = `PIPE_BRANCH;
-        end else begin
-          instruction1_pipe = `PIPE_DONT_CARE;
-        end
-      end
-      6'b01????: begin // addi, subi...
-        if (opcode[1] == `OP_CODE_CMPI || opcode[1] == `OP_CODE_TESTI) begin
-          instruction1_pipe = `PIPE_BRANCH;
-        end else begin
-          instruction1_pipe = `PIPE_DONT_CARE;
-        end        
-      end
-      6'b10????: begin // lw, sw, la, sa
-        instruction1_pipe = `PIPE_MEMORY;
-      end
-      6'b11????: begin // jmp, jo, je ...
-        instruction1_pipe = `PIPE_BRANCH;
-      end
-    endcase
-
-    case( {instruction0_pipe, instruction1_pipe} )
+    case( {instruction_pipe[0], instruction_pipe[1]} )
       {`PIPE_BRANCH, `PIPE_BRANCH}: begin // hazard. steer stall = 1.
         steer_stall = 1;
         first = 0;
