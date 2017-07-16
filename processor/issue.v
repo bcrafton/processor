@@ -107,7 +107,6 @@ module issue(
 
   //////////////
 
-  wire split_stall;
   wire steer_stall;
   
   wire [1:0] load_vld_mask;
@@ -212,8 +211,7 @@ module issue(
 
   .vld_mask_in(load_vld_mask),
   
-  .vld_mask_out(split_vld_mask),
-  .split_stall(split_stall)
+  .vld_mask_out(split_vld_mask)
   );
   
   steer s(
@@ -416,8 +414,7 @@ module split_hazard(
 	
 	vld_mask_in,
 	
-	vld_mask_out,
-	split_stall
+	vld_mask_out
 
   );
 
@@ -429,32 +426,45 @@ module split_hazard(
 	input wire [1:0] vld_mask_in;
   
   output wire [1:0] vld_mask_out;
-	output wire split_stall;
+	
   
   ///////////////////
  
-  wire [`NUM_REG_MASKS-1:0] reg_vld_mask [0:7];
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0 [0:7];
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1 [0:7];
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_dest [0:7];
+  wire [`NUM_REG_MASKS-1:0]      reg_vld_mask [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0     [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1     [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_dest     [0:7];
+  wire [7:0]                     split_stall  [0:7];
   
   // just unpacking the wires.
-  genvar i;
+  genvar i, j;
   generate
-    for (i=0; i<8; i=i+1) begin : generate_reg_depends
+    for (i=0; i<8; i=i+1) begin : generate_reg_depends_i
 	  
       assign reg_vld_mask[i] = reg_vld_mask_in[`NUM_REG_MASKS*i + `NUM_REG_MASKS-1 : `NUM_REG_MASKS*i];
       assign reg_src0[i] =     reg_src0_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
       assign reg_src1[i] =     reg_src1_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
       assign reg_dest[i] =     reg_dest_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
 
+      // SPLIT STALL MORE COMPLICATED THEN THIS ... REMEMBER 2D!!!!
+      // does not support this: for (j=0; j<i; j=j+1) begin : generate_reg_depends_j
+      generate
+        for (j=0; j<8; j=j+1) begin : generate_reg_depends_j
+
+          if (i <= j) begin
+            assign split_stall[i][j] = 0;
+          end else begin
+            assign split_stall[i][j] = ( ((reg_src0[i] == reg_dest[j]) && ((reg_vld_mask[i] & `REG_MASK_RS0) == `REG_MASK_RS0) && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)) ||
+                                         ((reg_src1[i] == reg_dest[j]) && ((reg_vld_mask[i] & `REG_MASK_RS1) == `REG_MASK_RS1) && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)) );
+          end
+
+        end
+      endgenerate
+
     end
   endgenerate
 
-  assign split_stall = ( ((reg_src0[1] == reg_dest[0]) && ((reg_vld_mask[1] & `REG_MASK_RS0) == `REG_MASK_RS0) && ((reg_vld_mask[0] & `REG_MASK_RD) == `REG_MASK_RD)) ||
-                         ((reg_src1[1] == reg_dest[0]) && ((reg_vld_mask[1] & `REG_MASK_RS1) == `REG_MASK_RS1) && ((reg_vld_mask[0] & `REG_MASK_RD) == `REG_MASK_RD)) );
-
-  assign vld_mask_out = split_stall ? vld_mask_in & 2'b01 : vld_mask_in;
+  assign vld_mask_out = split_stall[1] ? vld_mask_in & 2'b01 : vld_mask_in;
 
 endmodule
 
