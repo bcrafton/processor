@@ -118,21 +118,6 @@ module issue(
 
   //////////////
 
-  wire [`INST_WIDTH-1:0] instruction0;
-  wire [`INST_WIDTH-1:0] instruction1;
-  wire [`ADDR_WIDTH-1:0] pc0;
-  wire [`ADDR_WIDTH-1:0] pc1;
-  wire [`INSTRUCTION_ID_WIDTH-1:0] id0;
-  wire [`INSTRUCTION_ID_WIDTH-1:0] id1;
-
-  wire branch_taken0;
-  wire branch_taken1;
-
-  wire [`ADDR_WIDTH-1:0] branch_taken_address0;
-  wire [`ADDR_WIDTH-1:0] branch_taken_address1;
-  
-  //////////////
-
   output wire [3:0] free;
 
   //////////////
@@ -143,21 +128,17 @@ module issue(
 
   //////////////
   
-  wire [`INST_WIDTH-1:0] instruction [0:7];
+  wire [`INST_WIDTH-1:0]           instruction          [0:7];
+  wire [`ADDR_WIDTH-1:0]           pc                   [0:7];
+  wire [`INSTRUCTION_ID_WIDTH-1:0] id                   [0:7];
+  wire                             branch_taken         [0:7];
+  wire [`ADDR_WIDTH-1:0]           branch_taken_address [0:7];
+
   wire [`OP_CODE_BITS-1:0] opcode [0:7];
   wire [`NUM_REG_MASKS-1:0] reg_vld_mask [0:7];
   wire [`NUM_REGISTERS_LOG2-1:0] reg_src0 [0:7];
   wire [`NUM_REGISTERS_LOG2-1:0] reg_src1 [0:7];
   wire [`NUM_REGISTERS_LOG2-1:0] reg_dest [0:7];
-  
-  assign instruction[0] = instruction0;
-  assign instruction[1] = instruction1;
-  assign instruction[2] = 0;
-  assign instruction[3] = 0;
-  assign instruction[4] = 0;
-  assign instruction[5] = 0;
-  assign instruction[6] = 0;
-  assign instruction[7] = 0;
 
   //////////////
 
@@ -176,8 +157,8 @@ module issue(
 
   ///////////////
 
-  .data0({branch_taken0, branch_taken_address0, id0, instruction0, pc0}),
-  .data1({branch_taken1, branch_taken_address1, id1, instruction1, pc1}),
+  .data0({branch_taken[0], branch_taken_address[0], id[0], instruction[0], pc[0]}),
+  .data1({branch_taken[1], branch_taken_address[1], id[1], instruction[1], pc[1]}),
   .data2(),
   .data3(),
   .data4(),
@@ -279,29 +260,29 @@ module issue(
       branch_taken_address1_out = 0;
     end else begin
       if(!first) begin
-        instruction0_out          = steer_vld_mask[0] ? instruction0          : 0;
-        pc0_out                   = steer_vld_mask[0] ? pc0                   : 0;
-        id0_out                   = steer_vld_mask[0] ? id0                   : 0;
-        branch_taken0_out         = steer_vld_mask[0] ? branch_taken0         : 0;
-        branch_taken_address0_out = steer_vld_mask[0] ? branch_taken_address0 : 0;
+        instruction0_out          = steer_vld_mask[0] ? instruction[0]          : 0;
+        pc0_out                   = steer_vld_mask[0] ? pc[0]                   : 0;
+        id0_out                   = steer_vld_mask[0] ? id[0]                   : 0;
+        branch_taken0_out         = steer_vld_mask[0] ? branch_taken[0]         : 0;
+        branch_taken_address0_out = steer_vld_mask[0] ? branch_taken_address[0] : 0;
         
-        instruction1_out          = steer_vld_mask[1] ? instruction1          : 0;
-        pc1_out                   = steer_vld_mask[1] ? pc1                   : 0;
-        id1_out                   = steer_vld_mask[1] ? id1                   : 0;
-        branch_taken1_out         = steer_vld_mask[1] ? branch_taken1         : 0;
-        branch_taken_address1_out = steer_vld_mask[1] ? branch_taken_address1 : 0;
+        instruction1_out          = steer_vld_mask[1] ? instruction[1]          : 0;
+        pc1_out                   = steer_vld_mask[1] ? pc[1]                   : 0;
+        id1_out                   = steer_vld_mask[1] ? id[1]                   : 0;
+        branch_taken1_out         = steer_vld_mask[1] ? branch_taken[1]         : 0;
+        branch_taken_address1_out = steer_vld_mask[1] ? branch_taken_address[1] : 0;
       end else begin
-        instruction1_out          = steer_vld_mask[0] ? instruction0          : 0;
-        pc1_out                   = steer_vld_mask[0] ? pc0                   : 0;
-        id1_out                   = steer_vld_mask[0] ? id0                   : 0;
-        branch_taken1_out         = steer_vld_mask[0] ? branch_taken0         : 0;
-        branch_taken_address1_out = steer_vld_mask[0] ? branch_taken_address0 : 0;
+        instruction1_out          = steer_vld_mask[0] ? instruction[0]          : 0;
+        pc1_out                   = steer_vld_mask[0] ? pc[0]                   : 0;
+        id1_out                   = steer_vld_mask[0] ? id[0]                   : 0;
+        branch_taken1_out         = steer_vld_mask[0] ? branch_taken[0]         : 0;
+        branch_taken_address1_out = steer_vld_mask[0] ? branch_taken_address[0] : 0;
         
-        instruction0_out          = steer_vld_mask[1] ? instruction1          : 0;
-        pc0_out                   = steer_vld_mask[1] ? pc1                   : 0;
-        id0_out                   = steer_vld_mask[1] ? id1                   : 0;
-        branch_taken0_out         = steer_vld_mask[1] ? branch_taken1         : 0;
-        branch_taken_address0_out = steer_vld_mask[1] ? branch_taken_address1 : 0;
+        instruction0_out          = steer_vld_mask[1] ? instruction[1]          : 0;
+        pc0_out                   = steer_vld_mask[1] ? pc[1]                   : 0;
+        id0_out                   = steer_vld_mask[1] ? id[1]                   : 0;
+        branch_taken0_out         = steer_vld_mask[1] ? branch_taken[1]         : 0;
+        branch_taken_address0_out = steer_vld_mask[1] ? branch_taken_address[1] : 0;
       end
 
     end

@@ -13,9 +13,9 @@ WORD mem_read(WORD address, uint8_t memory_id)
     case DMEM_ID:
       if (address >= DMEMORY_SIZE || address < 0)
       {
-        printf("dmemory read out of bounds %d\n", address);
-        //fprintf(stderr, "dmemory read out of bounds %d\n", address);
-        //assert(0);
+        //printf("dmemory read out of bounds %d\n", address);
+        fprintf(stderr, "dmemory read out of bounds %d\n", address);
+        assert(0);
       }
       else
       {
@@ -35,9 +35,9 @@ WORD mem_read(WORD address, uint8_t memory_id)
     case REGFILE_ID:
       if (address >= REGFILE_SIZE || address < 0)
       {
-        printf("reg read out of bounds %d\n", address);
-        //fprintf(stderr, "reg read out of bounds %d\n", address);
-        //assert(0);
+        //printf("reg read out of bounds %d\n", address);
+        fprintf(stderr, "reg read out of bounds %d\n", address);
+        assert(0);
       }
       else
       {
