@@ -107,7 +107,6 @@ module issue(
 
   //////////////
 
-  wire load_stall;
   wire split_stall;
   wire steer_stall;
   
@@ -121,7 +120,6 @@ module issue(
 
   //////////////
   
-  // can this be assign stall = load_stall || split_stall || steer_stall; ?
   assign stall = free == 0;
 
   //////////////
@@ -203,8 +201,7 @@ module issue(
   .reg_src1_in( {reg_src1[7], reg_src1[6], reg_src1[5], reg_src1[4], reg_src1[3], reg_src1[2], reg_src1[1], reg_src1[0]} ),
   .reg_vld_mask_in( {reg_vld_mask[7], reg_vld_mask[6], reg_vld_mask[5], reg_vld_mask[4], reg_vld_mask[3], reg_vld_mask[2], reg_vld_mask[1], reg_vld_mask[0]} ),
   
-  .vld_mask_out(load_vld_mask),
-  .load_stall(load_stall)
+  .vld_mask_out(load_vld_mask)
   );
   
   split_hazard sh(
@@ -298,7 +295,6 @@ module load_hazard(
   reg_vld_mask_in,
 
   vld_mask_out,
-  load_stall
   
   );
   
@@ -310,12 +306,14 @@ module load_hazard(
   input wire [`NUM_REG_MASKS * 8 -1:0]      reg_vld_mask_in;
   
   output reg [1:0] vld_mask_out;
-  output reg load_stall;
+
+  
   
   wire [`NUM_REGISTERS_LOG2-1:0] if_id_rt = if_id_instruction1[`REG_RT_MSB:`REG_RT_LSB];
-  wire [`NUM_REG_MASKS-1:0] reg_vld_mask [0:7];
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0 [0:7];
-  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1 [0:7];
+  wire [`NUM_REG_MASKS-1:0]      reg_vld_mask [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src0     [0:7];
+  wire [`NUM_REGISTERS_LOG2-1:0] reg_src1     [0:7];
+  wire                           load_stall   [0:7];
   
   genvar i;
   generate
@@ -325,18 +323,15 @@ module load_hazard(
       assign reg_src0[i] =     reg_src0_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
       assign reg_src1[i] =     reg_src1_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
 
+      assign load_stall[i] =   (reg_src0[i] == if_id_rt || reg_src1[i] == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ);
+
     end
   endgenerate
   
   always @(*) begin
-    if((reg_src0[0] == if_id_rt || reg_src1[0] == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ)) begin
-      load_stall = 1;
-      vld_mask_out = 2'b00;
-    end else if((reg_src0[1] == if_id_rt || reg_src1[1] == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ)) begin
-      load_stall = 1;
+    if (load_stall[0] || load_stall[1]) begin
       vld_mask_out = 2'b00;
     end else begin
-      load_stall = 0;
       vld_mask_out = 2'b11;
     end
   end
