@@ -159,12 +159,12 @@ module issue(
 
   .data0({branch_taken[0], branch_taken_address[0], id[0], instruction[0], pc[0]}),
   .data1({branch_taken[1], branch_taken_address[1], id[1], instruction[1], pc[1]}),
-  .data2(),
-  .data3(),
-  .data4(),
-  .data5(),
-  .data6(),
-  .data7(),
+  .data2({branch_taken[2], branch_taken_address[2], id[2], instruction[2], pc[2]}),
+  .data3({branch_taken[3], branch_taken_address[3], id[3], instruction[3], pc[3]}),
+  .data4({branch_taken[4], branch_taken_address[4], id[4], instruction[4], pc[4]}),
+  .data5({branch_taken[5], branch_taken_address[5], id[5], instruction[5], pc[5]}),
+  .data6({branch_taken[6], branch_taken_address[6], id[6], instruction[6], pc[6]}),
+  .data7({branch_taken[7], branch_taken_address[7], id[7], instruction[7], pc[7]}),
 
   ///////////////
 
