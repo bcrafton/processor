@@ -107,8 +107,8 @@ module issue(
 
   //////////////
   
-  wire [1:0] load_vld_mask;
-  wire [1:0] split_vld_mask;
+  wire [7:0] load_vld_mask;
+  wire [7:0] split_vld_mask;
   wire [1:0] steer_vld_mask;
 
   //////////////
@@ -300,9 +300,7 @@ module load_hazard(
   input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_src1_in;
   input wire [`NUM_REG_MASKS * 8 -1:0]      reg_vld_mask_in;
   
-  output reg [1:0] vld_mask_out;
-
-  
+  output wire [7:0] vld_mask_out;
   
   wire [`NUM_REGISTERS_LOG2-1:0] if_id_rt = if_id_instruction1[`REG_RT_MSB:`REG_RT_LSB];
   wire [`NUM_REG_MASKS-1:0]      reg_vld_mask [0:7];
@@ -320,16 +318,10 @@ module load_hazard(
 
       assign load_stall[i] =   (reg_src0[i] == if_id_rt || reg_src1[i] == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ);
 
+      assign vld_mask_out[i] = !load_stall[i];
     end
   endgenerate
   
-  always @(*) begin
-    if (load_stall[0] || load_stall[1]) begin
-      vld_mask_out = 2'b00;
-    end else begin
-      vld_mask_out = 2'b11;
-    end
-  end
   
 endmodule
 
@@ -420,9 +412,9 @@ module split_hazard(
   input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_dest_in;
   input wire [`NUM_REG_MASKS * 8 -1:0]      reg_vld_mask_in;
   
-	input wire [1:0] vld_mask_in;
+	input wire [7:0] vld_mask_in;
   
-  output wire [1:0] vld_mask_out;
+  output wire [7:0] vld_mask_out;
 	
   
   ///////////////////
@@ -458,10 +450,13 @@ module split_hazard(
         end
       endgenerate
 
+      assign vld_mask_out[i] = !(|split_stall[i]) & vld_mask_in[i];
+
     end
+
   endgenerate
 
-  assign vld_mask_out = split_stall[1] ? vld_mask_in & 2'b01 : vld_mask_in;
+  
 
 endmodule
 
@@ -565,7 +560,7 @@ module steer(
   
   input wire [`OP_CODE_BITS * 8 -1:0] opcode_in;
 	
-	input wire [1:0] vld_mask_in;
+	input wire [7:0] vld_mask_in;
 	
   output reg [1:0] vld_mask_out;
   output wire first;
@@ -600,9 +595,9 @@ module steer(
 
   always @(*) begin
     if (steer_stall) begin
-      vld_mask_out = vld_mask_in & 2'b01;
+      vld_mask_out = vld_mask_in[1:0] & 2'b01;
     end else begin
-      vld_mask_out = vld_mask_in & 2'b11;
+      vld_mask_out = vld_mask_in[1:0] & 2'b11;
     end
   end
   
