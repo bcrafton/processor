@@ -157,8 +157,8 @@ module issue_queue(
                 !vld[3] +
                 !vld[4] +
                 !vld[5] +
-                pop0    + 
-                pop1;
+                (pop0 & (vld[pop_key0] == 1)) + 
+                (pop1 & (vld[pop_key1] == 1));
 
   assign data0 = vld_out[0] ? data_out[0] : 0;
   assign data1 = vld_out[1] ? data_out[1] : 0;
