@@ -18,7 +18,7 @@ module issue(
 
   //////////////
 
-  stall_out,
+  stall,
 
   //////////////
 
@@ -70,8 +70,7 @@ module issue(
 
   //////////////
 
-  wire stall;
-  output wire stall_out;
+  output wire stall;
 
   //////////////
 
@@ -124,7 +123,6 @@ module issue(
   
   // can this be assign stall = load_stall || split_stall || steer_stall; ?
   assign stall = free == 0;
-  assign stall_out = free == 0;
 
   //////////////
   
