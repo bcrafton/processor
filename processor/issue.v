@@ -213,6 +213,8 @@ module issue(
   .reg_vld_mask_in( {reg_vld_mask[7], reg_vld_mask[6], reg_vld_mask[5], reg_vld_mask[4], reg_vld_mask[3], reg_vld_mask[2], reg_vld_mask[1], reg_vld_mask[0]} ),
 
   .vld_mask_in(load_vld_mask),
+  .pop0(pop0),
+  .pop_key0(pop_key0),
   
   .vld_mask_out(split_vld_mask)
   );
@@ -413,6 +415,8 @@ module split_hazard(
   reg_vld_mask_in,
 	
 	vld_mask_in,
+  pop_key0,
+  pop0,
 	
 	vld_mask_out
 
@@ -423,6 +427,9 @@ module split_hazard(
   input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_src1_in;
   input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_dest_in;
   input wire [`NUM_REG_MASKS * 8 -1:0]      reg_vld_mask_in;
+
+  output wire [2:0] pop_key0;
+  output wire pop0;
   
 	input wire [7:0] vld_mask_in;
   
@@ -465,15 +472,28 @@ module split_hazard(
           if (i <= j) begin
             assign split_stall[i][j] = 0;
           end else begin
-            assign split_stall[i][j] = ( ((reg_src0[i] == reg_dest[j]) && ((reg_vld_mask[i] & `REG_MASK_RS0) == `REG_MASK_RS0) && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)) ||
-                                         ((reg_src1[i] == reg_dest[j]) && ((reg_vld_mask[i] & `REG_MASK_RS1) == `REG_MASK_RS1) && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)) || 
+            assign split_stall[i][j] = ( ((reg_src0[i] == reg_dest[j]) 
+                                           && ((reg_vld_mask[i] & `REG_MASK_RS0) == `REG_MASK_RS0) 
+                                           && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)) ||
+                                         ((reg_src1[i] == reg_dest[j]) 
+                                           && ((reg_vld_mask[i] & `REG_MASK_RS1) == `REG_MASK_RS1) 
+                                           && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)) || 
 
-                                         ((reg_src0[j] == reg_dest[i]) && ((reg_vld_mask[j] & `REG_MASK_RS0) == `REG_MASK_RS0) && ((reg_vld_mask[i] & `REG_MASK_RD) == `REG_MASK_RD)) ||
-                                         ((reg_src1[j] == reg_dest[i]) && ((reg_vld_mask[j] & `REG_MASK_RS1) == `REG_MASK_RS1) && ((reg_vld_mask[i] & `REG_MASK_RD) == `REG_MASK_RD)) ||
+                                         ((reg_src0[j] == reg_dest[i]) 
+                                           && ((reg_vld_mask[j] & `REG_MASK_RS0) == `REG_MASK_RS0) 
+                                           && ((reg_vld_mask[i] & `REG_MASK_RD) == `REG_MASK_RD)
+                                           && !(pop0 && (pop_key0 == j))) || 
+                                         ((reg_src1[j] == reg_dest[i]) 
+                                           && ((reg_vld_mask[j] & `REG_MASK_RS1) == `REG_MASK_RS1) 
+                                           && ((reg_vld_mask[i] & `REG_MASK_RD) == `REG_MASK_RD)
+                                           && !(pop0 && (pop_key0 == j))) || 
 
-                                         ((reg_dest[i] == reg_dest[j]) && ((reg_vld_mask[i] & `REG_MASK_RD)  == `REG_MASK_RD)  && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)) || 
+                                         ((reg_dest[i] == reg_dest[j]) 
+                                           && ((reg_vld_mask[i] & `REG_MASK_RD)  == `REG_MASK_RD) 
+                                           && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)
+                                           && !(pop0 && (pop_key0 == j))) || 
 
-                                         is_branch[j] ||
+                                         (is_branch[j] && !(pop0 && (pop_key0 == j))) ||
                                          (is_branch[i] && is_cmp[j]) ||
                                          (is_mem[i] && is_mem[j])
                                          );
