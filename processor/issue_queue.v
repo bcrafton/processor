@@ -157,6 +157,7 @@ module issue_queue(
                 !vld[3] +
                 !vld[4] +
                 !vld[5] +
+                // we do vld_out here because that is what the popper sees.
                 (pop0 & (vld_out[pop_key0] == 1)) + 
                 (pop1 & (vld_out[pop_key1] == 1));
 
