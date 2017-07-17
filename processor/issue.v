@@ -206,6 +206,7 @@ module issue(
   );
   
   split_hazard sh(
+  .opcode_in(   {opcode[7], opcode[6], opcode[5], opcode[4], opcode[3], opcode[2], opcode[1], opcode[0]}                 ),
   .reg_src0_in( {reg_src0[7], reg_src0[6], reg_src0[5], reg_src0[4], reg_src0[3], reg_src0[2], reg_src0[1], reg_src0[0]} ),
   .reg_src1_in( {reg_src1[7], reg_src1[6], reg_src1[5], reg_src1[4], reg_src1[3], reg_src1[2], reg_src1[1], reg_src1[0]} ),
   .reg_dest_in( {reg_dest[7], reg_dest[6], reg_dest[5], reg_dest[4], reg_dest[3], reg_dest[2], reg_dest[1], reg_dest[0]} ),
@@ -323,7 +324,9 @@ module load_hazard(
       assign reg_src0[i] =     reg_src0_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
       assign reg_src1[i] =     reg_src1_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
 
-      assign load_stall[i] =   (reg_src0[i] == if_id_rt || reg_src1[i] == if_id_rt) && (if_id_mem_op1 == `MEM_OP_READ);
+      assign load_stall[i] = ( ((reg_src0[i] == if_id_rt) && ((reg_vld_mask[i] & `REG_MASK_RS0) == `REG_MASK_RS0))   || 
+                               ((reg_src1[i] == if_id_rt) && ((reg_vld_mask[i] & `REG_MASK_RS0) == `REG_MASK_RS0)) ) && 
+                               (if_id_mem_op1 == `MEM_OP_READ);
 
       assign vld_mask_out[i] = !load_stall[i];
     end
@@ -403,6 +406,7 @@ endmodule
 
 module split_hazard(
 
+  opcode_in,
   reg_src0_in,
   reg_src1_in,
   reg_dest_in,
@@ -414,6 +418,7 @@ module split_hazard(
 
   );
 
+  input wire [`OP_CODE_BITS * 8 -1:0]       opcode_in;
   input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_src0_in;
   input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_src1_in;
   input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_dest_in;
@@ -426,6 +431,9 @@ module split_hazard(
   
   ///////////////////
  
+  wire [`OP_CODE_BITS-1:0]       opcode       [0:7];
+  wire                           is_branch    [0:7];
+  wire                           is_cmp       [0:7];
   wire [`NUM_REG_MASKS-1:0]      reg_vld_mask [0:7];
   wire [`NUM_REGISTERS_LOG2-1:0] reg_src0     [0:7];
   wire [`NUM_REGISTERS_LOG2-1:0] reg_src1     [0:7];
@@ -437,6 +445,11 @@ module split_hazard(
   generate
     for (i=0; i<8; i=i+1) begin : generate_reg_depends_i
 	  
+      assign opcode[i] = opcode_in[`OP_CODE_BITS*i + `OP_CODE_BITS-1 : `OP_CODE_BITS*i];
+
+      assign is_branch[i] = ((opcode[i] & 6'b110000) == 6'b110000) && (opcode[i] != `OP_CODE_JMP);
+      assign is_cmp[i] = (opcode[i] ==`OP_CODE_CMPI) | (opcode[i] ==`OP_CODE_CMP) | (opcode[i] ==`OP_CODE_TEST) | (opcode[i] ==`OP_CODE_TESTI);
+
       assign reg_vld_mask[i] = reg_vld_mask_in[`NUM_REG_MASKS*i + `NUM_REG_MASKS-1 : `NUM_REG_MASKS*i];
       assign reg_src0[i] =     reg_src0_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
       assign reg_src1[i] =     reg_src1_in[`NUM_REGISTERS_LOG2*i + `NUM_REGISTERS_LOG2-1 : `NUM_REGISTERS_LOG2*i];
@@ -451,7 +464,16 @@ module split_hazard(
             assign split_stall[i][j] = 0;
           end else begin
             assign split_stall[i][j] = ( ((reg_src0[i] == reg_dest[j]) && ((reg_vld_mask[i] & `REG_MASK_RS0) == `REG_MASK_RS0) && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)) ||
-                                         ((reg_src1[i] == reg_dest[j]) && ((reg_vld_mask[i] & `REG_MASK_RS1) == `REG_MASK_RS1) && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)) );
+                                         ((reg_src1[i] == reg_dest[j]) && ((reg_vld_mask[i] & `REG_MASK_RS1) == `REG_MASK_RS1) && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)) || 
+
+                                         ((reg_src0[j] == reg_dest[i]) && ((reg_vld_mask[j] & `REG_MASK_RS0) == `REG_MASK_RS0) && ((reg_vld_mask[i] & `REG_MASK_RD) == `REG_MASK_RD)) ||
+                                         ((reg_src1[j] == reg_dest[i]) && ((reg_vld_mask[j] & `REG_MASK_RS1) == `REG_MASK_RS1) && ((reg_vld_mask[i] & `REG_MASK_RD) == `REG_MASK_RD)) ||
+
+                                         ((reg_dest[i] == reg_dest[j]) && ((reg_vld_mask[i] & `REG_MASK_RD)  == `REG_MASK_RD)  && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)) || 
+
+                                         is_branch[j] ||
+                                         (is_branch[i] && is_cmp[j])
+                                         );
           end
 
         end
