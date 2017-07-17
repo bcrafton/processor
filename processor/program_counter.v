@@ -147,7 +147,10 @@ module program_counter(
 */
 
   always @(posedge clk) begin
-    if(!stall) begin
+    if(flush) begin
+      instruction_counter = instruction_counter + 2;
+      pc <= next_pc;
+    end else if(!stall) begin
       instruction_counter = instruction_counter + 2;
       pc <= next_pc;
     end
