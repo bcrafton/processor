@@ -57,7 +57,7 @@ module issue_queue(
   ///////////////
 
   // these two are NUM_IQ_ENTRIES_LOG2 (not -1) because need to be able to store 8.
-  output wire [`NUM_IQ_ENTRIES_LOG2:0] free; // the # of non valid slots
+  output wire [3:0] free; // the # of non valid slots
 
   output wire [`IQ_ENTRY_SIZE-1:0] data0;
   output wire [`IQ_ENTRY_SIZE-1:0] data1;
@@ -70,18 +70,18 @@ module issue_queue(
 
   ///////////////
 
-  reg [`IQ_ENTRY_SIZE-1:0] data [0:`NUM_IQ_ENTRIES-1];
-  reg                      vld  [0:`NUM_IQ_ENTRIES-1];
+  reg [`IQ_ENTRY_SIZE-1:0] data [0:8];
+  reg                      vld  [0:8];
   
-  wire [`IQ_ENTRY_SIZE-1:0] data_out [0:`NUM_IQ_ENTRIES-1];
-  wire                      vld_out  [0:`NUM_IQ_ENTRIES-1];
+  wire [`IQ_ENTRY_SIZE-1:0] data_out [0:8];
+  wire                      vld_out  [0:8];
 
-  wire [`IQ_ENTRY_SIZE-1:0] data_next [0:`NUM_IQ_ENTRIES-1];
-  wire                      vld_next [0:`NUM_IQ_ENTRIES-1];
+  wire [`IQ_ENTRY_SIZE-1:0] data_next [0:8];
+  wire                      vld_next [0:8];
   
-  // sum goes up to 8.
-  wire [`NUM_IQ_ENTRIES_LOG2:0] sum_valid [0:7];
-  wire [`NUM_IQ_ENTRIES_LOG2:0] next_sum_valid [0:7];
+  // sum goes up to 9.
+  wire [3:0] sum_valid [0:8];
+  wire [3:0] next_sum_valid [0:8];
 
   ///////////////
 
@@ -94,14 +94,14 @@ module issue_queue(
 
     //$dumpvars(0, sum_valid[0], sum_valid[1], sum_valid[2]);
 
-    for(i=0; i<8; i=i+1) begin
+    for(i=0; i<9; i=i+1) begin
       $dumpvars(0, sum_valid[i], next_sum_valid[i]);
     end
 
   end
 
   generate
-    for (j=0; j<8; j=j+1) begin : generate_sum_valid
+    for (j=0; j<9; j=j+1) begin : generate_sum_valid
 
       if (j == 0) begin
         assign sum_valid[j] = vld[j];
@@ -123,7 +123,7 @@ module issue_queue(
   endgenerate
 
   generate
-    for (j=0; j<8; j=j+1) begin : generate_reg_depends
+    for (j=0; j<9; j=j+1) begin : generate_reg_depends
       
       assign {data_out[j], vld_out[j]} =  sum_valid[0] == j+1 ? {data[0], 1'h1} : 
                                           sum_valid[1] == j+1 ? {data[1], 1'h1} : 
@@ -133,6 +133,7 @@ module issue_queue(
                                           sum_valid[5] == j+1 ? {data[5], 1'h1} : 
                                           sum_valid[6] == j+1 ? {data[6], 1'h1} : 
                                           sum_valid[7] == j+1 ? {data[7], 1'h1} : 
+                                          sum_valid[8] == j+1 ? {data[8], 1'h1} : 
                                           {129'h0, 1'h0};
 
       
@@ -144,6 +145,7 @@ module issue_queue(
                                             next_sum_valid[5] == j+1 ? {data_out[5], 1'h1} : 
                                             next_sum_valid[6] == j+1 ? {data_out[6], 1'h1} : 
                                             next_sum_valid[7] == j+1 ? {data_out[7], 1'h1} : 
+                                            next_sum_valid[8] == j+1 ? {data_out[8], 1'h1} : 
                                             {129'h0, 1'h0};
 
     end
@@ -157,6 +159,7 @@ module issue_queue(
                 !vld[3] +
                 !vld[4] +
                 !vld[5] +
+                !vld[6] +
                 // we do vld_out here because that is what the popper sees.
                 (pop0 & (vld_out[pop_key0] == 1)) + 
                 (pop1 & (vld_out[pop_key1] == 1));
@@ -175,7 +178,7 @@ module issue_queue(
 
   initial begin
 
-    for(i=0; i<6; i=i+1) begin
+    for(i=0; i<7; i=i+1) begin
       data[i] = 0;
       vld[i] = 0; 
     end
@@ -183,18 +186,18 @@ module issue_queue(
   end
   
   always @(*) begin
-    data[6] = push_data0;
-    vld[6] = push0;
+    data[7] = push_data0;
+    vld[7] = push0;
     
-    data[7] = push_data1;
-    vld[7] = push1;
+    data[8] = push_data1;
+    vld[8] = push1;
   end
 
   always @(posedge clk) begin
 
     if (flush) begin
 
-      for(i=0; i<6; i=i+1) begin
+      for(i=0; i<7; i=i+1) begin
         data[i] = 0;
         vld[i] = 0; 
       end
@@ -218,7 +221,10 @@ module issue_queue(
       
       data[5] <= data_next[5];
       vld[5] <=  vld_next[5];
-      
+
+      data[6] <= data_next[6];
+      vld[6] <=  vld_next[6];
+     
     end
 
   end
