@@ -492,9 +492,13 @@ module split_hazard(
                                            && ((reg_vld_mask[i] & `REG_MASK_RD)  == `REG_MASK_RD) 
                                            && ((reg_vld_mask[j] & `REG_MASK_RD) == `REG_MASK_RD)
                                            && !(pop0 && (pop_key0 == j))) || 
-
+                                         
                                          (is_branch[j] && !(pop0 && (pop_key0 == j))) ||
+
+                                         (is_branch[i] && !(i == 0 || i == 1)) ||
                                          (is_branch[i] && is_cmp[j]) ||
+                                         (is_cmp[i] && is_branch[j]) ||
+
                                          (is_mem[i] && is_mem[j])
                                          );
           end
