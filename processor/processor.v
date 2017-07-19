@@ -934,6 +934,20 @@ module processor(
   .sel(mem_wb_mem_to_reg1), 
   .out(mem_to_reg_result1));
 
+  fifo rob(
+  .clk(clk),
+  .reset(),
+
+  .push( !(mem_wb_instruction0_id == 0) ),
+  .data_in(mem_wb_instruction0_id),
+
+  .pop(1'b0),
+  .data_out(),
+
+  .empty(),
+  .full()  
+  );
+
 endmodule
 
 

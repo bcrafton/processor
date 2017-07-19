@@ -83,6 +83,8 @@ module issue_queue(
   wire [3:0] sum_valid [0:8];
   wire [3:0] next_sum_valid [0:8];
 
+  //reg [4:0] id;
+
   ///////////////
 
   integer i;
@@ -183,6 +185,8 @@ module issue_queue(
       vld[i] = 0; 
     end
 
+    //id = 0;
+
   end
   
   always @(*) begin
@@ -194,7 +198,13 @@ module issue_queue(
   end
 
   always @(posedge clk) begin
-
+/*
+    if (free >= 2) begin
+      id <= id + push0 + push1;
+    end else if (free == 1) begin
+      id <= id + push0;
+    end
+*/
     if (flush) begin
 
       for(i=0; i<7; i=i+1) begin
