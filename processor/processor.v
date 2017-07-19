@@ -944,8 +944,11 @@ module processor(
   .push1( !(mem_wb_instruction1_id == 0) ),
   .data_in1(mem_wb_instruction1_id),
 
-  .pop(1'b0),
-  .data_out(),
+  .pop0(1'b0),
+  .data_out0(),
+
+  .pop1(1'b0),
+  .data_out1(),
 
   .empty(),
   .full()  
