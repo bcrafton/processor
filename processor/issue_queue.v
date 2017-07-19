@@ -70,14 +70,15 @@ module issue_queue(
 
   ///////////////
 
-  reg [`IQ_ENTRY_SIZE-1:0] data [0:8];
-  reg                      vld  [0:8];
+  reg [`IQ_ENTRY_SIZE-1:0] data [0:31];
+  reg                      vld  [0:31];
+  reg                      issued [0:31];
   
   wire [`IQ_ENTRY_SIZE-1:0] data_out [0:8];
   wire                      vld_out  [0:8];
 
-  wire [`IQ_ENTRY_SIZE-1:0] data_next [0:8];
-  wire                      vld_next [0:8];
+  wire [`IQ_ENTRY_SIZE-1:0] data_next [0:31];
+  wire                      vld_next [0:31];
   
   // sum goes up to 9.
   wire [3:0] sum_valid [0:8];
@@ -185,8 +186,6 @@ module issue_queue(
       vld[i] = 0; 
     end
 
-    //id = 0;
-
   end
   
   always @(*) begin
@@ -198,13 +197,7 @@ module issue_queue(
   end
 
   always @(posedge clk) begin
-/*
-    if (free >= 2) begin
-      id <= id + push0 + push1;
-    end else if (free == 1) begin
-      id <= id + push0;
-    end
-*/
+
     if (flush) begin
 
       for(i=0; i<7; i=i+1) begin
