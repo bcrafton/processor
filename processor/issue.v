@@ -107,6 +107,7 @@ module issue(
 
   //////////////
   
+  wire [7:0] vld_mask;
   wire [7:0] load_vld_mask;
   wire [7:0] split_vld_mask;
   //wire [1:0] steer_vld_mask;
@@ -163,6 +164,18 @@ module issue(
   .data6({branch_taken[6], branch_taken_address[6], id[6], instruction[6], pc[6]}),
   .data7({branch_taken[7], branch_taken_address[7], id[7], instruction[7], pc[7]}),
 
+
+  ///////////////
+
+  .vld0(vld_mask[0]),
+  .vld1(vld_mask[1]),
+  .vld2(vld_mask[2]),
+  .vld3(vld_mask[3]),
+  .vld4(vld_mask[4]),
+  .vld5(vld_mask[5]),
+  .vld6(vld_mask[6]),
+  .vld7(vld_mask[7]),
+
   ///////////////
 
   .push0(push0),
@@ -202,6 +215,8 @@ module issue(
   .reg_src1_in( {reg_src1[7], reg_src1[6], reg_src1[5], reg_src1[4], reg_src1[3], reg_src1[2], reg_src1[1], reg_src1[0]} ),
   .reg_vld_mask_in( {reg_vld_mask[7], reg_vld_mask[6], reg_vld_mask[5], reg_vld_mask[4], reg_vld_mask[3], reg_vld_mask[2], reg_vld_mask[1], reg_vld_mask[0]} ),
   
+  .vld_mask_in(vld_mask),
+
   .vld_mask_out(load_vld_mask)
   );
   
@@ -299,6 +314,7 @@ module load_hazard(
   reg_src1_in,
   reg_vld_mask_in,
 
+  vld_mask_in,
   vld_mask_out,
   
   );
@@ -310,6 +326,8 @@ module load_hazard(
   input wire [`NUM_REGISTERS_LOG2 * 8 -1:0] reg_src1_in;
   input wire [`NUM_REG_MASKS * 8 -1:0]      reg_vld_mask_in;
   
+  input wire [7:0] vld_mask_in;
+
   output wire [7:0] vld_mask_out;
   
   wire [`NUM_REGISTERS_LOG2-1:0] if_id_rt = if_id_instruction1[`REG_RT_MSB:`REG_RT_LSB];
@@ -330,7 +348,7 @@ module load_hazard(
                                ((reg_src1[i] == if_id_rt) && ((reg_vld_mask[i] & `REG_MASK_RS1) == `REG_MASK_RS1)) ) && 
                                (if_id_mem_op1 == `MEM_OP_READ);
 
-      assign vld_mask_out[i] = !load_stall[i];
+      assign vld_mask_out[i] = !load_stall[i] & vld_mask_in[i];
     end
   endgenerate
   

@@ -31,6 +31,17 @@ module issue_queue(
 
   ///////////////
 
+  vld0,
+  vld1,
+  vld2,
+  vld3,
+  vld4,
+  vld5,
+  vld6,
+  vld7,
+
+  ///////////////
+
   push0,
   push_data0,
 
@@ -70,15 +81,25 @@ module issue_queue(
 
   ///////////////
 
-  reg [`IQ_ENTRY_SIZE-1:0] data [0:31];
-  reg                      vld  [0:31];
-  reg                      issued [0:31];
+  output wire vld0;
+  output wire vld1;
+  output wire vld2;
+  output wire vld3;
+  output wire vld4;
+  output wire vld5;
+  output wire vld6;
+  output wire vld7; // passthrough
+
+  ///////////////
+
+  reg [`IQ_ENTRY_SIZE-1:0] data [0:8];
+  reg                      vld  [0:8];
   
   wire [`IQ_ENTRY_SIZE-1:0] data_out [0:8];
   wire                      vld_out  [0:8];
 
-  wire [`IQ_ENTRY_SIZE-1:0] data_next [0:31];
-  wire                      vld_next [0:31];
+  wire [`IQ_ENTRY_SIZE-1:0] data_next [0:8];
+  wire                      vld_next [0:8];
   
   // sum goes up to 9.
   wire [3:0] sum_valid [0:8];
@@ -170,12 +191,20 @@ module issue_queue(
   assign data0 = vld_out[0] ? data_out[0] : 0;
   assign data1 = vld_out[1] ? data_out[1] : 0;
   assign data2 = vld_out[2] ? data_out[2] : 0;
-  assign data3 = vld_out[3] ? data_out[3] : 0;
-  
+  assign data3 = vld_out[3] ? data_out[3] : 0; 
   assign data4 = vld_out[4] ? data_out[4] : 0;
   assign data5 = vld_out[5] ? data_out[5] : 0;
   assign data6 = vld_out[6] ? data_out[6] : 0;
   assign data7 = vld_out[7] ? data_out[7] : 0;
+
+  assign vld0 = vld_out[0];
+  assign vld1 = vld_out[1];
+  assign vld2 = vld_out[2];
+  assign vld3 = vld_out[3];
+  assign vld4 = vld_out[4];
+  assign vld5 = vld_out[5];
+  assign vld6 = vld_out[6];
+  assign vld7 = vld_out[7];
 
   ///////////////
 
