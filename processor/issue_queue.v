@@ -50,6 +50,8 @@ module issue_queue(
   
   );
 
+  ///////////////
+
   input wire clk;
   input wire flush;
 
@@ -67,8 +69,11 @@ module issue_queue(
 
   ///////////////
 
-  // these two are NUM_IQ_ENTRIES_LOG2 (not -1) because need to be able to store 8.
-  output wire [3:0] free; // the # of non valid slots
+  output wire full;
+  output wire empty;
+  output wire [3:0] free;
+
+  ///////////////
 
   output wire [`IQ_ENTRY_SIZE-1:0] data0;
   output wire [`IQ_ENTRY_SIZE-1:0] data1;
@@ -76,7 +81,7 @@ module issue_queue(
   output wire [`IQ_ENTRY_SIZE-1:0] data3;
   output wire [`IQ_ENTRY_SIZE-1:0] data4;
   output wire [`IQ_ENTRY_SIZE-1:0] data5;
-  output wire [`IQ_ENTRY_SIZE-1:0] data6; // passthrough
+  output wire [`IQ_ENTRY_SIZE-1:0] data6;
   output wire [`IQ_ENTRY_SIZE-1:0] data7; // passthrough
 
   ///////////////
@@ -92,171 +97,104 @@ module issue_queue(
 
   ///////////////
 
-  reg [`IQ_ENTRY_SIZE-1:0] data [0:8];
-  reg                      vld  [0:8];
-  
-  wire [`IQ_ENTRY_SIZE-1:0] data_out [0:8];
-  wire                      vld_out  [0:8];
+  reg [2:0] wr_pointer;
+  reg [2:0] rd_pointer;
+  reg [3:0] count;
 
-  wire [`IQ_ENTRY_SIZE-1:0] data_next [0:8];
-  wire                      vld_next [0:8];
-  
-  // sum goes up to 9.
-  wire [3:0] sum_valid [0:8];
-  wire [3:0] next_sum_valid [0:8];
+  assign full = (count == 8);
+  assign free = (8 - count);
+  assign empty = (count == 0);
 
-  //reg [4:0] id;
+  wire read0 =  pop0  && (count >= 1);
+  wire read1 =  pop1  && (count >= 2);
+  wire write0 = push0 && (free >= 1);
+  wire write1 = push1 && (free >= 2);
+
+  ///////////////
+
+  reg [`IQ_ENTRY_SIZE-1:0] data [0:7];
+  reg                      vld  [0:7];
 
   ///////////////
 
   integer i;
-  genvar j;
 
   ///////////////
 
   initial begin
-
-    //$dumpvars(0, sum_valid[0], sum_valid[1], sum_valid[2]);
-
-    for(i=0; i<9; i=i+1) begin
-      $dumpvars(0, sum_valid[i], next_sum_valid[i]);
-    end
-
-  end
-
-  generate
-    for (j=0; j<9; j=j+1) begin : generate_sum_valid
-
-      if (j == 0) begin
-        assign sum_valid[j] = vld[j];
-      end
-      
-      else begin
-        assign sum_valid[j] = sum_valid[j-1] + vld[j];
-      end
-      
-      if (j == 0) begin
-        assign next_sum_valid[j] = vld_out[j] & !(pop0 && (pop_key0 == j)) & !(pop1 && (pop_key1 == j));
-      end
-      
-      else begin
-        assign next_sum_valid[j] = next_sum_valid[j-1] + (vld_out[j] & !(pop0 && (pop_key0 == j)) & !(pop1 && (pop_key1 == j)));
-      end
-
-    end
-  endgenerate
-
-  generate
-    for (j=0; j<9; j=j+1) begin : generate_reg_depends
-      
-      assign {data_out[j], vld_out[j]} =  sum_valid[0] == j+1 ? {data[0], 1'h1} : 
-                                          sum_valid[1] == j+1 ? {data[1], 1'h1} : 
-                                          sum_valid[2] == j+1 ? {data[2], 1'h1} : 
-                                          sum_valid[3] == j+1 ? {data[3], 1'h1} : 
-                                          sum_valid[4] == j+1 ? {data[4], 1'h1} : 
-                                          sum_valid[5] == j+1 ? {data[5], 1'h1} : 
-                                          sum_valid[6] == j+1 ? {data[6], 1'h1} : 
-                                          sum_valid[7] == j+1 ? {data[7], 1'h1} : 
-                                          sum_valid[8] == j+1 ? {data[8], 1'h1} : 
-                                          {129'h0, 1'h0};
-
-      
-      assign {data_next[j], vld_next[j]} =  next_sum_valid[0] == j+1 ? {data_out[0], 1'h1} : 
-                                            next_sum_valid[1] == j+1 ? {data_out[1], 1'h1} : 
-                                            next_sum_valid[2] == j+1 ? {data_out[2], 1'h1} : 
-                                            next_sum_valid[3] == j+1 ? {data_out[3], 1'h1} : 
-                                            next_sum_valid[4] == j+1 ? {data_out[4], 1'h1} : 
-                                            next_sum_valid[5] == j+1 ? {data_out[5], 1'h1} : 
-                                            next_sum_valid[6] == j+1 ? {data_out[6], 1'h1} : 
-                                            next_sum_valid[7] == j+1 ? {data_out[7], 1'h1} : 
-                                            next_sum_valid[8] == j+1 ? {data_out[8], 1'h1} : 
-                                            {129'h0, 1'h0};
-
-    end
-  endgenerate
-  
-  ///////////////
-
-  assign free = !vld[0] +
-                !vld[1] +
-                !vld[2] +
-                !vld[3] +
-                !vld[4] +
-                !vld[5] +
-                !vld[6] +
-                // we do vld_out here because that is what the popper sees.
-                (pop0 & (vld_out[pop_key0] == 1)) + 
-                (pop1 & (vld_out[pop_key1] == 1));
-
-  assign data0 = vld_out[0] ? data_out[0] : 0;
-  assign data1 = vld_out[1] ? data_out[1] : 0;
-  assign data2 = vld_out[2] ? data_out[2] : 0;
-  assign data3 = vld_out[3] ? data_out[3] : 0; 
-  assign data4 = vld_out[4] ? data_out[4] : 0;
-  assign data5 = vld_out[5] ? data_out[5] : 0;
-  assign data6 = vld_out[6] ? data_out[6] : 0;
-  assign data7 = vld_out[7] ? data_out[7] : 0;
-
-  assign vld0 = vld_out[0];
-  assign vld1 = vld_out[1];
-  assign vld2 = vld_out[2];
-  assign vld3 = vld_out[3];
-  assign vld4 = vld_out[4];
-  assign vld5 = vld_out[5];
-  assign vld6 = vld_out[6];
-  assign vld7 = vld_out[7];
-
-  ///////////////
-
-  initial begin
-
-    for(i=0; i<7; i=i+1) begin
+    wr_pointer = 0;
+    rd_pointer = 0;
+    count = 0;
+    for(i=0; i<8; i=i+1) begin
       data[i] = 0;
-      vld[i] = 0; 
+      vld[i] = 0;
     end
-
   end
+
+  ///////////////
+
+  assign data0 = data[rd_pointer];
+  assign data1 = data[rd_pointer+1];
+  assign data2 = data[rd_pointer+2];
+  assign data3 = data[rd_pointer+3]; 
+  assign data4 = data[rd_pointer+4];
+  assign data5 = data[rd_pointer+5];
+  assign data6 = data[rd_pointer+6];
+  assign data7 = data[rd_pointer+7];
+
+  assign vld0 = vld[rd_pointer];
+  assign vld1 = vld[rd_pointer+1];
+  assign vld2 = 0;
+  assign vld3 = 0;
+  assign vld4 = 0;
+  assign vld5 = 0;
+  assign vld6 = 0;
+  assign vld7 = 0;
+
+  ///////////////
+
   
-  always @(*) begin
-    data[7] = push_data0;
-    vld[7] = push0;
-    
-    data[8] = push_data1;
-    vld[8] = push1;
-  end
-
+  
   always @(posedge clk) begin
 
     if (flush) begin
 
-      for(i=0; i<7; i=i+1) begin
+      wr_pointer <= 0;
+      rd_pointer <= 0;
+      count <= 0;
+      for(i=0; i<8; i=i+1) begin
         data[i] = 0;
-        vld[i] = 0; 
       end
 
     end else begin
 
-      data[0] <= data_next[0];
-      vld[0] <=  vld_next[0];
-      
-      data[1] <= data_next[1];
-      vld[1] <=  vld_next[1];
-      
-      data[2] <= data_next[2];
-      vld[2] <=  vld_next[2];
-      
-      data[3] <= data_next[3];
-      vld[3] <=  vld_next[3];
-      
-      data[4] <= data_next[4];
-      vld[4] <=  vld_next[4];
-      
-      data[5] <= data_next[5];
-      vld[5] <=  vld_next[5];
+      if (write0 && write1) begin
+        data[wr_pointer] <= push_data0;
+        data[wr_pointer+1] <= push_data1;
+        wr_pointer <= wr_pointer + 2;
 
-      data[6] <= data_next[6];
-      vld[6] <=  vld_next[6];
-     
+        vld[wr_pointer] <= 1;
+        vld[wr_pointer+1] <= 1;
+      end else if (write0) begin
+        data[wr_pointer] <= push_data0;
+        wr_pointer <= wr_pointer + 1;
+
+        vld[wr_pointer] <= 1;
+      end
+
+      if (read0 && read1) begin
+        rd_pointer <= rd_pointer + 2;
+
+        vld[rd_pointer] <= 0;
+        vld[rd_pointer+1] <= 0;
+      end else if (read0) begin
+        rd_pointer <= rd_pointer + 1;
+
+        vld[rd_pointer] <= 0;
+      end
+
+      count <= count + write0 + write1 - read0 - read1;
+
     end
 
   end
