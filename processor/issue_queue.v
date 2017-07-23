@@ -97,24 +97,37 @@ module issue_queue(
 
   reg [2:0] wr_pointer;
   reg [2:0] rd_pointer;
-  reg [3:0] count;
 
-  wire [3:0] next_count;
-  wire [3:0] next_free;
+  wire [2:0] wr_pointers [0:7];
+  wire [2:0] rd_pointers [0:7];
 
-  assign next_count = (count + push0 + push1 - pop0 - pop1) <= 8 ? 
-                      (count + push0 + push1 - pop0 - pop1)      :
-                      8;
+  wire [3:0] count;
 
-  // free does not change based on next count.
-  assign free       = (8 - count);
+  assign free = !vld[0] +
+                !vld[1] +
+                !vld[2] +
+                !vld[3] +
+                !vld[4] +
+                !vld[5] +
+                !vld[6] +
+                !vld[7];
 
-  wire read0 =  pop0  && (count >= 1);
-  wire read1 =  pop1  && (count >= 2);
-  wire write0 = push0 && (free  >= 1);
-  wire write1 = push1 && (free  >= 2);
+  assign count = 8 - free;
+
+/*
+(pop0 & (vld_out[pop_key0] == 1))
+(pop1 & (vld_out[pop_key1] == 1))
+*/
+
+  wire read0 =  pop0  && (count >= 1) && !((pop_key0 == wr_pointers[0]) || (pop_key0 == wr_pointers[1]));
+  wire read1 =  pop1  && (count >= 2) && !((pop_key1 == wr_pointers[0]) || (pop_key1 == wr_pointers[1]));
+  wire write0 = push0 && (free  >= 1) && !((pop_key0 == wr_pointers[0]) || (pop_key0 == wr_pointers[1]));
+  wire write1 = push1 && (free  >= 2) && !((pop_key1 == wr_pointers[0]) || (pop_key1 == wr_pointers[1]));
 
   ///////////////
+
+  wire [`IQ_ENTRY_SIZE-1:0] data_out [0:7];
+  wire                      vld_out  [0:7];
 
   reg [`IQ_ENTRY_SIZE-1:0] data [0:7];
   reg                      vld  [0:7];
@@ -122,48 +135,51 @@ module issue_queue(
   ///////////////
 
   integer i;
+  genvar j;
 
   ///////////////
 
   initial begin
     wr_pointer = 0;
     rd_pointer = 0;
-    count = 0;
     for(i=0; i<8; i=i+1) begin
       data[i] = 0;
       vld[i] = 0;
     end
   end
 
+  generate
+    for (j=0; j<8; j=j+1) begin : generate_output
+
+      assign rd_pointers[j] = rd_pointer + j < 8 ? rd_pointer + j : rd_pointer + j - 8; 
+      assign wr_pointers[j] = wr_pointer + j < 8 ? wr_pointer + j : wr_pointer + j - 8; 
+
+      assign vld_out[j] = vld[ rd_pointers[j] ]            ? vld[ rd_pointers[j] ] : 
+                          rd_pointers[j] == wr_pointers[0] ? push0 :
+                          rd_pointers[j] == wr_pointers[1] ? push1 : 
+                          0;
+
+      assign data_out[j] = vld[ rd_pointers[j] ]            ? data[ rd_pointers[j] ] : 
+                           rd_pointers[j] == wr_pointers[0] ? push_data0 :
+                           rd_pointers[j] == wr_pointers[1] ? push_data1 : 
+                           0;
+
+    end
+  endgenerate
+
   ///////////////
 
-  assign data0 = vld[rd_pointer]              ? data[rd_pointer] : 
-                 rd_pointer == wr_pointer     ? push_data0 :
-                 rd_pointer == wr_pointer+1   ? push_data1 : 
-                 0;
+  assign data0 = data_out[0];
+  assign data1 = data_out[1];
+  assign data2 = data_out[2];
+  assign data3 = data_out[3];
+  assign data4 = data_out[4];
+  assign data5 = data_out[5];
+  assign data6 = data_out[6];
+  assign data7 = data_out[7];
 
-  assign data1 = vld[rd_pointer+1]            ? data[rd_pointer+1] : 
-                 rd_pointer+1 == wr_pointer   ? push_data0 :
-                 rd_pointer+1 == wr_pointer+1 ? push_data1 : 
-                 0;
-
-  assign data2 = data[rd_pointer+2];
-  assign data3 = data[rd_pointer+3]; 
-  assign data4 = data[rd_pointer+4];
-  assign data5 = data[rd_pointer+5];
-  assign data6 = data[rd_pointer+6];
-  assign data7 = data[rd_pointer+7];
-
-  assign vld0 = vld[rd_pointer]              ? vld[rd_pointer] : 
-                rd_pointer == wr_pointer     ? write0 :
-                rd_pointer == wr_pointer+1   ? write1 : 
-                0;
-
-  assign vld1 = vld[rd_pointer+1]            ? vld[rd_pointer+1] : 
-                rd_pointer+1 == wr_pointer   ? write0 :
-                rd_pointer+1 == wr_pointer+1 ? write1 : 
-                0;
-
+  assign vld0 = vld_out[0];
+  assign vld1 = vld_out[1];
   assign vld2 = 0;
   assign vld3 = 0;
   assign vld4 = 0;
@@ -180,7 +196,6 @@ module issue_queue(
 
       wr_pointer <= 0;
       rd_pointer <= 0;
-      count <= 0;
       for(i=0; i<8; i=i+1) begin
         data[i] = 0;
       end
@@ -188,31 +203,37 @@ module issue_queue(
     end else begin
 
       if (write0 && write1) begin
-        data[wr_pointer] <= push_data0;
-        data[wr_pointer+1] <= push_data1;
+
+        data[ wr_pointers[0] ] <= push_data0;
+        data[ wr_pointers[1] ] <= push_data1;
         wr_pointer <= wr_pointer + 2;
 
-        vld[wr_pointer] <= 1;
-        vld[wr_pointer+1] <= 1;
+        vld[ wr_pointers[0] ] <= 1;
+        vld[ wr_pointers[1] ] <= 1;
+
       end else if (write0) begin
-        data[wr_pointer] <= push_data0;
+
+        data[ wr_pointers[0] ] <= push_data0;
         wr_pointer <= wr_pointer + 1;
 
-        vld[wr_pointer] <= 1;
+        vld[ wr_pointers[0] ] <= 1;
+
       end
 
       if (read0 && read1) begin
+
         rd_pointer <= rd_pointer + 2;
 
-        vld[rd_pointer] <= 0;
-        vld[rd_pointer+1] <= 0;
+        vld[ rd_pointers[0] ] <= 0;
+        vld[ rd_pointers[1] ] <= 0;
+
       end else if (read0) begin
+
         rd_pointer <= rd_pointer + 1;
 
-        vld[rd_pointer] <= 0;
-      end
+        vld[ rd_pointers[0] ] <= 0;
 
-      count <= count + write0 + write1 - read0 - read1;
+      end
 
     end
 
