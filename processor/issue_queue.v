@@ -69,8 +69,6 @@ module issue_queue(
 
   ///////////////
 
-  output wire full;
-  output wire empty;
   output wire [3:0] free;
 
   ///////////////
@@ -101,14 +99,20 @@ module issue_queue(
   reg [2:0] rd_pointer;
   reg [3:0] count;
 
-  assign full = (count == 8);
-  assign free = (8 - count);
-  assign empty = (count == 0);
+  wire [3:0] next_count;
+  wire [3:0] next_free;
+
+  assign next_count = (count + push0 + push1 - pop0 - pop1) <= 8 ? 
+                      (count + push0 + push1 - pop0 - pop1)      :
+                      8;
+
+  // free does not change based on next count.
+  assign free       = (8 - count);
 
   wire read0 =  pop0  && (count >= 1);
   wire read1 =  pop1  && (count >= 2);
-  wire write0 = push0 && (free >= 1);
-  wire write1 = push1 && (free >= 2);
+  wire write0 = push0 && (free  >= 1);
+  wire write1 = push1 && (free  >= 2);
 
   ///////////////
 
@@ -133,8 +137,16 @@ module issue_queue(
 
   ///////////////
 
-  assign data0 = data[rd_pointer];
-  assign data1 = data[rd_pointer+1];
+  assign data0 = vld[rd_pointer]              ? data[rd_pointer] : 
+                 rd_pointer == wr_pointer     ? push_data0 :
+                 rd_pointer == wr_pointer+1   ? push_data1 : 
+                 0;
+
+  assign data1 = vld[rd_pointer+1]            ? data[rd_pointer+1] : 
+                 rd_pointer+1 == wr_pointer   ? push_data0 :
+                 rd_pointer+1 == wr_pointer+1 ? push_data1 : 
+                 0;
+
   assign data2 = data[rd_pointer+2];
   assign data3 = data[rd_pointer+3]; 
   assign data4 = data[rd_pointer+4];
@@ -142,8 +154,16 @@ module issue_queue(
   assign data6 = data[rd_pointer+6];
   assign data7 = data[rd_pointer+7];
 
-  assign vld0 = vld[rd_pointer];
-  assign vld1 = vld[rd_pointer+1];
+  assign vld0 = vld[rd_pointer]              ? vld[rd_pointer] : 
+                rd_pointer == wr_pointer     ? write0 :
+                rd_pointer == wr_pointer+1   ? write1 : 
+                0;
+
+  assign vld1 = vld[rd_pointer+1]            ? vld[rd_pointer+1] : 
+                rd_pointer+1 == wr_pointer   ? write0 :
+                rd_pointer+1 == wr_pointer+1 ? write1 : 
+                0;
+
   assign vld2 = 0;
   assign vld3 = 0;
   assign vld4 = 0;
@@ -153,7 +173,6 @@ module issue_queue(
 
   ///////////////
 
-  
   
   always @(posedge clk) begin
 
