@@ -151,6 +151,15 @@ module issue_queue(
 
   ///////////////
 
+
+  initial begin
+
+    for(i=0; i<8; i=i+1) begin
+      $dumpvars(0, order[i], vld[i]);
+    end
+
+  end
+
   initial begin
     wr_pointer = 0;
     rd_pointer = 0;
