@@ -130,11 +130,11 @@ module issue_queue(
   // our problem is order rn
   // and having this dead lock issue because we are not doing this right.
 
-  wire read0 =  pop0  && (count >= 1) && !((pop_key0 == order[wr_pointer0]) || (pop_key0 == order[wr_pointer1]));
-  wire read1 =  pop1  && (count >= 2) && !((pop_key1 == order[wr_pointer0]) || (pop_key1 == order[wr_pointer1]));
+  wire read0 =  pop0  && (count >= 1) && ((count == 8) || !((order[pop_key0] == wr_pointer0) || (order[pop_key0] == wr_pointer1)));
+  wire read1 =  pop1  && (count >= 2) && ((count == 8) || !((order[pop_key1] == wr_pointer0) || (order[pop_key1] == wr_pointer1)));
 
-  wire write0 = push0 && (free  >= 1) && !((pop0 && (pop_key0 == order[wr_pointer0])) || (pop1 && (pop_key1 == order[wr_pointer0])));
-  wire write1 = push1 && (free  >= 2) && !((pop0 && (pop_key0 == order[wr_pointer1])) || (pop1 && (pop_key1 == order[wr_pointer1])));
+  wire write0 = push0 && (free  >= 1) && !((pop0 && (order[pop_key0] == wr_pointer0)) || (pop1 && (order[pop_key1] == wr_pointer0)));
+  wire write1 = push1 && (free  >= 2) && !((pop0 && (order[pop_key0] == wr_pointer1)) || (pop1 && (order[pop_key1] == wr_pointer1)));
 
   ///////////////
 
