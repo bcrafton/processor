@@ -253,6 +253,22 @@ module processor(
   wire [`INSTRUCTION_ID_WIDTH-1:0] mem_wb_instruction0_id;
   wire [`INSTRUCTION_ID_WIDTH-1:0] mem_wb_instruction1_id;
 
+  // the index in both the issue queue and reorder buffer.
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index0;
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index1;
+
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] if_id_iq_index0;
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] if_id_iq_index1;
+
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] id_ex_iq_index0;
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] id_ex_iq_index1;
+
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] ex_mem_iq_index0;
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] ex_mem_iq_index1;
+
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] mem_wb_iq_index0;
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] mem_wb_iq_index1;
+
   wire [3:0] free;
   wire push0;
   wire push1;
@@ -370,13 +386,15 @@ module processor(
   .branch_taken_in(issue_branch_taken0),
   .branch_taken_address_in(issue_branch_taken_address0),
   .id_in(steer_instruction0_id),
+  .iq_index_in(iq_index0),
 
   .instruction_out(if_id_instruction0),
   .first_out(if_id_first),
   .pc_out(if_id_pc0),
   .branch_taken_out(if_id_branch_taken0),
   .branch_taken_address_out(if_id_branch_taken_address0),
-  .id_out(if_id_instruction0_id)
+  .id_out(if_id_instruction0_id),
+  .iq_index_out(if_id_iq_index0)
   );
 
   if_id_register if_id_reg1(
@@ -391,13 +409,15 @@ module processor(
   .branch_taken_in(),
   .branch_taken_address_in(branch_taken_address0),
   .id_in(steer_instruction1_id),
+  .iq_index_in(iq_index1),
 
   .instruction_out(if_id_instruction1),
   .first_out(),
   .pc_out(if_id_pc1),
   .branch_taken_out(),
   .branch_taken_address_out(),
-  .id_out(if_id_instruction1_id)
+  .id_out(if_id_instruction1_id),
+  .iq_index_out(if_id_iq_index1)
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -451,6 +471,9 @@ module processor(
 
   .branch_taken_address0_out(issue_branch_taken_address0),
   .branch_taken_address1_out(),
+
+  .iq_index0_out(iq_index0),
+  .iq_index1_out(iq_index1),
 
   .first(first)
   );
@@ -533,6 +556,7 @@ module processor(
   .branch_taken_in(if_id_branch_taken0),
   .branch_taken_address_in(if_id_branch_taken_address0),
   .id_in(if_id_instruction0_id),
+  .iq_index_in(if_id_iq_index0),
 
   .rs_out(id_ex_rs0), 
   .rt_out(id_ex_rt0), 
@@ -555,7 +579,8 @@ module processor(
   .pc_out(id_ex_pc0),
   .branch_taken_out(id_ex_branch_taken0),
   .branch_taken_address_out(id_ex_branch_taken_address0),
-  .id_out(id_ex_instruction0_id)
+  .id_out(id_ex_instruction0_id),
+  .iq_index_out(id_ex_iq_index0)
   );
 
   id_ex_register id_ex_reg1(
@@ -586,6 +611,7 @@ module processor(
   .branch_taken_in(),
   .branch_taken_address_in(),
   .id_in(if_id_instruction1_id),
+  .iq_index_in(if_id_iq_index1),
 
   .rs_out(id_ex_rs1), 
   .rt_out(id_ex_rt1), 
@@ -608,7 +634,8 @@ module processor(
   .pc_out(id_ex_pc1),
   .branch_taken_out(),
   .branch_taken_address_out(),
-  .id_out(id_ex_instruction1_id)
+  .id_out(id_ex_instruction1_id),
+  .iq_index_out(id_ex_iq_index1)
   );
 
 
@@ -780,6 +807,7 @@ module processor(
   .first_in(id_ex_first),
   .pc_in(id_ex_pc0),
   .id_in(id_ex_instruction0_id),
+  .iq_index_in(id_ex_iq_index0),
 
   .alu_result_out(ex_mem_alu_result0), 
   .data_1_out(ex_mem_data_1_0), 
@@ -794,7 +822,9 @@ module processor(
   .instruction_out(ex_mem_instruction0),
   .first_out(ex_mem_first),
   .pc_out(ex_mem_pc0),
-  .id_out(ex_mem_instruction0_id)
+  .id_out(ex_mem_instruction0_id),
+  .iq_index_out(ex_mem_iq_index0)
+
   );
 
   ex_mem_register ex_mem_reg1(
@@ -817,6 +847,7 @@ module processor(
   .first_in(),
   .pc_in(id_ex_pc1),
   .id_in(id_ex_instruction1_id),
+  .iq_index_in(id_ex_iq_index1),
 
   .alu_result_out(ex_mem_alu_result1), 
   .data_1_out(ex_mem_data_1_1), 
@@ -831,7 +862,8 @@ module processor(
   .instruction_out(ex_mem_instruction1),
   .first_out(),
   .pc_out(ex_mem_pc1),
-  .id_out(ex_mem_instruction1_id)
+  .id_out(ex_mem_instruction1_id),
+  .iq_index_out(ex_mem_iq_index1)
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -881,6 +913,7 @@ module processor(
   .first_in(ex_mem_first),
   .pc_in(ex_mem_pc0),
   .id_in(ex_mem_instruction0_id),
+  .iq_index_in(ex_mem_iq_index0),
 
   .mem_to_reg_out(mem_wb_mem_to_reg0), 
   .ram_read_data_out(mem_wb_ram_read_data0), 
@@ -890,7 +923,8 @@ module processor(
   .instruction_out(mem_wb_instruction0),
   .first_out(mem_wb_first),
   .pc_out(mem_wb_pc0),
-  .id_out(mem_wb_instruction0_id)
+  .id_out(mem_wb_instruction0_id),
+  .iq_index_out(mem_wb_iq_index0)
   );
 
   mem_wb_register mem_wb_reg1(
@@ -908,6 +942,7 @@ module processor(
   .first_in(),
   .pc_in(ex_mem_pc1),
   .id_in(ex_mem_instruction1_id),
+  .iq_index_in(ex_mem_iq_index1),
 
   .mem_to_reg_out(mem_wb_mem_to_reg1), 
   .ram_read_data_out(mem_wb_ram_read_data1), 
@@ -917,7 +952,8 @@ module processor(
   .instruction_out(mem_wb_instruction1),
   .first_out(),
   .pc_out(mem_wb_pc1),
-  .id_out(mem_wb_instruction1_id)
+  .id_out(mem_wb_instruction1_id),
+  .iq_index_out(mem_wb_iq_index1)
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
