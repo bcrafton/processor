@@ -111,14 +111,14 @@ module issue_queue(
   wire [3:0] count;
 
   // this is awful ... when we start holding a count this dosnt work...
-  assign free = !vld[0] +
-                !vld[1] +
-                !vld[2] +
-                !vld[3] +
-                !vld[4] +
-                !vld[5] +
-                !vld[6] +
-                !vld[7];
+  assign free = !vld_out[0] +
+                !vld_out[1] +
+                !vld_out[2] +
+                !vld_out[3] +
+                !vld_out[4] +
+                !vld_out[5] +
+                !vld_out[6] +
+                !vld_out[7];
 
   assign count = 8 - free;
 
@@ -155,7 +155,7 @@ module issue_queue(
   initial begin
 
     for(i=0; i<8; i=i+1) begin
-      $dumpvars(0, order[i], vld[i]);
+      $dumpvars(0, order[i], vld[i], data[i]);
     end
 
   end

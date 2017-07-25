@@ -91,8 +91,11 @@ module program_counter(
   // we get log diffs if we dont issue the jump
   //assign push0 = !jump0; 
   //assign push1 = !jump0 && !branch_taken0 && !jump1;
-  assign push0 = (instruction0 != `NOP_INSTRUCTION) ? 1                          : 0;
-  assign push1 = (instruction1 != `NOP_INSTRUCTION) ? (!jump0 && !branch_taken0) : 0;
+  //assign push0 = (instruction0 != `NOP_INSTRUCTION) ? 1                          : 0;
+  //assign push1 = (instruction1 != `NOP_INSTRUCTION) ? (!jump0 && !branch_taken0) : 0;
+
+  assign push0 = 1;
+  assign push1 = !jump0 && !branch_taken0;
 
   wire branch0 = ((opcode0 & 6'b110000) == 6'b110000) && (opcode0 != `OP_CODE_JMP);
   wire branch1 = ((opcode1 & 6'b110000) == 6'b110000) && (opcode1 != `OP_CODE_JMP);
