@@ -208,7 +208,6 @@ module issue_queue(
   assign vld7 = 0;
 
   ///////////////
-
   
   always @(posedge clk) begin
 
