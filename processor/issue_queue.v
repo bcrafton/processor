@@ -31,6 +31,17 @@ module issue_queue(
 
   ///////////////
 
+  index0,
+  index1,
+  index2,
+  index3,
+  index4,
+  index5,
+  index6,
+  index7,
+
+  ///////////////
+
   vld0,
   vld1,
   vld2,
@@ -81,6 +92,17 @@ module issue_queue(
   output wire [`IQ_ENTRY_SIZE-1:0] data5;
   output wire [`IQ_ENTRY_SIZE-1:0] data6;
   output wire [`IQ_ENTRY_SIZE-1:0] data7; // passthrough
+
+  ///////////////
+
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] index0;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] index1;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] index2;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] index3;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] index4;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] index5;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] index6;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] index7; // passthrough
 
   ///////////////
 
@@ -206,6 +228,15 @@ module issue_queue(
   assign vld5 = 0;
   assign vld6 = 0;
   assign vld7 = 0;
+
+  assign index0 = order[0];
+  assign index1 = order[1];
+  assign index2 = order[2];
+  assign index3 = order[3];
+  assign index4 = order[4];
+  assign index5 = order[5];
+  assign index6 = order[6];
+  assign index7 = order[7];
 
   ///////////////
   

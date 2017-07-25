@@ -22,7 +22,7 @@ module if_id_register(
   branch_taken_out,
   branch_taken_address_out,
   id_out,
-  id_index_out,
+  iq_index_out,
   );
 
   input wire clk;
@@ -160,7 +160,7 @@ module id_ex_register(
   branch_taken_out,
   branch_taken_address_out,
   id_out,
-  id_index_out,
+  iq_index_out,
 
   );
 
@@ -395,7 +395,7 @@ module ex_mem_register(
   first_out,
   pc_out,
   id_out,
-  id_index_out,
+  iq_index_out,
   );
 
   input wire clk;
@@ -563,7 +563,7 @@ module mem_wb_register(
   first_out,
   pc_out,
   id_out,
-  id_index_out,
+  iq_index_out,
 
   );
 
