@@ -14,6 +14,7 @@ module if_id_register(
   branch_taken_in,
   branch_taken_address_in,
   id_in,
+  iq_index_in,
 
   instruction_out,
   first_out,
@@ -21,6 +22,7 @@ module if_id_register(
   branch_taken_out,
   branch_taken_address_out,
   id_out,
+  id_index_out,
   );
 
   input wire clk;
@@ -34,6 +36,7 @@ module if_id_register(
   input wire branch_taken_in;
   input wire [`ADDR_WIDTH-1:0] branch_taken_address_in;
   input wire [`INSTRUCTION_ID_WIDTH-1:0] id_in;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index_in;
 
   reg stall_latch;
   reg flush_latch;
@@ -45,6 +48,7 @@ module if_id_register(
   reg branch_taken;
   reg [`ADDR_WIDTH-1:0] branch_taken_address;
   reg [`INSTRUCTION_ID_WIDTH-1:0] id;
+  reg [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index;
 
   output wire [`INST_WIDTH-1:0] instruction_out;
   output wire first_out;
@@ -52,6 +56,7 @@ module if_id_register(
   output wire branch_taken_out;
   output wire [`ADDR_WIDTH-1:0] branch_taken_address_out;
   output wire [`INSTRUCTION_ID_WIDTH-1:0] id_out;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index_out;
 
   assign instruction_out =          nop_latch ? 0 : instruction;
   assign first_out =                nop_latch ? 0 : first;
@@ -59,6 +64,7 @@ module if_id_register(
   assign branch_taken_out =         nop_latch ? 0 : branch_taken;
   assign branch_taken_address_out = nop_latch ? 0 : branch_taken_address;
   assign id_out =                   nop_latch ? 0 : id;
+  assign iq_index_out =             nop_latch ? 0 : iq_index;
 
   initial begin
     stall_latch <= 0;
@@ -71,6 +77,7 @@ module if_id_register(
     branch_taken <= 0;
     branch_taken_address <= 0;
     id <= 0;
+    iq_index <= 0;
   end
 
   always @(posedge clk) begin
@@ -86,6 +93,7 @@ module if_id_register(
       branch_taken <= 0;
       branch_taken_address <= 0;
       id <= 0;
+      iq_index <= 0;
     end else if(!stall) begin
       instruction <= instruction_in;
       first <= first_in;
@@ -93,6 +101,7 @@ module if_id_register(
       branch_taken <= branch_taken_in;
       branch_taken_address <= branch_taken_address_in;
       id <= id_in;
+      iq_index <= iq_index_in;
     end
 
   end
@@ -127,6 +136,7 @@ module id_ex_register(
   branch_taken_in,
   branch_taken_address_in,
   id_in,
+  iq_index_in,
 
   rs_out,
   rt_out,
@@ -150,6 +160,8 @@ module id_ex_register(
   branch_taken_out,
   branch_taken_address_out,
   id_out,
+  id_index_out,
+
   );
 
   input wire clk;
@@ -179,6 +191,7 @@ module id_ex_register(
   input wire branch_taken_in;
   input wire [`ADDR_WIDTH-1:0] branch_taken_address_in;
   input wire [`INSTRUCTION_ID_WIDTH-1:0] id_in;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index_in;
 
   reg stall_latch;
   reg flush_latch;
@@ -206,6 +219,7 @@ module id_ex_register(
   reg branch_taken;
   reg [`ADDR_WIDTH-1:0] branch_taken_address;
   reg [`INSTRUCTION_ID_WIDTH-1:0] id;
+  reg [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index;
 
   output wire [`NUM_REGISTERS_LOG2-1:0] rs_out;
   output wire [`NUM_REGISTERS_LOG2-1:0] rt_out;
@@ -229,6 +243,7 @@ module id_ex_register(
   output wire branch_taken_out;
   output wire [`ADDR_WIDTH-1:0] branch_taken_address_out;
   output wire [`INSTRUCTION_ID_WIDTH-1:0] id_out;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index_out;
 
   assign rs_out =                   nop_latch ? 0 : rs;
   assign rt_out =                   nop_latch ? 0 : rt;
@@ -252,6 +267,7 @@ module id_ex_register(
   assign branch_taken_out =         nop_latch ? 0 : branch_taken;
   assign branch_taken_address_out = nop_latch ? 0 : branch_taken_address;
   assign id_out =                   nop_latch ? 0 : id;
+  assign iq_index_out =             nop_latch ? 0 : iq_index;
 
   initial begin
     stall_latch <= 0;
@@ -280,6 +296,7 @@ module id_ex_register(
     branch_taken <= 0;
     branch_taken_address <= 0;
     id <= 0;
+    iq_index <= 0;
   end
 
   always @(posedge clk) begin
@@ -311,6 +328,7 @@ module id_ex_register(
       branch_taken <= 0;
       branch_taken_address <= 0;
       id <= 0;
+      iq_index <= 0;
     end else if(!stall) begin
       rs <= rs_in;
       rt <= rt_in;
@@ -334,6 +352,7 @@ module id_ex_register(
       branch_taken <= branch_taken_in;
       branch_taken_address <= branch_taken_address_in;
       id <= id_in;
+      iq_index <= iq_index_in;
     end
 
   end
@@ -360,6 +379,7 @@ module ex_mem_register(
   first_in,
   pc_in,
   id_in,
+  iq_index_in,
 
   alu_result_out,
   data_1_out,
@@ -375,6 +395,7 @@ module ex_mem_register(
   first_out,
   pc_out,
   id_out,
+  id_index_out,
   );
 
   input wire clk;
@@ -396,6 +417,7 @@ module ex_mem_register(
   input wire first_in;
   input wire [`ADDR_WIDTH-1:0] pc_in;
   input wire [`INSTRUCTION_ID_WIDTH-1:0] id_in;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index_in;
 
   reg stall_latch;
   reg flush_latch;
@@ -415,6 +437,7 @@ module ex_mem_register(
   reg first;
   reg [`ADDR_WIDTH-1:0] pc;
   reg [`INSTRUCTION_ID_WIDTH-1:0] id;
+  reg [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index;
 
   output wire [`DATA_WIDTH-1:0] alu_result_out;
   output wire [`DATA_WIDTH-1:0] data_1_out;
@@ -430,6 +453,7 @@ module ex_mem_register(
   output wire first_out;
   output wire [`ADDR_WIDTH-1:0] pc_out;
   output wire [`INSTRUCTION_ID_WIDTH-1:0] id_out;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index_out;
 
   assign alu_result_out =         nop_latch ? 0 : alu_result;
   assign data_1_out =             nop_latch ? 0 : data_1;
@@ -445,6 +469,7 @@ module ex_mem_register(
   assign first_out =              nop_latch ? 0 : first;
   assign pc_out =                 nop_latch ? 0 : pc;
   assign id_out =                 nop_latch ? 0 : id;
+  assign iq_index_out =           nop_latch ? 0 : iq_index;
 
   initial begin
     stall_latch <= 0;
@@ -465,6 +490,7 @@ module ex_mem_register(
     first <= 0;
     pc <= 0;
     id <= 0;
+    iq_index <= 0;
   end
 
   always @(posedge clk) begin
@@ -488,6 +514,7 @@ module ex_mem_register(
       first <= 0;
       pc <= 0;
       id <= 0;
+      iq_index <= 0;
     end else if(!stall) begin
       alu_result <= alu_result_in;
       data_1 <= data_1_in;
@@ -503,6 +530,7 @@ module ex_mem_register(
       first <= first_in;
       pc <= pc_in;
       id <= id_in;
+      iq_index <= iq_index_in;
     end
 
   end
@@ -524,6 +552,7 @@ module mem_wb_register(
   first_in,
   pc_in,
   id_in,
+  iq_index_in,
 
   mem_to_reg_out,
   ram_read_data_out,
@@ -534,6 +563,8 @@ module mem_wb_register(
   first_out,
   pc_out,
   id_out,
+  id_index_out,
+
   );
 
   input wire clk;
@@ -550,6 +581,7 @@ module mem_wb_register(
   input wire first_in;
   input wire [`ADDR_WIDTH-1:0] pc_in;
   input wire [`INSTRUCTION_ID_WIDTH-1:0] id_in;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index_in;
 
   reg stall_latch;
   reg flush_latch;
@@ -564,6 +596,8 @@ module mem_wb_register(
   reg first;
   reg [`ADDR_WIDTH-1:0] pc;
   reg [`INSTRUCTION_ID_WIDTH-1:0] id;
+  reg [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index;
+
 
   output wire mem_to_reg_out;
   output wire [`DATA_WIDTH-1:0] ram_read_data_out;
@@ -574,6 +608,7 @@ module mem_wb_register(
   output wire first_out;
   output wire [`ADDR_WIDTH-1:0] pc_out;
   output wire [`INSTRUCTION_ID_WIDTH-1:0] id_out;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index_out;
 
   assign mem_to_reg_out =     nop_latch ? 0 : mem_to_reg;
   assign ram_read_data_out =  nop_latch ? 0 : ram_read_data;
@@ -584,6 +619,7 @@ module mem_wb_register(
   assign first_out =          nop_latch ? 0 : first;
   assign pc_out =             nop_latch ? 0 : pc;
   assign id_out =             nop_latch ? 0 : id;
+  assign iq_index_out =       nop_latch ? 0 : iq_index;
 
   initial begin
     stall_latch <= 0;
@@ -599,6 +635,7 @@ module mem_wb_register(
     first <= 0;
     pc <= 0;
     id <= 0;
+    iq_index <= 0;
   end
 
   always @(posedge clk) begin
@@ -617,6 +654,7 @@ module mem_wb_register(
       first <= 0;
       pc <= 0;
       id <= 0;
+      iq_index <= 0;
     end else if(!stall) begin
       mem_to_reg <= mem_to_reg_in;
       ram_read_data <= ram_read_data_in;
@@ -627,6 +665,7 @@ module mem_wb_register(
       first <= first_in;
       pc <= pc_in;
       id <= id_in;
+      iq_index <= iq_index_in;
     end
 
   end
