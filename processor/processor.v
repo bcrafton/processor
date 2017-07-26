@@ -168,6 +168,15 @@ module processor(
   wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_reg_dst_result1;
   wire mem_wb_mem_to_reg1, mem_wb_reg_write1;
 
+  wire rob_reg_write0;
+  wire rob_reg_write1;
+
+  wire [`DATA_WIDTH-1:0] rob_data0;
+  wire [`DATA_WIDTH-1:0] rob_data1;
+  
+  wire [`NUM_REGISTERS_LOG2-1:0] rob_address0;
+  wire [`NUM_REGISTERS_LOG2-1:0] rob_address1;
+
   wire [`FORWARD_BITS-1:0] forward_a0;
   wire [`FORWARD_BITS-1:0] forward_a1;
   wire [`FORWARD_BITS-1:0] forward_b0;
@@ -995,11 +1004,23 @@ module processor(
 
   .push0( !(mem_wb_instruction0 == 0) ),
   .iq_index0(mem_wb_iq_index0),
-  .data_in0(mem_wb_instruction0),
+  .data0_in(mem_to_reg_result0),
+  .address0_in(mem_wb_reg_dst_result0),
+
+  .reg_write0_in(mem_wb_reg_write0),
+  .data0_out(rob_data0),
+  .reg_write0_out(rob_reg_write0),
+  .address0_out(rob_address0),
 
   .push1( !(mem_wb_instruction1 == 0) ),
   .iq_index1(mem_wb_iq_index1),
-  .data_in1(mem_wb_instruction1)
+  .data1_in(mem_to_reg_result1),
+  .address1_in(mem_wb_reg_dst_result1),
+
+  .reg_write1_in(mem_wb_reg_write1),
+  .data1_out(rob_data1),
+  .reg_write1_out(rob_reg_write1),
+  .address1_out(rob_address1)
   );
 
 endmodule
