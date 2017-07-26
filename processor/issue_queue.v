@@ -246,7 +246,8 @@ module issue_queue(
       wr_pointer <= 0;
       rd_pointer <= 0;
       for(i=0; i<8; i=i+1) begin
-        data[i] = 0;
+        data[i] <= 0;
+        vld[i] <= 0;
       end
 
     end else begin

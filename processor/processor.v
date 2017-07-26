@@ -985,6 +985,7 @@ module processor(
   reorder_buffer rob(
   .clk(clk),
   .reset(),
+  .flush(branch_flush[`PC_MASK_INDEX]),
 
   .oldest0(oldest0),
   .oldest1(oldest1),

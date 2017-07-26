@@ -6,6 +6,7 @@
 module reorder_buffer (
   clk,
   reset,
+  flush,
 
   oldest0,
   oldest1,
@@ -28,6 +29,7 @@ module reorder_buffer (
 
   input wire clk;
   input wire reset;
+  input wire flush;
 
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest0;
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest1;
@@ -68,7 +70,7 @@ module reorder_buffer (
 
   always @(posedge clk) begin
 
-    if (reset) begin
+    if (reset | flush) begin
 
       for(i=0; i<RAM_DEPTH; i=i+1) begin
         mem[i] = 0;
