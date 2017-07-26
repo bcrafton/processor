@@ -220,12 +220,12 @@ module issue_queue(
 
   assign vld0 = vld_out[0];
   assign vld1 = vld_out[1];
-  assign vld2 = 0;
-  assign vld3 = 0;
-  assign vld4 = 0;
-  assign vld5 = 0;
-  assign vld6 = 0;
-  assign vld7 = 0;
+  assign vld2 = vld_out[2];
+  assign vld3 = vld_out[3];
+  assign vld4 = vld_out[4];
+  assign vld5 = vld_out[5];
+  assign vld6 = vld_out[6];
+  assign vld7 = vld_out[7];
 
   assign index0 = order[0];
   assign index1 = order[1];
