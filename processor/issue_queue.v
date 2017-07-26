@@ -1,3 +1,4 @@
+
 `timescale 1ns / 1ps
 
 `include "defines.vh"
@@ -9,6 +10,12 @@ module issue_queue(
   flush,
 
   free,
+
+  retire0,
+  retire1,
+
+  oldest0,
+  oldest1,
 
   ///////////////
 
@@ -66,6 +73,12 @@ module issue_queue(
   input wire clk;
   input wire flush;
 
+  input wire retire0;
+  input wire retire1;
+
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest0;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest1;
+
   input wire pop0;
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0] pop_key0;
 
@@ -117,10 +130,13 @@ module issue_queue(
 
   ///////////////
 
+  assign oldest0 = order[0];
+  assign oldest1 = order[1];
+
+  ///////////////
+
   reg [2:0] wr_pointer;
   reg [2:0] rd_pointer;
-
-  // changing these, keep in mind the goal here : just make a fifo work for 2 - we are changin after.
 
   wire [2:0] wr_pointer0 = wr_pointer;
   wire [2:0] wr_pointer1 = wr_pointer + 1 < 8 ? wr_pointer + 1 : 0; 
@@ -130,33 +146,13 @@ module issue_queue(
 
   wire [2:0] order [0:7];
 
-  wire [3:0] count;
+  reg [3:0] count;
+  assign free = 8 - count;
 
-  // this is awful ... when we start holding a count this dosnt work...
-  assign free = !vld_out[0] +
-                !vld_out[1] +
-                !vld_out[2] +
-                !vld_out[3] +
-                !vld_out[4] +
-                !vld_out[5] +
-                !vld_out[6] +
-                !vld_out[7];
+  wire full = count == 8;
 
-  assign count = 8 - free;
-
-/*
-(pop0 & (vld_out[pop_key0] == 1))
-(pop1 & (vld_out[pop_key1] == 1))
-*/
-
-  // our problem is order rn
-  // and having this dead lock issue because we are not doing this right.
-
-  wire read0 =  pop0  && (count >= 1) && ((count == 8) || !((order[pop_key0] == wr_pointer0) || (order[pop_key0] == wr_pointer1)));
-  wire read1 =  pop1  && (count >= 2) && ((count == 8) || !((order[pop_key1] == wr_pointer0) || (order[pop_key1] == wr_pointer1)));
-
-  wire write0 = push0 && (free  >= 1) && !((pop0 && (order[pop_key0] == wr_pointer0)) || (pop1 && (order[pop_key1] == wr_pointer0)));
-  wire write1 = push1 && (free  >= 2) && !((pop0 && (order[pop_key0] == wr_pointer1)) || (pop1 && (order[pop_key1] == wr_pointer1)));
+  wire write0 = push0 && (free >= 1);
+  wire write1 = push1 && (free >= 2);
 
   ///////////////
 
@@ -183,6 +179,7 @@ module issue_queue(
   end
 
   initial begin
+    count = 0;
     wr_pointer = 0;
     rd_pointer = 0;
     for(i=0; i<8; i=i+1) begin
@@ -196,9 +193,9 @@ module issue_queue(
 
       assign order[j] = rd_pointer + j < 8 ? rd_pointer + j : rd_pointer + j - 8;
 
-      assign vld_out[j] = vld[ order[j] ]                      ? vld[ order[j] ] : 
-                          (push0 && (order[j] == wr_pointer0)) ? push0           :
-                          (push1 && (order[j] == wr_pointer1)) ? push1           :
+      assign vld_out[j] = vld[ order[j] ]                                 ? vld[ order[j] ] : 
+                          ((free >= 1) && (push0 && (order[j] == wr_pointer0))) ? push0     :
+                          ((free >= 2) && (push1 && (order[j] == wr_pointer1))) ? push1     :
                           0;
 
       assign data_out[j] = vld[ order[j] ]                      ? data[ order[j] ] : 
@@ -244,6 +241,7 @@ module issue_queue(
 
     if (flush) begin
 
+      count <= 0;
       wr_pointer <= 0;
       rd_pointer <= 0;
       for(i=0; i<8; i=i+1) begin
@@ -257,8 +255,13 @@ module issue_queue(
         data[ wr_pointer0 ] <= push_data0;
         data[ wr_pointer1 ] <= push_data1;
 
-        vld[ wr_pointer0 ] <= 1;
-        vld[ wr_pointer1 ] <= 1;
+        if (!( (pop0 && (order[pop_key0] == wr_pointer0)) || (pop1 && (order[pop_key1] == wr_pointer0)) )) begin
+          vld[ wr_pointer0 ] <= 1;
+        end
+
+        if (!( (pop0 && (order[pop_key0] == wr_pointer1)) || (pop1 && (order[pop_key1] == wr_pointer1)) )) begin
+          vld[ wr_pointer1 ] <= 1;
+        end
 
         wr_pointer <= wr_pointer + 2;
 
@@ -266,34 +269,33 @@ module issue_queue(
 
         data[ wr_pointer0 ] <= push_data0;
 
-        vld[ wr_pointer0 ] <= 1;
+        if (!( (pop0 && (order[pop_key0] == wr_pointer0)) || (pop1 && (order[pop_key1] == wr_pointer0)) )) begin
+          vld[ wr_pointer0 ] <= 1;
+        end
 
         wr_pointer <= wr_pointer + 1;
 
-      end else if (write1) begin
+      end 
 
-        data[ wr_pointer0 ] <= push_data1;
-
-        vld[ wr_pointer0 ] <= 1;
-
-        wr_pointer <= wr_pointer + 1;
-
-      end
-
-      if (read0 && read1) begin
-
-        vld[ rd_pointer0 ] <= 0;
-        vld[ rd_pointer1 ] <= 0;
+      if (retire0 && retire1) begin
 
         rd_pointer <= rd_pointer + 2;
 
-      end else if (read0) begin
-
-        vld[ rd_pointer0 ] <= 0;
+      end else if (retire0) begin
 
         rd_pointer <= rd_pointer + 1;
 
       end
+
+      if (pop0) begin
+        vld[ order[pop_key0] ] <= 0;
+      end 
+
+      if (pop1) begin
+        vld[ order[pop_key1] ] <= 0;
+      end 
+
+      count <= count + write0 + write1 - retire0 - retire1;
 
     end
 

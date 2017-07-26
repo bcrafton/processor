@@ -273,6 +273,12 @@ module processor(
   wire push0;
   wire push1;
 
+  wire retire0;
+  wire retire1;
+
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest0;
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest1;
+
   ///////////////////////////////////////////////////////////////////////////////////////////
 
   assign steer_opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
@@ -427,6 +433,12 @@ module processor(
   .clk(clk),
   .flush(branch_flush[`PC_MASK_INDEX]),
   .free(free),
+
+  .oldest0(oldest0),
+  .oldest1(oldest1),
+
+  .retire0(retire0),
+  .retire1(retire1),
 
   .if_id_instruction1(if_id_instruction1),
   .if_id_mem_op1(mem_op1),
@@ -970,24 +982,23 @@ module processor(
   .sel(mem_wb_mem_to_reg1), 
   .out(mem_to_reg_result1));
 
-  fifo rob(
+  reorder_buffer rob(
   .clk(clk),
   .reset(),
 
-  .push0( !(mem_wb_instruction0_id == 0) ),
-  .data_in0(mem_wb_instruction0_id),
+  .oldest0(oldest0),
+  .oldest1(oldest1),
 
-  .push1( !(mem_wb_instruction1_id == 0) ),
-  .data_in1(mem_wb_instruction1_id),
+  .retire0(retire0),
+  .retire1(retire1),
 
-  .pop0(1'b0),
-  .data_out0(),
+  .push0( !(mem_wb_instruction0 == 0) ),
+  .iq_index0(mem_wb_iq_index0),
+  .data_in0(mem_wb_instruction0),
 
-  .pop1(1'b0),
-  .data_out1(),
-
-  .empty(),
-  .full()  
+  .push1( !(mem_wb_instruction1 == 0) ),
+  .iq_index1(mem_wb_iq_index1),
+  .data_in1(mem_wb_instruction1)
   );
 
 endmodule

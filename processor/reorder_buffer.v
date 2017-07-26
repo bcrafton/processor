@@ -1,7 +1,7 @@
 
 `timescale 1ns / 1ps
 
-// http://www.asic-world.com/examples/verilog/syn_fifo.html
+`include "defines.vh"
 
 module reorder_buffer (
   clk,
@@ -19,14 +19,10 @@ module reorder_buffer (
 
   push1,
   iq_index1,
-  data_in1,
+  data_in1
 
-  empty,
-  full
   );    
 
-  // 32x32 fifo by default.
-  parameter DATA_WIDTH = 32;
   parameter ADDR_WIDTH = 5;
   parameter RAM_DEPTH = (1 << ADDR_WIDTH);
 
@@ -41,13 +37,13 @@ module reorder_buffer (
 
   input wire push0;
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index0;
-  input wire [DATA_WIDTH-1:0] data_in0;
+  input wire [`INST_WIDTH-1:0] data_in0;
 
   input wire push1;
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index1;
-  input wire [DATA_WIDTH-1:0] data_in1;
+  input wire [`INST_WIDTH-1:0] data_in1;
 
-  reg [DATA_WIDTH-1:0] mem [0:RAM_DEPTH-1];
+  reg [`INST_WIDTH-1:0] mem [0:RAM_DEPTH-1];
   reg                  vld [0:RAM_DEPTH-1];
 
   integer i;

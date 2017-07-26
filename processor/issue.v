@@ -7,6 +7,12 @@ module issue(
   flush,
   free,
 
+  retire0,
+  retire1,
+
+  oldest0,
+  oldest1,
+
   if_id_instruction1,
   if_id_mem_op1,
 
@@ -60,6 +66,12 @@ module issue(
 
   input wire clk;
   input wire flush;
+
+  input wire retire0;
+  input wire retire1;
+
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest0;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest1;
 
   input wire [`INST_WIDTH-1:0] if_id_instruction1;
   input wire [`MEM_OP_BITS-1:0] if_id_mem_op1;
@@ -150,6 +162,12 @@ module issue(
   .clk(clk),
   .flush(flush),
   .free(free),
+
+  .oldest0(oldest0),
+  .oldest1(oldest1),
+
+  .retire0(retire0),
+  .retire1(retire1),
 
   ///////////////
 
