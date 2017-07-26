@@ -198,9 +198,10 @@ module issue_queue(
                           ((free >= 2) && (push1 && (order[j] == wr_pointer1))) ? push1     :
                           0;
 
+      // this makes it so issue does not stall if it sees invalid instruction
       assign data_out[j] = vld[ order[j] ]                      ? data[ order[j] ] : 
-                           (push0 && (order[j] == wr_pointer0)) ? push_data0       :
-                           (push1 && (order[j] == wr_pointer1)) ? push_data1       :
+                           ((free >= 1) && (push0 && (order[j] == wr_pointer0))) ? push_data0       :
+                           ((free >= 2) && (push1 && (order[j] == wr_pointer1))) ? push_data1       :
                            0;
 
     end

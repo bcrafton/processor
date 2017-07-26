@@ -52,6 +52,14 @@ module reorder_buffer (
   assign retire1 = retire0 && vld[oldest1] == 1;
 
   initial begin
+
+    for(i=0; i<8; i=i+1) begin
+      $dumpvars(0, mem[i], vld[i]);
+    end
+
+  end
+
+  initial begin
     for(i=0; i<RAM_DEPTH; i=i+1) begin
       mem[i] = 0;
       vld[i] = 0;
