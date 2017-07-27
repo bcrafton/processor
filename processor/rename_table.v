@@ -38,26 +38,28 @@ module rename_table (
 
   // push reg -> rob
   input wire                           push0;
-  input wire [`NUM_REGISTERS_LOG2-1:0]  push_reg_addr0;
+  input wire [`NUM_REGISTERS_LOG2-1:0] push_reg_addr0;
   input wire [4:0]                     push_rob_addr0;
 
   input wire                           push1;
-  input wire [`NUM_REGISTERS_LOG2-1:0]  push_reg_addr1;
+  input wire [`NUM_REGISTERS_LOG2-1:0] push_reg_addr1;
   input wire [4:0]                     push_rob_addr1;
 
   // read reg -> rob
-  input wire [`NUM_REGISTERS_LOG2-1:0]  read_reg_addr0;
+  input wire [`NUM_REGISTERS_LOG2-1:0] read_reg_addr0;
   output wire [4:0]                    read_rob_addr0;
 
-  input wire [`NUM_REGISTERS_LOG2-1:0]  read_reg_addr1;
+  input wire [`NUM_REGISTERS_LOG2-1:0] read_reg_addr1;
   output wire [4:0]                    read_rob_addr1;
 
   // pop reg -> rob
   input wire                           pop0;
-  input wire [`NUM_REGISTERS_LOG2-1:0]  pop_reg_addr0;
-
+  input wire [`NUM_REGISTERS_LOG2-1:0] pop_reg_addr0;
+  input wire [4:0]                     pop_rob_addr0;
+  
   input wire                           pop1;
-  input wire [`NUM_REGISTERS_LOG2-1:0]  pop_reg_addr1;
+  input wire [`NUM_REGISTERS_LOG2-1:0] pop_reg_addr1;
+  input wire [4:0]                     pop_rob_addr1;
 
   
   reg [4:0] maps [`NUM_REGISTERS-1:0]; 
@@ -97,11 +99,11 @@ module rename_table (
         vld[push_reg_addr1]  <= 1;
       end
 
-      if (pop0) begin
+      if (pop0 && (maps[pop_reg_addr0] == pop_rob_addr0)) begin
         vld[push_reg_addr0]  <= 0;
       end
 
-      if (pop1) begin
+      if (pop1 && (maps[pop_reg_addr1] == pop_rob_addr1)) begin
         vld[push_reg_addr1]  <= 0;
       end
 
