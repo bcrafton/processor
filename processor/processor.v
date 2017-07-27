@@ -522,6 +522,35 @@ module processor(
   .address_src(address_src1));
 
   register_file regfile0( 
+  .write(rob_reg_write0), 
+  .write_address(rob_address0), 
+  .write_data(rob_data0), 
+  .read_address_1(rs0), 
+  .read_data_1(reg_read_data_1_0), 
+  .read_address_2(rt0), 
+  .read_data_2(reg_read_data_2_0),
+
+  .other_write(rob_reg_write1),
+  .other_write_address(rob_address1),
+  .other_write_data(rob_data1)
+  );
+
+  register_file regfile1( 
+  .write(rob_reg_write1), 
+  .write_address(rob_address1), 
+  .write_data(rob_data1), 
+  .read_address_1(rs1), 
+  .read_data_1(reg_read_data_1_1), 
+  .read_address_2(rt1), 
+  .read_data_2(reg_read_data_2_1),
+
+  .other_write(rob_reg_write0),
+  .other_write_address(rob_address0),
+  .other_write_data(rob_data0)
+  );
+
+/*
+  register_file regfile0( 
   .write(mem_wb_reg_write0), 
   .write_address(mem_wb_reg_dst_result0), 
   .write_data(mem_to_reg_result0), 
@@ -548,6 +577,7 @@ module processor(
   .other_write_address(mem_wb_reg_dst_result0),
   .other_write_data(mem_to_reg_result0)
   );
+*/
 
   id_ex_register id_ex_reg0(
   .clk(clk), 

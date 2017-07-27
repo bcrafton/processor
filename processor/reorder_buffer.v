@@ -53,7 +53,7 @@ module reorder_buffer (
   input wire [`DATA_WIDTH-1:0]          data0_in;
   input wire                            reg_write0_in;
   input wire [`NUM_REGISTERS_LOG2-1:0]  address0_in;
-  output wire                           data0_out;
+  output wire [`DATA_WIDTH-1:0]         data0_out;
   output wire                           reg_write0_out;
   output wire [`NUM_REGISTERS_LOG2-1:0] address0_out;
 
@@ -63,7 +63,7 @@ module reorder_buffer (
   input wire [`DATA_WIDTH-1:0]          data1_in;
   input wire                            reg_write1_in;
   input wire [`NUM_REGISTERS_LOG2-1:0]  address1_in;
-  output wire                           data1_out;
+  output wire [`DATA_WIDTH-1:0]         data1_out;
   output wire                           reg_write1_out;
   output wire [`NUM_REGISTERS_LOG2-1:0] address1_out;
 
