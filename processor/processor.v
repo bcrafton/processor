@@ -1021,6 +1021,39 @@ module processor(
   .sel(mem_wb_mem_to_reg1), 
   .out(mem_to_reg_result1));
 
+  rename_table rt(
+  .clk(clk),
+  .reset(),
+  .flush(), // dont have to worry about this for now.
+
+  .push0(),
+  .push_reg_addr0(),
+  .push_rob_addr0(),
+
+  .push1(),
+  .push_reg_addr1(),
+  .push_rob_addr1(),
+
+  // read reg -> rob
+  .read_reg_addr0_pipe0(),
+  .read_reg_addr1_pipe0(),
+  .read_rob_addr0_pipe0(),
+  .read_rob_addr1_pipe0(),
+
+  .read_reg_addr0_pipe1(),
+  .read_reg_addr1_pipe1(),
+  .read_rob_addr0_pipe1(),
+  .read_rob_addr1_pipe1(),
+
+  // pop reg -> rob
+  .pop0(),
+  .pop_reg_addr0(),
+
+  .pop1(),
+  .pop_reg_addr1()
+
+  );
+
   reorder_buffer rob(
   .clk(clk),
   .reset(),
