@@ -1026,14 +1026,15 @@ module processor(
   .reset(),
   .flush(), // dont have to worry about this for now.
 
-  .push0(),
-  .push_reg_addr0(),
-  .push_rob_addr0(),
+  .push0( !(mem_wb_instruction0 == 0) && mem_wb_reg_write0 ),
+  .push_reg_addr0( mem_wb_reg_dst_result0 ),
+  .push_rob_addr0( ex_mem_iq_index0 ),
 
-  .push1(),
-  .push_reg_addr1(),
-  .push_rob_addr1(),
+  .push1( !(mem_wb_instruction1 == 0) && mem_wb_reg_write1 ),
+  .push_reg_addr1( mem_wb_reg_dst_result1 ),
+  .push_rob_addr1( ex_mem_iq_index1 ),
 
+  // this stuff is gonna be through the forwarding unit somehow.
   // read reg -> rob
   .read_reg_addr0_pipe0(),
   .read_reg_addr1_pipe0(),
@@ -1046,11 +1047,11 @@ module processor(
   .read_rob_addr1_pipe1(),
 
   // pop reg -> rob
-  .pop0(),
-  .pop_reg_addr0(),
+  .pop0(retire0),
+  .pop_reg_addr0(oldest0),
 
-  .pop1(),
-  .pop_reg_addr1()
+  .pop1(retire1),
+  .pop_reg_addr1(oldest1)
 
   );
 
@@ -1067,20 +1068,22 @@ module processor(
 
   .push0( !(mem_wb_instruction0 == 0) ),
   .iq_index0(mem_wb_iq_index0),
+
   .data0_in(mem_to_reg_result0),
   .address0_in(mem_wb_reg_dst_result0),
-
   .reg_write0_in(mem_wb_reg_write0),
+
   .data0_out(rob_data0),
   .reg_write0_out(rob_reg_write0),
   .address0_out(rob_address0),
 
   .push1( !(mem_wb_instruction1 == 0) ),
   .iq_index1(mem_wb_iq_index1),
+
   .data1_in(mem_to_reg_result1),
   .address1_in(mem_wb_reg_dst_result1),
-
   .reg_write1_in(mem_wb_reg_write1),
+
   .data1_out(rob_data1),
   .reg_write1_out(rob_reg_write1),
   .address1_out(rob_address1)
