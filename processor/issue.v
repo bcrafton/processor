@@ -60,6 +60,9 @@ module issue(
   iq_index0_out,
   iq_index1_out,
 
+  spec0_out,
+  spec1_out,
+
   first
   
   );
