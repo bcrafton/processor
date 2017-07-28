@@ -16,11 +16,15 @@ module rename_table (
   push_rob_addr1,
 
   // read reg -> rob
-  read_reg_addr0,
-  read_rob_addr0,
+  read_reg_addr0_pipe0,
+  read_reg_addr1_pipe0,
+  read_rob_addr0_pipe0,
+  read_rob_addr1_pipe0,
 
-  read_reg_addr1,
-  read_rob_addr1,
+  read_reg_addr0_pipe1,
+  read_reg_addr1_pipe1,
+  read_rob_addr0_pipe1,
+  read_rob_addr1_pipe1,
 
   // pop reg -> rob
   pop0,
@@ -46,11 +50,15 @@ module rename_table (
   input wire [4:0]                     push_rob_addr1;
 
   // read reg -> rob
-  input wire [`NUM_REGISTERS_LOG2-1:0] read_reg_addr0;
-  output wire [4:0]                    read_rob_addr0;
+  input wire [`NUM_REGISTERS_LOG2-1:0] read_reg_addr0_pipe0;
+  input wire [`NUM_REGISTERS_LOG2-1:0] read_reg_addr1_pipe0;
+  output wire [4:0]                    read_rob_addr0_pipe0;
+  output wire [4:0]                    read_rob_addr1_pipe0;
 
-  input wire [`NUM_REGISTERS_LOG2-1:0] read_reg_addr1;
-  output wire [4:0]                    read_rob_addr1;
+  input wire [`NUM_REGISTERS_LOG2-1:0] read_reg_addr0_pipe1;
+  input wire [`NUM_REGISTERS_LOG2-1:0] read_reg_addr1_pipe1;
+  output wire [4:0]                    read_rob_addr0_pipe1;
+  output wire [4:0]                    read_rob_addr1_pipe1;
 
   // pop reg -> rob
   input wire                           pop0;
@@ -66,8 +74,10 @@ module rename_table (
   reg       vld  [`NUM_REGISTERS-1:0]; 
 
 
-  assign read_rob_addr0 = maps[read_reg_addr0];
-  assign read_rob_addr1 = maps[read_reg_addr1];
+  assign read_rob_addr0_pipe0 = maps[read_reg_addr0_pipe0];
+  assign read_rob_addr1_pipe0 = maps[read_reg_addr1_pipe0];
+  assign read_rob_addr0_pipe1 = maps[read_reg_addr0_pipe1];
+  assign read_rob_addr1_pipe1 = maps[read_reg_addr1_pipe1];
 
   integer i;
 
