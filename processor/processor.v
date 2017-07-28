@@ -725,6 +725,9 @@ module processor(
   .ex_mem_reg_write1(ex_mem_reg_write1), 
   .mem_wb_reg_write1(mem_wb_reg_write1),
 
+  .rename_rs_vld(rt_rob_vld0_pipe0),
+  .rename_rt_vld(rt_rob_vld1_pipe0),
+
   .forward_a(forward_a0), 
   .forward_b(forward_b0));
 
@@ -744,6 +747,9 @@ module processor(
   .mem_wb_rd1(mem_wb_reg_dst_result1), 
   .ex_mem_reg_write1(ex_mem_reg_write1), 
   .mem_wb_reg_write1(mem_wb_reg_write1),
+
+  .rename_rs_vld(rt_rob_vld0_pipe1),
+  .rename_rt_vld(rt_rob_vld1_pipe1),
 
   .forward_a(forward_a1), 
   .forward_b(forward_b1));

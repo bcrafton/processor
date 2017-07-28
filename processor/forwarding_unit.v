@@ -21,6 +21,10 @@ module forwarding_unit(
   ex_mem_reg_write1,
   mem_wb_reg_write1,
 
+  // dont think we need regwrite here, we take it in rt_vld.
+  rename_rs_vld,
+  rename_rt_vld,
+
   forward_a,
   forward_b,
   );
@@ -46,6 +50,9 @@ module forwarding_unit(
   input wire ex_mem_reg_write1;
   input wire mem_wb_reg_write1;
 
+  input wire rename_rs_vld;
+  input wire rename_rt_vld;
+
   output reg [`FORWARD_BITS-1:0] forward_a;
   output reg [`FORWARD_BITS-1:0] forward_b;
 
@@ -62,6 +69,8 @@ module forwarding_unit(
           forward_a <= `FORWARD_MEM_WB0;
         end else if(mem_wb_reg_write1 && (id_ex_rs == mem_wb_rd1)) begin
           forward_a <= `FORWARD_MEM_WB1;
+        end else if(rename_rs_vld) begin
+          forward_a <= `FORWARD_ROB;
         end else begin
           forward_a <= `NO_FORWARD;
         end
@@ -74,6 +83,8 @@ module forwarding_unit(
           forward_b <= `FORWARD_MEM_WB0;
         end else if(mem_wb_reg_write1 && (id_ex_rt == mem_wb_rd1)) begin
           forward_b <= `FORWARD_MEM_WB1;
+        end else if(rename_rt_vld) begin
+          forward_b <= `FORWARD_ROB;
         end else begin
           forward_b <= `NO_FORWARD;
         end
@@ -86,6 +97,8 @@ module forwarding_unit(
           forward_a <= `FORWARD_MEM_WB1;
         end else if(mem_wb_reg_write0 && (id_ex_rs == mem_wb_rd0)) begin
           forward_a <= `FORWARD_MEM_WB0;
+        end else if(rename_rs_vld) begin
+          forward_a <= `FORWARD_ROB;
         end else begin
           forward_a <= `NO_FORWARD;
         end
@@ -98,6 +111,8 @@ module forwarding_unit(
           forward_b <= `FORWARD_MEM_WB1;
         end else if(mem_wb_reg_write0 && (id_ex_rt == mem_wb_rd0)) begin
           forward_b <= `FORWARD_MEM_WB0;
+        end else if(rename_rt_vld) begin
+          forward_b <= `FORWARD_ROB;
         end else begin
           forward_b <= `NO_FORWARD;
         end
@@ -114,6 +129,8 @@ module forwarding_unit(
           forward_a <= `FORWARD_MEM_WB0;
         end else if(mem_wb_reg_write1 && (id_ex_rs == mem_wb_rd1)) begin
           forward_a <= `FORWARD_MEM_WB1;
+        end else if(rename_rs_vld) begin
+          forward_a <= `FORWARD_ROB;
         end else begin
           forward_a <= `NO_FORWARD;
         end
@@ -126,6 +143,8 @@ module forwarding_unit(
           forward_b <= `FORWARD_MEM_WB0;
         end else if(mem_wb_reg_write1 && (id_ex_rt == mem_wb_rd1)) begin
           forward_b <= `FORWARD_MEM_WB1;
+        end else if(rename_rt_vld) begin
+          forward_b <= `FORWARD_ROB;
         end else begin
           forward_b <= `NO_FORWARD;
         end
@@ -138,6 +157,8 @@ module forwarding_unit(
           forward_a <= `FORWARD_MEM_WB1;
         end else if(mem_wb_reg_write0 && (id_ex_rs == mem_wb_rd0)) begin
           forward_a <= `FORWARD_MEM_WB0;
+        end else if(rename_rs_vld) begin
+          forward_a <= `FORWARD_ROB;
         end else begin
           forward_a <= `NO_FORWARD;
         end
@@ -150,6 +171,8 @@ module forwarding_unit(
           forward_b <= `FORWARD_MEM_WB1;
         end else if(mem_wb_reg_write0 && (id_ex_rt == mem_wb_rd0)) begin
           forward_b <= `FORWARD_MEM_WB0;
+        end else if(rename_rt_vld) begin
+          forward_b <= `FORWARD_ROB;
         end else begin
           forward_b <= `NO_FORWARD;
         end

@@ -72,6 +72,7 @@
 `define FORWARD_EX_MEM0    3'b010
 `define FORWARD_MEM_WB1    3'b011
 `define FORWARD_EX_MEM1    3'b100
+`define FORWARD_ROB        3'b101
 `define FORWARD_BITS       3 // $bits(FORWARD_EX_MEM0)
 
 `define PIPE_BRANCH        2'b00
