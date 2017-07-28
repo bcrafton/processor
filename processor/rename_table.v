@@ -105,6 +105,14 @@ module rename_table (
   integer i;
 
   initial begin
+
+    for(i=0; i<8; i=i+1) begin
+      $dumpvars(0, maps[i], vld[i]);
+    end
+
+  end
+
+  initial begin
     for(i=0; i<32; i=i+1) begin
       maps[i] = 0;
       vld[i] = 0;

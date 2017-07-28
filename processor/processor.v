@@ -1049,11 +1049,11 @@ module processor(
 
   .push0( !(mem_wb_instruction0 == 0) && mem_wb_reg_write0 ),
   .push_reg_addr0( mem_wb_reg_dst_result0 ),
-  .push_rob_addr0( ex_mem_iq_index0 ),
+  .push_rob_addr0( mem_wb_iq_index0 ),
 
   .push1( !(mem_wb_instruction1 == 0) && mem_wb_reg_write1 ),
   .push_reg_addr1( mem_wb_reg_dst_result1 ),
-  .push_rob_addr1( ex_mem_iq_index1 ),
+  .push_rob_addr1( mem_wb_iq_index1 ),
 
   // this stuff is gonna be through the forwarding unit somehow.
   // read reg -> rob
