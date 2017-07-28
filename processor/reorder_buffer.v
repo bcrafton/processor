@@ -30,7 +30,18 @@ module reorder_buffer (
   address1_in,
   data1_out,
   reg_write1_out,
-  address1_out
+  address1_out,
+
+  read_addr0_pipe0,
+  read_addr1_pipe0,
+  read_addr0_pipe1,
+  read_addr1_pipe1,
+
+  read_data0_pipe0,
+  read_data1_pipe0,
+  read_data0_pipe1,
+  read_data1_pipe1
+  
 
   );    
 
@@ -53,6 +64,7 @@ module reorder_buffer (
   input wire [`DATA_WIDTH-1:0]          data0_in;
   input wire                            reg_write0_in;
   input wire [`NUM_REGISTERS_LOG2-1:0]  address0_in;
+
   output wire [`DATA_WIDTH-1:0]         data0_out;
   output wire                           reg_write0_out;
   output wire [`NUM_REGISTERS_LOG2-1:0] address0_out;
@@ -63,9 +75,20 @@ module reorder_buffer (
   input wire [`DATA_WIDTH-1:0]          data1_in;
   input wire                            reg_write1_in;
   input wire [`NUM_REGISTERS_LOG2-1:0]  address1_in;
+
   output wire [`DATA_WIDTH-1:0]         data1_out;
   output wire                           reg_write1_out;
   output wire [`NUM_REGISTERS_LOG2-1:0] address1_out;
+
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] read_addr0_pipe0;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] read_addr1_pipe0;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] read_addr0_pipe1;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] read_addr1_pipe1;
+
+  output wire [`DATA_WIDTH-1:0] read_data0_pipe0;
+  output wire [`DATA_WIDTH-1:0] read_data1_pipe0;
+  output wire [`DATA_WIDTH-1:0] read_data0_pipe1;
+  output wire [`DATA_WIDTH-1:0] read_data1_pipe1;
 
   reg [`DATA_WIDTH-1:0]         mem       [0:RAM_DEPTH-1];
   reg                           vld       [0:RAM_DEPTH-1];
@@ -85,6 +108,15 @@ module reorder_buffer (
 
   assign address0_out = address[oldest0];
   assign address1_out = address[oldest1];
+
+  ///////////////////////////
+
+  assign read_data0_pipe0 = mem[read_addr0_pipe0];
+  assign read_data1_pipe0 = mem[read_addr1_pipe0];
+  assign read_data0_pipe1 = mem[read_addr0_pipe1];
+  assign read_data1_pipe1 = mem[read_addr1_pipe1];
+
+  ///////////////////////////
 
   initial begin
 
