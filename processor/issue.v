@@ -122,6 +122,8 @@ module issue(
 
   output wire first;
 
+  wire [`NUM_IQ_ENTRIES-1:0] spec;
+
   //////////////
   
   wire [7:0] vld_mask;
@@ -227,7 +229,7 @@ module issue(
   generate
     for (i=0; i<8; i=i+1) begin : generate_reg_depends
       
-	  assign opcode[i] = instruction[i][`OPCODE_MSB:`OPCODE_LSB];
+	    assign opcode[i] = instruction[i][`OPCODE_MSB:`OPCODE_LSB];
 	  
       reg_depends reg_depends(
       .instruction(instruction[i]),

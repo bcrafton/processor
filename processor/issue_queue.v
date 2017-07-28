@@ -8,6 +8,7 @@ module issue_queue(
   clk,
 
   flush,
+  spec,
 
   free,
 
@@ -72,6 +73,7 @@ module issue_queue(
 
   input wire clk;
   input wire flush;
+  output wire [`NUM_IQ_ENTRIES-1:0] spec;
 
   input wire retire0;
   input wire retire1;
@@ -169,6 +171,20 @@ module issue_queue(
 
   ///////////////
 
+  wire                            is_branch [0:7];
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] first_branch;  
+  wire                            has_branch;
+  wire [`OP_CODE_BITS-1:0]        opcode [0:7];
+
+  wire [`INST_WIDTH-1:0]           instruction          [0:7];
+  wire [`ADDR_WIDTH-1:0]           pc                   [0:7];
+  wire [`INSTRUCTION_ID_WIDTH-1:0] id                   [0:7];
+  wire                             branch_taken         [0:7];
+  wire [`ADDR_WIDTH-1:0]           branch_taken_address [0:7];
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0]  iq_index             [0:7];
+
+  ///////////////
+
 
   initial begin
 
@@ -188,8 +204,28 @@ module issue_queue(
     end
   end
 
+  assign {first_branch, has_branch} = is_branch[0] ? {3'h0, 1'h1} :
+                                      is_branch[1] ? {3'h1, 1'h1} :
+                                      is_branch[2] ? {3'h2, 1'h1} :
+                                      is_branch[3] ? {3'h3, 1'h1} :
+                                      is_branch[4] ? {3'h4, 1'h1} :
+                                      is_branch[5] ? {3'h5, 1'h1} :
+                                      is_branch[6] ? {3'h6, 1'h1} :
+                                      is_branch[7] ? {3'h7, 1'h1} :
+                                      {3'h0, 1'h0};
+
   generate
     for (j=0; j<8; j=j+1) begin : generate_output
+
+      assign {branch_taken[j], branch_taken_address[j], id[j], instruction[j], pc[j]} = data[j];
+      assign opcode[j] = instruction[j][`OPCODE_MSB:`OPCODE_LSB];
+      assign is_branch[j] = ((opcode[j] & 6'b110000) == 6'b110000) && (opcode[j] != `OP_CODE_JMP);
+
+      if (j == 0) begin
+        assign spec[j] = 0;
+      end else begin
+        assign spec[j] = spec[j-1] || is_branch[j-1];
+      end
 
       assign order[j] = rd_pointer + j < 8 ? rd_pointer + j : rd_pointer + j - 8;
 
