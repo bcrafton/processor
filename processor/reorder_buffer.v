@@ -16,18 +16,22 @@ module reorder_buffer (
 
   push0,
   iq_index0,
+
   data0_in,
   reg_write0_in,
   address0_in,
+
   data0_out,
   reg_write0_out,
   address0_out,
 
   push1,
   iq_index1,
+
   data1_in,
   reg_write1_in,
   address1_in,
+
   data1_out,
   reg_write1_out,
   address1_out,
