@@ -1036,13 +1036,13 @@ module processor(
 
   // this stuff is gonna be through the forwarding unit somehow.
   // read reg -> rob
-  .read_reg_addr0_pipe0(),
-  .read_reg_addr1_pipe0(),
+  .read_reg_addr0_pipe0(id_ex_rs0),
+  .read_reg_addr1_pipe0(id_ex_rt0),
   .read_rob_addr0_pipe0(),
   .read_rob_addr1_pipe0(),
 
-  .read_reg_addr0_pipe1(),
-  .read_reg_addr1_pipe1(),
+  .read_reg_addr0_pipe1(id_ex_rs1),
+  .read_reg_addr1_pipe1(id_ex_rt0),
   .read_rob_addr0_pipe1(),
   .read_rob_addr1_pipe1(),
 

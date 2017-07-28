@@ -33,6 +33,7 @@ module forwarding_unit(
   input wire ex_mem_first;
   input wire mem_wb_first;
 
+  // what a great comment.
   // this isnt actually rd reg, its reg dst result.
   input wire [`NUM_REGISTERS_LOG2-1:0] ex_mem_rd0;
   input wire [`NUM_REGISTERS_LOG2-1:0] mem_wb_rd0;
