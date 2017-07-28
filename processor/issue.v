@@ -120,9 +120,12 @@ module issue(
   output reg [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index0_out;
   output reg [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index1_out;
 
+  output reg spec0_out;
+  output reg spec1_out;
+
   output wire first;
 
-  wire [`NUM_IQ_ENTRIES-1:0] spec;
+
 
   //////////////
   
@@ -138,6 +141,7 @@ module issue(
   //////////////
 
   output wire [3:0] free;
+  wire [`NUM_IQ_ENTRIES-1:0] spec;
 
   //////////////
   
@@ -162,6 +166,7 @@ module issue(
 
   issue_queue q(
   .clk(clk),
+  .spec(spec),
   .flush(flush),
   .free(free),
 
@@ -289,6 +294,7 @@ module issue(
     branch_taken0_out         <= 0;
     branch_taken_address0_out <= 0;
     iq_index0_out             <= 0;
+    spec0_out                 <= 0;
     
     instruction1_out          <= 0;
     pc1_out                   <= 0;
@@ -296,6 +302,7 @@ module issue(
     branch_taken1_out         <= 0;
     branch_taken_address1_out <= 0;
     iq_index1_out             <= 0;
+    spec1_out                 <= 0;
   end
   
   always @(*) begin
@@ -307,6 +314,7 @@ module issue(
       branch_taken0_out         = 0;
       branch_taken_address0_out = 0;
       iq_index0_out             = 0;
+      spec0_out                 = 0;
       
       instruction1_out          = 0;
       pc1_out                   = 0;
@@ -314,6 +322,7 @@ module issue(
       branch_taken1_out         = 0;
       branch_taken_address1_out = 0;
       iq_index1_out             = 0;
+      spec1_out                 = 0;
     end else begin
       if(!first) begin
         instruction0_out          = pop0 ? instruction[pop_key0]          : 0;
@@ -322,6 +331,7 @@ module issue(
         branch_taken0_out         = pop0 ? branch_taken[pop_key0]         : 0;
         branch_taken_address0_out = pop0 ? branch_taken_address[pop_key0] : 0;
         iq_index0_out             = pop0 ? iq_index[pop_key0]             : 0;
+        spec0_out                 = pop0 ? spec[pop_key0]                 : 0;
         
         instruction1_out          = pop1 ? instruction[pop_key1]          : 0;
         pc1_out                   = pop1 ? pc[pop_key1]                   : 0;
@@ -329,6 +339,7 @@ module issue(
         branch_taken1_out         = pop1 ? branch_taken[pop_key1]         : 0;
         branch_taken_address1_out = pop1 ? branch_taken_address[pop_key1] : 0;
         iq_index1_out             = pop1 ? iq_index[pop_key1]             : 0;
+        spec1_out                 = pop1 ? spec[pop_key1]                 : 0;
       end else begin
         instruction1_out          = pop0 ? instruction[pop_key0]          : 0;
         pc1_out                   = pop0 ? pc[pop_key0]                   : 0;
@@ -336,6 +347,7 @@ module issue(
         branch_taken1_out         = pop0 ? branch_taken[pop_key0]         : 0;
         branch_taken_address1_out = pop0 ? branch_taken_address[pop_key0] : 0;
         iq_index1_out             = pop0 ? iq_index[pop_key0]             : 0;
+        spec1_out                 = pop0 ? spec[pop_key0]                 : 0;
         
         instruction0_out          = pop1 ? instruction[pop_key1]          : 0;
         pc0_out                   = pop1 ? pc[pop_key1]                   : 0;
@@ -343,6 +355,7 @@ module issue(
         branch_taken0_out         = pop1 ? branch_taken[pop_key1]         : 0;
         branch_taken_address0_out = pop1 ? branch_taken_address[pop_key1] : 0;
         iq_index0_out             = pop1 ? iq_index[pop_key1]             : 0;
+        spec0_out                 = pop1 ? spec[pop_key1]                 : 0;
       end
 
     end
