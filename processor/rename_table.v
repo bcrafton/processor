@@ -49,41 +49,41 @@ module rename_table (
   input wire reset;
 
   // push reg -> rob
-  input wire                           push0;
-  input wire [`NUM_REGISTERS_LOG2-1:0] push_reg_addr0;
-  input wire [4:0]                     push_rob_addr0;
+  input wire                             push0;
+  input wire [`NUM_REGISTERS_LOG2-1:0]   push_reg_addr0;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0]  push_rob_addr0;
 
-  input wire                           push1;
-  input wire [`NUM_REGISTERS_LOG2-1:0] push_reg_addr1;
-  input wire [4:0]                     push_rob_addr1;
+  input wire                             push1;
+  input wire [`NUM_REGISTERS_LOG2-1:0]   push_reg_addr1;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0]  push_rob_addr1;
 
   // read reg -> rob
-  input wire [`NUM_REGISTERS_LOG2-1:0] read_reg_addr0_pipe0;
-  input wire [`NUM_REGISTERS_LOG2-1:0] read_reg_addr1_pipe0;
+  input wire [`NUM_REGISTERS_LOG2-1:0]   read_reg_addr0_pipe0;
+  input wire [`NUM_REGISTERS_LOG2-1:0]   read_reg_addr1_pipe0;
 
-  output wire [4:0]                    read_rob_addr0_pipe0;
-  output wire [4:0]                    read_rob_addr1_pipe0;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] read_rob_addr0_pipe0;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] read_rob_addr1_pipe0;
 
-  output wire                          read_rob_vld0_pipe0;
-  output wire                          read_rob_vld1_pipe0;
+  output wire                            read_rob_vld0_pipe0;
+  output wire                            read_rob_vld1_pipe0;
 
-  input wire [`NUM_REGISTERS_LOG2-1:0] read_reg_addr0_pipe1;
-  input wire [`NUM_REGISTERS_LOG2-1:0] read_reg_addr1_pipe1;
+  input wire [`NUM_REGISTERS_LOG2-1:0]   read_reg_addr0_pipe1;
+  input wire [`NUM_REGISTERS_LOG2-1:0]   read_reg_addr1_pipe1;
 
-  output wire [4:0]                    read_rob_addr0_pipe1;
-  output wire [4:0]                    read_rob_addr1_pipe1;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] read_rob_addr0_pipe1;
+  output wire [`NUM_IQ_ENTRIES_LOG2-1:0] read_rob_addr1_pipe1;
 
-  output wire                          read_rob_vld0_pipe1;
-  output wire                          read_rob_vld1_pipe1;
+  output wire                            read_rob_vld0_pipe1;
+  output wire                            read_rob_vld1_pipe1;
 
   // pop reg -> rob
-  input wire                           pop0;
-  input wire [`NUM_REGISTERS_LOG2-1:0] pop_reg_addr0;
-  input wire [4:0]                     pop_rob_addr0;
+  input wire                             pop0;
+  input wire [`NUM_REGISTERS_LOG2-1:0]   pop_reg_addr0;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0]  pop_rob_addr0;
   
-  input wire                           pop1;
-  input wire [`NUM_REGISTERS_LOG2-1:0] pop_reg_addr1;
-  input wire [4:0]                     pop_rob_addr1;
+  input wire                             pop1;
+  input wire [`NUM_REGISTERS_LOG2-1:0]   pop_reg_addr1;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0]  pop_rob_addr1;
 
   
   reg [4:0] maps [`NUM_REGISTERS-1:0]; 

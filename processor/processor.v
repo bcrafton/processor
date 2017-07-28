@@ -288,6 +288,21 @@ module processor(
   wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest0;
   wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest1;
 
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] rt_rob_addr0_pipe0;
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] rt_rob_addr1_pipe0;
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] rt_rob_addr0_pipe1;
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] rt_rob_addr1_pipe1;
+
+  wire rt_rob_vld0_pipe0;
+  wire rt_rob_vld1_pipe0;
+  wire rt_rob_vld0_pipe1;
+  wire rt_rob_vld1_pipe1;
+
+  wire [`DATA_WIDTH-1:0] read_rob_data0_pipe0;
+  wire [`DATA_WIDTH-1:0] read_rob_data1_pipe0;
+  wire [`DATA_WIDTH-1:0] read_rob_data0_pipe1;
+  wire [`DATA_WIDTH-1:0] read_rob_data1_pipe1;
+
   ///////////////////////////////////////////////////////////////////////////////////////////
 
   assign steer_opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
@@ -1039,27 +1054,27 @@ module processor(
   .read_reg_addr0_pipe0(id_ex_rs0),
   .read_reg_addr1_pipe0(id_ex_rt0),
 
-  .read_rob_addr0_pipe0(),
-  .read_rob_addr1_pipe0(),
+  .read_rob_addr0_pipe0(rt_rob_addr0_pipe0),
+  .read_rob_addr1_pipe0(rt_rob_addr1_pipe0),
 
-  .read_rob_vld0_pipe0(),
-  .read_rob_vld1_pipe0(),
+  .read_rob_vld0_pipe0(rt_rob_vld0_pipe0),
+  .read_rob_vld1_pipe0(rt_rob_vld1_pipe0),
 
   .read_reg_addr0_pipe1(id_ex_rs1),
   .read_reg_addr1_pipe1(id_ex_rt0),
 
-  .read_rob_addr0_pipe1(),
-  .read_rob_addr1_pipe1(),
+  .read_rob_addr0_pipe1(rt_rob_addr0_pipe1),
+  .read_rob_addr1_pipe1(rt_rob_addr1_pipe1),
 
-  .read_rob_vld0_pipe1(),
-  .read_rob_vld1_pipe1(),
+  .read_rob_vld0_pipe1(rt_rob_vld0_pipe1),
+  .read_rob_vld1_pipe1(rt_rob_vld1_pipe1),
 
   // pop reg -> rob
   .pop0(retire0),
-  .pop_reg_addr0(oldest0),
+  .pop_reg_addr0(rob_address0),
 
   .pop1(retire1),
-  .pop_reg_addr1(oldest1)
+  .pop_reg_addr1(rob_address1)
 
   );
 
@@ -1094,7 +1109,18 @@ module processor(
 
   .data1_out(rob_data1),
   .reg_write1_out(rob_reg_write1),
-  .address1_out(rob_address1)
+  .address1_out(rob_address1),
+
+  .read_addr0_pipe0(rt_rob_addr0_pipe0),
+  .read_addr1_pipe0(rt_rob_addr1_pipe0),
+  .read_addr0_pipe1(rt_rob_addr0_pipe1),
+  .read_addr1_pipe1(rt_rob_addr1_pipe1),
+
+  .read_data0_pipe0(read_rob_data0_pipe0),
+  .read_data1_pipe0(read_rob_data1_pipe0),
+  .read_data0_pipe1(read_rob_data0_pipe1),
+  .read_data1_pipe1(read_rob_data1_pipe1)
+
   );
 
 endmodule
