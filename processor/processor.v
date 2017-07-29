@@ -1083,10 +1083,12 @@ module processor(
   .flush(), // dont have to worry about this for now.
 
   .push0( !(mem_wb_instruction0 == 0) && mem_wb_reg_write0 ),
+  .spec0(mem_wb_spec0),
   .push_reg_addr0( mem_wb_reg_dst_result0 ),
   .push_rob_addr0( mem_wb_iq_index0 ),
 
   .push1( !(mem_wb_instruction1 == 0) && mem_wb_reg_write1 ),
+  .spec1(mem_wb_spec1),
   .push_reg_addr1( mem_wb_reg_dst_result1 ),
   .push_rob_addr1( mem_wb_iq_index1 ),
 
@@ -1132,6 +1134,7 @@ module processor(
 
   .push0( !(mem_wb_instruction0 == 0) ),
   .iq_index0(mem_wb_iq_index0),
+  .spec0(mem_wb_spec0),
 
   .data0_in(mem_to_reg_result0),
   .address0_in(mem_wb_reg_dst_result0),
@@ -1143,6 +1146,7 @@ module processor(
 
   .push1( !(mem_wb_instruction1 == 0) ),
   .iq_index1(mem_wb_iq_index1),
+  .spec1(mem_wb_spec1),
 
   .data1_in(mem_to_reg_result1),
   .address1_in(mem_wb_reg_dst_result1),
