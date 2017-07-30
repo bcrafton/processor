@@ -147,17 +147,18 @@ module reorder_buffer (
 
   always @(posedge clk) begin
 
-    if (reset | flush) begin
+      if (flush) begin
 
-      for(i=0; i<RAM_DEPTH; i=i+1) begin
-        mem[i] <= 0;
-        vld[i] <= 0;
-        reg_write[i] <= 0;
-        address[i] <= 0;
-        spec[i] <= 0;
+        for(i=0; i<RAM_DEPTH; i=i+1) begin
+          if(spec[i]) begin // these are ordered so its all good.
+            mem[i] <= 0;
+            vld[i] <= 0;
+            reg_write[i] <= 0;
+            address[i] <= 0;
+            spec[i] <= 0;
+          end
+        end
       end
-
-    end else begin
 
       if (push0) begin
         mem[iq_index0]       <= data0_in;
@@ -182,8 +183,6 @@ module reorder_buffer (
       if (retire1) begin
         vld[oldest1] <= 0;
       end
-  
-    end
   
   end
 

@@ -2,7 +2,7 @@
 #include "test_bench.h"
 
 static test_t tests[] = {
-/*
+
 {"addi", BINARY_TEST, 0, 1000},
 
 {"subi", BINARY_TEST, 0, 1000},
@@ -50,6 +50,7 @@ static test_t tests[] = {
 {"jr", BINARY_TEST, 0, 1000},
 {"ooo", BINARY_TEST, 0, 1000},
 
+/*
 {"push", ASM_TEST, 100, 1000},
 {"pop", ASM_TEST, 100, 1000},
 
@@ -75,7 +76,7 @@ static test_t tests[] = {
 {"list", CODE_TEST, 6, 200000},
 {"linked_list", CODE_TEST, 6, 200000},
 */
-{"ooo", BINARY_TEST, 0, 1000},
+
 };
 
 static int num_programs = sizeof(tests)/sizeof(test_t);

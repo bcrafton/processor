@@ -171,10 +171,10 @@ module issue_queue(
 
   ///////////////
 
-  wire                            is_branch [0:7];
-  wire [`NUM_IQ_ENTRIES_LOG2-1:0] first_branch;  
-  wire                            has_branch;
-  wire [`OP_CODE_BITS-1:0]        opcode [0:7];
+  wire                             is_branch [0:7];
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0]  first_branch;  
+  wire                             has_branch;
+  wire [`OP_CODE_BITS-1:0]         opcode [0:7];
 
   wire [`INST_WIDTH-1:0]           instruction          [0:7];
   wire [`ADDR_WIDTH-1:0]           pc                   [0:7];
@@ -204,6 +204,9 @@ module issue_queue(
     end
   end
 
+  // this dosnt work because its not ordered.
+  // thinking that order may be necessary.
+  // need to sit down and think about what needs to be done to make this work from scratch.
   assign {first_branch, has_branch} = is_branch[0] ? {3'h0, 1'h1} :
                                       is_branch[1] ? {3'h1, 1'h1} :
                                       is_branch[2] ? {3'h2, 1'h1} :
@@ -217,7 +220,8 @@ module issue_queue(
   generate
     for (j=0; j<8; j=j+1) begin : generate_output
 
-      assign {branch_taken[j], branch_taken_address[j], id[j], instruction[j], pc[j]} = data[j];
+      // this is ordered.
+      assign {branch_taken[j], branch_taken_address[j], id[j], instruction[j], pc[j]} = data[ order[j] ];
       assign opcode[j] = instruction[j][`OPCODE_MSB:`OPCODE_LSB];
       assign is_branch[j] = ((opcode[j] & 6'b110000) == 6'b110000) && (opcode[j] != `OP_CODE_JMP);
 
@@ -277,13 +281,22 @@ module issue_queue(
   always @(posedge clk) begin
 
     if (flush) begin
+      // spec is ordered, so some funky shit needs to be done.
+      count <= count - spec[0] - spec[1] - spec[2] - spec[3] - spec[4] - spec[5] - spec[6] - spec[7];
+      wr_pointer <= first_branch+1;
 
-      count <= 0;
-      wr_pointer <= 0;
-      rd_pointer <= 0;
       for(i=0; i<8; i=i+1) begin
-        data[i] <= 0;
-        vld[i] <= 0;
+        if (spec[i]) begin
+          data[ order[i] ] <= 0;
+          vld[ order[i] ] <= 0;
+        end
+      end
+
+      // nothing changes for read pointer.
+      if (retire0 && retire1) begin
+        rd_pointer <= rd_pointer + 2;
+      end else if (retire0) begin
+        rd_pointer <= rd_pointer + 1;
       end
 
     end else begin

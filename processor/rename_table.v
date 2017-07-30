@@ -127,15 +127,17 @@ module rename_table (
 
   always @(posedge clk) begin
 
-    if (reset | flush) begin // this is wrong. cant flush everything. need to be speculative.
+      if (flush) begin // this is wrong. cant flush everything. need to be speculative.
 
-      for(i=0; i<32; i=i+1) begin
-        maps[i] <= 0;
-        vld[i] <= 0;
-        spec[i] <= 0;
+        for(i=0; i<32; i=i+1) begin
+          if(spec[i]) begin // these are ordered so its all good.
+            maps[i] <= 0;
+            vld[i] <= 0;
+            spec[i] <= 0;
+          end
+        end
+
       end
-
-    end else begin
 
       if (push0) begin
         maps[push_reg_addr0] <= push_rob_addr0;
@@ -157,7 +159,6 @@ module rename_table (
         vld[push_reg_addr1]  <= 0;
       end
 
-    end
   end
 
 endmodule

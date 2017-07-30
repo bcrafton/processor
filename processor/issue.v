@@ -574,7 +574,7 @@ module split_hazard(
                                          
                                          (is_branch[j] && !(pop0 && (pop_key0 == j))) ||
 
-                                         (is_branch[i] && !(i == 0 || i == 1)) ||
+                                         //(is_branch[i] && !(i == 0 || i == 1)) ||
                                          (is_branch[i] && is_cmp[j]) ||
                                          (is_cmp[i] && is_branch[j]) ||
 
