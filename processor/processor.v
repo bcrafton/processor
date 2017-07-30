@@ -1104,7 +1104,7 @@ module processor(
   .read_rob_vld1_pipe0(rt_rob_vld1_pipe0),
 
   .read_reg_addr0_pipe1(id_ex_rs1),
-  .read_reg_addr1_pipe1(id_ex_rt0),
+  .read_reg_addr1_pipe1(id_ex_rt1),
 
   .read_rob_addr0_pipe1(rt_rob_addr0_pipe1),
   .read_rob_addr1_pipe1(rt_rob_addr1_pipe1),
