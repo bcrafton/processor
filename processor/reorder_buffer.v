@@ -112,7 +112,7 @@ module reorder_buffer (
   assign data0_out = mem[oldest0];
   assign data1_out = mem[oldest1];
 
-  assign reg_write0_out = retire0 && reg_write[oldest0];
+  assign reg_write0_out = retire0 && reg_write[oldest0] && !(reg_write1_out && (address1_out == address0_out));
   assign reg_write1_out = retire1 && reg_write[oldest1];
 
   assign address0_out = address[oldest0];

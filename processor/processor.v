@@ -560,6 +560,8 @@ module processor(
   .address_src(address_src1));
 
   register_file regfile0( 
+  .clk(clk),
+
   .write(rob_reg_write0), 
   .write_address(rob_address0), 
   .write_data(rob_data0), 
@@ -574,6 +576,8 @@ module processor(
   );
 
   register_file regfile1( 
+  .clk(clk),
+
   .write(rob_reg_write1), 
   .write_address(rob_address1), 
   .write_data(rob_data1), 
@@ -1115,8 +1119,10 @@ module processor(
   // pop reg -> rob
   .pop0(retire0),
   .pop_reg_addr0(rob_address0),
+  .pop_rob_addr0(oldest0),
 
   .pop1(retire1),
+  .pop_rob_addr1(oldest1),
   .pop_reg_addr1(rob_address1)
 
   );

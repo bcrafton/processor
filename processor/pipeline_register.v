@@ -100,7 +100,7 @@ module if_id_register(
       branch_taken <= 0;
       branch_taken_address <= 0;
       id <= 0;
-      iq_index <= 0;
+      iq_index <= iq_index_in;
       spec <= 0;
     end else if(!stall) begin
       instruction <= instruction_in;
@@ -344,7 +344,7 @@ module id_ex_register(
       branch_taken <= 0;
       branch_taken_address <= 0;
       id <= 0;
-      iq_index <= 0;
+      iq_index <= iq_index_in;
       spec <= 0;
     end else if(!stall) begin
       rs <= rs_in;
@@ -539,7 +539,7 @@ module ex_mem_register(
       first <= 0;
       pc <= 0;
       id <= 0;
-      iq_index <= 0;
+      iq_index <= iq_index_in;
       spec <= 0;
     end else if(!stall) begin
       alu_result <= alu_result_in;
@@ -687,7 +687,7 @@ module mem_wb_register(
       first <= 0;
       pc <= 0;
       id <= 0;
-      iq_index <= 0;
+      iq_index <= iq_index_in;
       spec <= 0;
     end else if(!stall) begin
       mem_to_reg <= mem_to_reg_in;

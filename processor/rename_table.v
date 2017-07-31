@@ -39,9 +39,11 @@ module rename_table (
   // pop reg -> rob
   pop0,
   pop_reg_addr0,
+  pop_rob_addr0,
 
   pop1,
-  pop_reg_addr1
+  pop_reg_addr1,
+  pop_rob_addr1
   
 
   );    
@@ -111,7 +113,7 @@ module rename_table (
 
   initial begin
 
-    for(i=0; i<8; i=i+1) begin
+    for(i=0; i<10; i=i+1) begin
       $dumpvars(0, maps[i], vld[i], spec[i]);
     end
 
@@ -151,12 +153,12 @@ module rename_table (
         spec[push_reg_addr1] <= spec1;
       end
 
-      if (pop0 && (maps[pop_reg_addr0] == pop_rob_addr0)) begin
-        vld[push_reg_addr0]  <= 0;
+      if (pop0 && (maps[pop_reg_addr0] == pop_rob_addr0) && !(push_reg_addr0 == pop_reg_addr0) && !(push_reg_addr1 == pop_reg_addr0)) begin
+        vld[pop_reg_addr0]  <= 0;
       end
 
-      if (pop1 && (maps[pop_reg_addr1] == pop_rob_addr1)) begin
-        vld[push_reg_addr1]  <= 0;
+      if (pop1 && (maps[pop_reg_addr1] == pop_rob_addr1) && !(push_reg_addr0 == pop_reg_addr1) && !(push_reg_addr1 == pop_reg_addr1)) begin
+        vld[pop_reg_addr1]  <= 0;
       end
 
   end

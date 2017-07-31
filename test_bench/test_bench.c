@@ -50,15 +50,16 @@ static test_t tests[] = {
 {"jr", BINARY_TEST, 0, 1000},
 {"ooo", BINARY_TEST, 0, 1000},
 
-/*
+
 {"push", ASM_TEST, 100, 1000},
 {"pop", ASM_TEST, 100, 1000},
 
 {"plus1", CODE_TEST, 4, 10000},
+
 {"fn_add", CODE_TEST, 6, 10000},
 {"if_false", CODE_TEST, 10, 10000},
 {"if_true", CODE_TEST, 20, 10000},
-
+/*
 {"to_10", CODE_TEST, 20, 100000},
 
 {"fib0", CODE_TEST, 0, 10000},
@@ -76,7 +77,6 @@ static test_t tests[] = {
 {"list", CODE_TEST, 6, 200000},
 {"linked_list", CODE_TEST, 6, 200000},
 */
-
 };
 
 static int num_programs = sizeof(tests)/sizeof(test_t);
@@ -253,6 +253,8 @@ GQueue* load_instruction_log(char* dir, char* filename)
   unsigned long id;
   uint32_t pc;
   uint32_t instruction;
+
+  uint32_t alu_out;
   uint32_t alu_in0;
   uint32_t alu_in1;
 
@@ -261,7 +263,10 @@ GQueue* load_instruction_log(char* dir, char* filename)
   uint32_t branch_imm_address;
   uint32_t branch_reg_address;
 
-  while( fscanf(file, "@%lu 0x%lx %d 0x%x 0x%x 0x%x %d %x %x %x\n", &timestamp, &id, &pc, &instruction, &alu_in0, &alu_in1, &branch_taken, &branch_taken_address, &branch_imm_address, &branch_reg_address) != EOF )
+  uint32_t mem_read_data;
+  uint32_t mem_write_data;
+
+  while( fscanf(file, "@%lu 0x%lx %d 0x%x 0x%x 0x%x 0x%x %d %x %x %x %x %x\n", &timestamp, &id, &pc, &instruction, &alu_in0, &alu_in1, &alu_out, &branch_taken, &branch_taken_address, &branch_imm_address, &branch_reg_address, &mem_read_data, &mem_write_data) != EOF )
   {
     instruction_log_t* log = new_instruction_log();
   
@@ -271,10 +276,13 @@ GQueue* load_instruction_log(char* dir, char* filename)
     log->instruction = instruction;
     log->alu_in0 = alu_in0;
     log->alu_in1 = alu_in1;
+    log->alu_out = alu_out;
     log->branch_taken = branch_taken;
     log->branch_taken_address = branch_taken_address;
     log->branch_imm_address = branch_imm_address;
     log->branch_reg_address = branch_reg_address;
+    log->mem_read_data = mem_read_data;
+    log->mem_write_data = mem_write_data;
 
     g_queue_push_tail(q, log);
   }
@@ -363,6 +371,7 @@ bool diff_instruction_log(instruction_log_t* log1, instruction_log_t* log2)
     default:
       printf("invalid instruction!\n");
   }
+  if (!pass) printf("pc = %x %x %x %x %x %x\n", log1->pc, log1->instruction, log1->alu_in0, log1->alu_in1, log2->alu_in0, log2->alu_in1);
   return pass;
 }
 

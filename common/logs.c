@@ -48,7 +48,7 @@ gboolean traverse(void* key, void* value, void* data)
   if (log->instruction != 0)
   {
     // dont really care about the rest of them right now.
-    fprintf(file, "@%08lu 0x%08lx %03d 0x%08x 0x%04x 0x%04x %d %04x %04x %04x %04x %04x\n", 
+    fprintf(file, "@%08lu 0x%08lx %03d 0x%08x 0x%04x 0x%04x 0x%04x %d %04x %04x %04x %04x %04x\n", 
       log->timestamp,
       log->id,
       log->pc,
@@ -56,6 +56,7 @@ gboolean traverse(void* key, void* value, void* data)
 
       log->alu_in0,
       log->alu_in1,
+      log->alu_out,
 
       log->branch_taken,
       log->branch_taken_address,

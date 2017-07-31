@@ -283,10 +283,11 @@ module issue_queue(
     if (flush) begin
       // spec is ordered, so some funky shit needs to be done.
       count <= count - spec[0] - spec[1] - spec[2] - spec[3] - spec[4] - spec[5] - spec[6] - spec[7];
-      wr_pointer <= first_branch+1;
+      wr_pointer <= order[first_branch]+1;
 
+      // valid means issued here.
       for(i=0; i<8; i=i+1) begin
-        if (spec[i]) begin
+        if (vld[order[i]] && spec[i]) begin
           data[ order[i] ] <= 0;
           vld[ order[i] ] <= 0;
         end

@@ -345,6 +345,7 @@ static void execute_instruction(INSTRUCTION i, program_state_t* p)
       break;
     case OP_CODE_JR:
       p->pc = rs_data;
+      op1 = rs_data;
       break;
 
     case OP_CODE_NOP:
