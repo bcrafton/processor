@@ -59,9 +59,9 @@ static test_t tests[] = {
 {"fn_add", CODE_TEST, 6, 10000},
 {"if_false", CODE_TEST, 10, 10000},
 {"if_true", CODE_TEST, 20, 10000},
-/*
-{"to_10", CODE_TEST, 20, 100000},
 
+{"to_10", CODE_TEST, 20, 100000},
+/*
 {"fib0", CODE_TEST, 0, 10000},
 {"fib1", CODE_TEST, 2, 10000},
 {"fib2", CODE_TEST, 2, 10000},

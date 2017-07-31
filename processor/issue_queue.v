@@ -17,6 +17,7 @@ module issue_queue(
 
   oldest0,
   oldest1,
+  flush_iq_index,
 
   ///////////////
 
@@ -80,6 +81,8 @@ module issue_queue(
 
   output wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest0;
   output wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest1;
+
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] flush_iq_index;
 
   input wire pop0;
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0] pop_key0;
@@ -283,7 +286,7 @@ module issue_queue(
     if (flush) begin
       // spec is ordered, so some funky shit needs to be done.
       count <= count - spec[0] - spec[1] - spec[2] - spec[3] - spec[4] - spec[5] - spec[6] - spec[7];
-      wr_pointer <= order[first_branch]+1;
+      wr_pointer <= flush_iq_index+1;
 
       // valid means issued here.
       for(i=0; i<8; i=i+1) begin

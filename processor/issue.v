@@ -12,6 +12,7 @@ module issue(
 
   oldest0,
   oldest1,
+  flush_iq_index,
 
   if_id_instruction1,
   if_id_mem_op1,
@@ -75,6 +76,8 @@ module issue(
 
   output wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest0;
   output wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest1;
+
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] flush_iq_index;
 
   input wire [`INST_WIDTH-1:0] if_id_instruction1;
   input wire [`MEM_OP_BITS-1:0] if_id_mem_op1;
@@ -175,6 +178,7 @@ module issue(
 
   .oldest0(oldest0),
   .oldest1(oldest1),
+  .flush_iq_index(flush_iq_index),
 
   .retire0(retire0),
   .retire1(retire1),

@@ -480,6 +480,7 @@ module processor(
 
   .oldest0(oldest0),
   .oldest1(oldest1),
+  .flush_iq_index(id_ex_iq_index0),
 
   .retire0(retire0),
   .retire1(retire1),
@@ -1084,7 +1085,7 @@ module processor(
   rename_table rt(
   .clk(clk),
   .reset(),
-  .flush(), // dont have to worry about this for now.
+  .flush(branch_flush[`PC_MASK_INDEX]), 
 
   .push0( !(mem_wb_instruction0 == 0) && mem_wb_reg_write0 ),
   .spec0(mem_wb_spec0),
