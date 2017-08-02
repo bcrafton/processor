@@ -46,7 +46,12 @@ module reorder_buffer (
   read_data0_pipe0,
   read_data1_pipe0,
   read_data0_pipe1,
-  read_data1_pipe1
+  read_data1_pipe1,
+
+  read_vld0_pipe0,
+  read_vld1_pipe0,
+  read_vld0_pipe1,
+  read_vld1_pipe1
   
 
   );    
@@ -98,6 +103,11 @@ module reorder_buffer (
   output wire [`DATA_WIDTH-1:0] read_data0_pipe1;
   output wire [`DATA_WIDTH-1:0] read_data1_pipe1;
 
+  output wire                   read_vld0_pipe0;
+  output wire                   read_vld1_pipe0;
+  output wire                   read_vld0_pipe1;
+  output wire                   read_vld1_pipe1;
+
   reg [`DATA_WIDTH-1:0]         mem       [0:RAM_DEPTH-1];
   reg                           vld       [0:RAM_DEPTH-1];
   reg                           reg_write [0:RAM_DEPTH-1];
@@ -124,6 +134,11 @@ module reorder_buffer (
   assign read_data1_pipe0 = mem[read_addr1_pipe0];
   assign read_data0_pipe1 = mem[read_addr0_pipe1];
   assign read_data1_pipe1 = mem[read_addr1_pipe1];
+
+  assign read_vld0_pipe0 = vld[read_addr0_pipe0];
+  assign read_vld1_pipe0 = vld[read_addr1_pipe0];
+  assign read_vld0_pipe1 = vld[read_addr0_pipe1];
+  assign read_vld1_pipe1 = vld[read_addr1_pipe1];
 
   ///////////////////////////
 

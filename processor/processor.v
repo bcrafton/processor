@@ -1088,12 +1088,10 @@ module processor(
   .flush(branch_flush[`PC_MASK_INDEX]), 
 
   .push0( !(mem_wb_instruction0 == 0) && mem_wb_reg_write0 ),
-  .spec0(mem_wb_spec0),
   .push_reg_addr0( mem_wb_reg_dst_result0 ),
   .push_rob_addr0( mem_wb_iq_index0 ),
 
   .push1( !(mem_wb_instruction1 == 0) && mem_wb_reg_write1 ),
-  .spec1(mem_wb_spec1),
   .push_reg_addr1( mem_wb_reg_dst_result1 ),
   .push_rob_addr1( mem_wb_iq_index1 ),
 
@@ -1105,17 +1103,11 @@ module processor(
   .read_rob_addr0_pipe0(rt_rob_addr0_pipe0),
   .read_rob_addr1_pipe0(rt_rob_addr1_pipe0),
 
-  .read_rob_vld0_pipe0(rt_rob_vld0_pipe0),
-  .read_rob_vld1_pipe0(rt_rob_vld1_pipe0),
-
   .read_reg_addr0_pipe1(id_ex_rs1),
   .read_reg_addr1_pipe1(id_ex_rt1),
 
   .read_rob_addr0_pipe1(rt_rob_addr0_pipe1),
   .read_rob_addr1_pipe1(rt_rob_addr1_pipe1),
-
-  .read_rob_vld0_pipe1(rt_rob_vld0_pipe1),
-  .read_rob_vld1_pipe1(rt_rob_vld1_pipe1),
 
   // pop reg -> rob
   .pop0(retire0),
@@ -1171,7 +1163,12 @@ module processor(
   .read_data0_pipe0(read_rob_data0_pipe0),
   .read_data1_pipe0(read_rob_data1_pipe0),
   .read_data0_pipe1(read_rob_data0_pipe1),
-  .read_data1_pipe1(read_rob_data1_pipe1)
+  .read_data1_pipe1(read_rob_data1_pipe1),
+
+  .read_vld0_pipe0(rt_rob_vld0_pipe0),
+  .read_vld1_pipe0(rt_rob_vld1_pipe0),
+  .read_vld0_pipe1(rt_rob_vld0_pipe1),
+  .read_vld1_pipe1(rt_rob_vld1_pipe1)
 
   );
 
