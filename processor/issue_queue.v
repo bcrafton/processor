@@ -143,8 +143,8 @@ module issue_queue(
   reg [2:0] wr_pointer;
   reg [2:0] rd_pointer;
 
-  wire [2:0] wr_pointer0 = wr_pointer;
-  wire [2:0] wr_pointer1 = wr_pointer + 1 < 8 ? wr_pointer + 1 : 0; 
+  wire [2:0] wr_pointer0 = flush ? flush_iq_index+1 : wr_pointer;
+  wire [2:0] wr_pointer1 = wr_pointer0 + 1 < 8 ? wr_pointer0 + 1 : 0; 
 
   wire [2:0] rd_pointer0 = rd_pointer;
   wire [2:0] rd_pointer1 = rd_pointer + 1 < 8 ? rd_pointer + 1 : 0; 
@@ -152,6 +152,7 @@ module issue_queue(
   wire [2:0] order [0:7];
 
   reg [3:0] count;
+  wire [3:0] next_count;
   assign free = 8 - count;
 
   wire full = count == 8;
@@ -231,7 +232,7 @@ module issue_queue(
       if (j == 0) begin
         assign spec[j] = 0;
       end else begin
-        assign spec[j] = spec[j-1] || is_branch[j-1];
+        assign spec[j] = (spec[j-1] || is_branch[j-1]) && vld_out[j];
       end
 
       assign order[j] = rd_pointer + j < 8 ? rd_pointer + j : rd_pointer + j - 8;
@@ -284,75 +285,64 @@ module issue_queue(
   always @(posedge clk) begin
 
     if (flush) begin
-      // spec is ordered, so some funky shit needs to be done.
-      count <= count - spec[0] - spec[1] - spec[2] - spec[3] - spec[4] - spec[5] - spec[6] - spec[7];
-      wr_pointer <= flush_iq_index+1;
-
-      // valid means issued here.
       for(i=0; i<8; i=i+1) begin
         if (vld[order[i]] && spec[i]) begin
           data[ order[i] ] <= 0;
           vld[ order[i] ] <= 0;
         end
       end
+    end
 
-      // nothing changes for read pointer.
-      if (retire0 && retire1) begin
-        rd_pointer <= rd_pointer + 2;
-      end else if (retire0) begin
-        rd_pointer <= rd_pointer + 1;
+    count <= flush ? 
+             count - spec[0] - spec[1] - spec[2] - spec[3] - spec[4] - spec[5] - spec[6] - spec[7] - retire0 - retire1 + write0 + write1 : 
+             count - retire0 - retire1 + write0 + write1;
+
+    wr_pointer <= flush ? flush_iq_index+1 + write0 + write1 : wr_pointer + write0 + write1;
+
+    if (write0 && write1) begin
+
+      data[ wr_pointer0 ] <= push_data0;
+      data[ wr_pointer1 ] <= push_data1;
+
+      if (!( (pop0 && (order[pop_key0] == wr_pointer0)) || (pop1 && (order[pop_key1] == wr_pointer0)) )) begin
+        vld[ wr_pointer0 ] <= 1;
       end
 
-    end else begin
-
-      if (write0 && write1) begin
-
-        data[ wr_pointer0 ] <= push_data0;
-        data[ wr_pointer1 ] <= push_data1;
-
-        if (!( (pop0 && (order[pop_key0] == wr_pointer0)) || (pop1 && (order[pop_key1] == wr_pointer0)) )) begin
-          vld[ wr_pointer0 ] <= 1;
-        end
-
-        if (!( (pop0 && (order[pop_key0] == wr_pointer1)) || (pop1 && (order[pop_key1] == wr_pointer1)) )) begin
-          vld[ wr_pointer1 ] <= 1;
-        end
-
-        wr_pointer <= wr_pointer + 2;
-
-      end else if (write0) begin
-
-        data[ wr_pointer0 ] <= push_data0;
-
-        if (!( (pop0 && (order[pop_key0] == wr_pointer0)) || (pop1 && (order[pop_key1] == wr_pointer0)) )) begin
-          vld[ wr_pointer0 ] <= 1;
-        end
-
-        wr_pointer <= wr_pointer + 1;
-
-      end 
-
-      if (retire0 && retire1) begin
-
-        rd_pointer <= rd_pointer + 2;
-
-      end else if (retire0) begin
-
-        rd_pointer <= rd_pointer + 1;
-
+      if (!( (pop0 && (order[pop_key0] == wr_pointer1)) || (pop1 && (order[pop_key1] == wr_pointer1)) )) begin
+        vld[ wr_pointer1 ] <= 1;
       end
 
-      if (pop0) begin
-        vld[ order[pop_key0] ] <= 0;
-      end 
+      //wr_pointer <= wr_pointer + 2;
 
-      if (pop1) begin
-        vld[ order[pop_key1] ] <= 0;
-      end 
+    end else if (write0) begin
 
-      count <= count + write0 + write1 - retire0 - retire1;
+      data[ wr_pointer0 ] <= push_data0;
+
+      if (!( (pop0 && (order[pop_key0] == wr_pointer0)) || (pop1 && (order[pop_key1] == wr_pointer0)) )) begin
+        vld[ wr_pointer0 ] <= 1;
+      end
+
+      //wr_pointer <= wr_pointer + 1;
+
+    end 
+
+    if (retire0 && retire1) begin
+
+      rd_pointer <= rd_pointer + 2;
+
+    end else if (retire0) begin
+
+      rd_pointer <= rd_pointer + 1;
 
     end
+
+    if (pop0) begin
+      vld[ order[pop_key0] ] <= 0;
+    end 
+
+    if (pop1) begin
+      vld[ order[pop_key1] ] <= 0;
+    end 
 
   end
 

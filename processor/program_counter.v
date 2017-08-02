@@ -94,8 +94,8 @@ module program_counter(
   //assign push0 = (instruction0 != `NOP_INSTRUCTION) ? 1                          : 0;
   //assign push1 = (instruction1 != `NOP_INSTRUCTION) ? (!jump0 && !branch_taken0) : 0;
 
-  assign push0 = 1;
-  assign push1 = !jump0 && !branch_taken0;
+  assign push0 = !flush;
+  assign push1 = !flush && !jump0 && !branch_taken0;
 
   wire branch0 = ((opcode0 & 6'b110000) == 6'b110000) && (opcode0 != `OP_CODE_JMP);
   wire branch1 = ((opcode1 & 6'b110000) == 6'b110000) && (opcode1 != `OP_CODE_JMP);
