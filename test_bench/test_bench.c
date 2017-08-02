@@ -2,7 +2,7 @@
 #include "test_bench.h"
 
 static test_t tests[] = {
-
+/*
 {"addi", BINARY_TEST, 0, 1000},
 
 {"subi", BINARY_TEST, 0, 1000},
@@ -76,6 +76,8 @@ static test_t tests[] = {
 {"nested_tuple", CODE_TEST, 202, 10000},
 {"list", CODE_TEST, 6, 200000},
 {"linked_list", CODE_TEST, 6, 200000},
+*/
+{"fib3", CODE_TEST, 4, 100000},
 };
 
 static int num_programs = sizeof(tests)/sizeof(test_t);
@@ -306,7 +308,6 @@ bool diff_instruction_log(instruction_log_t* log1, instruction_log_t* log2)
     case OP_CODE_OR:
     case OP_CODE_NAND:
     case OP_CODE_NOR:
-    case OP_CODE_MOV:
     case OP_CODE_SAR:
     case OP_CODE_SHR:
     case OP_CODE_SHL:
@@ -325,7 +326,6 @@ bool diff_instruction_log(instruction_log_t* log1, instruction_log_t* log2)
     case OP_CODE_ORI:
     case OP_CODE_NANDI:
     case OP_CODE_NORI:
-    case OP_CODE_MOVI:
     case OP_CODE_SARI:
     case OP_CODE_SHRI:
     case OP_CODE_SHLI:
@@ -333,6 +333,11 @@ bool diff_instruction_log(instruction_log_t* log1, instruction_log_t* log2)
     case OP_CODE_TESTI:
     case OP_CODE_CMPI:
       pass = pass && (log1->alu_in0 == log2->alu_in0);
+      pass = pass && (log1->alu_in1 == log2->alu_in1);
+      break;
+
+    case OP_CODE_MOV:
+    case OP_CODE_MOVI:
       pass = pass && (log1->alu_in1 == log2->alu_in1);
       break;
 
@@ -370,7 +375,7 @@ bool diff_instruction_log(instruction_log_t* log1, instruction_log_t* log2)
     default:
       printf("invalid instruction!\n");
   }
-  if (!pass) printf("pc = %x %x %x %x %x %x\n", log1->pc, log1->instruction, log1->alu_in0, log1->alu_in1, log2->alu_in0, log2->alu_in1);
+  if (!pass) printf("pc = %d %x %x %x %x %x\n", log1->pc, log1->instruction, log1->alu_in0, log1->alu_in1, log2->alu_in0, log2->alu_in1);
   return pass;
 }
 

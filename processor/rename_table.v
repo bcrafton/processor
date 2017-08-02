@@ -141,13 +141,13 @@ module rename_table (
 
       end
 
-      if (push0) begin
+      if (push0 && !(spec0 && flush)) begin // dont think should have to do the spec and flush thing here.
         maps[push_reg_addr0] <= push_rob_addr0;
         vld[push_reg_addr0]  <= 1;
         spec[push_reg_addr0] <= spec0;
       end
 
-      if (push1) begin
+      if (push1 && !(spec1 && flush)) begin
         maps[push_reg_addr1] <= push_rob_addr1;
         vld[push_reg_addr1]  <= 1;
         spec[push_reg_addr1] <= spec1;
