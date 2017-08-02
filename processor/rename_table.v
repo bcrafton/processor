@@ -8,10 +8,12 @@ module rename_table (
 
   // push reg -> rob
   push0,
+  spec0,
   push_reg_addr0,
   push_rob_addr0,
 
   push1,
+  spec1,
   push_reg_addr1,
   push_rob_addr1,
 
@@ -22,11 +24,17 @@ module rename_table (
   read_rob_addr0_pipe0,
   read_rob_addr1_pipe0,
 
+  read_rob_vld0_pipe0,
+  read_rob_vld1_pipe0,
+
   read_reg_addr0_pipe1,
   read_reg_addr1_pipe1,
 
   read_rob_addr0_pipe1,
   read_rob_addr1_pipe1,
+
+  read_rob_vld0_pipe1,
+  read_rob_vld1_pipe1,
 
   // pop reg -> rob
   pop0,
@@ -46,10 +54,12 @@ module rename_table (
 
   // push reg -> rob
   input wire                             push0;
+  input wire                             spec0;
   input wire [`NUM_REGISTERS_LOG2-1:0]   push_reg_addr0;
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0]  push_rob_addr0;
 
   input wire                             push1;
+  input wire                             spec1;
   input wire [`NUM_REGISTERS_LOG2-1:0]   push_reg_addr1;
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0]  push_rob_addr1;
 
@@ -60,11 +70,17 @@ module rename_table (
   output wire [`NUM_IQ_ENTRIES_LOG2-1:0] read_rob_addr0_pipe0;
   output wire [`NUM_IQ_ENTRIES_LOG2-1:0] read_rob_addr1_pipe0;
 
+  output wire                            read_rob_vld0_pipe0;
+  output wire                            read_rob_vld1_pipe0;
+
   input wire [`NUM_REGISTERS_LOG2-1:0]   read_reg_addr0_pipe1;
   input wire [`NUM_REGISTERS_LOG2-1:0]   read_reg_addr1_pipe1;
 
   output wire [`NUM_IQ_ENTRIES_LOG2-1:0] read_rob_addr0_pipe1;
   output wire [`NUM_IQ_ENTRIES_LOG2-1:0] read_rob_addr1_pipe1;
+
+  output wire                            read_rob_vld0_pipe1;
+  output wire                            read_rob_vld1_pipe1;
 
   // pop reg -> rob
   input wire                             pop0;
@@ -77,22 +93,28 @@ module rename_table (
 
   
   reg [4:0] maps [`NUM_REGISTERS-1:0]; 
-  // this does nothing lol.
   reg       vld  [`NUM_REGISTERS-1:0]; 
+  reg       spec [`NUM_REGISTERS-1:0]; 
 
 
   assign read_rob_addr0_pipe0 = maps[read_reg_addr0_pipe0];
   assign read_rob_addr1_pipe0 = maps[read_reg_addr1_pipe0];
 
+  assign read_rob_vld0_pipe0  = vld[read_reg_addr0_pipe0];
+  assign read_rob_vld1_pipe0  = vld[read_reg_addr1_pipe0];
+
   assign read_rob_addr0_pipe1 = maps[read_reg_addr0_pipe1];
   assign read_rob_addr1_pipe1 = maps[read_reg_addr1_pipe1];
+
+  assign read_rob_vld0_pipe1  = vld[read_reg_addr0_pipe1];
+  assign read_rob_vld1_pipe1  = vld[read_reg_addr1_pipe1];
 
   integer i;
 
   initial begin
 
     for(i=0; i<10; i=i+1) begin
-      $dumpvars(0, maps[i], vld[i]);
+      $dumpvars(0, maps[i], vld[i], spec[i]);
     end
 
   end
@@ -101,22 +123,34 @@ module rename_table (
     for(i=0; i<32; i=i+1) begin
       maps[i] = 0;
       vld[i] = 0;
+      spec[i] = 0;
     end
   end
 
   always @(posedge clk) begin
 
-      if (flush) begin
+      if (flush) begin // this is wrong. cant flush everything. need to be speculative.
+
+        for(i=0; i<32; i=i+1) begin
+          if(spec[i]) begin // these are ordered so its all good.
+            maps[i] <= 0;
+            vld[i] <= 0;
+            spec[i] <= 0;
+          end
+        end
+
       end
 
-      if (push0) begin
+      if (push0 && !(spec0 && flush)) begin // dont think should have to do the spec and flush thing here.
         maps[push_reg_addr0] <= push_rob_addr0;
         vld[push_reg_addr0]  <= 1;
+        spec[push_reg_addr0] <= spec0;
       end
 
-      if (push1) begin
+      if (push1 && !(spec1 && flush)) begin
         maps[push_reg_addr1] <= push_rob_addr1;
         vld[push_reg_addr1]  <= 1;
+        spec[push_reg_addr1] <= spec1;
       end
 
       if (pop0 && (maps[pop_reg_addr0] == pop_rob_addr0) && !(push_reg_addr0 == pop_reg_addr0) && !(push_reg_addr1 == pop_reg_addr0)) begin
