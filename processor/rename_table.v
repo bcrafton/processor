@@ -153,11 +153,11 @@ module rename_table (
         spec[push_reg_addr1] <= spec1;
       end
 
-      if (pop0 && (maps[pop_reg_addr0] == pop_rob_addr0) && !(push_reg_addr0 == pop_reg_addr0) && !(push_reg_addr1 == pop_reg_addr0)) begin
+      if (pop0 && (maps[pop_reg_addr0] == pop_rob_addr0) && !(push0 && (push_reg_addr0 == pop_reg_addr0)) && !(push1 && (push_reg_addr1 == pop_reg_addr0))) begin
         vld[pop_reg_addr0]  <= 0;
       end
 
-      if (pop1 && (maps[pop_reg_addr1] == pop_rob_addr1) && !(push_reg_addr0 == pop_reg_addr1) && !(push_reg_addr1 == pop_reg_addr1)) begin
+      if (pop1 && (maps[pop_reg_addr1] == pop_rob_addr1) && !(push0 && (push_reg_addr0 == pop_reg_addr1)) && !(push1 && (push_reg_addr1 == pop_reg_addr1))) begin
         vld[pop_reg_addr1]  <= 0;
       end
 
