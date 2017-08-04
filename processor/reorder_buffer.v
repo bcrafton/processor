@@ -10,13 +10,13 @@ module reorder_buffer (
 
   oldest0,
   oldest1,
+  flush_iq_index,
 
   retire0,
   retire1,
 
   push0,
   iq_index0,
-  spec0,
 
   data0_in,
   reg_write0_in,
@@ -28,7 +28,6 @@ module reorder_buffer (
 
   push1,
   iq_index1,
-  spec1,
 
   data1_in,
   reg_write1_in,
@@ -60,13 +59,13 @@ module reorder_buffer (
 
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest0;
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest1;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] flush_iq_index;
 
   output wire retire0;
   output wire retire1;
 
   input wire                            push0;
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index0;
-  input wire                            spec0;
 
   input wire [`DATA_WIDTH-1:0]          data0_in;
   input wire                            reg_write0_in;
@@ -78,7 +77,6 @@ module reorder_buffer (
 
   input wire                            push1;
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0] iq_index1;
-  input wire                            spec1;
 
   input wire [`DATA_WIDTH-1:0]          data1_in;
   input wire                            reg_write1_in;
@@ -102,9 +100,21 @@ module reorder_buffer (
   reg                           vld       [0:RAM_DEPTH-1];
   reg                           reg_write [0:RAM_DEPTH-1];
   reg [`NUM_REGISTERS_LOG2-1:0] address   [0:RAM_DEPTH-1];
-  reg                           spec      [0:RAM_DEPTH-1];
+
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] first_branch = oldest0 + flush_iq_index < 8 ? oldest0 + flush_iq_index : oldest0 + flush_iq_index - 8;
+
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] order [0:31];
 
   integer i;
+  genvar j;
+
+  generate
+    for (j=0; j<8; j=j+1) begin : generate_output
+
+      assign order[j] = oldest0 + j < 8 ? oldest0 + j : oldest0 + j - 8;
+
+    end
+  endgenerate
 
   assign retire0 = vld[oldest0] == 1;
   assign retire1 = retire0 && vld[oldest1] == 1;
@@ -127,10 +137,12 @@ module reorder_buffer (
 
   ///////////////////////////
 
+
+
   initial begin
 
     for(i=0; i<8; i=i+1) begin
-      $dumpvars(0, mem[i], vld[i], reg_write[i], address[i], spec[i]);
+      $dumpvars(0, mem[i], vld[i], reg_write[i], address[i]);
     end
 
   end
@@ -141,7 +153,6 @@ module reorder_buffer (
       vld[i] = 0;
       reg_write[i] = 0;
       address[i] = 0;
-      spec[i] = 0;
     end
   end
 
@@ -150,12 +161,11 @@ module reorder_buffer (
       if (flush) begin
 
         for(i=0; i<RAM_DEPTH; i=i+1) begin
-          if(spec[i]) begin // these are ordered so its all good.
+          if( order[i] > first_branch ) begin // these are ordered so its all good.
             mem[i] <= 0;
             vld[i] <= 0;
             reg_write[i] <= 0;
             address[i] <= 0;
-            spec[i] <= 0;
           end
         end
       end
@@ -165,7 +175,6 @@ module reorder_buffer (
         reg_write[iq_index0] <= reg_write0_in;
         address[iq_index0]   <= address0_in;
         vld[iq_index0]       <= 1;
-        spec[iq_index0]      <= spec0;
       end
 
       if (push1) begin
@@ -173,7 +182,6 @@ module reorder_buffer (
         reg_write[iq_index1] <= reg_write1_in;
         address[iq_index1]   <= address1_in;
         vld[iq_index1]       <= 1;
-        spec[iq_index1]      <= spec1;
       end
 
       if (retire0) begin

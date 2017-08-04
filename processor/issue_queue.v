@@ -8,7 +8,7 @@ module issue_queue(
   clk,
 
   flush,
-  spec,
+  //spec,
 
   free,
 
@@ -74,7 +74,8 @@ module issue_queue(
 
   input wire clk;
   input wire flush;
-  output wire [`NUM_IQ_ENTRIES-1:0] spec;
+  //output wire [`NUM_IQ_ENTRIES-1:0] spec;
+  wire [`NUM_IQ_ENTRIES-1:0] spec;
 
   input wire retire0;
   input wire retire1;
@@ -175,11 +176,6 @@ module issue_queue(
 
   ///////////////
 
-  wire                             is_branch [0:7];
-  wire [`NUM_IQ_ENTRIES_LOG2-1:0]  first_branch;  
-  wire                             has_branch;
-  wire [`OP_CODE_BITS-1:0]         opcode [0:7];
-
   wire [`INST_WIDTH-1:0]           instruction          [0:7];
   wire [`ADDR_WIDTH-1:0]           pc                   [0:7];
   wire [`INSTRUCTION_ID_WIDTH-1:0] id                   [0:7];
@@ -208,31 +204,15 @@ module issue_queue(
     end
   end
 
-  // this dosnt work because its not ordered.
-  // thinking that order may be necessary.
-  // need to sit down and think about what needs to be done to make this work from scratch.
-  assign {first_branch, has_branch} = is_branch[0] ? {3'h0, 1'h1} :
-                                      is_branch[1] ? {3'h1, 1'h1} :
-                                      is_branch[2] ? {3'h2, 1'h1} :
-                                      is_branch[3] ? {3'h3, 1'h1} :
-                                      is_branch[4] ? {3'h4, 1'h1} :
-                                      is_branch[5] ? {3'h5, 1'h1} :
-                                      is_branch[6] ? {3'h6, 1'h1} :
-                                      is_branch[7] ? {3'h7, 1'h1} :
-                                      {3'h0, 1'h0};
+  assign first_branch = rd_pointer + flush_iq_index < 8 ? rd_pointer + flush_iq_index : rd_pointer + flush_iq_index - 8;
 
   generate
     for (j=0; j<8; j=j+1) begin : generate_output
 
-      // this is ordered.
-      assign {branch_taken[j], branch_taken_address[j], id[j], instruction[j], pc[j]} = data[ order[j] ];
-      assign opcode[j] = instruction[j][`OPCODE_MSB:`OPCODE_LSB];
-      assign is_branch[j] = ((opcode[j] & 6'b110000) == 6'b110000) && (opcode[j] != `OP_CODE_JMP);
-
       if (j == 0) begin
         assign spec[j] = 0;
       end else begin
-        assign spec[j] = (spec[j-1] || is_branch[j-1]) && vld_out[j];
+        assign spec[j] = (spec[j-1] || (order[j] > first_branch)) && vld_out[j]; // vld out needs to go when branches execute ooo.
       end
 
       assign order[j] = rd_pointer + j < 8 ? rd_pointer + j : rd_pointer + j - 8;

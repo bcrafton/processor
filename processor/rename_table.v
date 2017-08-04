@@ -6,14 +6,16 @@ module rename_table (
   flush,
   reset,
 
+  flush_iq_index,
+  oldest0,
+  oldest1,
+
   // push reg -> rob
   push0,
-  spec0,
   push_reg_addr0,
   push_rob_addr0,
 
   push1,
-  spec1,
   push_reg_addr1,
   push_rob_addr1,
 
@@ -52,14 +54,16 @@ module rename_table (
   input wire flush;
   input wire reset;
 
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] flush_iq_index;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest0;
+  input wire [`NUM_IQ_ENTRIES_LOG2-1:0] oldest1;
+
   // push reg -> rob
   input wire                             push0;
-  input wire                             spec0;
   input wire [`NUM_REGISTERS_LOG2-1:0]   push_reg_addr0;
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0]  push_rob_addr0;
 
   input wire                             push1;
-  input wire                             spec1;
   input wire [`NUM_REGISTERS_LOG2-1:0]   push_reg_addr1;
   input wire [`NUM_IQ_ENTRIES_LOG2-1:0]  push_rob_addr1;
 
@@ -93,9 +97,11 @@ module rename_table (
 
   
   reg [4:0] maps [`NUM_REGISTERS-1:0]; 
-  reg       vld  [`NUM_REGISTERS-1:0]; 
-  reg       spec [`NUM_REGISTERS-1:0]; 
+  reg       vld  [`NUM_REGISTERS-1:0];
 
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] first_branch = oldest0 + flush_iq_index < 8 ? oldest0 + flush_iq_index : oldest0 + flush_iq_index - 8;
+
+  wire [`NUM_IQ_ENTRIES_LOG2-1:0] order [0:31];
 
   assign read_rob_addr0_pipe0 = maps[read_reg_addr0_pipe0];
   assign read_rob_addr1_pipe0 = maps[read_reg_addr1_pipe0];
@@ -110,11 +116,20 @@ module rename_table (
   assign read_rob_vld1_pipe1  = vld[read_reg_addr1_pipe1];
 
   integer i;
+  genvar j;
+
+  generate
+    for (j=0; j<10; j=j+1) begin : generate_output
+
+      assign order[j] = oldest0 + maps[j] < 8 ? oldest0 + maps[j] : oldest0 + maps[j] - 8;
+
+    end
+  endgenerate
 
   initial begin
 
     for(i=0; i<10; i=i+1) begin
-      $dumpvars(0, maps[i], vld[i], spec[i]);
+      $dumpvars(0, maps[i], vld[i]);
     end
 
   end
@@ -123,7 +138,6 @@ module rename_table (
     for(i=0; i<32; i=i+1) begin
       maps[i] = 0;
       vld[i] = 0;
-      spec[i] = 0;
     end
   end
 
@@ -132,25 +146,22 @@ module rename_table (
       if (flush) begin // this is wrong. cant flush everything. need to be speculative.
 
         for(i=0; i<32; i=i+1) begin
-          if(spec[i]) begin // these are ordered so its all good.
+          if( order[i] > first_branch ) begin // these are ordered so its all good.
             maps[i] <= 0;
             vld[i] <= 0;
-            spec[i] <= 0;
           end
         end
 
       end
 
-      if (push0 && !(spec0 && flush)) begin // dont think should have to do the spec and flush thing here.
+      if (push0) begin // we will have to do something here in future for flushing
         maps[push_reg_addr0] <= push_rob_addr0;
         vld[push_reg_addr0]  <= 1;
-        spec[push_reg_addr0] <= spec0;
       end
 
-      if (push1 && !(spec1 && flush)) begin
+      if (push1) begin
         maps[push_reg_addr1] <= push_rob_addr1;
         vld[push_reg_addr1]  <= 1;
-        spec[push_reg_addr1] <= spec1;
       end
 
       if (pop0 && (maps[pop_reg_addr0] == pop_rob_addr0) && !(push0 && (push_reg_addr0 == pop_reg_addr0)) && !(push1 && (push_reg_addr1 == pop_reg_addr0))) begin

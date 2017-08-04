@@ -172,7 +172,7 @@ module issue(
 
   issue_queue q(
   .clk(clk),
-  .spec(spec),
+  //.spec(spec),
   .flush(flush),
   .free(free),
 
