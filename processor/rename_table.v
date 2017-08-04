@@ -106,8 +106,8 @@ module rename_table (
   assign read_rob_addr0_pipe0 = maps[read_reg_addr0_pipe0];
   assign read_rob_addr1_pipe0 = maps[read_reg_addr1_pipe0];
 
-  assign read_rob_vld0_pipe0  = vld[read_reg_addr0_pipe0];
-  assign read_rob_vld1_pipe0  = vld[read_reg_addr1_pipe0];
+  assign read_rob_vld0_pipe0  = (pop0 && (read_reg_addr0_pipe0 == pop_reg_addr0)) || (pop1 && (read_reg_addr1_pipe0 == pop_reg_addr0)) || vld[read_reg_addr0_pipe0];
+  assign read_rob_vld1_pipe0  = (pop0 && (read_reg_addr0_pipe0 == pop_reg_addr1)) || (pop1 && (read_reg_addr1_pipe0 == pop_reg_addr1)) || vld[read_reg_addr1_pipe0];
 
   assign read_rob_addr0_pipe1 = maps[read_reg_addr0_pipe1];
   assign read_rob_addr1_pipe1 = maps[read_reg_addr1_pipe1];
@@ -146,7 +146,7 @@ module rename_table (
       if (flush) begin // this is wrong. cant flush everything. need to be speculative.
 
         for(i=0; i<32; i=i+1) begin
-          if( order[i] > first_branch ) begin // these are ordered so its all good.
+          if( (order[i] > first_branch) && !(push0 && (push_reg_addr0 == order[i])) && !(push1 && (push_reg_addr1 == order[i]))) begin // these are ordered so its all good.
             maps[i] <= 0;
             vld[i] <= 0;
           end

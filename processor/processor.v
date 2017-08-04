@@ -1087,6 +1087,10 @@ module processor(
   .reset(),
   .flush(branch_flush[`PC_MASK_INDEX]), 
 
+  .oldest0(oldest0),
+  .oldest1(oldest1),
+  .flush_iq_index(id_ex_iq_index0),
+
   .push0( !(mem_wb_instruction0 == 0) && mem_wb_reg_write0 ),
   .push_reg_addr0( mem_wb_reg_dst_result0 ),
   .push_rob_addr0( mem_wb_iq_index0 ),
@@ -1133,6 +1137,7 @@ module processor(
 
   .oldest0(oldest0),
   .oldest1(oldest1),
+  .flush_iq_index(id_ex_iq_index0),
 
   .retire0(retire0),
   .retire1(retire1),
