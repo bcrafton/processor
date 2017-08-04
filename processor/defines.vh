@@ -85,6 +85,15 @@
 `define ADDR_WIDTH 16 
 `define IMM_WIDTH  16 
 
+`define IQ_NOT_ALLOCATED   3'b000
+`define IQ_ISSUE_QUEUE     3'b001 // dont think we need this
+`define IQ_IF_ID           3'b010 // dont think we need this
+`define IQ_ID_EX           3'b011
+`define IQ_EX_MEM          3'b100
+`define IQ_MEM_WB          3'b101
+`define IQ_ROB             3'b110
+`define NUM_IQ_BITS        3
+
 // pc + instruction + id + branch taken + branch taken address
 `define IQ_ENTRY_SIZE       `INST_WIDTH + `ADDR_WIDTH + `INSTRUCTION_ID_WIDTH + 1 + `ADDR_WIDTH
 `define NUM_IQ_ENTRIES      8

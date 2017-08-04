@@ -170,6 +170,33 @@ module issue(
 
   //////////////
 
+  score_board sb(
+
+  .clk(clk),
+  .flush(flush),
+  .reset(),
+
+  .flush_iq_index(flush_iq_index),
+  .oldest(oldest0),
+
+  .issue0(pop0),
+  .issue_index0(iq_index[pop_key0]),
+  .pipe0(), // do something with first here?
+
+  .retire0(retire0),
+  .retire_index0(oldest0),
+
+  .issue1(pop1),
+  .issue_index1(iq_index[pop_key1]),
+  .pipe1(), // do something with first here?
+
+  .retire1(retire1),
+  .retire_index1(oldest1)
+
+  );
+
+  //////////////
+
   issue_queue q(
   .clk(clk),
   //.spec(spec),
