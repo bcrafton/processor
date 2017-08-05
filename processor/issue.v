@@ -162,13 +162,63 @@ module issue(
   wire [`ADDR_WIDTH-1:0]           branch_taken_address [0:7];
   wire [`NUM_IQ_ENTRIES_LOG2-1:0]  iq_index             [0:7];
 
-  wire [`OP_CODE_BITS-1:0] opcode [0:7];
-  wire [`NUM_REG_MASKS-1:0] reg_vld_mask [0:7];
+  wire [`OP_CODE_BITS-1:0]       opcode [0:7];
+  wire [`NUM_REG_MASKS-1:0]      reg_vld_mask [0:7];
   wire [`NUM_REGISTERS_LOG2-1:0] reg_src0 [0:7];
   wire [`NUM_REGISTERS_LOG2-1:0] reg_src1 [0:7];
   wire [`NUM_REGISTERS_LOG2-1:0] reg_dest [0:7];
 
+
   //////////////
+
+  // OKAY SO THINK ABOUT THIS IN AN EXAMPLE, NOT JUST HOW TO FILL THIS MODULE IN.
+  rename_table rt(
+  .clk(clk),
+  .reset(),
+  .flush(flush), 
+
+  .oldest0(oldest0),
+  .oldest1(oldest1),
+  .flush_iq_index(flush_iq_index),
+
+  .push0(pop0 && ((reg_vld_mask[?] & `REG_MASK_RD) == `REG_MASK_RD)),
+  .push_reg_addr0(reg_dest[?]),
+  .push_rob_addr0(iq_index[pop_key0]),
+
+  .push1(pop1 && ((reg_vld_mask[?] & `REG_MASK_RD) == `REG_MASK_RD)),
+  .push_reg_addr1(reg_dest[?]),
+  .push_rob_addr1(iq_index[pop_key1]),
+
+  // this stuff is gonna be through the forwarding unit somehow.
+  // read reg -> rob
+  .read_reg_addr0_pipe0(reg_src0[?]),
+  .read_reg_addr1_pipe0(reg_src1[?]),
+
+  .read_rob_addr0_pipe0(),
+  .read_rob_addr1_pipe0(),
+
+  .read_rob_vld0_pipe0(),
+  .read_rob_vld1_pipe0(),
+
+  .read_reg_addr0_pipe1(reg_src0[?]),
+  .read_reg_addr1_pipe1(reg_src1[?]),
+
+  .read_rob_addr0_pipe1(),
+  .read_rob_addr1_pipe1(),
+
+  .read_rob_vld0_pipe1(),
+  .read_rob_vld1_pipe1(),
+
+  // pop reg -> rob
+  .pop0(retire0),
+  .pop_reg_addr0(rob_address0),
+  .pop_rob_addr0(oldest0),
+
+  .pop1(retire1),
+  .pop_rob_addr1(oldest1),
+  .pop_reg_addr1(rob_address1)
+
+  );
 
   score_board sb(
 
