@@ -168,6 +168,33 @@ module issue(
   wire [`NUM_REGISTERS_LOG2-1:0] reg_src1 [0:7];
   wire [`NUM_REGISTERS_LOG2-1:0] reg_dest [0:7];
 
+  wire [`NUM_REGISTERS_LOG2-1:0] push_reg_src0_pipe0;
+  wire [`NUM_REGISTERS_LOG2-1:0] push_reg_src1_pipe0
+  wire [`NUM_REGISTERS_LOG2-1:0] push_reg_dest_pipe0;
+  wire [`NUM_REG_MASKS-1:0]      push_reg_vld_mask_pipe0;
+  
+  wire [`NUM_REGISTERS_LOG2-1:0] push_reg_src0_pipe1;
+  wire [`NUM_REGISTERS_LOG2-1:0] push_reg_src1_pipe1
+  wire [`NUM_REGISTERS_LOG2-1:0] push_reg_dest_pipe1;
+  wire [`NUM_REG_MASKS-1:0]      push_reg_vld_mask_pipe1;
+
+
+  reg_depends push_reg_depends0(
+  .instruction(instruction0_in),
+  .reg_src0(push_reg_src0_pipe0),
+  .reg_src1(push_reg_src1_pipe0),
+  .reg_dest(reg_dest_pipe0),
+  .vld_mask(push_reg_vld_mask_pipe0)
+  );
+
+  reg_depends push_reg_depends0(
+  .instruction(instruction1_in),
+  .reg_src0(push_reg_src0_pipe1),
+  .reg_src1(push_reg_src1_pipe1),
+  .reg_dest(reg_dest_pipe1),
+  .vld_mask(push_reg_vld_mask_pipe1)
+  );
+
 
   //////////////
 
@@ -181,18 +208,18 @@ module issue(
   .oldest1(oldest1),
   .flush_iq_index(flush_iq_index),
 
-  .push0(pop0 && ((reg_vld_mask[?] & `REG_MASK_RD) == `REG_MASK_RD)),
-  .push_reg_addr0(reg_dest[?]),
-  .push_rob_addr0(iq_index[pop_key0]),
+  .push0(pop0 && ((reg_dest_pipe0 & `REG_MASK_RD) == `REG_MASK_RD)),
+  .push_reg_addr0(reg_dest_pipe0),
+  .push_rob_addr0(),
 
-  .push1(pop1 && ((reg_vld_mask[?] & `REG_MASK_RD) == `REG_MASK_RD)),
-  .push_reg_addr1(reg_dest[?]),
+  .push1(pop1 && ((reg_dest_pipe1 & `REG_MASK_RD) == `REG_MASK_RD)),
+  .push_reg_addr1(reg_dest_pipe1),
   .push_rob_addr1(iq_index[pop_key1]),
 
   // this stuff is gonna be through the forwarding unit somehow.
   // read reg -> rob
-  .read_reg_addr0_pipe0(reg_src0[?]),
-  .read_reg_addr1_pipe0(reg_src1[?]),
+  .read_reg_addr0_pipe0(reg_src0[wr_pointer0]),
+  .read_reg_addr1_pipe0(reg_src1[wr_pointer0]),
 
   .read_rob_addr0_pipe0(),
   .read_rob_addr1_pipe0(),
