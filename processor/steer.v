@@ -2,6 +2,7 @@
 
 module steer(
   clk,
+  reset, 
 
   instruction0_in,
   instruction1_in,
@@ -25,6 +26,7 @@ module steer(
   );
 
   input wire clk;
+  input wire reset;
 
   input wire [`INST_WIDTH-1:0] instruction0_in;
   input wire [`INST_WIDTH-1:0] instruction1_in;
@@ -70,7 +72,9 @@ module steer(
   assign instruction1_id = (cycle_count << `NUM_BITS_PIPE_ID) | tag1;
 
   always @(posedge clk) begin
-    if(stall == 0) begin
+    if(reset) begin
+      prev_stall <= steer_stall;  
+    end else if(stall == 0) begin
       prev_stall <= steer_stall;  
     end
   end

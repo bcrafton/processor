@@ -296,14 +296,46 @@ module processor(
 
   reg instruction_log_bit;
   always @(posedge clk) begin
-    instruction_log_bit = $log_id_ex(id_ex_instruction0_id, id_ex_reg_read_data_1_0, id_ex_reg_read_data_2_0, alu_input_mux_1_result0, alu_src_result0, id_ex_branch_taken, id_ex_branch_taken_address, id_ex_address0, alu_input_mux_1_result0[`ADDR_WIDTH-1:0]);
-    instruction_log_bit = $log_id_ex(id_ex_instruction1_id, id_ex_reg_read_data_1_1, id_ex_reg_read_data_2_1, alu_input_mux_1_result1, alu_src_result1, 0, 0, 0, 0);
 
-    instruction_log_bit = $log_ex_mem(ex_mem_instruction0_id, ram_read_data, ex_mem_data_2_1);
-    instruction_log_bit = $log_ex_mem(ex_mem_instruction1_id, ram_read_data, ex_mem_data_2_1);
+    instruction_log_bit = $log_id_ex(id_ex_instruction0_id, 
+                                     id_ex_reg_read_data_1_0, 
+                                     id_ex_reg_read_data_2_0, 
+                                     alu_input_mux_1_result0, 
+                                     alu_src_result0, 
+                                     id_ex_branch_taken, 
+                                     id_ex_branch_taken_address, 
+                                     id_ex_address0, 
+                                     alu_input_mux_1_result0[`ADDR_WIDTH-1:0]);
 
-    instruction_log_bit = $log_mem_wb(mem_wb_instruction0_id, $time, mem_wb_pc0, mem_wb_instruction0, mem_to_reg_result0);
-    instruction_log_bit = $log_mem_wb(mem_wb_instruction1_id, $time, mem_wb_pc1, mem_wb_instruction1, mem_to_reg_result1);
+    instruction_log_bit = $log_id_ex(id_ex_instruction1_id, 
+                                     id_ex_reg_read_data_1_1, 
+                                     id_ex_reg_read_data_2_1, 
+                                     alu_input_mux_1_result1, 
+                                     alu_src_result1, 
+                                     0, 
+                                     0, 
+                                     0, 
+                                     0);
+
+    instruction_log_bit = $log_ex_mem(ex_mem_instruction0_id, 
+                                      ram_read_data, 
+                                      ex_mem_data_2_1);
+
+    instruction_log_bit = $log_ex_mem(ex_mem_instruction1_id, 
+                                      ram_read_data, 
+                                      ex_mem_data_2_1);
+
+    instruction_log_bit = $log_mem_wb(mem_wb_instruction0_id, 
+                                      $time, 
+                                      mem_wb_pc0, 
+                                      mem_wb_instruction0, 
+                                      mem_to_reg_result0);
+
+    instruction_log_bit = $log_mem_wb(mem_wb_instruction1_id, 
+                                      $time, 
+                                      mem_wb_pc1, 
+                                      mem_wb_instruction1, 
+                                      mem_to_reg_result1);
   end
 
   program_counter pc_unit(
@@ -332,6 +364,7 @@ module processor(
 
   steer str(
   .clk(clk),
+  .reset(reset),
 
   .instruction0_in(instruction0),
   .instruction1_in(instruction1),
@@ -356,6 +389,7 @@ module processor(
 
   if_id_register if_id_reg0(
   .clk(clk), 
+  .reset(reset),
   .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush0[`IF_ID_MASK_INDEX]), 
   .stall(stall0[`IF_ID_MASK_INDEX]), 
   .nop(1'b0), 
@@ -377,6 +411,7 @@ module processor(
 
   if_id_register if_id_reg1(
   .clk(clk), 
+  .reset(reset),
   .flush(branch_flush[`IF_ID_MASK_INDEX] | hazard_flush1[`IF_ID_MASK_INDEX]), 
   .stall(stall1[`IF_ID_MASK_INDEX]), 
   .nop(1'b0), 
@@ -477,6 +512,7 @@ module processor(
 
   id_ex_register id_ex_reg0(
   .clk(clk), 
+  .reset(reset),
   .flush(branch_flush[`ID_EX_MASK_INDEX] | hazard_flush0[`ID_EX_MASK_INDEX]), 
   .stall(stall0[`ID_EX_MASK_INDEX]), 
   .nop(1'b0), 
@@ -530,6 +566,7 @@ module processor(
 
   id_ex_register id_ex_reg1(
   .clk(clk), 
+  .reset(reset),
   .flush(branch_flush[`ID_EX_MASK_INDEX] | hazard_flush1[`ID_EX_MASK_INDEX]), 
   .stall(stall1[`ID_EX_MASK_INDEX]), 
   .nop(1'b0), 
@@ -732,6 +769,7 @@ module processor(
 
   ex_mem_register ex_mem_reg0(
   .clk(clk), 
+  .reset(reset),
   .stall(1'b0),
   .flush(1'b0), 
   .nop(1'b0),
@@ -786,6 +824,7 @@ module processor(
 
   ex_mem_register ex_mem_reg1(
   .clk(clk), 
+  .reset(reset),
   .stall(1'b0),
   .flush(branch_flush[`EX_MEM_MASK_INDEX] && !id_ex_first), // need a better method for this.
   .nop(1'b0),
@@ -872,6 +911,7 @@ module processor(
 
   mem_wb_register mem_wb_reg0(
   .clk(clk), 
+  .reset(reset),
   .stall(1'b0),
   .flush(1'b0), 
   .nop(1'b0),
@@ -922,6 +962,7 @@ module processor(
 
   mem_wb_register mem_wb_reg1(
   .clk(clk), 
+  .reset(reset),
   .stall(1'b0),
   .flush(1'b0), 
   .nop(1'b0),

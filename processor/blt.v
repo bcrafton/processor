@@ -95,17 +95,6 @@ module blt(
     .out(write_address)
   );
 
-  initial begin
-    read_val = 0;
-    read_valid = 0;
-    for(i=0; i<`BLT_SIZE; i=i+1) begin
-      keys[i] = 0;
-      vals[i] = 0; 
-      valid[i] = 0;
-    end
-    current = 0;
-  end
-
   always @(*) begin
     if (read_match != 0) begin
       read_val = vals[read_address];

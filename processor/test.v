@@ -44,12 +44,22 @@ module test;
 
     init_bit <= $init(in_path, out_path);
 
+    reset <= 1;
 		clk <= 0;
+
 	end
 
   always #5 clk <= ~clk;
 
   always @(posedge clk) begin
+
+/*
+    if ($time > 5) begin
+      reset <= 0;
+    end
+*/
+
+    reset <= 0;
 
     //{reset, complete} <= $update($time);
     if($time > run_time) begin

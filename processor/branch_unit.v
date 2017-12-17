@@ -71,13 +71,6 @@ module branch_unit(
     .reset(reset)
   );
 
-  initial begin
-    flush = 0;
-    jump_address = 0;
-    branch_cond = 0;
-    is_branch = 0;
-  end
-
   always@(*) begin
   
     case(jop)

@@ -60,15 +60,6 @@ module hazard_detection_unit(
   reg [`NUM_REG_MASKS-1:0] src_mask1;
   reg [`NUM_REG_MASKS-1:0] dst_mask1;
 
-  initial begin
-    stall0 <= 0;
-    nop0 <= 0;
-    stall1 <= 0;
-    nop1 <= 0;
-    flush0 <= 0;
-    flush1 <= 0;
-  end
-
   always @(*) begin
 
     casex(if_id_opcode0)

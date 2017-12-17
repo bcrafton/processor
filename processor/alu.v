@@ -27,12 +27,6 @@ module alu
 
   output reg [`DATA_WIDTH-1:0] alu_result;
 
-  initial begin
-    zero <= 0;
-    less <= 0;
-    greater <= 0;
-  end
-
   always @(*) begin
 
     case(alu_op)
