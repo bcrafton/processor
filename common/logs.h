@@ -33,9 +33,11 @@ typedef struct instructon_log {
   unsigned int greater; // ex_mem, mem_wb
   unsigned int less; // ex_mem, mem_wb
 
-  unsigned int branch_taken; // ex_mem, mem_wb - flush ^ branch_taken
-  // we didnt take it and we shud have
-  // we took it and we shud have.
+
+  unsigned int branch_taken; 
+  unsigned int branch_taken_address;
+  unsigned int branch_imm_address;
+  unsigned int branch_reg_address;
 
 } instruction_log_t;
 

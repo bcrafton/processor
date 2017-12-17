@@ -157,6 +157,13 @@ PLI_INT32 sim_log_id_ex(char* user_data)
   unsigned int alu_in0;
   unsigned int alu_in1;
 
+  //unsigned int branch_pc; this shud be implicit
+
+  unsigned int branch_taken;
+  unsigned int branch_taken_address;
+  unsigned int branch_imm_address;
+  unsigned int branch_reg_address;
+
   iterator = vpi_iterate(vpiArgument, vhandle);
 
   arg = vpi_scan(iterator);
@@ -216,6 +223,46 @@ PLI_INT32 sim_log_id_ex(char* user_data)
     alu_in1 = 0;
   }
 
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    branch_taken = inval.value.vector[0].aval;
+  }
+  else {
+    branch_taken = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    branch_taken_address = inval.value.vector[0].aval;
+  }
+  else {
+    branch_taken_address = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    branch_imm_address = inval.value.vector[0].aval;
+  }
+  else {
+    branch_imm_address = 0;
+  }
+
+  arg = vpi_scan(iterator);
+  inval.format = vpiVectorVal;
+  vpi_get_value(arg, &inval);
+  if (inval.value.vector[0].bval == 0) {
+    branch_reg_address = inval.value.vector[0].aval;
+  }
+  else {
+    branch_reg_address = 0;
+  }
+
   instruction_log_t* log = get_instruction_log(&id);
   if(log == NULL)
   {
@@ -228,6 +275,12 @@ PLI_INT32 sim_log_id_ex(char* user_data)
     new_log->alu_in0 = alu_in0;
     new_log->alu_in1 = alu_in1;
 
+
+    new_log->branch_taken = branch_taken;
+    new_log->branch_taken_address = branch_taken_address;
+    new_log->branch_imm_address = branch_imm_address;
+    new_log->branch_reg_address = branch_reg_address;
+
     instruction_log(new_log);
   }
   else
@@ -237,6 +290,12 @@ PLI_INT32 sim_log_id_ex(char* user_data)
 
     log->alu_in0 = alu_in0;
     log->alu_in1 = alu_in1;
+
+
+    log->branch_taken = branch_taken;
+    log->branch_taken_address = branch_taken_address;
+    log->branch_imm_address = branch_imm_address;
+    log->branch_reg_address = branch_reg_address;
   }
 
   return 0;

@@ -1,3 +1,7 @@
+This project is currently on pause because I have started graduate school</br>
+I am not sure if I will come back to it</br>
+The latest code are on branches ooo, ooo1, ooo2.</br>
+
 # Compiler - Assembler - Processor
 This repository implements a compiler, assembler and a processor.
 ### Compiler
