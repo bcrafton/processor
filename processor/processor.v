@@ -279,6 +279,8 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
+/*
+
   // log perf metrics.
   reg perf_metrics_bit;
   always @(posedge clk) begin
@@ -295,7 +297,11 @@ module processor(
   end
 
   reg instruction_log_bit;
+
+
+
   always @(posedge clk) begin
+
 
     instruction_log_bit = $log_id_ex(id_ex_instruction0_id, 
                                      id_ex_reg_read_data_1_0, 
@@ -337,6 +343,8 @@ module processor(
                                       mem_wb_instruction1, 
                                       mem_to_reg_result1);
   end
+
+*/
 
   program_counter pc_unit(
   .clk(clk), 
