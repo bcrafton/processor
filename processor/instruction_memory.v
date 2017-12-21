@@ -13,8 +13,8 @@ module instruction_memory(
   output reg [`INST_WIDTH-1:0] instruction1;
 
   always @(*) begin 
-    instruction0 = $mem_read(pc, `IMEM_ID);
-    instruction1 = $mem_read(pc+1, `IMEM_ID);
+    // instruction0 = $mem_read(pc, `IMEM_ID);
+    // instruction1 = $mem_read(pc+1, `IMEM_ID);
   end
 
 endmodule

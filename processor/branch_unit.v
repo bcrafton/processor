@@ -50,11 +50,11 @@ module branch_unit(
   output wire [`ADDR_WIDTH-1:0] branch_predict;
   output wire take_branch;
 
-  wire blt_write = is_branch;
-  wire hit = branch_cond | (jop == `JMP_OP_JR);
-
   reg branch_cond;
   reg is_branch;
+
+  wire blt_write = is_branch;
+  wire hit = branch_cond | (jop == `JMP_OP_JR);
 
   blt l(
     .clk(clk),

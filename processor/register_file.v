@@ -36,24 +36,24 @@ module register_file(
 
     if (write) begin
       //$display("writing %d %d %d\n", $time, write_address, write_data);
-      write_bit = $mem_write(write_address, write_data, `REGFILE_ID);
+      // write_bit = $mem_write(write_address, write_data, `REGFILE_ID);
     end
 
     if (other_write) begin
       if (other_write_address == read_address_1) begin
         read_data_1 = other_write_data;
       end else begin
-        read_data_1 = $mem_read(read_address_1, `REGFILE_ID);
+        // read_data_1 = $mem_read(read_address_1, `REGFILE_ID);
       end
 
       if (other_write_address == read_address_2) begin
         read_data_2 = other_write_data;
       end else begin
-        read_data_2 = $mem_read(read_address_2, `REGFILE_ID);
+        // read_data_2 = $mem_read(read_address_2, `REGFILE_ID);
       end
     end else begin
-      read_data_1 = $mem_read(read_address_1, `REGFILE_ID);
-      read_data_2 = $mem_read(read_address_2, `REGFILE_ID);
+      // read_data_1 = $mem_read(read_address_1, `REGFILE_ID);
+      // read_data_2 = $mem_read(read_address_2, `REGFILE_ID);
     end
 
 
