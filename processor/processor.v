@@ -7,9 +7,13 @@ module processor(
   reset,
   complete,
 
+  pc,
+  instruction0,
+  instruction1,
+
   address_out,
   write_data_out,
-  read_data_out,
+  read_data_in,
   mem_op_out
   
   );
@@ -20,8 +24,14 @@ module processor(
 
   output [`ADDR_WIDTH-1:0] address_out;
   output [`DATA_WIDTH-1:0] write_data_out;
-  input  [`DATA_WIDTH-1:0] read_data_out;
+  input  [`DATA_WIDTH-1:0] read_data_in;
   output [`MEM_OP_BITS-1:0] mem_op_out;
+
+  output [`ADDR_WIDTH-1:0] pc;
+  input [`INST_WIDTH-1:0] instruction0;
+  input [`INST_WIDTH-1:0] instruction1;
+
+  //////////////////////////////////////
 
   wire reg_dst0;
   wire mem_to_reg0;
@@ -70,10 +80,6 @@ module processor(
 
   wire [`ADDR_WIDTH-1:0] address_src_result0;
   wire [`ADDR_WIDTH-1:0] address_src_result1;
-
-  wire [`ADDR_WIDTH-1:0] pc;
-  wire [`INST_WIDTH-1:0] instruction0;
-  wire [`INST_WIDTH-1:0] instruction1;
   
   wire [`INST_WIDTH-1:0] steer_instruction0;
   wire [`INST_WIDTH-1:0] steer_instruction1;
@@ -272,6 +278,11 @@ module processor(
 
   wire [`INSTRUCTION_ID_WIDTH-1:0] cycle_count;
 
+  assign address_out = ex_mem_address_src_result1;
+  assign write_data_out = ex_mem_data_2_1;
+  assign ram_read_data = read_data_in;
+  assign mem_op_out = ex_mem_mem_op1;
+
   assign opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
   assign rs0 = if_id_instruction0[`REG_RS_MSB:`REG_RS_LSB];
   assign rt0 = if_id_instruction0[`REG_RT_MSB:`REG_RT_LSB];
@@ -374,12 +385,6 @@ module processor(
 
   .cycle_count(cycle_count)
   );
-  
-  instruction_memory im(
-  .reset(reset),
-  .pc(pc), 
-  .instruction0(instruction0),
-  .instruction1(instruction1));
 
   steer str(
   .clk(clk),
@@ -892,15 +897,6 @@ module processor(
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
-
-  ram data_memory(
-  .reset(reset),
-  .complete(complete),
-
-  .address(ex_mem_address_src_result1), 
-  .write_data(ex_mem_data_2_1), 
-  .read_data(ram_read_data), 
-  .mem_op(ex_mem_mem_op1));
 
   branch_unit bu(
   .clk(clk),
