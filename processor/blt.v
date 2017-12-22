@@ -97,10 +97,10 @@ module blt(
 
   always @(*) begin
     if (read_match != 0 && !reset) begin
-      //read_val = vals[read_address];
-      //read_valid = (valid[read_address] == `TAKE_BRANCH1) | (valid[read_address] == `TAKE_BRANCH2);
+      read_val = vals[read_address];
+      read_valid = (valid[read_address] == `TAKE_BRANCH1) | (valid[read_address] == `TAKE_BRANCH2);
     end else begin
-      //read_valid = 0;
+      read_valid = 0;
     end
   end
 

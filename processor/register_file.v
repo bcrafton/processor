@@ -56,11 +56,32 @@ module register_file(
 
   always @(*) begin
 
+/*
+    if (write1 && (read_address_1_1 == write_address1 || 
+        read_address_1_2 == write_address1 || 
+        read_address_2_1 == write_address1 || 
+        read_address_2_2 == write_address1) ) begin
+      
+      $display("Same read and write same address %d", $time);
+
+    end
+
+    if (write2 && 
+       (read_address_1_1 == write_address2 || 
+        read_address_1_2 == write_address2 || 
+        read_address_2_1 == write_address2 || 
+        read_address_2_2 == write_address2) ) begin
+      
+      $display("Same read and write same address %d", $time);
+
+    end
+*/
+
     // I DO NOT BELIEVE THE OTHER WRITE THING IS NECESSARY BECAUSE WE HAVE REMOVED THE FUNCTION.
 
     if (reset) begin
       for(i=0; i<`NUM_REGISTERS; i=i+1) begin
-        regfile[i] <= 0;
+        regfile[i] = 0;
       end
     end
 

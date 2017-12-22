@@ -46,14 +46,14 @@ module alu
       `ALU_OP_SHL: alu_result = data1 << data2;
       `ALU_OP_XOR: alu_result = data1 ^ data2;
       `ALU_OP_CMP: begin
-          zero <= ((data1 - data2) == 0) ? 1'b1 : 1'b0;
-          less <= (data1 < data2) ? 1'b1 : 1'b0;
-          greater <= (data1 > data2) ? 1'b1 : 1'b0;
+          zero = ((data1 - data2) == 0) ? 1'b1 : 1'b0;
+          less = (data1 < data2) ? 1'b1 : 1'b0;
+          greater = (data1 > data2) ? 1'b1 : 1'b0;
       end
       `ALU_OP_TEST: begin
-          zero <= ((data1 & data2) == 0) ? 1'b1 : 1'b0;
-          less <= (data1 < data2) ? 1'b1 : 1'b0;
-          greater <= (data1 > data2) ? 1'b1 : 1'b0;
+          zero = ((data1 & data2) == 0) ? 1'b1 : 1'b0;
+          less = (data1 < data2) ? 1'b1 : 1'b0;
+          greater = (data1 > data2) ? 1'b1 : 1'b0;
       end
       `ALU_OP_NOP: alu_result = `GARBAGE;
       default: alu_result = `GARBAGE;

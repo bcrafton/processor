@@ -279,8 +279,6 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
-/*
-
   // log perf metrics.
   reg perf_metrics_bit;
   always @(posedge clk) begin
@@ -344,7 +342,6 @@ module processor(
                                       mem_to_reg_result1);
   end
 
-*/
 
   program_counter pc_unit(
   .clk(clk), 
@@ -507,10 +504,10 @@ module processor(
   .read_address_2_1(rt0), 
   .read_data_2_1(reg_read_data_2_0),
 
-  .read_address_1_2(rs0), 
-  .read_data_1_2(reg_read_data_1_0), 
-  .read_address_2_2(rt0), 
-  .read_data_2_2(reg_read_data_2_0)
+  .read_address_1_2(rs1), 
+  .read_data_1_2(reg_read_data_1_1), 
+  .read_address_2_2(rt1), 
+  .read_data_2_2(reg_read_data_2_1)
   );
 
   id_ex_register id_ex_reg0(
