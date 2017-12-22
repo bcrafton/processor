@@ -279,6 +279,8 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
+`ifdef SIMULATION
+
   // log perf metrics.
   reg perf_metrics_bit;
   always @(posedge clk) begin
@@ -295,8 +297,6 @@ module processor(
   end
 
   reg instruction_log_bit;
-
-
 
   always @(posedge clk) begin
 
@@ -341,6 +341,8 @@ module processor(
                                       mem_wb_instruction1, 
                                       mem_to_reg_result1);
   end
+
+`endif
 
 
   program_counter pc_unit(
