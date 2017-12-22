@@ -5,12 +5,23 @@
 module processor(
   clk,
   reset,
-  complete
+  complete,
+
+  address_out,
+  write_data_out,
+  read_data_out,
+  mem_op_out
+  
   );
 	 
   input clk;
   input reset;
   input complete;
+
+  output [`ADDR_WIDTH-1:0] address_out;
+  output [`DATA_WIDTH-1:0] write_data_out;
+  input  [`DATA_WIDTH-1:0] read_data_out;
+  output [`MEM_OP_BITS-1:0] mem_op_out;
 
   wire reg_dst0;
   wire mem_to_reg0;
