@@ -6,12 +6,13 @@ module test;
 
 	// Inputs
 	reg clk;
-  reg complete;
   reg reset;
+  reg complete;
 
 	processor p (
 		.clk(clk),
-		.reset(reset)
+		.reset(reset),
+    .complete(complete)
 	);
 
   reg init_bit;
@@ -40,12 +41,13 @@ module test;
     end
 
     $dumpfile("test.vcd");
-    $dumpvars(0,test);
+    $dumpvars(0, test);
 
     init_bit <= $init(in_path, out_path);
 
     reset <= 1;
 		clk <= 0;
+    complete <= 0;
 
 	end
 
@@ -53,17 +55,12 @@ module test;
 
   always @(posedge clk) begin
 
-/*
-    if ($time > 5) begin
-      reset <= 0;
-    end
-*/
-
     reset <= 0;
 
-    //{reset, complete} <= $update($time);
     if($time > run_time) begin
       dump_bit <= $dump($time);
+      complete <= 1;
+      #1 // i dont know why we need this
       $finish;
     end
 

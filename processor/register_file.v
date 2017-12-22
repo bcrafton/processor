@@ -1,5 +1,6 @@
 module register_file(
   reset, 
+  complete,
 
   write1,
   write_address1,
@@ -23,6 +24,7 @@ module register_file(
  // reg [`DATA_WIDTH-1:0] regfile [0:`NUM_REGISTERS-1];
 
   input wire reset;
+  input wire complete;
 
   // write
 
@@ -53,31 +55,9 @@ module register_file(
   reg [`DATA_WIDTH-1:0] regfile [0:`NUM_REGISTERS-1];
 
   integer i;
+  integer f;
 
   always @(*) begin
-
-/*
-    if (write1 && (read_address_1_1 == write_address1 || 
-        read_address_1_2 == write_address1 || 
-        read_address_2_1 == write_address1 || 
-        read_address_2_2 == write_address1) ) begin
-      
-      $display("Same read and write same address %d", $time);
-
-    end
-
-    if (write2 && 
-       (read_address_1_1 == write_address2 || 
-        read_address_1_2 == write_address2 || 
-        read_address_2_1 == write_address2 || 
-        read_address_2_2 == write_address2) ) begin
-      
-      $display("Same read and write same address %d", $time);
-
-    end
-*/
-
-    // I DO NOT BELIEVE THE OTHER WRITE THING IS NECESSARY BECAUSE WE HAVE REMOVED THE FUNCTION.
 
     if (reset) begin
       for(i=0; i<`NUM_REGISTERS; i=i+1) begin
@@ -98,26 +78,20 @@ module register_file(
     read_data_1_2 = regfile[read_address_1_2];
     read_data_2_2 = regfile[read_address_2_2];
 
-/*
-    if (other_write) begin
-      if (other_write_address == read_address_1) begin
-        read_data_1 = other_write_data;
-      end else begin
-        read_data_1 = regfile[read_address_1];
-      end
-
-      if (other_write_address == read_address_2) begin
-        read_data_2 = other_write_data;
-      end else begin
-        read_data_2 = regfile[read_address_2];
-      end
-    end else begin
-      read_data_1 = regfile[read_address_1];
-      read_data_2 = regfile[read_address_2];
-    end
-*/
-
   end
+
+  always @(*) begin
+    if (complete) begin
+      // $display("Running complete code regfile");
+      f = $fopen("/home/brian/Desktop/processor/test_bench/out/sim/to_10.bc.s.hex/reg", "w");
+      for(i=0; i<`NUM_REGISTERS; i=i+1) begin
+        $fwrite(f, "%h\n", regfile[i]);
+      end
+      $fclose(f);
+      // $display("Complete code regfile");
+    end
+  end
+
 
 endmodule
 
