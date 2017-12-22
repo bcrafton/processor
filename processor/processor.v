@@ -366,6 +366,7 @@ module processor(
   );
   
   instruction_memory im(
+  .reset(reset),
   .pc(pc), 
   .instruction0(instruction0),
   .instruction1(instruction1));
@@ -490,32 +491,26 @@ module processor(
   .jop(jop1),
   .address_src(address_src1));
 
-  register_file regfile0( 
-  .write(mem_wb_reg_write0), 
-  .write_address(mem_wb_reg_dst_result0), 
-  .write_data(mem_to_reg_result0), 
-  .read_address_1(rs0), 
-  .read_data_1(reg_read_data_1_0), 
-  .read_address_2(rt0), 
-  .read_data_2(reg_read_data_2_0),
+  register_file regfile( 
+  .reset(reset),
 
-  .other_write(mem_wb_reg_write1),
-  .other_write_address(mem_wb_reg_dst_result1),
-  .other_write_data(mem_to_reg_result1)
-  );
+  .write1(mem_wb_reg_write0), 
+  .write2(mem_wb_reg_write1), 
 
-  register_file regfile1( 
-  .write(mem_wb_reg_write1), 
-  .write_address(mem_wb_reg_dst_result1), 
-  .write_data(mem_to_reg_result1), 
-  .read_address_1(rs1), 
-  .read_data_1(reg_read_data_1_1), 
-  .read_address_2(rt1), 
-  .read_data_2(reg_read_data_2_1),
+  .write_address1(mem_wb_reg_dst_result0), 
+  .write_data1(mem_to_reg_result0), 
+  .write_address2(mem_wb_reg_dst_result1), 
+  .write_data2(mem_to_reg_result1), 
 
-  .other_write(mem_wb_reg_write0),
-  .other_write_address(mem_wb_reg_dst_result0),
-  .other_write_data(mem_to_reg_result0)
+  .read_address_1_1(rs0), 
+  .read_data_1_1(reg_read_data_1_0), 
+  .read_address_2_1(rt0), 
+  .read_data_2_1(reg_read_data_2_0),
+
+  .read_address_1_2(rs0), 
+  .read_data_1_2(reg_read_data_1_0), 
+  .read_address_2_2(rt0), 
+  .read_data_2_2(reg_read_data_2_0)
   );
 
   id_ex_register id_ex_reg0(
@@ -888,6 +883,7 @@ module processor(
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   ram data_memory(
+  .reset(reset),
   .address(ex_mem_address_src_result1), 
   .write_data(ex_mem_data_2_1), 
   .read_data(ram_read_data), 
