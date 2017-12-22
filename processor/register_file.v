@@ -80,6 +80,8 @@ module register_file(
 
   end
 
+`ifdef SIMULATION
+
   always @(*) begin
     if (complete) begin
       // $display("Running complete code regfile");
@@ -92,6 +94,7 @@ module register_file(
     end
   end
 
+`endif
 
 endmodule
 

@@ -44,6 +44,8 @@ module ram (
   
   end
 
+`ifdef SIMULATION
+
   always @(*) begin
     if (complete) begin
       // $display("Running complete code ram");
@@ -56,5 +58,6 @@ module ram (
     end
   end
 
+`endif
 
 endmodule
