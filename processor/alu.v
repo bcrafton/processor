@@ -1,10 +1,6 @@
 `timescale 1ns / 1ps
 
-// this was causing issues, even though probably shouldnt be
-// anyways, this parameter thing is actually better i think
-// module level assings, versus processor level
-// debatable which is better.
-//`include "defines.vh"
+`include "defines.vh"
 
 module alu
   (

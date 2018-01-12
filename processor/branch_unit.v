@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+`include "defines.vh"
+
 module branch_unit(
   clk,
 
@@ -56,6 +58,7 @@ module branch_unit(
   wire blt_write = is_branch;
   wire hit = branch_cond | (jop == `JMP_OP_JR);
 
+/*
   blt l(
     .clk(clk),
 
@@ -70,6 +73,7 @@ module branch_unit(
 
     .reset(reset)
   );
+*/
 
   always@(*) begin
   

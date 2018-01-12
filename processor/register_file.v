@@ -1,3 +1,7 @@
+`timescale 1ns / 1ps
+
+`include "defines.vh"
+
 module register_file(
   reset, 
   complete,
@@ -79,22 +83,6 @@ module register_file(
     read_data_2_2 = regfile[read_address_2_2];
 
   end
-
-`ifdef SIMULATION
-
-  always @(*) begin
-    if (complete) begin
-      // $display("Running complete code regfile");
-      f = $fopen("/home/brian/Desktop/processor/test_bench/out/sim/to_10.bc.s.hex/reg", "w");
-      for(i=0; i<`NUM_REGISTERS; i=i+1) begin
-        $fwrite(f, "%h\n", regfile[i]);
-      end
-      $fclose(f);
-      // $display("Complete code regfile");
-    end
-  end
-
-`endif
 
 endmodule
 

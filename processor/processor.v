@@ -3,9 +3,11 @@
 `include "defines.vh"
 
 module processor(
-  clk,
+  clk_fast,
   reset,
   complete,
+  seg,
+  an,
 
   pc,
   instruction0,
@@ -13,23 +15,40 @@ module processor(
 
   address_out,
   write_data_out,
-  read_data_in,
+  // read_data_in,
+  read_data_out,
   mem_op_out
   
   );
 	 
-  input clk;
+  input clk_fast;
   input reset;
   input complete;
+  
+  wire clk;
+  output [7:0] seg;
+  output [3:0] an;
 
   output [`ADDR_WIDTH-1:0] address_out;
   output [`DATA_WIDTH-1:0] write_data_out;
-  input  [`DATA_WIDTH-1:0] read_data_in;
+  
+  // input  [`DATA_WIDTH-1:0] read_data_in;
+  output  [`DATA_WIDTH-1:0] read_data_out;
+  
   output [`MEM_OP_BITS-1:0] mem_op_out;
 
   output [`ADDR_WIDTH-1:0] pc;
-  input [`INST_WIDTH-1:0] instruction0;
-  input [`INST_WIDTH-1:0] instruction1;
+  output [`INST_WIDTH-1:0] instruction0;
+  output [`INST_WIDTH-1:0] instruction1;
+  
+  // wire [`ADDR_WIDTH-1:0] address_out;
+  // wire [`DATA_WIDTH-1:0] write_data_out;
+  // wire [`DATA_WIDTH-1:0] read_data_in;
+  // wire [`MEM_OP_BITS-1:0] mem_op_out;
+
+  // wire [`ADDR_WIDTH-1:0] pc;
+  // wire [`INST_WIDTH-1:0] instruction0;
+  // wire [`INST_WIDTH-1:0] instruction1;
 
   //////////////////////////////////////
 
@@ -280,7 +299,8 @@ module processor(
 
   assign address_out = ex_mem_address_src_result1;
   assign write_data_out = ex_mem_data_2_1;
-  assign ram_read_data = read_data_in;
+  // assign ram_read_data = read_data_in;
+  assign read_data_out = ram_read_data;
   assign mem_op_out = ex_mem_mem_op1;
 
   assign opcode0 = if_id_instruction0[`OPCODE_MSB:`OPCODE_LSB];
@@ -301,71 +321,54 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
-`ifdef SIMULATION
+	wire clk_med;
 
-  // log perf metrics.
-  reg perf_metrics_bit;
-  always @(posedge clk) begin
-    perf_metrics_bit = $perf_metrics(
-      $time, 
-      stall0,
-      stall1,
-      steer_stall,
-      branch_flush,
-      id_ex_jop0,
-      id_ex_pc0,
-      mem_wb_instruction0,
-      mem_wb_instruction1);
-  end
+	clock_div20 div20(
+	.clk(clk_fast),
+	.reset(reset),
+	.clk_div(clk_med)
+	);
+	
+	clock_div24 div24(
+	.clk(clk_fast),
+	.reset(reset),
+	.clk_div(clk)
+	);
+	
+	reg [15:0] display_val;
+	always @(posedge clk) begin
+		if (reset) begin
+			display_val <= 0;
+		end else begin
+			display_val <= display_val + 1;
+		end
+	end
+	
+	display dis(
+	.clk(clk_med),
+	.reset(reset),
+	//.in( display_val ),
+	.in(display_val),
+	.seg(seg),
+	.an(an)
+	);
 
-  reg instruction_log_bit;
+  instruction_memory im(
+  .reset(reset),
+  .pc(pc), 
+  .instruction0(instruction0),
+  .instruction1(instruction1)
+  );
 
-  always @(posedge clk) begin
+  data_memory dm(
+	.reset(reset),
+	.complete(complete),
 
-
-    instruction_log_bit = $log_id_ex(id_ex_instruction0_id, 
-                                     id_ex_reg_read_data_1_0, 
-                                     id_ex_reg_read_data_2_0, 
-                                     alu_input_mux_1_result0, 
-                                     alu_src_result0, 
-                                     id_ex_branch_taken, 
-                                     id_ex_branch_taken_address, 
-                                     id_ex_address0, 
-                                     alu_input_mux_1_result0[`ADDR_WIDTH-1:0]);
-
-    instruction_log_bit = $log_id_ex(id_ex_instruction1_id, 
-                                     id_ex_reg_read_data_1_1, 
-                                     id_ex_reg_read_data_2_1, 
-                                     alu_input_mux_1_result1, 
-                                     alu_src_result1, 
-                                     0, 
-                                     0, 
-                                     0, 
-                                     0);
-
-    instruction_log_bit = $log_ex_mem(ex_mem_instruction0_id, 
-                                      ram_read_data, 
-                                      ex_mem_data_2_1);
-
-    instruction_log_bit = $log_ex_mem(ex_mem_instruction1_id, 
-                                      ram_read_data, 
-                                      ex_mem_data_2_1);
-
-    instruction_log_bit = $log_mem_wb(mem_wb_instruction0_id, 
-                                      $time, 
-                                      mem_wb_pc0, 
-                                      mem_wb_instruction0, 
-                                      mem_to_reg_result0);
-
-    instruction_log_bit = $log_mem_wb(mem_wb_instruction1_id, 
-                                      $time, 
-                                      mem_wb_pc1, 
-                                      mem_wb_instruction1, 
-                                      mem_to_reg_result1);
-  end
-
-`endif
-
+	.address(address_out),
+	.write_data(write_data_out),
+	.read_data(ram_read_data),
+	.mem_op(mem_op_out)
+  );
 
   program_counter pc_unit(
   .clk(clk), 

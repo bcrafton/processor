@@ -1,7 +1,7 @@
 `ifndef _defines_vh_
 `define _defines_vh_
 
-`define SIMULATION
+// `define SIMULATION
 
 `define IMEMORY_SIZE 256
 `define DMEMORY_SIZE 1024

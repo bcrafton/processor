@@ -1,6 +1,8 @@
+`timescale 1ns / 1ps
+
 `include "defines.vh"
 
-module ram (
+module data_memory (
   reset,
   complete,
 
@@ -43,21 +45,5 @@ module ram (
     end
   
   end
-
-`ifdef SIMULATION
-
-  always @(*) begin
-    if (complete) begin
-      // $display("Running complete code ram");
-      f = $fopen("/home/brian/Desktop/processor/test_bench/out/sim/to_10.bc.s.hex/mem", "w");
-      for(i=0; i<`DMEMORY_SIZE; i=i+1) begin
-        $fwrite(f, "%h\n", mem[i]);
-      end
-      $fclose(f);
-      // $display("Complete code ram");
-    end
-  end
-
-`endif
 
 endmodule

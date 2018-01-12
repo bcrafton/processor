@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
-// for this module, need to define all the control values in defines.
-// make it parameterizable based on the number of possible control values.
+`include "defines.vh"
+
 module control_unit(
   opcode,
   reg_dst,
