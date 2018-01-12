@@ -22,7 +22,9 @@ module register_file(
   read_address_1_2,
   read_data_1_2,
   read_address_2_2,
-  read_data_2_2
+  read_data_2_2,
+  
+  eax
   );
 
  // reg [`DATA_WIDTH-1:0] regfile [0:`NUM_REGISTERS-1];
@@ -52,6 +54,9 @@ module register_file(
   output reg [`DATA_WIDTH-1:0] read_data_1_2;
   input wire [`NUM_REGISTERS_LOG2-1:0] read_address_2_2;
   output reg [`DATA_WIDTH-1:0] read_data_2_2;
+
+  output wire [`DATA_WIDTH-1:0] eax;
+  assign eax = regfile[0];
 
   reg write_bit;
 

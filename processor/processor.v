@@ -321,6 +321,7 @@ module processor(
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
+   wire [`DATA_WIDTH-1:0] eax;
 	wire clk_med;
 
 	clock_div20 div20(
@@ -348,7 +349,9 @@ module processor(
 	.clk(clk_med),
 	.reset(reset),
 	//.in( display_val ),
-	.in(display_val),
+	//.in( {mem_to_reg_result0[7:0], display_val[7:0]} ),
+	//.in( mem_to_reg_result0[15:0] ),
+	.in( eax[15:0] ),
 	.seg(seg),
 	.an(an)
 	);
@@ -529,7 +532,9 @@ module processor(
   .read_address_1_2(rs1), 
   .read_data_1_2(reg_read_data_1_1), 
   .read_address_2_2(rt1), 
-  .read_data_2_2(reg_read_data_2_1)
+  .read_data_2_2(reg_read_data_2_1),
+  
+  .eax(eax)
   );
 
   id_ex_register id_ex_reg0(
