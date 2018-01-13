@@ -3,6 +3,7 @@
 `include "defines.vh"
 
 module register_file(
+  clk,
   reset, 
   complete,
 
@@ -29,6 +30,7 @@ module register_file(
 
  // reg [`DATA_WIDTH-1:0] regfile [0:`NUM_REGISTERS-1];
 
+  input wire clk;
   input wire reset;
   input wire complete;
 
@@ -66,7 +68,7 @@ module register_file(
   integer i;
   integer f;
 
-  always @(*) begin
+  always @(posedge clk) begin
 
     if (reset) begin
       for(i=0; i<`NUM_REGISTERS; i=i+1) begin

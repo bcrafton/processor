@@ -3,6 +3,7 @@
 `include "defines.vh"
 
 module data_memory (
+  clk,
   reset,
   complete,
 
@@ -12,6 +13,7 @@ module data_memory (
   mem_op,
   ); 
 
+  input wire clk;
   input wire reset;
   input wire complete;
 
@@ -19,16 +21,27 @@ module data_memory (
   input [`MEM_OP_BITS-1:0] mem_op;
 
   input [`DATA_WIDTH-1:0] write_data;
-  output reg [`DATA_WIDTH-1:0] read_data;
+  output wire [`DATA_WIDTH-1:0] read_data;
 
-  reg [`DATA_WIDTH-1:0] mem [0:`DMEMORY_SIZE-1];
+  // reg [`DATA_WIDTH-1:0] mem [0:`DMEMORY_SIZE-1];
   reg write_bit;
 
   integer i;
   integer f;
+  
+  	blk_mem_gen_v7_3 BRAM1 (
+      .clka        (clk), 
+      .wea         ( (mem_op == `MEM_OP_WRITE) ),
+      .addra       (address),
+      .dina        (write_data),
+      .clkb        (clk),
+      .addrb       (address),
+		.doutb       (read_data)
+	);
 
   // combinational logic
-  always @(*) begin
+  /*
+  always @(posedge clk) begin
 
     if (reset) begin
 
@@ -45,5 +58,6 @@ module data_memory (
     end
   
   end
+  */
 
 endmodule

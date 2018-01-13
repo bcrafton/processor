@@ -357,13 +357,30 @@ module processor(
 	);
 
   instruction_memory im(
+  .clk(clk),
   .reset(reset),
   .pc(pc), 
   .instruction0(instruction0),
   .instruction1(instruction1)
   );
+  
+  wire [`DATA_WIDTH-1:0] bram_data_out; 
+  wire [3:0]             bram_parity_out;
+  
+   RAMB16_S36 BRAM (
+      .DI        (instruction0), 
+      .DIP       (4'b1010),
+      .ADDR      (instruction0[8:0]),
+      .EN        (1'b1),
+      .WE        (1'b1),
+      .SSR       (reset),
+      .CLK       (clk),
+      .DO        (bram_data_out), //has to be a net value
+      .DOP       (bram_parity_out) //parity --- no parity bits
+   );
 
   data_memory dm(
+   .clk(clk),
 	.reset(reset),
 	.complete(complete),
 
@@ -513,6 +530,7 @@ module processor(
   .address_src(address_src1));
 
   register_file regfile( 
+  .clk(clk),
   .reset(reset),
   .complete(complete),
 
